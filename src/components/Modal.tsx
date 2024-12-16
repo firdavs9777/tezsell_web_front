@@ -1,5 +1,6 @@
 import React from 'react';
-import './Modal.css'; // Make sure to create the corresponding CSS file
+import './Modal.css'; 
+import { IoClose } from 'react-icons/io5';
 
 interface ModalProps {
   isOpen: boolean;
@@ -13,10 +14,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        {children}
         <button className="close-modal" onClick={onClose}>
-          Apply
+          <IoClose size={24} />
         </button>
+        {children}
+      
       </div>
     </div>
   );

@@ -84,6 +84,14 @@ export interface UserLocation {
   region: string;
   district: string;
 }
+interface Region {
+  region: string;
+  districts: string[];
+}
+export interface AllLocationList {
+  success: boolean,
+  regions: Region[]
+}
 export interface RegionsList {
   success: boolean,
   regions:{ region: string } []

@@ -1,6 +1,7 @@
 .product-card {
   display: flex;
   flex-direction: column;
+  justify-content: start;
   border: 1px solid #eee5e5;
   border-radius: 15px;
   margin: 10px;
@@ -32,7 +33,9 @@
   font-weight: bold;
 }
 
-.product-title,
+.product-title {
+  font-size: 20px;
+}
 .product-location,
 .product-created-at {
   font-size: 14px;

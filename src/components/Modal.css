@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, 0.5); /* Transparent black background */
+  background-color: rgba(0, 0, 0, 0.5); /* Transparent black background */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -15,28 +15,33 @@
   background-color: white;
   padding: 20px;
   border-radius: 8px;
-  width: 300px;
+  min-width: 700px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   text-align: center;
+  position: relative; 
+  max-height: 80vh; /* Limit the height to 80% of the viewport */
+  overflow-y:scroll
+  /* To position the close button inside the modal */
 }
 
 .close-modal {
-  padding: 8px 16px;
-  background-color: #007bff;
-  color: white;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  color: #333;
 }
 
 .close-modal:hover {
-  background-color: #0056b3;
+  color: #e74c3c; /* Red color on hover */
+  transition: color 0.3s ease;
 }
+
 ul {
   list-style-type: none;
   padding: 0;
-
 }
 
 li {
@@ -47,4 +52,5 @@ li {
 
 li:hover {
   background-color: #f0f0f0;
+  color: #08b3f7;
 }

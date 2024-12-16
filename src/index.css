@@ -1,0 +1,16 @@
+/* Reset body and html margins/paddings */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%; /* Ensure the body takes up full height */
+  width: 100%;  /* Ensure the body takes up full width */
+  overflow-x: hidden; /* Prevent horizontal scroll if necessary */
+}
+
+body {
+  font-family: Arial, sans-serif; /* Or any font of your choice */
+}
+
+* {
+  box-sizing: border-box; /* Makes sure padding doesn't cause layout issues */
+}
