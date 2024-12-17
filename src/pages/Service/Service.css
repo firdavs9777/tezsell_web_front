@@ -1,21 +1,21 @@
 
-.search-area {
+.service-search-area {
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
   padding: 15px;
   gap: 15px;
-  background-color: #f7f7f7;
+  background-color: #e0f7fa;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);  
   margin-bottom: 20px;
 }
 
-.search-category {
+.service-search-category {
   padding: 12px 20px;
-  background-color: #FFA500;
-  color: #fff;
+   background-color: #00796b;  
+  color: #ffffff; 
   font-size: 16px;
   border: none;
   border-radius: 50px;

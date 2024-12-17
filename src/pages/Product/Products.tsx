@@ -40,6 +40,7 @@ const ProductScreen = () => {
   const { data, isLoading, error, refetch } = useGetProductsQuery({ currentPage, page_size: pageSize, category_name: selectedCategory, region_name: selectedRegion, district_name: selectedDistrict, product_title: searchProductQuery });
 
   const products: ProductResponse = data as ProductResponse;
+
   const location_info: AllLocationList = all_location as AllLocationList;
   const categories: Category[] = data_category as Category[];
   

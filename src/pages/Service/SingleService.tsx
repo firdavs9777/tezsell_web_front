@@ -14,7 +14,7 @@ interface SingleServiceProps {
   service: Service;
 }
 
-const SingleProduct: React.FC<SingleServiceProps> = ({ service }) => {
+const SingleService: React.FC<SingleServiceProps> = ({ service }) => {
   return (
     <div className="service-card">
       <div className="image-container">
@@ -29,29 +29,25 @@ const SingleProduct: React.FC<SingleServiceProps> = ({ service }) => {
         )}
       </div>
       <div className="service-details">
-        <h3 className="service-title">{service.name}</h3>
-        <p className="service-location">
-          <FaMapMarkerAlt className='service-map-icon' />
-          {service.location.region} - {service.location.district}
+        <p className='service-category'>{service.category.name}</p>
+        <h2 className="service-title">{service.name.length > 20 ? `${service.name.substring(0, 26)}` : service.name}</h2>
+        <p className="service-description">
+          <strong>{service.description.length > 34 ? `${service.description.substring(0, 34)}...` : service.description}</strong>
         </p>
-        <div className="service-meta">
-          {/* <span className="service-rating">
-            <FaStar style={{ marginRight: '4px', color: '#FFD700' }} />
-            {service}
-          </span>
+
+        <div className="service-meta">        
           <span className="service-likes">
-            <FaHeart style={{ marginRight: '4px', color: 'red' }} />
-            {service.likeCount}
-          </span> */
+            <FaMapMarkerAlt size={18} className='service-map-icon' />
+            {service.location ? service.location.region : ''} - {service.location ? service.location.district : ''}
+          </span> 
           <span className="service-comments">
-            <FaComment style={{ marginRight: '4px', color: '#666' }} />
+            <FaComment size={18} style={{ marginLeft: '10px', marginRight:'10px', color: '#666' }} />
             {service.comments.length}
           </span> 
-          }
         </div>
       </div>
     </div>
   );
 };
 
-export default SingleProduct;
+export default SingleService;

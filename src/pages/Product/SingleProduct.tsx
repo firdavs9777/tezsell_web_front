@@ -17,7 +17,8 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
       <div className="product-details">
         <h2 className="product-price">{product.price} sum</h2>
         <p className="product-title"><strong>{product.title}</strong> </p>
-        <p className="product-location"> {product.location.region} - {product.location.district} tumani</p>
+        
+        <p className="product-location"> { product.location ? product.location.region : ''} - {product.location ? product.location.district:''} tumani</p>
         <p className="product-created-at">{formattedDate}</p>
       </div>
     </div>

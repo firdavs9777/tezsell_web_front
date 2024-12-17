@@ -9,9 +9,9 @@
   transition: transform 0.2s ease;
 }
 
-
 .image-container {
-  height: 200px;
+  max-width: 300px;
+  height: 220px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -30,13 +30,13 @@
   margin-top: 10px;
 }
 
-
 .service-title {
   font-size: 20px;
 }
+
 .service-map-icon {
-  margin-right: '4px'; 
-  color: '#666'; 
+  margin-right: 4px;
+  color: #666;
 }
 
 .service-meta {
@@ -55,16 +55,10 @@
 .service-meta span::before {
   margin-right: 4px;
 }
+
 .service-location,
-.service-created-at {
-  font-size: 20px;
-  color: #555;
-}
-.service-location,
-.service-comments,
-.service-user,
-.service-date {
-  font-size: 12px;
+.service-comments, .service-description {
+  font-size: 14px;
   color: #555;
   display: flex;
   align-items: center;

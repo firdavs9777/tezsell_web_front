@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useGetAllLocationListQuery, useGetCategoryListQuery} from "../../store/slices/productsApiSlice";
+import { useGetAllLocationListQuery} from "../../store/slices/productsApiSlice";
 import { AllLocationList, Category,  Service, ServiceResponse } from "../../store/type";
 import { useTranslation } from 'react-i18next';
 import SingleService from "./SingleService";
@@ -90,12 +90,12 @@ const ServiceScreen = () => {
   const totalCount = services.count || 0;
   return (
     <div>
-      <div className="search-area">
-        <button className="search-category" onClick={toggleLocationModal}>
+      <div className="service-search-area">
+        <button className="service-search-category" onClick={toggleLocationModal}>
           <FaLocationDot size={20} className="search-icon" />
           {t('search_location')}
         </button>
-        <button className="search-category" onClick={toggleModal}>
+        <button className="service-search-category" onClick={toggleModal}>
           <BiCategory size={20} className="search-icon" />
          {t('search_category')}
         </button>
@@ -103,7 +103,7 @@ const ServiceScreen = () => {
           <IoSearch size={20} className="search-input-icon" />
           <input placeholder={t('search_service_placeholder')} className="search-input" value={searchServiceQuery} onChange={(e) => setSearchServiceQuery(e.target.value)}/>
         </div>
-        <button className="search-category" onClick={() => {
+        <button className="service-search-category" onClick={() => {
           setSearchServiceQuery(searchServiceQuery);
           reloadSearch();
         }}>
