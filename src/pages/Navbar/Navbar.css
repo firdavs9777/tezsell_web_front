@@ -42,6 +42,13 @@ background-color: #FFE082;
   font-weight: 500;
 }
 
+.navbar-link.active,
+.navbar-link-register.active {
+  color: #007bff;
+  font-weight: bold;
+  border-bottom: 2px solid #007bff;
+}
+
 .navbar-link:hover {
   color: #61dafb; 
 }
@@ -105,7 +112,11 @@ background-color: #FFE082;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
-
+.dropdown-menu button.active-lang {
+  color: #007bff; 
+  font-weight: bold;
+  text-decoration: underline;
+}
 .dropdown-menu li button:hover {
   background-color: #61dafb;
   color:#333;

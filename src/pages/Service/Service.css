@@ -1,3 +1,4 @@
+
 .search-area {
   display: flex;
   justify-content: center;
@@ -7,9 +8,10 @@
   gap: 15px;
   background-color: #f7f7f7;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);  
   margin-bottom: 20px;
 }
+
 .search-category {
   padding: 12px 20px;
   background-color: #FFA500;
@@ -29,6 +31,8 @@
   background-color: #61dafb;
   transform: scale(1.05); 
 }
+
+
 .search-input-wrapper {
   position: relative;
   display: flex;
@@ -36,8 +40,8 @@
   width: 300px; 
 }
 
+
 .search-input {
-  padding: 12px 30px; 
   border: 1px solid #ddd;
   border-radius: 50px;
   font-size: 16px;
@@ -45,6 +49,7 @@
   transition: border-color 0.3s ease, font-size 0.3s ease;
   width: 100%;
 }
+
 
 .search-input-icon {
   position: absolute;
@@ -58,13 +63,13 @@
   font-size: 18px;
 }
 
-
+/* Icon styling */
 .search-icon {
   font-size: 20px;
   color: #333;
 }
 
-
+/* Categories list inside modal */
 .categories-list {
   height: 500px;
   
@@ -73,8 +78,8 @@
   margin: 0;
 }
 
-
-.product-list {
+/* Product list container */
+.service-list {
   display: flex;
   flex-direction: row;
    justify-content: flex-start; 
@@ -100,7 +105,6 @@
   cursor: pointer;
   border-radius: 5px;
 }
-
 .selected-category {
   display: flex;
 }

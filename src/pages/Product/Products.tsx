@@ -73,6 +73,13 @@ const ProductScreen = () => {
   const reloadSearch = () => {
     refetch()
   }
+    const handleCategoryRemove = () => { 
+    setSelectedCategory('')
+  }
+  const handleLocationRemoveFilter = () => {
+    setSelectedRegion('')
+    setSelectedtDistrict('')
+  }
   const handleFilterRemove = () => {
     if (selectedCategory !== '') {
       setSelectedCategory('')
@@ -108,12 +115,14 @@ const ProductScreen = () => {
       {selectedCategory && (
         <div className="selected-category">
           <p>{t('selected_category')} <strong>{selectedCategory}</strong></p>
+        <button className="category-remove" onClick={() => handleCategoryRemove()}>X</button>
         </div>
       )}
 
       {selectedRegion && selectedDistrict && (
         <div className="selected-location">
           <p>{t('selected_location')} <strong>{selectedRegion}</strong> - <strong>{selectedDistrict}</strong></p>
+        <button className="location-remove" onClick={() => handleLocationRemoveFilter()}>X</button>
         </div>
       )}
       {(selectedRegion || selectedDistrict || selectedCategory) && (
