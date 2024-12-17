@@ -1,5 +1,6 @@
 import React from 'react';
 import './Pagination.css'
+import { useTranslation } from 'react-i18next';
 interface PaginationProps {
   currentPage: number;
   totalCount: number;
@@ -9,6 +10,7 @@ interface PaginationProps {
 
 const Pagination: React.FC<PaginationProps> = ({ currentPage, totalCount, pageSize, onPageChange }) => {
   const totalPages = Math.ceil(totalCount / pageSize);
+   const { t } = useTranslation();
 
   return (
     <div className="pagination-section">
@@ -17,17 +19,17 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalCount, pageSi
         onClick={() => onPageChange(1)}
         className="pagination-button"
       >
-        « First
+        « {t('pagination_first')}
       </button>
       <button
         disabled={currentPage === 1}
         onClick={() => onPageChange(currentPage - 1)}
         className="pagination-button"
       >
-        « Previous
+        « {t('pagination_previous')}
       </button>
       <div className="pagination-info">
-        Page <span className="pagination-number">{currentPage}</span> of{" "}
+        {t('page_info')} <span className="pagination-number">{currentPage}</span> of{" "}
         <span className="pagination-number">{totalPages}</span>
       </div>
       <button
@@ -35,14 +37,14 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalCount, pageSi
         onClick={() => onPageChange(currentPage + 1)}
         className="pagination-button"
       >
-        Next »
+        {t('page_next')} »
       </button>
       <button
         disabled={currentPage === totalPages}
         onClick={() => onPageChange(totalPages)}
         className="pagination-button"
       >
-        Last »
+        {t('page_last')} »
       </button>
     </div>
   );

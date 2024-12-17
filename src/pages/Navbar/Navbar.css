@@ -4,7 +4,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
-  background-color: #FFA50050; 
+background-color: #FFE082;
   color: white;
   position: sticky;
   top: 0;
@@ -35,6 +35,12 @@
   font-size: 1.1rem;
   font-weight: 500;
 }
+.navbar-link-register {
+  color: #333;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
 
 .navbar-link:hover {
   color: #61dafb; 
@@ -59,12 +65,11 @@
 .navbar-lang-btn {
   background-color: transparent;
   border: none;
-  color: white;
-  font-size: 1.1rem;
-  font-weight: 500;
+  color: #05d1f5;
+  font-size: 1.0rem;
+  font-weight: 400;
   cursor: pointer;
-  
-  transition: color 0.3s ease;
+  transition: color 0.1s ease;
 }
 
 .navbar-lang-btn:hover {
@@ -77,16 +82,16 @@
   top: 100%;
   right: 0;
   background-color: #FFA500D0;
-  border-radius: 6px;
+  border-radius: 10px;
   width: 150px;
   list-style: none;
   padding: 10px 0;
   margin-top: 5px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
 }
 
 .dropdown-menu li {
-  padding: 8px 20px;
+  padding: 6px 20px;
 }
 
 .dropdown-menu li button {
@@ -103,6 +108,7 @@
 
 .dropdown-menu li button:hover {
   background-color: #61dafb;
+  color:#333;
 }
 
 /* Show the dropdown when it's active */

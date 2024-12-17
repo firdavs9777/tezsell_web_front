@@ -21,7 +21,8 @@ const ProductScreen = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(''); // Set to null for no selection initially
   const [selectedRegion, setSelectedRegion] = useState<string | null>('');
   const [selectedDistrict, setSelectedtDistrict] = useState<string | null>('');
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+   console.log(i18n.language)
 
   const toggleModal = () => {
     setShowModal((prev) => !prev);
@@ -36,32 +37,30 @@ const ProductScreen = () => {
 
   const { data: data_category, isLoading: isLoading_category, error: error_cat } = useGetCategoryListQuery({});
   const { data: all_location, isLoading: isLoading_location, error: error_loc } = useGetAllLocationListQuery({})
-  const { data, isLoading, error } = useGetProductsQuery({ currentPage, page_size: pageSize, category_name: selectedCategory, region_name: selectedRegion, district_name: selectedDistrict, product_title: searchProductQuery });
+  const { data, isLoading, error, refetch } = useGetProductsQuery({ currentPage, page_size: pageSize, category_name: selectedCategory, region_name: selectedRegion, district_name: selectedDistrict, product_title: searchProductQuery });
 
   const products: ProductResponse = data as ProductResponse;
   const location_info: AllLocationList = all_location as AllLocationList;
   const categories: Category[] = data_category as Category[];
-  console.log(location_info)
+  
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>{ t("loading_message_product")}</div>;
   }
   if (isLoading_location) {
-    return <div>Loading Location...</div>;
+    return <div>{ t("loading_message_location")}</div>;
   }
   if (error) {
-    return <div>Error while loading product: {(error as { message: string }).message}</div>;
+    return <div>{t("loading_message_error")} {(error as { message: string }).message}</div>;
   }
   if (error_loc) {
-    return <div>Error while loading product: {(error as { message: string }).message}</div>;
+    return <div>{t("loading_location_error")} {(error as { message: string }).message}</div>;
   }
   if (isLoading_category) {
-    return <div>Loading categories...</div>;
+    return <div>{t("loading_message_category")}</div>;
   }
-
   if (error_cat) {
-    return <div>Error loading categories: {(error_cat as { message: string }).message}</div>;
+    return <div>{t("loading_category_error")} {(error_cat as { message: string }).message}</div>;
   }
-
   const handleCategorySelect = (categoryName: string) => {
     setSelectedCategory(categoryName); // Set the selected category
     toggleModal(); // Close the modal after selection
@@ -71,7 +70,9 @@ const ProductScreen = () => {
     setSelectedtDistrict(districtName);
     toggleLocationModal()
   }
-
+  const reloadSearch = () => {
+    refetch()
+  }
   const handleFilterRemove = () => {
     if (selectedCategory !== '') {
       setSelectedCategory('')
@@ -79,41 +80,40 @@ const ProductScreen = () => {
     setSelectedRegion('')
     setSelectedtDistrict('')
   }
-
   const totalCount = products.count || 0;
-
-
-
   return (
     <div>
       <div className="search-area">
         <button className="search-category" onClick={toggleLocationModal}>
           <FaLocationDot size={20} className="search-icon" />
-          Location
+          {t('search_location')}
         </button>
         <button className="search-category" onClick={toggleModal}>
           <BiCategory size={20} className="search-icon" />
-          Categories
+         {t('search_category')}
         </button>
         <div className="search-input-wrapper">
           <IoSearch size={20} className="search-input-icon" />
-          <input placeholder="Search for Products" className="search-input" value={searchProductQuery} onChange={(e) => setSearchProductQuery(e.target.value)}/>
+          <input placeholder={t('search_product_placeholder')} className="search-input" value={searchProductQuery} onChange={(e) => setSearchProductQuery(e.target.value)}/>
         </div>
-        <button className="search-category">
+        <button className="search-category" onClick={() => {
+          setSearchProductQuery(searchProductQuery);
+        reloadSearch();
+        }}>
           <IoSearch size={20} className="search-icon" />
-          Search
+          {t('search_text')}
         </button>
       </div>
 
       {selectedCategory && (
         <div className="selected-category">
-          <p>Selected Category: <strong>{selectedCategory}</strong></p>
+          <p>{t('selected_category')} <strong>{selectedCategory}</strong></p>
         </div>
       )}
 
       {selectedRegion && selectedDistrict && (
         <div className="selected-location">
-          <p>Selected Location: <strong>{selectedRegion}</strong> - <strong>{selectedDistrict}</strong></p>
+          <p>{t('selected_location')} <strong>{selectedRegion}</strong> - <strong>{selectedDistrict}</strong></p>
         </div>
       )}
       {(selectedRegion || selectedDistrict || selectedCategory) && (
@@ -123,11 +123,11 @@ const ProductScreen = () => {
 
       <div className="product-list">
         {products?.results?.length ? (
-          products.results.filter((product:Product) => product.title.toLowerCase().includes(searchProductQuery.toLowerCase())).map((product: Product) => (
+          products.results.map((product: Product) => (
             <SingleProduct product={product} key={product.id} />
           ))
         ) : (
-          <p>No products available</p>
+            <p>{ t('product_error')}</p>
         )}
       </div>
       <div className="pagination-container">
@@ -139,12 +139,12 @@ const ProductScreen = () => {
         />
       </div>
       <Modal isOpen={showLocationModal} onClose={toggleLocationModal}>
-        <h1>Select a location</h1>
+        <h1>{ t('location_header')}</h1>
         <div className="selected-category">
         </div>
         <input
           type="text"
-          placeholder="Search region here"
+          placeholder={t('location_placeholder')}
           value={searchLocationQuery}
           onChange={(e) => setSearchLocationQuery(e.target.value)}
           style={{
@@ -167,7 +167,10 @@ const ProductScreen = () => {
                 <h2>{region.region}</h2>
                 <ul>
                   {filteredDistricts.map((district, index) => (
-                    <li key={index} onClick={() => handleLocationSelect(region.region, district)}>
+                    <li key={index} onClick={() => handleLocationSelect(region.region, district)} style={{
+                        backgroundColor: selectedDistrict === district ? '#08b3f7' : 'transparent',
+                  color: selectedDistrict === district ? 'white' : 'black', 
+                    }}>
                       {district}
                     </li>
                   ))}
@@ -180,10 +183,10 @@ const ProductScreen = () => {
       </Modal>
 
       <Modal isOpen={showModal} onClose={toggleModal}>
-        <h3>Select a Category</h3>
+        <h3>{t('category_header') }</h3>
         <input
           type="text"
-          placeholder="Search Categories"
+          placeholder={t('category_placeholder')}
           value={searchCategoryQuery}
           onChange={(e) => setSearchCategoryQuery(e.target.value)}
           style={{
@@ -204,16 +207,15 @@ const ProductScreen = () => {
                   padding: '10px',
                   cursor: 'pointer',
                   borderBottom: '1px solid #ccc',
-                  backgroundColor: selectedCategory === category.name ? '#08b3f7' : 'transparent', // Change color if selected
-                  color: selectedCategory === category.name ? 'white' : 'black', // Change text color
+                  backgroundColor: selectedCategory === category.name ? '#08b3f7' : 'transparent',
+                  color: selectedCategory === category.name ? 'white' : 'black', 
                 }}
               >
                 <p>{category.name}</p>
               </li>
-
             ))
           ) : (
-            <li>No categories available</li>
+              <li>{ t('category_error')}</li>
           )}
         </ul>
       </Modal>
