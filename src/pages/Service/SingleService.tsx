@@ -47,7 +47,7 @@ const SingleService: React.FC<SingleServiceProps> = ({ service }) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 export default SingleService;

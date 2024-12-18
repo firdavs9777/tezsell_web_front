@@ -2,21 +2,32 @@ import { useState } from "react";
 import { useTranslation } from 'react-i18next';
 import { Link } from "react-router-dom";
 import './Navbar.css';
-
+import { useSelector } from 'react-redux';
 import { FaGlobe, FaInfoCircle, FaServicestack, FaRegHandshake, FaSignInAlt } from 'react-icons/fa';
 
 const Navbar = () => {
-    const [activeLink, setActiveLink] = useState('/');
+  const [activeLink, setActiveLink] = useState('/');
+  const userInfo = useSelector((state: any) => state.auth.userInfo);
   const { t, i18n } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  
 
   // Function to change the language
   const changeLanguage = (lang: string) => {
     i18n.changeLanguage(lang);
     setIsDropdownOpen(false); // Close the dropdown after selecting a language
   };
-console.log(activeLink)
+  //  const logoutHandler = async () => {
+  //   try {
+  //     logoutApiCall({  userInfo }).unwrap();
+  //     dispatch(logout(userInfo)); // Corrected dispatch call without passing userInfo
+  //     navigate('/login');
+  //   }
+  //   catch (error: any) {
+  //     alert(error.message);
+  //   }
+  // };
   return (
     <header className="navbar">
       <Link to="/" className="navbar-logo" onClick={() => {
@@ -42,7 +53,15 @@ console.log(activeLink)
               <FaRegHandshake style={{ marginRight: '4px' }} /> {t('support')}
             </a>
           </li>
-          <li><Link to="/login"  onClick={() => setActiveLink('/login')} className={`navbar-link-login ${activeLink === '/login' ? 'active' : ''}`}><FaSignInAlt style={{ marginRight: '4px' }} /> {t('login')}</Link></li>
+
+          {userInfo ? (
+            <>
+          <li><Link to="/logout"  onClick={() => setActiveLink('/')} className={`navbar-link-login ${activeLink === '/' ? 'active' : ''}`} ><FaSignInAlt style={{ marginRight: '4px' }} /> {t('logout')}</Link></li>    
+            </>
+          ) : (
+          <li><Link to="/login"  onClick={() => setActiveLink('/login')} className={`navbar-link-login ${activeLink === '/login' ? 'active' : ''}`}><FaSignInAlt style={{ marginRight: '4px' }} /> {t('login')}</Link></li>              
+          )}
+
 
           <li
             className={`navbar-lang-dropdown ${isDropdownOpen ? 'active' : ''}`}
