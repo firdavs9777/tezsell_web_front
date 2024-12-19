@@ -36,7 +36,6 @@ const Login = () => {
     } else if (value === "") {
       setPhoneNumber(""); 
     } else {
-      
       setPhoneNumber("+998");
     }
   };
