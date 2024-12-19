@@ -1,0 +1,13 @@
+.register-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 20px;
+  box-shadow: 10px 10px 10px 10px rgba(0, 0, 0, 0.1);
+}

@@ -4,10 +4,9 @@ import { BASE_URL } from '../../store/constants';
 import './SingleService.css';
 import {
   FaMapMarkerAlt,
-  FaStar,
-  FaHeart,
+
   FaComment,
-  FaTag,
+
 } from 'react-icons/fa';
 
 interface SingleServiceProps {

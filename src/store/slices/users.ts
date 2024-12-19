@@ -1,4 +1,4 @@
-import {   REGISTER_URL, LOGIN_URL} from '../constants';
+import {   REGISTER_URL, LOGIN_URL, LOGOUT_URL} from '../constants';
 import { apiSlice } from "./apiSlice";
 
 
@@ -25,7 +25,16 @@ export const usersApiSlice = apiSlice.injectEndpoints({
             }),
             keepUnusedDataFor: 5
         }),
-        
+    logoutUser: builder.mutation({
+        query: (token: string) => ({
+        url: `${LOGOUT_URL}`,
+        method: 'POST',
+        headers: {
+            Authorization: `Token ${token}`, // Attach the token to the Authorization header
+        },
+    }),
+        keepUnusedDataFor: 5,
+    })
     }),
 });
-export const { useLoginUserMutation, useRegisterUserMutation } = usersApiSlice;
+export const { useLoginUserMutation, useRegisterUserMutation, useLogoutUserMutation } = usersApiSlice;

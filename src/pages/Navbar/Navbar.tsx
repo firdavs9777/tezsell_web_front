@@ -1,53 +1,61 @@
 import { useState } from "react";
 import { useTranslation } from 'react-i18next';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import './Navbar.css';
 import { useSelector } from 'react-redux';
-import { FaGlobe, FaInfoCircle, FaServicestack, FaRegHandshake, FaSignInAlt } from 'react-icons/fa';
-
+import { FaGlobe, FaInfoCircle, FaServicestack, FaRegHandshake, FaSignInAlt, FaSignOutAlt, FaPowerOff } from 'react-icons/fa';
+import { useLogoutUserMutation } from "../../store/slices/users";
+import { logout } from "../../store/slices/authSlice";
+import { useDispatch } from "react-redux";
+import { FaUserPlus } from "react-icons/fa6";
+import { RootState } from "../../store/index";
+// import { useLogoutUserMutation } from '../../store/slices/authSlice';
 const Navbar = () => {
   const [activeLink, setActiveLink] = useState('/');
-  const userInfo = useSelector((state: any) => state.auth.userInfo);
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const { t, i18n } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  
+  const [isProfileDropDownOpen, setIsProfileDropDownOpen] = useState(false);
+  const [logoutApiCall] = useLogoutUserMutation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
 
   // Function to change the language
   const changeLanguage = (lang: string) => {
     i18n.changeLanguage(lang);
     setIsDropdownOpen(false); // Close the dropdown after selecting a language
   };
-  //  const logoutHandler = async () => {
-  //   try {
-  //     logoutApiCall({  userInfo }).unwrap();
-  //     dispatch(logout(userInfo)); // Corrected dispatch call without passing userInfo
-  //     navigate('/login');
-  //   }
-  //   catch (error: any) {
-  //     alert(error.message);
-  //   }
-  // };
+  const logoutHandler = async () => {
+    try {
+      logoutApiCall(userInfo.token).unwrap();
+      dispatch(logout(userInfo)); // Corrected dispatch call without passing userInfo
+      navigate('/login');
+    }
+    catch (error: any) {
+      alert(error.message);
+    }
+  };
   return (
     <header className="navbar">
       <Link to="/" className="navbar-logo" onClick={() => {
-         setActiveLink('/')
+        setActiveLink('/')
       }}>TezSell</Link>
       <button
         className="navbar-toggle"
         aria-label="Toggle menu"
         onClick={() => {
           setIsMenuOpen(!isMenuOpen)
-        
         }}
       >
         ☰
       </button>
       <nav>
         <ul className={`navbar-links ${isMenuOpen ? 'active' : ''}`}>
-          <li><Link to="/service" className={`navbar-link ${activeLink === '/service' ? 'active' : ''}`}  onClick={() => setActiveLink('/service')}><FaServicestack style={{ marginRight: '4px' }} /> {t('service')}</Link></li>
+          <li><Link to="/service" className={`navbar-link ${activeLink === '/service' ? 'active' : ''}`} onClick={() => setActiveLink('/service')}><FaServicestack style={{ marginRight: '4px' }} /> {t('service')}</Link></li>
           <li><Link to="/about" className={`navbar-link ${activeLink === '/about' ? 'active' : ''}`}
-              onClick={() => setActiveLink('/about')}><FaInfoCircle style={{ marginRight: '4px' }} /> {t('about')}</Link></li>
+            onClick={() => setActiveLink('/about')}><FaInfoCircle style={{ marginRight: '4px' }} /> {t('about')}</Link></li>
           <li>
             <a href="https://t.me/tezsell_menejer" className="navbar-link" target="_blank" rel="noopener noreferrer">
               <FaRegHandshake style={{ marginRight: '4px' }} /> {t('support')}
@@ -56,16 +64,31 @@ const Navbar = () => {
 
           {userInfo ? (
             <>
-          <li><Link to="/logout"  onClick={() => setActiveLink('/')} className={`navbar-link-login ${activeLink === '/' ? 'active' : ''}`} ><FaSignInAlt style={{ marginRight: '4px' }} /> {t('logout')}</Link></li>    
+              <li onClick={() => {
+                setIsDropdownOpen(false)
+                setIsProfileDropDownOpen(!isProfileDropDownOpen)
+              }} className={`navbar-lang-dropdown ${isProfileDropDownOpen ? 'active' : ''}`}>
+                <button className="navbar-profile-btn">
+                  <FaUserPlus size={20} style={{ marginRight: '4px' }} /> {userInfo.user_info.username}
+                </button>
+                <ul className="dropdown-menu">
+                  <li><Link to="/myprofile" className={`navbar-link ${activeLink === '/myprofile' ? 'active' : ''}`}>My Profile</Link></li>
+                  <li onClick={logoutHandler}><Link to="/" onClick={() => setActiveLink('/')} className={`navbar-link-login ${activeLink === '/' ? 'active' : ''}`} >
+                    <FaPowerOff style={{ marginRight: '4px' }} /> {t('logout')}
+                  </Link>
+                  </li>
+                </ul>
+              </li>
             </>
           ) : (
-          <li><Link to="/login"  onClick={() => setActiveLink('/login')} className={`navbar-link-login ${activeLink === '/login' ? 'active' : ''}`}><FaSignInAlt style={{ marginRight: '4px' }} /> {t('login')}</Link></li>              
+            <li><Link to="/login" onClick={() => setActiveLink('/login')} className={`navbar-link-login ${activeLink === '/login' ? 'active' : ''}`}><FaUserPlus style={{ marginRight: '4px' }} /> {t('login')}</Link></li>
           )}
-
-
           <li
             className={`navbar-lang-dropdown ${isDropdownOpen ? 'active' : ''}`}
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            onClick={() => {
+              setIsProfileDropDownOpen(false)
+              setIsDropdownOpen(!isDropdownOpen)
+            }}
           >
             <button className="navbar-lang-btn">
               <FaGlobe size={20} style={{ marginRight: '4px' }} /> {t('language')}
