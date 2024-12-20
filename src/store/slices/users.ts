@@ -1,4 +1,4 @@
-import {   REGISTER_URL, LOGIN_URL, LOGOUT_URL} from '../constants';
+import { REGISTER_URL, LOGIN_URL, LOGOUT_URL, SEND_SMS, VERIFY_SMS } from '../constants';
 import { apiSlice } from "./apiSlice";
 
 
@@ -25,16 +25,33 @@ export const usersApiSlice = apiSlice.injectEndpoints({
             }),
             keepUnusedDataFor: 5
         }),
-    logoutUser: builder.mutation({
-        query: (token: string) => ({
-        url: `${LOGOUT_URL}`,
-        method: 'POST',
-        headers: {
-            Authorization: `Token ${token}`, // Attach the token to the Authorization header
-        },
-    }),
-        keepUnusedDataFor: 5,
-    })
+        logoutUser: builder.mutation({
+            query: (token: string) => ({
+                url: `${LOGOUT_URL}`,
+                method: 'POST',
+                headers: {
+                    Authorization: `Token ${token}`, // Attach the token to the Authorization header
+                },
+            }),
+            keepUnusedDataFor: 5,
+        }),
+        sendSmsUser: builder.mutation({
+            query: (phone_number: string) => ({
+                url: `${SEND_SMS}`,
+                method: 'POST',
+                body:phone_number
+            }),
+            keepUnusedDataFor: 5,
+        }),
+         verifyCodeUser: builder.mutation({
+            query: (otp: string) => ({
+                url: `${VERIFY_SMS}`,
+                method: 'POST',
+                 body: { otp },
+                credentials:'include'
+            }),
+            keepUnusedDataFor: 5,
+        }),
     }),
 });
-export const { useLoginUserMutation, useRegisterUserMutation, useLogoutUserMutation } = usersApiSlice;
+export const { useLoginUserMutation, useRegisterUserMutation, useLogoutUserMutation, useSendSmsUserMutation, useVerifyCodeUserMutation } = usersApiSlice;

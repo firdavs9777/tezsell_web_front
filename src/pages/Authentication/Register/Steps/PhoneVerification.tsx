@@ -1,66 +1,96 @@
 import React, { useState } from "react";
-import './PhoneNumberVerification.css'
-const PhoneNumberVerification = () => {
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [verificationCode, setVerificationCode] = useState("");
-  const [isSendingOTP, setIsSendingOTP] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
-  const [error, setError] = useState("");
+import './PhoneNumberVerification.css';
+import { useSendSmsUserMutation, useVerifyCodeUserMutation } from "../../../../store/slices/users";
 
-const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+interface PhoneNumberVerificationProps {
+  onVerify: (status: boolean) => void; // Callback prop
+}
+interface ResponseSendCode  {
+      result: boolean;
+      message: string;
+      sid: string
+};
+interface ResponseVerification {
+  result: boolean; 
+  verification_code: number;
+  message: string;
+}
+
+
+interface ErrorCode {
+  error: string
+}
+
+const PhoneNumberVerification: React.FC<PhoneNumberVerificationProps> = ({onVerify}) => {
+  const [phoneNumber, setPhoneNumber] = useState("+821082773725");
+  const [verificationCode, setVerificationCode] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [sendCodeToUser, { isLoading }] = useSendSmsUserMutation()
+  const [verifyUser, { isLoading: isLoading_two }] = useVerifyCodeUserMutation()
+  
+
+  // Handle phone number change
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    if (value.length <= 13 && value.startsWith("+998")) {
+    if (value.startsWith("+998") && value.length <= 13) {
       setPhoneNumber(value);
     } else if (value === "") {
       setPhoneNumber(""); 
     } else {
-      setPhoneNumber("+998");
+      setPhoneNumber("+821082773725");
     }
+  };
+
+  // Handle verification code change
+  const handleVerificationCodeChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+    setVerificationCode(e.target.value);
+  };
+
+
+const sendOTP = async (): Promise<void> => {
+  if (phoneNumber.length === 13) {
+    try {
+      const response = await sendCodeToUser({ phone_number: phoneNumber });    
+      const data = response.data as ResponseSendCode;
+      if (data) {
+        if (data.result) {
+          setOtpSent(true);
+          alert(data.message + " to " + phoneNumber);
+        } else {
+          alert("Failed to send OTP. Server returned false.");
+        }
+      } else {
+        const error = response.data as ErrorCode;
+        alert(error.error);
+      }
+    } catch (error) {
+      console.error("Error during sendOTP:", error);
+      alert("An error occurred while sending OTP.");
+    }
+  } else {
+    alert("Please enter a valid phone number.");
+  }
 };
 
-  // Function to handle verification code change
-  const handleVerificationCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  
-    setVerificationCode(e.target.value);
- 
-  };
-
-  // Send OTP API call
-  const sendOTP = async () => {
-    // if (!phoneNumber) {
-    //   setError("Please enter a valid phone number.");
-    //   return;
-    // }
-
-    // setIsSendingOTP(true);
-    // setError("");
-
-    // try {
-    //   // Assuming you have an API for sending OTP
-    //   const response = await fetch("/api/send-otp", {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({ phoneNumber }),
-    //   });
-    //   const data = await response.json();
-
-    //   if (data.success) {
-    //     setOtpSent(true);
-    //     setIsSendingOTP(false);
-    //   } else {
-    //     setError("Failed to send OTP. Please try again.");
-    //     setIsSendingOTP(false);
-    //   }
-    // } catch (error) {
-    //   setError("Error sending OTP. Please try again later.");
-    //   setIsSendingOTP(false);
-    // }
-  };
-
-  // Verify OTP API call
+  // Simulate verifying OTP
   const verifyOTP = async () => {
-    alert('Done')
+  try {
+    const response = await verifyUser(verificationCode);
+
+    // Ensure response.data exists before processing
+    const data = response.data as ResponseVerification;
+    if (data?.result) {
+      alert(data.message);
+      onVerify(true);  // Call the onVerify callback with 'true'
+    } else {
+      alert("Invalid verification code.");
+      onVerify(false);  // Call the onVerify callback with 'false'
+    }
+  } catch (error ) {
+    console.error("Error verifying code:", error);
+    alert("An error occurred. Please try again later.");
+  }
   };
 
   return (
@@ -72,13 +102,11 @@ const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         className="register-mobile-number"
         value={phoneNumber}
         onChange={handlePhoneNumberChange}
-        placeholder="Enter your phone number"
+        placeholder="941234567"
       />
 
       {!otpSent ? (
-        <button onClick={sendOTP} disabled={isSendingOTP}>
-          {isSendingOTP ? "Sending OTP..." : "Send OTP"}
-        </button>
+        <button onClick={sendOTP} className="register-button">Send OTP</button>
       ) : (
         <>
           <input
@@ -86,14 +114,11 @@ const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             placeholder="Enter verification code"
             value={verificationCode}
             onChange={handleVerificationCodeChange}
-          />
-          <button onClick={verifyOTP} disabled={isVerifying}>
-            {isVerifying ? "Verifying..." : "Verify"}
-          </button>
+            />
+          <button onClick={sendOTP} className="register-button">Send again</button>            
+          <button onClick={verifyOTP} className="register-button">Verify</button>
         </>
       )}
-
-      {error && <div className="error-message">{error}</div>}
     </div>
   );
 };

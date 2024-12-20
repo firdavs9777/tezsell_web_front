@@ -10,3 +10,5 @@ export const CATEGORY_URL = '/products/api/categories'
 export const REGIONS_URL = '/accounts/regions';
 export const ALL_LOCATION = '/accounts/all-location';
 export const DISTRICTS_URL = '/accounts/districts/';
+export const SEND_SMS = '/accounts/send-sms/';
+export const VERIFY_SMS = '/accounts/verify-code/';

@@ -63,6 +63,7 @@ const Login = () => {
   return (
     <form className="login-container" onSubmit={submitHandler}>
       <h1 className="login-header">Login</h1>
+      <p>Tezsellga hush kelibsiz, <br/>telefon orqali mavjud hisobingizga kiring</p>
       <div className="form-group">
         <label htmlFor="phoneNumber">Phone Number</label>
         <input 

@@ -5,15 +5,27 @@ import { useGetRegionsListQuery } from "../../../store/slices/productsApiSlice";
 
 const Register = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const { data, isLoading, error} = useGetRegionsListQuery({});
-  console.log(data)
+  const { data, isLoading, error } = useGetRegionsListQuery({});
+  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
   if (isLoading) {
     return <h1>Loading ...</h1>;
   }
   if (error) {
     return <p>Error</p>
   }
+
+  const handlePhoneVerification = (status: boolean) => {
+    setIsPhoneVerified(status);
+    if (status) {
+      alert("Phone number verified! You can proceed to the next step.");
+    }
+  };
   const nextStep = () => {
+    if (currentStep === 1 && !isPhoneVerified) {
+    
+      alert('Please verify your phone number before proceeding');
+      return 
+    }
     setCurrentStep(prevStep => prevStep + 1);
   };
 
@@ -26,35 +38,24 @@ const Register = () => {
       <h1 className="login-header">Register</h1>
       
       <div className="step-container">
-        {currentStep > 1 && <button onClick={prevStep}>Previous</button>}
         <p>Step {currentStep} out of 4</p>
-        {currentStep < 4 && <button onClick={nextStep}>Next</button>}
       </div>
 
       {currentStep === 1 && (
         <>
-          <PhoneNumberVerification />
-          <button onClick={prevStep}>Previous</button>
-          <button onClick={nextStep}>Next</button>
+          <PhoneNumberVerification onVerify={handlePhoneVerification} />
         </>
       )}
-
       {currentStep === 2 && (
         <div className="register-step-two">
           <label htmlFor="region">Select the region</label>
-          <button className="Next" onClick={prevStep}>Previous</button>
-          <button className="Next" onClick={nextStep}>Next</button>
         </div>
       )}
-
       {currentStep === 3 && (
         <div className="register-step-three">
           <label htmlFor="district">Select the district</label>
-          <button className="Next" onClick={prevStep}>Previous</button>
-          <button className="Next" onClick={nextStep}>Next</button>
         </div>
       )}
-
       {currentStep === 4 && (
         <div className="register-step-four">
           <label htmlFor="username">Username</label>
@@ -62,10 +63,13 @@ const Register = () => {
           <label htmlFor="password">Password</label>
           <input type="password" className="register-password" />
           <input type="text" placeholder="Verification Code" />
-          <button className="Next" onClick={prevStep}>Previous</button>
-          <button className="Next">Complete</button>
         </div>
       )}
+      <div className="button-container">
+         {currentStep > 1 && <button onClick={prevStep}>Previous</button>}            
+         {currentStep < 4 &&  <button onClick={nextStep}>Next</button>}
+         { currentStep == 4 &&  <button className="Next">Complete</button> }
+        </div>
     </div>
   );
 };

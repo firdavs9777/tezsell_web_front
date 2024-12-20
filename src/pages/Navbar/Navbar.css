@@ -53,7 +53,7 @@
   color: #007bff;
   font-weight: bold;
   border-bottom: 2px solid #007bff;
-  background-color: #f0f8ff; /* Subtle background on active */
+  background-color: transparent; /* Subtle background on active */
 }
 
 .navbar-link:hover {
