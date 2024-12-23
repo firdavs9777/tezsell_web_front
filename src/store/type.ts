@@ -84,7 +84,7 @@ export interface UserLocation {
   region: string;
   district: string;
 }
-interface Region {
+export interface Region {
   region: string;
   districts: string[];
 }

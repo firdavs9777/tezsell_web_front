@@ -2,24 +2,39 @@ import React, { useState } from "react";
 import './Register.css';
 import PhoneNumberVerification from "./Steps/PhoneVerification";
 import { useGetRegionsListQuery } from "../../../store/slices/productsApiSlice";
-
+import RegionSelect from "./Steps/RegionSelect";
+import DistrictSelect from "./Steps/DistrictSelect";
+import { toast } from "react-toastify";
 const Register = () => {
-  const [currentStep, setCurrentStep] = useState(1);
-  const { data, isLoading, error } = useGetRegionsListQuery({});
-  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
-  if (isLoading) {
-    return <h1>Loading ...</h1>;
-  }
-  if (error) {
-    return <p>Error</p>
-  }
+  const [currentStep, setCurrentStep] = useState(1);  
+  const [isPhoneVerified, setIsPhoneVerified] = useState(true);
+  const [regionName, setRegionName] = useState('')
+const [districtName, setDistrictName] = useState('')
+
 
   const handlePhoneVerification = (status: boolean) => {
     setIsPhoneVerified(status);
     if (status) {
-      alert("Phone number verified! You can proceed to the next step.");
+      toast.success("Phone number verified! You can proceed to the next step.");
     }
+    setCurrentStep(prevStep => prevStep + 1);
   };
+  const handleRegionSelect = (status: boolean, region: string) => {
+    if (status) {
+      toast.success(`Region Selected: ${region} `)
+    }
+      setRegionName(region);
+     setCurrentStep(prevStep => prevStep + 1);
+  }
+  const handleSelectDistrict = (district: string) => {
+    alert(district);
+    if (district) 
+    {
+      setDistrictName(district);
+      toast.success(`District Selected', ${district}` );
+    }
+    setCurrentStep(prevStep => prevStep + 1);
+  }
   const nextStep = () => {
     if (currentStep === 1 && !isPhoneVerified) {
     
@@ -48,12 +63,13 @@ const Register = () => {
       )}
       {currentStep === 2 && (
         <div className="register-step-two">
-          <label htmlFor="region">Select the region</label>
+          <RegionSelect onSelect={handleRegionSelect } region={regionName} />
         </div>
       )}
+      {regionName}
       {currentStep === 3 && (
         <div className="register-step-three">
-          <label htmlFor="district">Select the district</label>
+          <DistrictSelect regionName={regionName} district={districtName} onSelect={handleSelectDistrict} />
         </div>
       )}
       {currentStep === 4 && (

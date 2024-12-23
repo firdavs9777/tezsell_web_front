@@ -52,7 +52,8 @@ const Login = () => {
       navigate(redirect)
     }
     catch (error: any) {
-      toast.error('Error Occured')
+      toast.error(error?.error)
+      console.log(error);
       toast(error) ;
 
     }

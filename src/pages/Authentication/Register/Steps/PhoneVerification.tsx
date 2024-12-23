@@ -26,8 +26,8 @@ const PhoneNumberVerification: React.FC<PhoneNumberVerificationProps> = ({onVeri
   const [phoneNumber, setPhoneNumber] = useState("+821082773725");
   const [verificationCode, setVerificationCode] = useState("");
   const [otpSent, setOtpSent] = useState(false);
-  const [sendCodeToUser, { isLoading }] = useSendSmsUserMutation()
-  const [verifyUser, { isLoading: isLoading_two }] = useVerifyCodeUserMutation()
+  // const [sendCodeToUser, { isLoading }] = useSendSmsUserMutation()
+  // const [verifyUser, { isLoading: isLoading_two }] = useVerifyCodeUserMutation()
   
 
   // Handle phone number change
@@ -48,49 +48,52 @@ const PhoneNumberVerification: React.FC<PhoneNumberVerificationProps> = ({onVeri
   };
 
 
-const sendOTP = async (): Promise<void> => {
-  if (phoneNumber.length === 13) {
-    try {
-      const response = await sendCodeToUser({ phone_number: phoneNumber });    
-      const data = response.data as ResponseSendCode;
-      if (data) {
-        if (data.result) {
-          setOtpSent(true);
-          alert(data.message + " to " + phoneNumber);
-        } else {
-          alert("Failed to send OTP. Server returned false.");
-        }
-      } else {
-        const error = response.data as ErrorCode;
-        alert(error.error);
-      }
-    } catch (error) {
-      console.error("Error during sendOTP:", error);
-      alert("An error occurred while sending OTP.");
-    }
-  } else {
-    alert("Please enter a valid phone number.");
-  }
+  const sendOTP = async (): Promise<void> => {
+  setOtpSent(true);
+  // if (phoneNumber.length === 13) {
+  //   try {
+  //     const response = await sendCodeToUser({ phone_number: phoneNumber });    
+  //     const data = response.data as ResponseSendCode;
+  //     if (data) {
+  //       if (data.result) {
+  //         setOtpSent(true);
+  //         alert(data.message + " to " + phoneNumber);
+  //       } else {
+  //         alert("Failed to send OTP. Server returned false.");
+  //       }
+  //     } else {
+  //       const error = response.data as ErrorCode;
+  //       alert(error.error);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error during sendOTP:", error);
+  //     alert("An error occurred while sending OTP.");
+  //   }
+  // } else {
+  //   alert("Please enter a valid phone number.");
+  // }
 };
 
   // Simulate verifying OTP
   const verifyOTP = async () => {
-  try {
-    const response = await verifyUser(verificationCode);
+    onVerify(true);
+  // try {
+  //   const response = await verifyUser(verificationCode);
+  //   console.log(response);
 
-    // Ensure response.data exists before processing
-    const data = response.data as ResponseVerification;
-    if (data?.result) {
-      alert(data.message);
-      onVerify(true);  // Call the onVerify callback with 'true'
-    } else {
-      alert("Invalid verification code.");
-      onVerify(false);  // Call the onVerify callback with 'false'
-    }
-  } catch (error ) {
-    console.error("Error verifying code:", error);
-    alert("An error occurred. Please try again later.");
-  }
+  //   // Ensure response.data exists before processing
+  //   // const data = response.data as ResponseVerification;
+  //   // if (data?.result) {
+  //   //   alert(data.message);
+  //   //   onVerify(true);  // Call the onVerify callback with 'true'
+  //   // } else {
+  //   //   alert("Invalid verification code.");
+  //   //   onVerify(false);  // Call the onVerify callback with 'false'
+  //   // }
+  // } catch (error ) {
+  //   console.error("Error verifying code:", error);
+  //   alert("An error occurred. Please try again later.");
+  // }
   };
 
   return (
