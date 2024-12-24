@@ -48,14 +48,11 @@ const Login = () => {
        const userInfo = await loginUser({phone_number:phoneNumber, password }).unwrap();
      const ActionPayload: Response | any = userInfo;
       dispatch(setCredentials({ ...ActionPayload }));
-      toast.success('Success')
+      toast.success('Successfully logged')
       navigate(redirect)
     }
     catch (error: any) {
       toast.error(error?.error)
-      console.log(error);
-      toast(error) ;
-
     }
   }
   if (isLoading) {

@@ -1,29 +1,28 @@
 import { REGISTER_URL, LOGIN_URL, LOGOUT_URL, SEND_SMS, VERIFY_SMS } from '../constants';
+import { LoginInfo, RegisterInfo } from '../type';
 import { apiSlice } from "./apiSlice";
 
 
-export interface AuthInfo {
-    phone_number: string;
-    password: string;
-}
 
 export const usersApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder: any) => ({
         loginUser: builder.mutation({
-            query: (data: AuthInfo) => ({
+            query: (data: LoginInfo) => ({
                 url: `${LOGIN_URL}`,
                 method: 'POST',
                 body: data
             }),
-            keepUnusedDataFor: 5
+            keepUnusedDataFor: 5,
+            provideTags: ['Auth']
         }),
         registerUser: builder.mutation({
-            query: (data: AuthInfo) => ({
+            query: (data: RegisterInfo) => ({
                 url: `${REGISTER_URL}`,
                 method: 'POST',
                 body: data
             }),
-            keepUnusedDataFor: 5
+            keepUnusedDataFor: 5,
+            provideTags: ['Auth']
         }),
         logoutUser: builder.mutation({
             query: (token: string) => ({
@@ -34,6 +33,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
                 },
             }),
             keepUnusedDataFor: 5,
+            provideTags: ['Auth']
         }),
         sendSmsUser: builder.mutation({
             query: (phone_number: string) => ({
@@ -42,15 +42,16 @@ export const usersApiSlice = apiSlice.injectEndpoints({
                 body:phone_number
             }),
             keepUnusedDataFor: 5,
+            provideTags: ['Auth']
         }),
          verifyCodeUser: builder.mutation({
-            query: (otp: string) => ({
-                url: `${VERIFY_SMS}`,
-                method: 'POST',
-                 body: { otp },
-                credentials:'include'
+            query: (phone_number: string,otp: string) => ({
+                 url: `${VERIFY_SMS}`,
+                 method: 'POST',
+                 body: phone_number, otp,
             }),
-            keepUnusedDataFor: 5,
+             keepUnusedDataFor: 5,
+            provideTags: ['Auth']
         }),
     }),
 });

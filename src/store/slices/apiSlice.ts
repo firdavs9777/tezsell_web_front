@@ -3,11 +3,11 @@ import { BASE_URL } from "../constants"
 
 const baseQuery = fetchBaseQuery({
   baseUrl: BASE_URL,
-  // credentials: 'include', // Ensure credentials are included with every request
-  //     prepareHeaders: (headers) => {
-  //         headers.set('Content-Type', 'application/json');
-  //         return headers;
-  //     }
+prepareHeaders: (headers) => {
+          headers.set('Content-Type', 'application/json');
+          return headers;
+  },
+  credentials: 'include',
 });
 
 export const apiSlice = createApi({

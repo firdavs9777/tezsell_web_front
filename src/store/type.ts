@@ -133,3 +133,20 @@ export type RootStackParamList = {
   ProductDetail: { product: Product }; // 'product' is passed as a parameter to ProductDetail
   // Add more screens and their respective params here
 };
+
+export interface LoginInfo {
+    phone_number: string;
+    password: string;
+}
+export interface LocationInfo {
+    country: string | null;
+  region: string | null;
+  district: string | null;
+}
+export interface RegisterInfo {
+    username: string;
+    phone_number: string;
+    password: string;
+    user_type: string;
+    location: LocationInfo; 
+}

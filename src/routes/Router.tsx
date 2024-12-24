@@ -5,6 +5,7 @@ import About from '../pages/About/About';
 import Service from '../pages/Service/Service';
 import Login from '../pages/Authentication/Login/Login';
 import Register from '../pages/Authentication/Register/Register';
+import ProductDetail from '../pages/Product/ProductDetail';
 
 
 const Router = () => {
@@ -15,6 +16,7 @@ const Router = () => {
       <Route path='/login' element={<Login />} />
       <Route path='/register' element={<Register/>} />
       <Route path="/" element={<Home />} />
+      <Route path="/product/:id" element={<ProductDetail/>}/>
     </Routes>
   );
 };
