@@ -1,0 +1,136 @@
+/* General layout */
+.product-detail-container {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+.product-detail-left {
+  flex: 1;
+  max-width: 50%;
+  padding-right: 20px;
+}
+
+.product-detail-right {
+  flex: 1;
+  max-width: 40%;
+}
+
+.product-image-gallery {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.selected-image {
+  width: 100%;
+  max-height: 500px;
+  object-fit: cover;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.image-thumbnails {
+  display: flex;
+  flex-direction: row;
+  gap: 10;
+}
+
+.thumbnail {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  margin-right: 10px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.thumbnail:hover {
+  transform: scale(1.1);
+}
+
+.product-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.product-description {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.product-info {
+  margin-bottom: 20px;
+}
+
+.product-price {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #28a745;
+}
+
+.product-availability {
+  font-size: 1rem;
+  color: #007bff;
+}
+
+.product-condition {
+  font-size: 1rem;
+  color: #6c757d;
+}
+
+.product-likes {
+  font-size: 1rem;
+  color: #495057;
+}
+
+.product-actions {
+  display: flex;
+  justify-content:flex-start;
+}
+
+.btn-buy-now,
+.btn-add-to-cart {
+  padding: 12px 20px;
+  background-color: #007bff;
+  color: white;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin: 10px;
+}
+
+.btn-buy-now:hover,
+.btn-add-to-cart:hover {
+  background-color: #0056b3;
+}
+
+.product-rating {
+  margin-top: 20px;
+  font-size: 1rem;
+  color: #f39c12;
+}
+
+.loading,
+.error {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #f39c12;
+}
+
+.loading {
+  font-weight: bold;
+}
+
+.error {
+  color: #e74c3c;
+}

@@ -112,16 +112,17 @@ export interface Product {
   description: string;
   category: Category;
   location: UserLocation;
+  condition?: string;
   created_at: string;
-  price: number;
+  price: string;
   currency: string;
   in_stock: boolean;
-  rating: number;
+  rating: string;
   images: ProductImage[];
   likeCount: number;
   commentCount: number;
-  userName: string;
-  userAddress: string;
+  userName: User;
+  userAddress: string | null;
 }
 
 export interface SingleProductProps {
