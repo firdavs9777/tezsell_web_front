@@ -11,7 +11,7 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
   const navigate = useNavigate();
   const { search } = useLocation();
    const sp = new URLSearchParams(search);
-   const redirect = sp.get('redirect') || '/';
+  //  const redirect = sp.get('redirect') || '/';
   const redirectHandler = (id: number) => {
     navigate(`/product/${id}`);
   }
@@ -24,13 +24,13 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
   };
   const formattedDate = new Date(product.created_at).toLocaleDateString();
   return (
-    <div className="product-card" onClick={() => redirectHandler(product.id)}>
-      <div className="image-container">
+    <div className="product-card" >
+      <div className="image-container" onClick={() => redirectHandler(product.id)}>
         {product && product.images.length > 0 ? (
         <img src={`${BASE_URL}/products${product.images[0].image}`} alt={product.title} className="product-image" />
         ): (<></>)}
       </div>
-      <div className="product-details">
+      <div className="product-details" onClick={() => redirectHandler(product.id)}>
         <h2 className="product-price">{formatPrice(product.price)} So'm</h2>
         <p className="product-title"><strong>{product.title}</strong> </p>
         

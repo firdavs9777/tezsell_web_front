@@ -3,7 +3,7 @@ import { ALL_LOCATION, CATEGORY_URL, DISTRICTS_URL, PRODUCTS_URL, REGIONS_URL } 
 
 import { apiSlice } from "./apiSlice";
 // import ProductType  from "../type";
-import Product from "../type";
+import {Product} from "../type";
 
 
 export const productsApiSlice = apiSlice.injectEndpoints({
@@ -51,17 +51,20 @@ export const productsApiSlice = apiSlice.injectEndpoints({
             keepUnusedDataFor: 5,
             provideTags: ['Product']
         }),
-        createProduct: builder.mutation({
-            query: (productData: Product) => ({
-                url: `${PRODUCTS_URL}/`,
-                method: 'POST',
-                body: productData,
-                // headers: {
-                //     'Content-Type': 'multipart/form-data'
-                // },
-            }),
-            invalidatesTags: ['Product']
-        }),
+      createProduct: builder.mutation({
+  query: ({ productData, token }: { productData: FormData, token: string }) => {
+    return {
+      url: `${PRODUCTS_URL}/`,
+      method: 'POST',
+      body: productData,
+      headers: {
+        'Authorization': `Token ${token}`, // Add token to the Authorization header
+      },
+    };
+  },
+  invalidatesTags: ['Product'],
+}),
+
 
     })
 });
