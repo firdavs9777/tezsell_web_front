@@ -59,7 +59,8 @@ export const productsApiSlice = apiSlice.injectEndpoints({
       body: productData,
       headers: {
         'Authorization': `Token ${token}`, // Add token to the Authorization header
-      },
+        },
+      credentials: 'include',
     };
   },
   invalidatesTags: ['Product'],
