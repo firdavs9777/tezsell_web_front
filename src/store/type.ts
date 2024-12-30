@@ -106,6 +106,11 @@ export interface ProductResponse {
   previous: string,
   results: Product[]
 }
+export interface SingleProduct {
+  success: boolean, 
+  product: Product,
+  recommended_products: Product[]
+} 
 export interface Product {
   id: number;
   title: string;

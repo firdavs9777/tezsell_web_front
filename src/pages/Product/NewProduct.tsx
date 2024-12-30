@@ -5,6 +5,7 @@ import { Category } from "../../store/type";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
+import { Response } from '../../store/slices/authSlice';
 
 const NewProduct = () => {
   const { data, isLoading, error } = useGetCategoryListQuery({});
@@ -110,7 +111,7 @@ const NewProduct = () => {
         const token = userInfo?.token;
 
       const response = await createProduct({ productData: formData, token });
-      if (response)
+      if (response.message)
       {
         toast.success('Product created successfully')
       }

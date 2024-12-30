@@ -5,6 +5,7 @@ import RouterPage from  './routes/Router'
 import i18n from './utils/i18n';
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Footer from "./pages/Footer/Footer";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
 <div className="content">
           <RouterPage /> {/* Add Router here */}
         </div>
+        <Footer/>
       </Router>
        <ToastContainer />
       </I18nextProvider>
