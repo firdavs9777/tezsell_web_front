@@ -14,14 +14,21 @@ export const servicessApiSlice = apiSlice.injectEndpoints({
             keepUnusedDataFor: 5,
             provideTags: ['Service']
         }),
+        getSingleService: builder.query({
+            query: (serviceId: string) => ({
+               url: `${SERVICES_URL}/${serviceId}`
+            }),
+            keepUnusedDataFor: 5,
+            provideTags: ['Service']
+       }),
        getServiceCategoryList: builder.query({
                   query: () => ({
                       url: SERVICES_CATEGORY,
                   }),
                   keepUnusedDataFor: 5,
-                  provideTags: ['Product']
+                  provideTags: ['Service']
               }),
     })
 });
-export const { useGetServicesQuery, useGetServiceCategoryListQuery } = servicessApiSlice;
+export const { useGetServicesQuery, useGetSingleServiceQuery, useGetServiceCategoryListQuery } = servicessApiSlice;
 export default servicessApiSlice.reducer;

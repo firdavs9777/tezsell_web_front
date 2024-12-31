@@ -39,6 +39,10 @@ export interface User {
   phone_number: string;
   user_type: string;
   location: Location;
+  profile_image: {
+    image: string;
+    alt_text: string | null | ''
+  }
   is_active: boolean;
 }
 
@@ -105,6 +109,11 @@ export interface ProductResponse {
   next: string,
   previous: string,
   results: Product[]
+}
+export interface SingleService {
+  success: boolean, 
+  service: Service,
+  recommended_services: Service[]
 }
 export interface SingleProduct {
   success: boolean, 

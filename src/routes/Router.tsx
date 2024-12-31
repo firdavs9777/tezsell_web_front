@@ -7,6 +7,7 @@ import Login from '../pages/Authentication/Login/Login';
 import Register from '../pages/Authentication/Register/Register';
 import ProductDetail from '../pages/Product/ProductDetail';
 import NewProduct from '../pages/Product/NewProduct';
+import ServiceDetail from '../pages/Service/ServiceDetail';
 
 
 const Router = () => {
@@ -18,7 +19,8 @@ const Router = () => {
       <Route path='/new-product' element={<NewProduct />} />
        <Route path='/register' element={<Register/>} />
       <Route path="/" element={<Home />} />
-      <Route path="/product/:id" element={<ProductDetail/>}/>
+      <Route path="/product/:id" element={<ProductDetail />} />
+      <Route path="/service/:id" element={<ServiceDetail/>}/>
     </Routes>
   );
 };

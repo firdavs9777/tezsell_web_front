@@ -5,17 +5,25 @@ import './SingleService.css';
 import {
   FaMapMarkerAlt,
 
-  FaComment,
+  // FaComment,
 
 } from 'react-icons/fa';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface SingleServiceProps {
   service: Service;
 }
 
+
 const SingleService: React.FC<SingleServiceProps> = ({ service }) => {
+const navigate = useNavigate();
+  const { search } = useLocation();
+   const sp = new URLSearchParams(search);
+ const redirectHandler = (id: number) => {
+    navigate(`/service/${id}`);
+  }
   return (
-    <div className="service-card">
+    <div className="service-card" onClick={() => redirectHandler(service.id)}>
       <div className="image-container">
         {service.images.length > 0 ? (
           <img
@@ -39,10 +47,10 @@ const SingleService: React.FC<SingleServiceProps> = ({ service }) => {
             <FaMapMarkerAlt size={18} className='service-map-icon' />
             {service.location ? service.location.region : ''} - {service.location ? service.location.district : ''}
           </span> 
-          <span className="service-comments">
+          {/* <span className="service-comments">
             <FaComment size={18} style={{ marginLeft: '10px', marginRight:'10px', color: '#666' }} />
             {service.comments.length}
-          </span> 
+          </span>  */}
         </div>
       </div>
     </div>

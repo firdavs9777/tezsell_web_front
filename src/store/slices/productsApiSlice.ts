@@ -3,7 +3,7 @@ import { ALL_LOCATION, CATEGORY_URL, DISTRICTS_URL, PRODUCTS_URL, REGIONS_URL } 
 
 import { apiSlice } from "./apiSlice";
 // import ProductType  from "../type";
-import {Product} from "../type";
+import { Product } from "../type";
 
 
 export const productsApiSlice = apiSlice.injectEndpoints({
@@ -11,7 +11,7 @@ export const productsApiSlice = apiSlice.injectEndpoints({
         getProducts: builder.query({
             query: ({ currentPage = 1, page_size = 10, category_name = '', region_name = '', district_name = '', product_title = '' }) => ({
                 url: PRODUCTS_URL,
-                params: { page: currentPage.toString(), page_size: page_size.toString(), category_name: category_name, region_name: region_name, district_name: district_name, product_title: product_title}, // Ensure page and page_size are strings
+                params: { page: currentPage.toString(), page_size: page_size.toString(), category_name: category_name, region_name: region_name, district_name: district_name, product_title: product_title }, // Ensure page and page_size are strings
             }),
             keepUnusedDataFor: 5,
             provideTags: ['Product']
@@ -21,7 +21,7 @@ export const productsApiSlice = apiSlice.injectEndpoints({
                 url: `${PRODUCTS_URL}/${productId}`,
             }),
             keepUnusedDataFor: 5,
-            provideTags:['Product']
+            provideTags: ['Product']
         }),
         getCategoryList: builder.query({
             query: () => ({
@@ -51,20 +51,20 @@ export const productsApiSlice = apiSlice.injectEndpoints({
             keepUnusedDataFor: 5,
             provideTags: ['Product']
         }),
-      createProduct: builder.mutation({
-  query: ({ productData, token }: { productData: FormData, token: string }) => {
-    return {
-      url: `${PRODUCTS_URL}/`,
-      method: 'POST',
-      body: productData,
-      headers: {
-        'Authorization': `Token ${token}`, // Add token to the Authorization header
-        },
-      credentials: 'include',
-    };
-  },
-  invalidatesTags: ['Product'],
-}),
+        createProduct: builder.mutation({
+            query: ({ productData, token }: { productData: FormData, token: string }) => {
+                return {
+                    url: `${PRODUCTS_URL}/`,
+                    method: 'POST',
+                    body: productData,
+                    headers: {
+                        'Authorization': `Token ${token}`, // Add token to the Authorization header
+                    },
+                    credentials: 'include',
+                };
+            },
+            invalidatesTags: ['Product'],
+        }),
 
 
     })

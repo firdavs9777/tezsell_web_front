@@ -1,0 +1,205 @@
+/* General Layout */
+.service-detail-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.loading,
+.error {
+  text-align: center;
+  font-size: 18px;
+  color: #ff0000;
+}
+
+/* Left Section: Image Gallery */
+.service-detail-left {
+  flex: 1;
+  min-width: 300px;
+}
+
+.service-image-gallery {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.service-selected-image {
+  width: 100%; /* Make it responsive */
+  max-width: 450px;
+  height: 330px;
+  border-radius: 20px;
+  object-fit: cover;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.service-image-thumbnails {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.service-image-thumbnails img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 5px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border 0.3s ease;
+}
+
+.service-image-thumbnails .thumbnail-selected {
+  border: 2px solid #007bff;
+}
+
+/* Right Section: Details */
+.service-detail-right {
+  flex: 1;
+  min-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.service-category {
+  color: #555;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.service-item-title {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.service-item-description {
+  color: #333;
+  line-height: 1.5;
+}
+
+.service-detail-info {
+  font-size: 16px;
+  color: #666;
+}
+
+.service-owner {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.owner-profile-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.service-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.service-btn {
+  padding: 10px 20px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.service-btn-like {
+  background-color: #f44336;
+  color: white;
+}
+
+.service-btn-like:hover {
+  background-color: #d32f2f;
+}
+
+.service-btn-chat {
+  background-color: #007bff;
+  color: white;
+}
+
+.service-btn-chat:hover {
+  background-color: #0056b3;
+}
+
+/* Recommended Services Section */
+.recommended-services-container {
+  margin-top: 30px;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 10px;
+}
+
+.recommended-services-container h3 {
+  margin-bottom: 15px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* Mobile-Friendly Adjustments */
+@media (max-width: 768px) {
+  .service-detail-container {
+    flex-direction: column; /* Stack sections vertically */
+    gap: 30px;
+  }
+
+  .service-detail-left,
+  .service-detail-right {
+    display: block;
+    min-width: 100%; 
+  }
+
+  .service-image-thumbnails {
+    display: block;
+    margin: auto;
+    flex-direction: row; 
+    overflow-x: auto; 
+    gap: 5px;
+  }
+
+  .service-image-thumbnails img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .service-selected-image {
+    max-width: 100%; /* Scale the selected image to container width */
+    height: auto; /* Maintain aspect ratio */
+  }
+
+  .service-actions {
+    flex-direction: column; /* Stack buttons vertically */
+    gap: 10px;
+  }
+
+  .recommended-services-container {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .service-item-title {
+    font-size: 20px; /* Adjust title size */
+  }
+
+  .service-item-description {
+    font-size: 14px; /* Smaller text for mobile */
+  }
+
+  .service-btn {
+    font-size: 12px; /* Reduce button font size */
+    padding: 8px 16px;
+  }
+}
