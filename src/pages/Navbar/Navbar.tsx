@@ -9,6 +9,7 @@ import { logout } from "../../store/slices/authSlice";
 import { useDispatch } from "react-redux";
 import { FaUserPlus } from "react-icons/fa6";
 import { RootState } from "../../store/index";
+import { BASE_URL } from "../../store/constants";
 // import { useLogoutUserMutation } from '../../store/slices/authSlice';
 const Navbar = () => {
   const [activeLink, setActiveLink] = useState('/');
@@ -69,12 +70,23 @@ const Navbar = () => {
                 setIsProfileDropDownOpen(!isProfileDropDownOpen)
               }} className={`navbar-lang-dropdown ${isProfileDropDownOpen ? 'active' : ''}`}>
                 <button className="navbar-profile-btn">
-                  <FaUserPlus size={20} style={{ marginRight: '4px' }} /> {userInfo.user_info.username}
+                  {userInfo.user_info.user_image ? (
+                    <img
+                      src={`${BASE_URL}${userInfo.user_info.user_image}`}
+                      alt="User profile"
+                      className="navbar-profile-image"
+                    />
+                  ) : (
+                    <FaUserPlus size={20} style={{ marginRight: '1px' }} className={`navbar-link ${activeLink === '/myprofile' ? 'active' : ''}`} />
+                  )}
+                  {userInfo.user_info.username}
                 </button>
                 <ul className="dropdown-menu">
-                  <li><Link to="/myprofile" className={`navbar-link ${activeLink === '/myprofile' ? 'active' : ''}`}>My Profile</Link></li>
+                  <li><Link to="/myprofile" className={`navbar-link ${activeLink === '/myprofile' ? 'active' : ''}`} onClick={() => setActiveLink('/myprofile')}>My Profile</Link></li>
                   <li onClick={logoutHandler}><Link to="/" onClick={() => setActiveLink('/')} className={`navbar-link-login ${activeLink === '/' ? 'active' : ''}`} >
-                    <FaPowerOff style={{ marginRight: '4px' }} /> {t('logout')}
+
+
+                    <FaPowerOff style={{ marginRight: '1px' }} /> {t('logout')}
                   </Link>
                   </li>
                 </ul>
