@@ -17,7 +17,7 @@ const ProductScreen = () => {
   const [searchCategoryQuery, setSearchCategoryQuery] = useState('');
   const [searchLocationQuery, setSearchLocationQuery] = useState('');
   const [searchProductQuery, setSearchProductQuery] = useState('');
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(12);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(''); // Set to null for no selection initially
   const [selectedRegion, setSelectedRegion] = useState<string | null>('');
   const [selectedDistrict, setSelectedtDistrict] = useState<string | null>('');

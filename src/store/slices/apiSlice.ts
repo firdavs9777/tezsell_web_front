@@ -4,12 +4,12 @@ import { BASE_URL } from "../constants"
 const baseQuery = fetchBaseQuery({
   baseUrl: BASE_URL,
   prepareHeaders: (headers, {getState, endpoint, body}) => {
-   if (body instanceof FormData) {
-      // No need to set Content-Type when using FormData as it's handled automatically
-      return headers;
-    }
-    headers.set('Content-Type', 'application/json');
-    return headers;
+  //  if (body instanceof FormData) {
+  //     // No need to set Content-Type when using FormData as it's handled automatically
+  //     return headers;
+  //   }
+  //   headers.set('Content-Type', 'application/json');
+  //   return headers;
   },
   
 });

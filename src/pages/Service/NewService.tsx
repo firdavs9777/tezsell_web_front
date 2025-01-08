@@ -1,28 +1,25 @@
 import React, { useState } from "react";
-import './NewProduct.css';
-import { useCreateProductMutation, useGetCategoryListQuery } from "../../store/slices/productsApiSlice";
+import './NewService.css';
 import { Category } from "../../store/type";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { useNavigate } from "react-router-dom";
+import { useCreateServiceMutation, useGetServiceCategoryListQuery } from "../../store/slices/serviceApiSlice";
 
 
-const NewProduct = () => {
+const NewService = () => {
   const navigate = useNavigate();
-  const { data, isLoading, error } = useGetCategoryListQuery({});
+  const { data, isLoading, error } = useGetServiceCategoryListQuery({});
   const category_list = data as Category[];
-  const [createProduct, { isLoading: create_loading }] = useCreateProductMutation()
+  const [createProduct, { isLoading: create_loading }] = useCreateServiceMutation()
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
-  const [title, setTitle] = useState<string>('');
+  const [name, setName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]); 
-  const [price, setPrice] = useState<string>('');
-  const [condition, setCondition] = useState<string>('');
   const [category, setCategory] = useState<string>('');
   const [imageLength, setImageLength] = useState<number>(0)
-
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
@@ -61,22 +58,8 @@ const NewProduct = () => {
     setCategory(e.target.value);
   };
 
-  const formatPrice = (value: string): string => {
-    const numericValue = value.replace(/[^0-9]/g, '');
-    const parts = numericValue.split('.');
-    const integerPart = parts[0];
-    const formattedInt = parseInt(integerPart || '0', 10)
-      .toLocaleString('en-US')
-      .replace(/,/g, '.');
-    return formattedInt;
-  };
 
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-
-    const rawValue = e.target.value;
-    const formattedValue = formatPrice(rawValue);
-    setPrice(formattedValue);
-  };
+  
   if (isLoading) {
     return <div>Loading....</div>
   }
@@ -86,14 +69,10 @@ const NewProduct = () => {
   const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append('title', title);
+    formData.append('name', name);
     formData.append('description', description);
-    formData.append('condition', condition);
-    formData.append('currency', 'Sum');
-    formData.append('in_stock', 'true');
-    // Price handling
-    const cleanedPrice = price.replace(/\./g, '');
-    formData.append('price', cleanedPrice)
+
+ 
     // Image handling
      imageFiles.forEach((file) => {
       formData.append('images', file); 
@@ -117,91 +96,53 @@ const NewProduct = () => {
       if (response?.data)
       {
         toast.success('Product created successfully')
-        navigate('/');
+        navigate('/service');
       }
     }
     catch (error: unknown) {
        if (error instanceof Error) {
-        toast.error(error.message || "Error while creating product");
+        toast.error(error.message || "Error while creating service");
     } else {
-        toast.error("An unknown error occurred while creating the product");
+        toast.error("An unknown error occurred while creating the service");
     }
-
     }
-    // alert(title)
-    // alert(description)
-    // alert(price)
-    // alert(category)
-    // alert()
-    // alert('Submit')
   }
   return (
-    <div className="new-product">
-      <h1 className="new-product-title">Add New Product</h1>
-      <div className="new-product-container">
-        <form className="new-product-form" onSubmit={submitFormHandler}>
-
-          <div className="product-form-group">
-            <label htmlFor="product-title">Product Title *</label>
+    <div className="new-service">
+      <h1 className="new-service-title">Add New Service</h1>
+      <div className="new-service-container">
+        <form className="new-service-form" onSubmit={submitFormHandler}>
+          {/* Form Fields */}
+          <div className="service-form-group">
+            <label htmlFor="service-title">Service Name *</label>
             <input
-              id="product-title"
+              id="service-title"
               type="text"
-              placeholder="Enter product title"
+              placeholder="Enter service title"
               required
-              className="product-form-input"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              className="service-form-input"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
           </div>
 
-          <div className="product-form-group">
-            <label htmlFor="product-description">Product Description *</label>
+          <div className="service-form-group">
+            <label htmlFor="service-description">Service Description *</label>
             <textarea
-              id="product-description"
-              placeholder="Enter product description"
+              id="service-description"
+              placeholder="Enter service description"
               required
-              className="product-form-textarea"
+              className="service-form-textarea"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             ></textarea>
           </div>
 
-          <div className="product-form-group">
-            <label htmlFor="product-price">Product Price *</label>
-            <input
-              id="product-price"
-              type="text"
-              placeholder="Enter product price"
-              required
-              value={price}
-              onChange={handlePriceChange}
-              className="product-form-input"
-            />
-            <span>So'm</span>
-          </div>
-
-          <div className="product-form-group">
-            <label htmlFor="product-condition">Product Condition *</label>
+          <div className="service-form-group">
+            <label htmlFor="service-category">Service Category*</label>
             <select
-              id="product-condition"
-              required
-              className="product-form-select"
-              value={condition}
-              onChange={(e) => setCondition(e.target.value)}
-            >
-              <option value="" disabled selected>
-                Select condition
-              </option>
-              <option value="new">New</option>
-              <option value="used">Used</option>
-            </select>
-          </div>
-
-          <div className="product-form-group">
-            <label htmlFor="product-category">Product Category</label>
-            <select
-              id="product-category"
-              className="product-form-select"
+              id="service-category"
+              className="service-form-select"
               value={category}
               onChange={handleCategoryChange}
             >
@@ -222,8 +163,8 @@ const NewProduct = () => {
             </select>
           </div>
 
-          <div className="product-form-group">
-            <label>Product Images {imageLength > 0 ? `${imagePreviews.length}/10` : '0/10'} </label>
+          <div className="service-form-group">
+            <label>Service Images {imageLength > 0 ? `${imagePreviews.length}/10` : '0/10'} </label>
             <div className="image-preview-container">
               {imagePreviews.map((preview, index) => (
                 <div key={index} className="image-wrapper">
@@ -249,14 +190,14 @@ const NewProduct = () => {
               id="image-upload"
               type="file"
               accept="image/*"
-              className="product-form-file"
+              className="service-form-file"
               onChange={handleImageChange}
               multiple
               style={{ display: "none" }}
             />
           </div>
-          <div className="product-form-group">
-            <button type="submit" className="product-form-submit-button">
+          <div className="service-form-group">
+            <button type="submit" className="service-form-submit-button">
               Submit
             </button>
           </div>
@@ -266,4 +207,4 @@ const NewProduct = () => {
   );
 };
 
-export default NewProduct;
+export default NewService;

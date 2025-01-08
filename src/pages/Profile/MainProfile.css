@@ -1,0 +1,147 @@
+/* Main container for the profile page */
+.profile-container {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background-color: #f4f4f4;
+}
+
+/* Profile Header */
+.profile-header {
+  background-color: #008cba;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.profile-header h1 {
+  margin: 0;
+}
+
+/* Profile Overview Section */
+.profile-overview {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.profile-image {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  margin-right: 20px;
+  object-fit: cover;
+}
+
+.profile-details h2 {
+  margin: 0;
+  color: #333;
+  font-size: 1.5em;
+}
+
+.profile-details .bio {
+  font-size: 1em;
+  color: #777;
+  margin: 10px 0;
+}
+
+.edit-btn {
+  background-color: #008cba;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.edit-btn:hover {
+  background-color: #007b9a;
+}
+
+/* Recent Activity Section */
+.recent-activity {
+  background-color: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.recent-activity h3 {
+  margin-top: 0;
+}
+
+.recent-activity ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.recent-activity li {
+  margin: 8px 0;
+  color: #555;
+}
+
+/* My Products Section */
+.my-products {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.my-products h3 {
+  margin-top: 0;
+}
+
+.my-products ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.my-products li {
+  margin: 8px 0;
+  color: #555;
+}
+
+.my-services {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.my-services h3 {
+  margin-top: 0;
+}
+
+.my-services ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.my-services li {
+  margin: 8px 0;
+  color: #555;
+}
+
+.add-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+  margin-top: 10px;
+}
+
+.add-btn:hover {
+  background-color: #218838;
+}

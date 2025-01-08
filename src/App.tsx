@@ -13,7 +13,7 @@ function App() {
       <Router>
       <Navbar />
 <div className="content">
-          <RouterPage /> {/* Add Router here */}
+          <RouterPage />
         </div>
         <Footer/>
       </Router>

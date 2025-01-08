@@ -4,6 +4,7 @@ import { BASE_URL } from '../../store/constants';
 import './SingleService.css';
 import {
   FaMapMarkerAlt,
+  FaPlus,
 
   // FaComment,
 
@@ -22,9 +23,12 @@ const navigate = useNavigate();
  const redirectHandler = (id: number) => {
     navigate(`/service/${id}`);
   }
+   const handleNewServiceRedirect = () => {
+    navigate('/new-service');
+  };
   return (
-    <div className="service-card" onClick={() => redirectHandler(service.id)}>
-      <div className="image-container">
+    <section className="service-card" >
+      <div className="image-container" onClick={() => redirectHandler(service.id)}>
         {service.images.length > 0 ? (
           <img
             src={`${BASE_URL}${service.images[0].image}`}
@@ -35,7 +39,7 @@ const navigate = useNavigate();
           <div className="no-image-placeholder">No Image</div>
         )}
       </div>
-      <div className="service-details">
+      <div className="service-details" onClick={() => redirectHandler(service.id)}>
         <p className='service-category'>{service.category.name}</p>
         <h2 className="service-title">{service.name.length > 20 ? `${service.name.substring(0, 26)}` : service.name}</h2>
         <p className="service-description">
@@ -47,13 +51,13 @@ const navigate = useNavigate();
             <FaMapMarkerAlt size={18} className='service-map-icon' />
             {service.location ? service.location.region : ''} - {service.location ? service.location.district : ''}
           </span> 
-          {/* <span className="service-comments">
-            <FaComment size={18} style={{ marginLeft: '10px', marginRight:'10px', color: '#666' }} />
-            {service.comments.length}
-          </span>  */}
+      
         </div>
       </div>
-    </div>
+            <div className="add-new-service" onClick={handleNewServiceRedirect}>
+            <FaPlus style={{ fontSize: '30px', color: '#333' }} />
+            </div>
+    </section>
   )
 }
 

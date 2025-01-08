@@ -68,3 +68,20 @@
   color: #666;
   font-weight: 400;
 }
+
+.add-new-service {
+  position: fixed;
+  bottom: 30px;  
+  right: 50px;  
+ background-color: #e0f7fa;
+  border-radius: 50%;
+  border-color: #555;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000; 
+}
