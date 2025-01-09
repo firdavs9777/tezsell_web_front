@@ -1,8 +1,16 @@
-import { REGISTER_URL, LOGIN_URL, LOGOUT_URL, SEND_SMS, VERIFY_SMS } from '../constants';
+import { REGISTER_URL, LOGIN_URL, LOGOUT_URL, SEND_SMS, VERIFY_SMS, USER_PRODUCT } from '../constants';
 import { LoginInfo, RegisterInfo } from '../type';
 import { apiSlice } from "./apiSlice";
 
-
+interface GetUserProductsArgs {
+    token: string;
+    currentPage?: number;
+    page_size?: number;
+    category_name?: string;
+    region_name?: string;
+    district_name?: string;
+    product_title?: string;
+}
 
 export const usersApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder: any) => ({
@@ -39,20 +47,73 @@ export const usersApiSlice = apiSlice.injectEndpoints({
             query: (phone_number: string) => ({
                 url: `${SEND_SMS}`,
                 method: 'POST',
-                body:phone_number
+                body: phone_number
             }),
             keepUnusedDataFor: 5,
             provideTags: ['Auth']
         }),
-         verifyCodeUser: builder.mutation({
-            query: (phone_number: string,otp: string) => ({
-                 url: `${VERIFY_SMS}`,
-                 method: 'POST',
-                 body: phone_number, otp,
+        verifyCodeUser: builder.mutation({
+            query: (phone_number: string, otp: string) => ({
+                url: `${VERIFY_SMS}`,
+                method: 'POST',
+                body: phone_number, otp,
             }),
-             keepUnusedDataFor: 5,
+            keepUnusedDataFor: 5,
             provideTags: ['Auth']
+        }),
+        getUserProducts: builder.query({
+            query: (token: string) => ({
+                url: `${USER_PRODUCT}`,
+                headers: {
+                    Authorization: `Bearer ${token}`, // Pass token in headers
+                },
+                // params: {
+                //     page: currentPage.toString(),
+                //     page_size,
+                //     category_name,
+                //     region_name,
+                //     district_name,
+                //     product_title,
+                // },
+            }),
+            keepUnusedDataFor: 5,
+            providesTags: ['Auth'],
+
+        }),
+        getSingleUserProduct: builder.query({
+            query: (productId: string) => ({
+                url: `${USER_PRODUCT}/${productId}`,
+            }),
+            keepUnusedDataFor: 5,
+            provideTags: ['Auth']
+        }),
+        updateUserProduct: builder.mutation({
+            query: ({ productData, token, id }: { productData: FormData, token: string, id: string }) => {
+                return {
+                    url: `${USER_PRODUCT}/${id}`,
+                    method: 'PUT',
+                    body: productData,
+                    headers: {
+                        'Authorization': `Token ${token}`, // Add token to the Authorization header
+                    },
+                    credentials: 'include',
+                };
+            },
+            invalidatesTags: ['Auth'],
+        }),
+        deleteUserProduct: builder.mutation({
+            query: ({ token, id }: { token: string, id: string }) => {
+                return {
+                    url: `${USER_PRODUCT}/${id}`,
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Token ${token}`, // Add token to the Authorization header
+                    },
+                    credentials: 'include',
+                };
+            },
+            invalidatesTags: ['Auth'],
         }),
     }),
 });
-export const { useLoginUserMutation, useRegisterUserMutation, useLogoutUserMutation, useSendSmsUserMutation, useVerifyCodeUserMutation } = usersApiSlice;
+export const { useLoginUserMutation, useRegisterUserMutation, useLogoutUserMutation, useSendSmsUserMutation, useVerifyCodeUserMutation, useGetUserProductsQuery, useUpdateUserProductMutation, useDeleteUserProductMutation, useGetSingleUserProductMutation } = usersApiSlice;

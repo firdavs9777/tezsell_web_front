@@ -1,6 +1,35 @@
+import React, { useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { useGetUserProductsQuery } from '../../store/slices/users';
 import './MainProfile.css'; // Import the CSS file
+import { RootState } from '../../store';
 
 const MainProfile = () => {
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+  const token = userInfo?.token;
+  
+const { data, isLoading, error, refetch } = useGetUserProductsQuery( token );
+  useEffect(() => {
+    if (token) {
+      refetch();  // Refetch user products whenever token is available
+    }
+  }, [token, refetch]); // Depend on token and refetch function
+
+  if (!token) {
+  return <div>Please log in to view products</div>;
+}
+
+
+ 
+
+  if (isLoading) {
+    return <div>User Products Loading...</div>;
+  }
+
+  if (error) {
+    return <div>User Products Loading Error</div>;
+  }
+
   return (
     <div className="profile-container">
       <div className="profile-header">
@@ -32,19 +61,25 @@ const MainProfile = () => {
 
         <div className="my-products">
           <h3>My Products</h3>
-          <ul>
-            <li>Product 1</li>
-            <li>Product 2</li>
-          </ul>
+          {data && data.products.length > 0 ? (
+            <ul>
+              {data.products.map((product) => (
+                <li key={product.id}>{product.title}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>No products available</p>
+          )}
           <button className="add-btn">Add New Product</button>
         </div>
-         <div className="my-services">
+
+        <div className="my-services">
           <h3>My Services</h3>
           <ul>
             <li>Product 1</li>
             <li>Product 2</li>
           </ul>
-          <button className="add-btn">Add New Product</button>
+          <button className="add-btn">Add New Service</button>
         </div>
       </div>
     </div>

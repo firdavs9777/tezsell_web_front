@@ -1,6 +1,5 @@
 export const BASE_URL = 'http://127.0.0.1:8000'
 export const PRODUCTS_URL = '/products/api/products';
-
 export const SERVICES_URL = '/services/api/services';
 export const SERVICES_CATEGORY = '/services/api/categories';
 export const REGISTER_URL = '/accounts/register/';
@@ -12,3 +11,4 @@ export const ALL_LOCATION = '/accounts/all-location';
 export const DISTRICTS_URL = '/accounts/districts/';
 export const SEND_SMS = '/accounts/send-sms/';
 export const VERIFY_SMS = '/accounts/verify-code/';
+export const USER_PRODUCT = '/products/api/user/products'
