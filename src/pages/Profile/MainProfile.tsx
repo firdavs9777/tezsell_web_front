@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { useGetUserProductsQuery } from "../../store/slices/users";
 import "./MainProfile.css"; // Import the CSS file
 import { RootState } from "../../store";
+import { Product, ProductResponse } from "../../store/type";
 
 const MainProfile = () => {
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
@@ -11,6 +12,7 @@ const MainProfile = () => {
   const { data, isLoading, error, refetch } = useGetUserProductsQuery({
     token: token,
   });
+  const products: ProductResponse = data as ProductResponse;
   useEffect(() => {
     if (token) {
       refetch(); // Refetch user products whenever token is available
@@ -62,9 +64,9 @@ const MainProfile = () => {
 
         <div className="my-products">
           <h3>My Products</h3>
-          {data && data.products.length > 0 ? (
+          {products && products.results.length > 0 ? (
             <ul>
-              {data.products.map((product) => (
+              {products.results.map((product: Product) => (
                 <li key={product.id}>{product.title}</li>
               ))}
             </ul>
