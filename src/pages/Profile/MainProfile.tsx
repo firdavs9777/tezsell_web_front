@@ -1,26 +1,25 @@
-import React, { useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { useGetUserProductsQuery } from '../../store/slices/users';
-import './MainProfile.css'; // Import the CSS file
-import { RootState } from '../../store';
+import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { useGetUserProductsQuery } from "../../store/slices/users";
+import "./MainProfile.css"; // Import the CSS file
+import { RootState } from "../../store";
 
 const MainProfile = () => {
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
-  
-const { data, isLoading, error, refetch } = useGetUserProductsQuery( token );
+
+  const { data, isLoading, error, refetch } = useGetUserProductsQuery({
+    token: token,
+  });
   useEffect(() => {
     if (token) {
-      refetch();  // Refetch user products whenever token is available
+      refetch(); // Refetch user products whenever token is available
     }
   }, [token, refetch]); // Depend on token and refetch function
 
   if (!token) {
-  return <div>Please log in to view products</div>;
-}
-
-
- 
+    return <div>Please log in to view products</div>;
+  }
 
   if (isLoading) {
     return <div>User Products Loading...</div>;
@@ -45,7 +44,9 @@ const { data, isLoading, error, refetch } = useGetUserProductsQuery( token );
           />
           <div className="profile-details">
             <h2>John Doe</h2>
-            <p className="bio">A short bio about the user. Something interesting about them.</p>
+            <p className="bio">
+              A short bio about the user. Something interesting about them.
+            </p>
             <button className="edit-btn">Edit Profile</button>
           </div>
         </div>
