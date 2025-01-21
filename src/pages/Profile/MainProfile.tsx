@@ -1,36 +1,54 @@
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { useGetUserProductsQuery } from "../../store/slices/users";
+import { useGetUserProductsQuery, useGetUserServicesQuery } from "../../store/slices/users";
 import "./MainProfile.css"; // Import the CSS file
 import { RootState } from "../../store";
-import { Product, ProductResponse } from "../../store/type";
+import { Product, ProductResponse, ServiceResponse, Service } from "../../store/type";
+import { BASE_URL } from "../../store/constants";
+import { useNavigate } from "react-router-dom";
 
 const MainProfile = () => {
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
 
+ const navigate = useNavigate();
   const { data, isLoading, error, refetch } = useGetUserProductsQuery({
     token: token,
   });
+  const { data: service_data, isLoading: service_loading, error: service_error, refetch:service_refetch } = useGetUserServicesQuery({
+    token: token,
+  });
   const products: ProductResponse = data as ProductResponse;
+  const services: ServiceResponse  = service_data as ServiceResponse
+  
   useEffect(() => {
     if (token) {
-      refetch(); // Refetch user products whenever token is available
+      refetch(); 
+      service_refetch();
     }
-  }, [token, refetch]); // Depend on token and refetch function
+  }, [token, refetch, service_refetch]); 
 
   if (!token) {
     return <div>Please log in to view products</div>;
   }
-
   if (isLoading) {
     return <div>User Products Loading...</div>;
   }
-
+  if (service_loading) {
+    return <div> User Services Loading... </div>
+  }
   if (error) {
     return <div>User Products Loading Error</div>;
   }
-
+  if (service_error) {
+    return <div> User Services Loading Error</div>
+  }
+  const handleNewProductRedirect = () => {
+    navigate('/new-product');
+  };
+  const handleNewServiceRedirect = () => {
+      navigate('/new-service');
+  }
   return (
     <div className="profile-container">
       <div className="profile-header">
@@ -39,13 +57,29 @@ const MainProfile = () => {
 
       <div className="profile-content">
         <div className="profile-overview">
-          <img
-            src="https://via.placeholder.com/150"
-            alt="Profile"
-            className="profile-image"
-          />
+
+          {userInfo ? (
+            <img
+              src={`${BASE_URL}${userInfo.user_info.user_image}`}
+              alt="User profile"
+              className="navbar-profile-image"
+            />
+          ) : (
+            <img
+              src="https://via.placeholder.com/150"
+              alt="Profile"
+              className="profile-image"
+            />
+          )}
+
           <div className="profile-details">
-            <h2>John Doe</h2>
+            <h2>
+              {userInfo ? (
+                <p>
+                  {userInfo.user_info.username}
+                </p>
+              ) : (<p>d</p>)}
+            </h2>
             <p className="bio">
               A short bio about the user. Something interesting about them.
             </p>
@@ -73,16 +107,21 @@ const MainProfile = () => {
           ) : (
             <p>No products available</p>
           )}
-          <button className="add-btn">Add New Product</button>
+          <button className="add-btn" onClick={handleNewProductRedirect}>Add New Product</button>
         </div>
 
         <div className="my-services">
           <h3>My Services</h3>
-          <ul>
-            <li>Product 1</li>
-            <li>Product 2</li>
-          </ul>
-          <button className="add-btn">Add New Service</button>
+            {services && services.results.length > 0 ? (
+            <ul>
+              {services.results.map((service: Service) => (
+                <li key={service.id}>{service.name}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>No services available</p>
+          )}
+          <button className="add-btn" onClick={handleNewServiceRedirect}>Add New Service</button>
         </div>
       </div>
     </div>

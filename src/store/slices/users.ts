@@ -5,6 +5,7 @@ import {
   SEND_SMS,
   VERIFY_SMS,
   USER_PRODUCT,
+  USER_SERVICE,
 } from "../constants";
 import { LoginInfo, RegisterInfo } from "../type";
 import { apiSlice } from "./apiSlice";
@@ -71,7 +72,6 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     }),
     getUserProducts: builder.query({
       query: ({ token }: { token: string }) => {
-        console.log(token);
         return {
           url: `${USER_PRODUCT}`,
           headers: {
@@ -124,6 +124,19 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: ["Auth"],
     }),
+    getUserServices: builder.query({
+      query: ({ token }: { token: string }) => {
+      
+        return {
+          url: `${USER_SERVICE}`,
+          headers: {
+            Authorization: `Token ${token}`, // Pass token in headers
+          },
+          credentials: "include",
+        };
+      },
+      invalidatesTags: ["Auth"],
+    }),
   }),
 });
 export const {
@@ -136,4 +149,5 @@ export const {
   useUpdateUserProductMutation,
   useDeleteUserProductMutation,
   useGetSingleUserProductMutation,
+  useGetUserServicesQuery
 } = usersApiSlice;
