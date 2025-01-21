@@ -87,14 +87,7 @@ const MainProfile = () => {
           </div>
         </div>
 
-        <div className="recent-activity">
-          <h3>Recent Activity</h3>
-          <ul>
-            <li>Added a new product: Coffee Mug</li>
-            <li>Posted a new service: Web Design</li>
-            <li>Liked a post: "Great recipes!"</li>
-          </ul>
-        </div>
+
 
         <div className="my-products">
           <h3>My Products</h3>
@@ -109,7 +102,6 @@ const MainProfile = () => {
           )}
           <button className="add-btn" onClick={handleNewProductRedirect}>Add New Product</button>
         </div>
-
         <div className="my-services">
           <h3>My Services</h3>
             {services && services.results.length > 0 ? (
@@ -122,6 +114,24 @@ const MainProfile = () => {
             <p>No services available</p>
           )}
           <button className="add-btn" onClick={handleNewServiceRedirect}>Add New Service</button>
+        </div>
+                <div className="recent-activity">
+          <h3>Favorite Products</h3>
+          <ul>
+            <li>Added a new product: Coffee Mug</li>
+            <li>Posted a new service: Web Design</li>
+            <li>Liked a post: "Great recipes!"</li>
+          </ul>
+        </div>
+
+        
+        <div className="recent-activity">
+          <h3>Favorite Services</h3>
+          <ul>
+            <li>Added a new product: Coffee Mug</li>
+            <li>Posted a new service: Web Design</li>
+            <li>Liked a post: "Great recipes!"</li>
+          </ul>
         </div>
       </div>
     </div>

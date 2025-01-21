@@ -101,32 +101,28 @@ const NewProduct = () => {
     formData.append('location_id', userInfo.user_info.location.id);
     formData.append('userName_id', userInfo.user_info.id);
     formData.append('userAddress_id', userInfo?.user_info.location.id);
-    alert(userInfo?.user_info.id)
     const selectedCategory = category_list.find((item: Category) => item.name === category);
     if (selectedCategory) {
       const selectedCategoryId = selectedCategory.id;
       formData.append('category_id', selectedCategoryId.toString());
     } else {
-      console.log('Category not found');
+      toast.error( "Category not found, select the category first", {autoClose: 3000});
     }
     try {
       const token = userInfo?.token;
       const response = await createProduct({ productData: formData, token });
-      alert(response);
-      console.log(response);
-      if (response?.data)
+      if (response.data)
       {
-        toast.success('Product created successfully')
+        toast.success('Product created successfully', {autoClose: 3000})
         navigate('/');
       }
     }
     catch (error: unknown) {
        if (error instanceof Error) {
-        toast.error(error.message || "Error while creating product");
+        toast.error(error.message || "Error while creating product", {autoClose: 3000});
     } else {
-        toast.error("An unknown error occurred while creating the product");
+        toast.error("An unknown error occurred while creating the product", {autoClose: 3000});
     }
-
     }
     // alert(title)
     // alert(description)
