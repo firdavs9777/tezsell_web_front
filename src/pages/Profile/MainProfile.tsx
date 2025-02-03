@@ -139,10 +139,9 @@ const MainProfile = () => {
         
         <div className="recent-activity">
           <h3>Favorite Services ( {liked_items.liked_services.length})</h3>
-          <ul>
-            <li >Added a new product: Coffee Mug</li>
-           
-          </ul>
+           {liked_items.liked_services.map((service, index) => (
+          <li key={index}>{service.name}</li>
+        ))}
         </div>
       </div>
     </div>
