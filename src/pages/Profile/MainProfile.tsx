@@ -6,6 +6,7 @@ import { RootState } from "../../store";
 import { Product, ProductResponse, ServiceResponse, Service } from "../../store/type";
 import { BASE_URL } from "../../store/constants";
 import { useNavigate } from "react-router-dom";
+import { useGetFavoriteItemsQuery } from "../../store/slices/productsApiSlice";
 
 const MainProfile = () => {
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
@@ -15,18 +16,29 @@ const MainProfile = () => {
   const { data, isLoading, error, refetch } = useGetUserProductsQuery({
     token: token,
   });
+  const { data: favorite_items, isLoading: fav_loading, error:fav_error, refetch: reload } = useGetFavoriteItemsQuery({
+    token: token,
+  });
+
   const { data: service_data, isLoading: service_loading, error: service_error, refetch:service_refetch } = useGetUserServicesQuery({
     token: token,
   });
+   
+  interface ServiceRes   {
+    liked_services: Service[];
+    liked_products: Product[];
+  }
   const products: ProductResponse = data as ProductResponse;
   const services: ServiceResponse  = service_data as ServiceResponse
-  
+  const liked_items: ServiceRes = favorite_items as ServiceRes;
+  console.log(liked_items);
   useEffect(() => {
     if (token) {
       refetch(); 
       service_refetch();
+      reload()
     }
-  }, [token, refetch, service_refetch]); 
+  }, [token, refetch, service_refetch, reload]); 
 
   if (!token) {
     return <div>Please log in to view products</div>;
@@ -90,7 +102,7 @@ const MainProfile = () => {
 
 
         <div className="my-products">
-          <h3>My Products</h3>
+          <h3>My Products - Total Products({products.results.length}) </h3>
           {products && products.results.length > 0 ? (
             <ul>
               {products.results.map((product: Product) => (
@@ -103,7 +115,7 @@ const MainProfile = () => {
           <button className="add-btn" onClick={handleNewProductRedirect}>Add New Product</button>
         </div>
         <div className="my-services">
-          <h3>My Services</h3>
+          <h3>My Services-Total Services({services.results.length})</h3>
             {services && services.results.length > 0 ? (
             <ul>
               {services.results.map((service: Service) => (
@@ -126,11 +138,10 @@ const MainProfile = () => {
 
         
         <div className="recent-activity">
-          <h3>Favorite Services</h3>
+          <h3>Favorite Services ( {liked_items.liked_services.length})</h3>
           <ul>
-            <li>Added a new product: Coffee Mug</li>
-            <li>Posted a new service: Web Design</li>
-            <li>Liked a post: "Great recipes!"</li>
+            <li >Added a new product: Coffee Mug</li>
+           
           </ul>
         </div>
       </div>

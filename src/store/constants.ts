@@ -13,3 +13,4 @@ export const SEND_SMS = '/accounts/send-sms/';
 export const VERIFY_SMS = '/accounts/verify-code/';
 export const USER_PRODUCT = '/products/api/user/products'
 export const USER_SERVICE = '/services/api/user/services'
+export const USER_FAV_PRODS = '/global/liked-items/'

@@ -4,6 +4,7 @@ import {
   DISTRICTS_URL,
   PRODUCTS_URL,
   REGIONS_URL,
+  USER_FAV_PRODS,
 } from "../constants";
 
 import { apiSlice } from "./apiSlice";
@@ -33,6 +34,18 @@ export const productsApiSlice = apiSlice.injectEndpoints({
       }),
       keepUnusedDataFor: 5,
       provideTags: ["Product"],
+    }),
+    getFavoriteItems: builder.query({
+         query: ({ token }: { token: string }) => {
+              return {
+                        url: USER_FAV_PRODS,
+                headers: {
+                  Authorization: `Token ${token}`, // Pass token in headers
+                },
+                credentials: "include",
+              };
+            },
+            invalidatesTags: ["Product"],
     }),
     getSingleProduct: builder.query({
       query: (productId: string) => ({
@@ -99,5 +112,6 @@ export const {
   useGetAllLocationListQuery,
   useGetDistrictsListQuery,
   useCreateProductMutation,
+  useGetFavoriteItemsQuery
 } = productsApiSlice;
 export default productsApiSlice.reducer;
