@@ -1,7 +1,9 @@
 import {
   ALL_LOCATION,
   CATEGORY_URL,
+  DISLIKE_PRODUCT,
   DISTRICTS_URL,
+  LIKE_PRODUCT,
   PRODUCTS_URL,
   REGIONS_URL,
   USER_FAV_PRODS,
@@ -82,6 +84,7 @@ export const productsApiSlice = apiSlice.injectEndpoints({
       keepUnusedDataFor: 5,
       provideTags: ["Product"],
     }),
+
     createProduct: builder.mutation({
       query: ({
         productData,
@@ -102,6 +105,44 @@ export const productsApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: ["Product"],
     }),
+    likeProduct: builder.mutation({
+      query: ({
+        productId,
+        token,
+      }: {
+        productId: string,
+        token: string;
+      }) => {
+        return {
+          url: `${LIKE_PRODUCT}${productId}/`,
+          method: "POST",
+          headers: {
+            Authorization: `Token ${token}`, // Add token to the Authorization header
+          },
+          credentials: "include",
+        };
+      },
+      invalidatesTags: ["Product"],
+    }),
+     unlikeProduct: builder.mutation({
+      query: ({
+        productId,
+        token,
+      }: {
+        productId: string,
+        token: string;
+      }) => {
+        return {
+          url: `${DISLIKE_PRODUCT}${productId}/`,
+          method: "POST",
+          headers: {
+            Authorization: `Token ${token}`, // Add token to the Authorization header
+          },
+          credentials: "include",
+        };
+      },
+      invalidatesTags: ["Product"],
+    }),
   }),
 });
 export const {
@@ -112,6 +153,7 @@ export const {
   useGetAllLocationListQuery,
   useGetDistrictsListQuery,
   useCreateProductMutation,
-  useGetFavoriteItemsQuery
+  useGetFavoriteItemsQuery,
+  useLikeProductMutation, useUnlikeProductMutation
 } = productsApiSlice;
 export default productsApiSlice.reducer;

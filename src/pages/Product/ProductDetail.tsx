@@ -1,16 +1,39 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useGetSingleProductQuery } from "../../store/slices/productsApiSlice";
+import { useGetFavoriteItemsQuery, useGetSingleProductQuery, useLikeProductMutation, useUnlikeProductMutation } from "../../store/slices/productsApiSlice";
 import { Product, SingleProduct } from "../../store/type";
 import "./ProductDetail.css";
 import { BASE_URL } from "../../store/constants";
+import { FaHeart, FaRegHeart, FaArrowLeft } from "react-icons/fa"; // Importing FaArrowLeft
+
+import { useSelector } from "react-redux";
+import { ServiceRes } from "../Profile/MainProfile";
+import { RootState } from "../../store";
+import { toast } from "react-toastify";
 
 const ProductDetail = () => {
   const { id } = useParams();
-  const { data, isLoading, error } = useGetSingleProductQuery(id);
+  const { data, isLoading, error, refetch } = useGetSingleProductQuery(id);
+  const [likeProduct, { isLoading: create_loading_like }] = useLikeProductMutation()
+  const [dislikeProduct, { isLoading: create_loading_unlike }] = useUnlikeProductMutation()
+
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+  const token = userInfo?.token;
+  const { data: favorite_items, isLoading: fav_loading, error: fav_error, refetch: reload } = useGetFavoriteItemsQuery({
+    token: token,
+  });
+
+  const liked_items: ServiceRes = favorite_items as ServiceRes;
+
   const singleProduct: SingleProduct = data as SingleProduct;
   const [selectedImage, setSelectedImage] = useState("");
   const navigate = useNavigate();
+
+  // Handle back navigation
+  const handleGoBack = () => {
+    navigate('/'); // Go back to the previous page
+  };
+
   useEffect(() => {
     if (singleProduct?.product.images.length > 0) {
       setSelectedImage(
@@ -18,10 +41,12 @@ const ProductDetail = () => {
       );
     }
   }, [singleProduct]);
+
   const formatPrice = (price: string) => {
     const priceNumber = parseFloat(price);
     return priceNumber.toLocaleString("en-US").replace(/,/g, ".") + "";
   };
+
   if (isLoading) {
     return <div className="loading">Loading...</div>;
   }
@@ -33,13 +58,59 @@ const ProductDetail = () => {
   const handleImageClick = (image: string) => {
     setSelectedImage(`${BASE_URL}/products${image}`);
   };
+
   const redirectHandler = (id: number) => {
     navigate(`/product/${id}`);
+  };
+
+  const handleLikeProduct = async () => {
+    try {
+      const token = userInfo?.token;
+      const response = await likeProduct({ productId: singleProduct.product.id, token: token });
+
+      if (response.data) {
+        toast.success('Product liked successfully', { autoClose: 1000 });
+        refetch();
+        reload();
+      }
+    }
+    catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || "Error while creating product", { autoClose: 1000 });
+      } else {
+        toast.error("An unknown error occurred while creating the product", { autoClose: 3000 });
+      }
+    }
+  };
+
+  const handleDislikeProduct = async () => {
+    try {
+      const token = userInfo?.token;
+      const response = await dislikeProduct({ productId: singleProduct.product.id, token: token });
+
+      if (response.data) {
+        toast.success('Product disliked successfully', { autoClose: 1000 });
+        refetch();
+        reload();
+      }
+    }
+    catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || "Error while creating product", { autoClose: 3000 });
+      } else {
+        toast.error("An unknown error occurred while creating the product", { autoClose: 3000 });
+      }
+    }
   };
 
   return (
     <div>
       <div className="product-detail-container">
+        {/* Back button */}
+        <div className="back-button" onClick={handleGoBack}>
+          <FaArrowLeft size={24} />
+        </div>
+
         <div className="product-detail-left">
           <div className="product-image-gallery">
             <img
@@ -77,15 +148,22 @@ const ProductDetail = () => {
             <p className="product-condition">
               Condition: {singleProduct.product.condition}
             </p>
-            <p className="product-likes">
-              Likes: {singleProduct.product.likeCount}
-            </p>
           </div>
           <div className="product-rating">
             <p>Rating: {singleProduct.product.rating} / 5</p>
           </div>
+          {liked_items && liked_items.liked_products && liked_items.liked_products.some((item: Product) => item.id === singleProduct.product.id) ? (
+            <div>
+              <FaHeart size={24} onClick={handleDislikeProduct} />
+              {singleProduct.product.likeCount}
+            </div>
+          ) : (
+            <div>
+              <FaRegHeart size={24} onClick={handleLikeProduct} />
+              {singleProduct.product.likeCount}
+            </div>
+          )}
           <div className="product-actions">
-            <button className="btn-buy-now">Like</button>
             <button className="btn-add-to-cart">Chat</button>
           </div>
         </div>

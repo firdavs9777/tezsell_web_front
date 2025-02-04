@@ -23,7 +23,7 @@ export interface Location {
 
 export interface Comment {
   id: number;
-  user: number;
+  user: User;
   text: string;
   created_at: string;
 }

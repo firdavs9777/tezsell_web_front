@@ -8,6 +8,12 @@ import { BASE_URL } from "../../store/constants";
 import { useNavigate } from "react-router-dom";
 import { useGetFavoriteItemsQuery } from "../../store/slices/productsApiSlice";
 
+
+  export  interface ServiceRes   {
+    liked_services: Service[];
+    liked_products: Product[];
+  }
+
 const MainProfile = () => {
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
@@ -16,6 +22,7 @@ const MainProfile = () => {
   const { data, isLoading, error, refetch } = useGetUserProductsQuery({
     token: token,
   });
+ 
   const { data: favorite_items, isLoading: fav_loading, error:fav_error, refetch: reload } = useGetFavoriteItemsQuery({
     token: token,
   });
@@ -24,10 +31,7 @@ const MainProfile = () => {
     token: token,
   });
    
-  interface ServiceRes   {
-    liked_services: Service[];
-    liked_products: Product[];
-  }
+
   const products: ProductResponse = data as ProductResponse;
   const services: ServiceResponse  = service_data as ServiceResponse
   const liked_items: ServiceRes = favorite_items as ServiceRes;
@@ -128,17 +132,15 @@ const MainProfile = () => {
           <button className="add-btn" onClick={handleNewServiceRedirect}>Add New Service</button>
         </div>
                 <div className="recent-activity">
-          <h3>Favorite Products</h3>
-          <ul>
-            <li>Added a new product: Coffee Mug</li>
-            <li>Posted a new service: Web Design</li>
-            <li>Liked a post: "Great recipes!"</li>
-          </ul>
+          <h3>Favorite Products: ({ liked_items.liked_products.length })</h3>
+          {liked_items.liked_products.map((product, index) => (
+            <li key={index}>{ product.title}</li>
+          ))}
         </div>
 
         
         <div className="recent-activity">
-          <h3>Favorite Services ( {liked_items.liked_services.length})</h3>
+          <h3>Favorite Services: ({liked_items.liked_services.length})</h3>
            {liked_items.liked_services.map((service, index) => (
           <li key={index}>{service.name}</li>
         ))}
