@@ -11,7 +11,7 @@ import storage from 'redux-persist/lib/storage'; // This uses localStorage
 const persistConfig = {
   key: 'root', // You can name this as per your app's needs
   storage, // Use localStorage as the storage
-  whitelist: ['Product', 'Auth', 'Service'], // Define which slices to persist (e.g., 'product' and 'auth')
+  whitelist: ['product', 'auth', 'service','comment'], // Define which slices to persist (e.g., 'product' and 'auth')
 };
 
 const persistedProductReducer = persistReducer(persistConfig, productsSliceReducer);
@@ -24,7 +24,7 @@ const rootReducer = configureStore({
     product: persistedProductReducer,
     service: persistedServiceReducer,
     auth: persistedAuthReducer, 
-    comment: persistedCommentReducer
+    comment: persistedCommentReducer,
   },
   middleware:(getDefaultMiddleware) => getDefaultMiddleware().concat(apiSlice.middleware),
   devTools: true

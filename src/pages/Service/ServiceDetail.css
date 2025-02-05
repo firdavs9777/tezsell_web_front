@@ -133,73 +133,110 @@
 .service-btn-chat:hover {
   background-color: #0056b3;
 }
-
+/* Comment Section */
 .comments-section {
-  margin-top: 20px;
+  margin-top: 30px;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 10px;
 }
 
+.comments-title {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+/* Comment Card */
 .comment-card {
-  border-bottom: 1px solid #ddd;
-  padding: 10px;
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
 }
 
 .comment-author-info {
   display: flex;
   align-items: center;
+  gap: 12px;
 }
 
 .comment-author-image {
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  margin-right: 10px;
+  border: 2px solid #ddd;
+}
+
+.comment-author-details {
+  display: flex;
+  flex-direction: column;
 }
 
 .comment-author {
   font-weight: bold;
+  font-size: 16px;
 }
 
 .comment-location {
-  font-size: 0.9rem;
-  color: #555;
+  font-size: 14px;
+  color: #777;
 }
 
 .comment-text {
-  margin-top: 5px;
-  font-size: 1rem;
+  margin-top: 8px;
+  font-size: 15px;
+  color: #333;
 }
 
 .comment-time {
-  font-size: 0.8rem;
-  color: #999;
+  font-size: 12px;
+  color: #888;
   margin-top: 5px;
 }
 
+/* No Comments Message */
+.no-comments {
+  font-size: 15px;
+  color: #555;
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* Comment Input */
 .comment-input {
   margin-top: 20px;
 }
 
-.comment-input textarea {
+.comment-textarea {
   width: 100%;
+  min-height: 80px;
   padding: 10px;
-  resize: none;
-  border: 1px solid #ddd;
   border-radius: 5px;
+  border: 1px solid #ddd;
+  resize: none;
+  font-size: 14px;
+  background: #fff;
 }
 
-.comment-input button {
+.comment-submit-btn {
   margin-top: 10px;
   padding: 10px 20px;
+  font-size: 14px;
   background-color: #007bff;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%;
 }
 
-.comment-input button:hover {
+.comment-submit-btn:hover {
   background-color: #0056b3;
 }
+
 
 
 /* Recommended Services Section */

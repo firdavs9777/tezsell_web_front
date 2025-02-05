@@ -7,22 +7,27 @@ import { FaHeart, FaCommentAlt, FaMapMarkerAlt, FaUser } from "react-icons/fa";
 import "./ServiceDetail.css";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
-import { useGetCommentsQuery } from "../../store/slices/commentApiSlice";
+import { useCreateCommentMutation, useGetCommentsQuery } from "../../store/slices/commentApiSlice";
+import { toast } from "react-toastify";
 
 const ServiceDetail = () => {
   const { id } = useParams();
   const { data, isLoading, error } = useGetSingleServiceQuery(id);
+  const [createComment, { isLoading: create_loading }] = useCreateCommentMutation()
+
+
+  const [text, setText] = useState<string>('');
+  
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
   
   // Ensure serviceItem is available and defined
   const serviceItem: SingleService | null = data as SingleService;
   const serviceId = serviceItem?.service.id;
-
   const { data: comments_data, isLoading: fav_loading, error: fav_error, refetch: reload } = useGetCommentsQuery({
     serviceId: serviceId || "", // Ensure serviceId is not undefined
     token: token,
-  });
+  });  
   
   // Make sure comments data is in the correct format
   const comments: Comment[] = comments_data as Comment[] || [];
@@ -43,6 +48,32 @@ const ServiceDetail = () => {
 
   if (error || !serviceItem) {
     return <div className="error">Error Occurred...</div>;
+  }
+  const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+   const formData = new FormData();
+    formData.append('name', text);
+        try {
+          const token = userInfo?.token;
+          const response = await createComment({ text: text , serviceId:service.id, token });
+       
+          if (response.data)
+          {
+            toast.success('Comment created successfully');
+            reload();
+            setText('');
+          }
+          else {
+       toast.error('Error occured during the creation')
+          }
+        }
+        catch (error: unknown) {
+           if (error instanceof Error) {
+            toast.error(error.message || "Error while creating service");
+        } else {
+            toast.error("An unknown error occurred while creating the service");
+        }
+        }
   }
 
   const { service } = serviceItem;
@@ -97,41 +128,53 @@ const ServiceDetail = () => {
         </section>
       </div>
 
-      <section className="comments-section">
-        <h2>Comments</h2>
-        <div className="comments-list">
-          {comments.length ? (
-            comments.map((comment, index) => (
-              <div key={index} className="comment-card">
-                <div className="comment-author-info">
-                  <img
-                    src={`${BASE_URL}/${comment.user.profile_image.image}`}
-                    alt={comment.user.username}
-                    className="comment-author-image"
-                  />
-                  <div>
-                    <p className="comment-author">{comment.user.username}</p>
-                    <p className="comment-location">
-                      {comment.user.location ? `${comment.user.location.region}` : ""}
-                    </p>
-                  </div>
-                </div>
-                <p className="comment-text">{comment.text}</p>
-                <p className="comment-time">
-                  {new Date(comment.created_at).toLocaleString()}
-                </p>
-              </div>
-            ))
-          ) : (
-            <p>No comments yet.</p>
-          )}
+    <section className="comments-section">
+  <h2 className="comments-title">Comments</h2>
+  <div className="comments-list">
+    {comments.length ? (
+      comments.map((comment, index) => (
+        <div key={index} className="comment-card">
+          <div className="comment-author-info">
+            <img
+              src={`${BASE_URL}/${comment.user.profile_image.image}`}
+              alt={comment.user.username}
+              className="comment-author-image"
+            />
+            <div className="comment-author-details">
+              <p className="comment-author">{comment.user.username}</p>
+              <p className="comment-location">
+                {comment.user.location
+                  ? `${comment.user.location.region}, ${comment.user.location.district}`
+                  : ""}
+              </p>
+            </div>
+          </div>
+          <p className="comment-text">{comment.text}</p>
+          <p className="comment-time">
+            {new Date(comment.created_at).toLocaleString()}
+          </p>
         </div>
+      ))
+    ) : (
+      <p className="no-comments">No comments yet. Be the first to comment!</p>
+    )}
+  </div>
 
-        <div className="comment-input">
-          <textarea placeholder="Add a comment..." />
-          <button>Post Comment</button>
-        </div>
-      </section>
+  <div className="comment-input">
+    <form onSubmit={submitFormHandler}>
+      <textarea
+        placeholder="Write a comment..."
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        className="comment-textarea"
+      />
+      <button type="submit" className="comment-submit-btn">
+        Post Comment
+      </button>
+    </form>
+  </div>
+</section>
+
 
       <section className="recommended-services-container">
         <h3>Recommended Services</h3>
