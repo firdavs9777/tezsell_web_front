@@ -89,7 +89,7 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
 
   return (
     <div className="product-card">
-      <div className="image-container" onClick={() => redirectHandler(product.id)} onClick={() => redirectHandler(product.id)}>
+      <div className="image-container" onClick={() => redirectHandler(product.id)} >
         {product && product.images.length > 0 ? (
           <img
             src={`${BASE_URL}/products${product.images[0].image}`}
@@ -115,16 +115,19 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
         <div className="like-container" >
 
           {liked_items && liked_items.liked_products && liked_items.liked_products.some((item: Product) => item.id === product.id) ? (<div>
-            <FaHeart style={{ color: 'red' }} onClick={handleDislikeProduct}/></div>) : (<div>
-              <FaRegHeart onClick={handleLikeProduct} />
-            </div>)} 
+            <FaHeart style={{ color: 'red' }} onClick={handleDislikeProduct}/> { product.likeCount}</div>) : (<div>
+              <FaRegHeart onClick={handleLikeProduct} /> { product.likeCount}
+          </div>)} 
         </div>
 
         <p className="product-created-at">{formattedDate}</p>
       </div>
-      <div className="add-new-product" onClick={handleNewProductRedirect}>
+      {userInfo ? (
+        <div className="add-new-product" onClick={handleNewProductRedirect}>
         <FaPlus style={{ fontSize: '30px', color: 'white' }} />
       </div>
+      ) : (<p>-</p>)}
+     
     </div>
   );
 };

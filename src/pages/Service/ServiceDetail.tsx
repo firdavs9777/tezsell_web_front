@@ -160,7 +160,8 @@ const ServiceDetail = () => {
     )}
   </div>
 
-  <div className="comment-input">
+        {userInfo ? (
+            <div className="comment-input">
     <form onSubmit={submitFormHandler}>
       <textarea
         placeholder="Write a comment..."
@@ -173,6 +174,10 @@ const ServiceDetail = () => {
       </button>
     </form>
   </div>
+        ) : (
+            <p>Please login first</p>
+        )}
+
 </section>
 
 

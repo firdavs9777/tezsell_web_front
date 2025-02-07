@@ -1,5 +1,5 @@
 
-import { SERVICES_URL, SERVICES_CATEGORY } from '../constants';
+import { SERVICES_URL, SERVICES_CATEGORY, LIKE_SERVICE, DISLIKE_PRODUCT, DISLIKE_SERVICE } from '../constants';
 
 import { apiSlice } from "./apiSlice";
 
@@ -40,10 +40,48 @@ export const servicessApiSlice = apiSlice.injectEndpoints({
                     credentials: 'include',
                 };
             },
-            invalidatesTags: ['Product'],
+            invalidatesTags: ['Service'],
         }),
+         likeService: builder.mutation({
+              query: ({
+                serviceId,
+                token,
+              }: {
+                serviceId: string,
+                token: string;
+              }) => {
+                return {
+                  url: `${LIKE_SERVICE}${serviceId}/`,
+                  method: "POST",
+                  headers: {
+                    Authorization: `Token ${token}`, // Add token to the Authorization header
+                  },
+                  credentials: "include",
+                };
+              },
+              invalidatesTags: ["Service"],
+            }),
+             unlikeService: builder.mutation({
+              query: ({
+                      serviceId,
+                token,
+              }: {
+               serviceId: string,
+                token: string;
+              }) => {
+                return {
+                  url: `${DISLIKE_SERVICE}${serviceId}/`,
+                  method: "POST",
+                  headers: {
+                    Authorization: `Token ${token}`, // Add token to the Authorization header
+                  },
+                  credentials: "include",
+                };
+              },
+              invalidatesTags: ["Service"],
+            }),
 
     })
 });
-export const { useGetServicesQuery, useGetSingleServiceQuery, useGetServiceCategoryListQuery, useCreateServiceMutation } = servicessApiSlice;
+export const { useGetServicesQuery, useGetSingleServiceQuery, useGetServiceCategoryListQuery, useCreateServiceMutation, useLikeServiceMutation, useUnlikeServiceMutation } = servicessApiSlice;
 export default servicessApiSlice.reducer;

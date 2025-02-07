@@ -132,7 +132,7 @@ const ServiceScreen = () => {
       <div className="service-list">
         {services?.results?.length ? (
           services.results.map((service: Service) => (
-            <SingleService service={service} key={service.id} />
+            <SingleService service={service} key={service.id}  />
           ))
         ) : (
             <p>{ t('service_error')}</p>

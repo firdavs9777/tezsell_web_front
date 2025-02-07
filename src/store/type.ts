@@ -57,6 +57,7 @@ export interface Service {
   name: string;
   description: string;
   category: Category;
+    likeCount: number;
   location: Location;
   comments: Comment[];
   images: Image[];
