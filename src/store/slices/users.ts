@@ -6,19 +6,10 @@ import {
   VERIFY_SMS,
   USER_PRODUCT,
   USER_SERVICE,
+  LOGGED_USER,
 } from "../constants";
 import { LoginInfo, RegisterInfo } from "../type";
 import { apiSlice } from "./apiSlice";
-
-// interface GetUserProductsArgs {
-//   token: string;
-//   currentPage?: number;
-//   page_size?: number;
-//   category_name?: string;
-//   region_name?: string;
-//   district_name?: string;
-//   product_title?: string;
-// }
 
 export const usersApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder: any) => ({
@@ -47,6 +38,30 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         headers: {
           Authorization: `Token ${token}`, // Attach the token to the Authorization header
         },
+      }),
+      keepUnusedDataFor: 5,
+      provideTags: ["Auth"],
+    }),
+    getLoggedinUserInfo: builder.query({
+      query: ({ token }: { token: string }) => {
+        return {
+          url: `${LOGGED_USER}`,
+          headers: {
+            Authorization: `Token ${token}`, // Pass token in headers
+          },
+          credentials: "include",
+        };
+      },
+      invalidatesTags: ["Auth"],
+    }),
+    updateLoggedUserInfo: builder.mutation({
+      query: ({ userData, token }: { userData: FormData; token: string }) => ({
+        url: `${LOGGED_USER}/`,
+        method: "PUT",
+        headers: {
+          Authorization: `Token ${token}`, // Add token to the Authorization header
+        },
+        body: userData,
       }),
       keepUnusedDataFor: 5,
       provideTags: ["Auth"],
@@ -126,7 +141,6 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     }),
     getUserServices: builder.query({
       query: ({ token }: { token: string }) => {
-      
         return {
           url: `${USER_SERVICE}`,
           headers: {
@@ -149,5 +163,7 @@ export const {
   useUpdateUserProductMutation,
   useDeleteUserProductMutation,
   useGetSingleUserProductMutation,
-  useGetUserServicesQuery
+  useGetUserServicesQuery,
+  useGetLoggedinUserInfoQuery,
+  useUpdateLoggedUserInfoMutation,
 } = usersApiSlice;
