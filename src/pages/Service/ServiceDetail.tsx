@@ -169,7 +169,7 @@ const ServiceDetail = () => {
         </section>
       </div>
       <section className="comments-section">
-        <h2 className="comments-title">Comments</h2>
+        <h2 className="comments-title">Comments ({comments.length})</h2>
         <div className="comments-list">
           {comments.length ? (
             comments.map((comment, index) => (

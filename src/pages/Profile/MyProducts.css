@@ -1,0 +1,32 @@
+.product-list {
+    display: flex;
+    flex-direction: row;
+     justify-content: flex-start; 
+    align-items: center; 
+    flex-wrap: wrap;
+    gap: 15px; 
+  }
+  .product-modification {
+    display: flex;
+    flex-direction: row;
+  }
+  .product-edit {
+    padding:10px;
+    font-size: 20px;
+    color: blue;
+    margin:10px;
+  }
+  .product-edit:hover{
+    text-decoration: underline;
+    color: red;
+  }
+  .product-delete {
+    padding:10px;
+    font-size: 20px;
+    color: blue;
+    margin:10px;
+  }
+  .product-delete:hover{
+    text-decoration: underline;
+    color: red;
+  }
