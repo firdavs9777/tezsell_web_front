@@ -1,11 +1,9 @@
-
-
 export interface ProductType {
-  id: string;  // Unique identifier for the product
+  id: string; // Unique identifier for the product
   title: string;
   description: string;
   price: number;
-  condition: 'new' | 'used';
+  condition: "new" | "used";
   category: string;
   location: string;
   currency: string;
@@ -33,6 +31,10 @@ export interface Image {
   alt_text: string | null;
 }
 
+export interface UserInfo {
+  result: boolean;
+  data: User;
+}
 export interface User {
   id: number;
   username: string;
@@ -41,8 +43,8 @@ export interface User {
   location: Location;
   profile_image: {
     image: string;
-    alt_text: string | null | ''
-  }
+    alt_text: string | null | "";
+  };
   is_active: boolean;
 }
 
@@ -74,16 +76,14 @@ export interface ServiceResponse {
   results: Service[];
 }
 
-
-
 interface ProductImage {
   image: string;
   alt_text: string | null;
 }
 export interface Category {
-  id: number,
-  key: string,
-  name: string
+  id: number;
+  key: string;
+  name: string;
 }
 export interface UserLocation {
   id: number;
@@ -95,33 +95,33 @@ export interface Region {
   districts: string[];
 }
 export interface AllLocationList {
-  success: boolean,
-  regions: Region[]
+  success: boolean;
+  regions: Region[];
 }
 export interface RegionsList {
-  success: boolean,
-  regions:{ region: string } []
+  success: boolean;
+  regions: { region: string }[];
 }
 export interface DistrictsList {
-  success: boolean,
-  districts:{ district: string } []
+  success: boolean;
+  districts: { district: string }[];
 }
 export interface ProductResponse {
-  count: number,
-  next: string,
-  previous: string,
-  results: Product[]
+  count: number;
+  next: string;
+  previous: string;
+  results: Product[];
 }
 export interface SingleService {
-  success: boolean, 
-  service: Service,
-  recommended_services: Service[]
+  success: boolean;
+  service: Service;
+  recommended_services: Service[];
 }
 export interface SingleProduct {
-  success: boolean, 
-  product: Product,
-  recommended_products: Product[]
-} 
+  success: boolean;
+  product: Product;
+  recommended_products: Product[];
+}
 export interface Product {
   id: number;
   title: string;
@@ -152,18 +152,18 @@ export type RootStackParamList = {
 };
 
 export interface LoginInfo {
-    phone_number: string;
-    password: string;
+  phone_number: string;
+  password: string;
 }
 export interface LocationInfo {
-    country: string | null;
+  country: string | null;
   region: string | null;
   district: string | null;
 }
 export interface RegisterInfo {
-    username: string;
-    phone_number: string;
-    password: string;
-    user_type: string;
-    location: LocationInfo; 
+  username: string;
+  phone_number: string;
+  password: string;
+  user_type: string;
+  location: LocationInfo;
 }

@@ -1,32 +1,35 @@
 import React, { useState } from "react";
-import './NewService.css';
+import "./NewService.css";
 import { Category } from "../../store/type";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { useNavigate } from "react-router-dom";
-import { useCreateServiceMutation, useGetServiceCategoryListQuery } from "../../store/slices/serviceApiSlice";
-
+import {
+  useCreateServiceMutation,
+  useGetServiceCategoryListQuery,
+} from "../../store/slices/serviceApiSlice";
 
 const NewService = () => {
   const navigate = useNavigate();
   const { data, isLoading, error } = useGetServiceCategoryListQuery({});
   const category_list = data as Category[];
-  const [createProduct, { isLoading: create_loading }] = useCreateServiceMutation()
+  const [createProduct, { isLoading: create_loading }] =
+    useCreateServiceMutation();
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
-  const [name, setName] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
+  const [name, setName] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [imageFiles, setImageFiles] = useState<File[]>([]); 
-  const [category, setCategory] = useState<string>('');
-  const [imageLength, setImageLength] = useState<number>(0)
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [category, setCategory] = useState<string>("");
+  const [imageLength, setImageLength] = useState<number>(0);
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
     const totalImages = imagePreviews.length + files.length;
     if (totalImages > 10) {
       toast.error("You can upload a maximum of 10 images");
-      return
+      return;
     }
     const previews: string[] = [];
     const fileArray: File[] = [];
@@ -58,55 +61,51 @@ const NewService = () => {
     setCategory(e.target.value);
   };
 
-
-  
   if (isLoading) {
-    return <div>Loading....</div>
+    return <div>Loading....</div>;
   }
   if (create_loading) {
-    return <div>Creating....</div>
+    return <div>Creating....</div>;
   }
   const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append('name', name);
-    formData.append('description', description);
+    formData.append("name", name);
+    formData.append("description", description);
 
- 
     // Image handling
-     imageFiles.forEach((file) => {
-      formData.append('images', file); 
+    imageFiles.forEach((file) => {
+      formData.append("images", file);
     });
-    formData.append('location_id', userInfo.user_info.location.id);
-    formData.append('userName_id', userInfo.user_info.id);
-    formData.append('userAddress_id', userInfo?.user_info.location.id);
-    alert(userInfo?.user_info.id)
-    const selectedCategory = category_list.find((item: Category) => item.name === category);
+    formData.append("location_id", userInfo.user_info.location.id);
+    formData.append("userName_id", userInfo.user_info.id);
+    formData.append("userAddress_id", userInfo?.user_info.location.id);
+    alert(userInfo?.user_info.id);
+    const selectedCategory = category_list.find(
+      (item: Category) => item.name === category
+    );
     if (selectedCategory) {
       const selectedCategoryId = selectedCategory.id;
-      formData.append('category_id', selectedCategoryId.toString());
+      formData.append("category_id", selectedCategoryId.toString());
     } else {
-      console.log('Category not found');
+      console.log("Category not found");
     }
     try {
       const token = userInfo?.token;
       const response = await createProduct({ productData: formData, token });
-      alert(response);
-      console.log(response);
-      if (response?.data)
-      {
-        toast.success('Product created successfully')
-        navigate('/service');
+
+      if (response?.data) {
+        toast.success("Product created successfully");
+        navigate("/service");
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || "Error while creating service");
+      } else {
+        toast.error("An unknown error occurred while creating the service");
       }
     }
-    catch (error: unknown) {
-       if (error instanceof Error) {
-        toast.error(error.message || "Error while creating service");
-    } else {
-        toast.error("An unknown error occurred while creating the service");
-    }
-    }
-  }
+  };
   return (
     <div className="new-service">
       <h1 className="new-service-title">Add New Service</h1>
@@ -164,11 +163,18 @@ const NewService = () => {
           </div>
 
           <div className="service-form-group">
-            <label>Service Images {imageLength > 0 ? `${imagePreviews.length}/10` : '0/10'} </label>
+            <label>
+              Service Images{" "}
+              {imageLength > 0 ? `${imagePreviews.length}/10` : "0/10"}{" "}
+            </label>
             <div className="image-preview-container">
               {imagePreviews.map((preview, index) => (
                 <div key={index} className="image-wrapper">
-                  <img src={preview} alt={`Preview ${index}`} className="image-preview" />
+                  <img
+                    src={preview}
+                    alt={`Preview ${index}`}
+                    className="image-preview"
+                  />
                   <button
                     type="button"
                     className="remove-image-button"
@@ -177,11 +183,10 @@ const NewService = () => {
                     X
                   </button>
                 </div>
-
               ))}
               <div
                 className="upload-more-wrapper"
-                onClick={() => document.getElementById('image-upload')?.click()}
+                onClick={() => document.getElementById("image-upload")?.click()}
               >
                 <span className="plus-icon">+</span>
               </div>

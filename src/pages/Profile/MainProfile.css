@@ -1,11 +1,8 @@
-/* Main container for the profile page */
 .profile-container {
   font-family: Arial, sans-serif;
   padding: 20px;
   background-color: #f4f4f4;
 }
-
-/* Profile Header */
 .profile-header {
   background-color: #008cba;
   color: white;
@@ -13,38 +10,44 @@
   padding: 20px;
   border-radius: 8px;
 }
-
 .profile-header h1 {
   margin: 0;
+  font-size: 2rem;
 }
-
-/* Profile Overview Section */
-.profile-overview {
-  display: flex;
-  align-items: center;
+.profile-top {
   background-color: white;
   padding: 20px;
-  margin-bottom: 20px;
+  margin-top: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-
+.profile-overview {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  margin: 10px;
+}
 .profile-image {
-  width: 150px;
-  height: 150px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   margin-right: 20px;
   object-fit: cover;
 }
-
-.profile-details h2 {
-  margin: 0;
-  color: #333;
-  font-size: 1.5em;
+.profile-details {
+  flex: 1;
+  min-width: 200px;
 }
-
-.profile-details .bio {
-  font-size: 1em;
+.profile-username {
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+}
+.bio-section {
+  margin-top: 10px;
+}
+.bio {
+  font-size: 1rem;
   color: #777;
   margin: 10px 0;
 }
@@ -53,84 +56,60 @@
   background-color: #008cba;
   color: white;
   border: none;
-  padding: 10px 20px;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s;
+  padding: 10px;
+  font-size: 0.9rem;
+  margin-left:20px;
 }
-
 .edit-btn:hover {
   background-color: #007b9a;
 }
-
-/* Recent Activity Section */
-.recent-activity {
+.see-more-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
   margin-top: 10px;
+  display: block;
+  width: fit-content;
+}
+
+.see-more-btn:hover {
+  background-color: #0056b3;
+}
+
+.my-products,
+.my-services,
+.recent-activity {
   background-color: white;
   padding: 20px;
-  margin-bottom: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
 }
-
+.my-products h3,
+.my-services h3,
 .recent-activity h3 {
   margin-top: 0;
+  font-size: 1.5rem;
 }
-
+.my-products ul,
+.my-services ul,
 .recent-activity ul {
   list-style-type: none;
   padding-left: 0;
 }
-
+.my-products li,
+.my-services li,
 .recent-activity li {
   margin: 8px 0;
+  font-size: 1rem;
   color: #555;
 }
-
-.my-products {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.my-products h3 {
-  margin-top: 0;
-}
-
-.my-products ul {
-  list-style-type: none;
-  padding-left: 0;
-}
-
-.my-products li {
-  margin: 8px 0;
-  color: #555;
-}
-
-.my-services {
-  margin-top: 10px;
-  padding: 10px;
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.my-services h3 {
-  margin-top: 0;
-}
-
-.my-services ul {
-  list-style-type: none;
-  padding-left: 0;
-}
-
-.my-services li {
-  margin: 8px 0;
-  color: #555;
-}
-
 .add-btn {
   background-color: #28a745;
   color: white;
@@ -141,7 +120,124 @@
   transition: background-color 0.3s;
   margin-top: 10px;
 }
-
 .add-btn:hover {
   background-color: #218838;
+}
+.edit-profile-form {
+  background-color: white;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+  box-shadow: 5px 5px 10px 8px rgba(0, 0, 0, 0.4);
+}
+.image-preview {
+  margin-bottom: 10px;
+  width: 400px;
+  height: 400px;
+  overflow: hidden;
+  
+}
+
+.image-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.upload-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.upload-btn {
+  background-color: #FFE082;
+  color: #333;
+  font-weight: 700;
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.custom-upload-btn {
+  background-color: #FFE082;
+  color: #333;
+  font-weight: 700;
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.custom-upload-btn:hover {
+  background-color: #0056b3;
+}
+
+.file-input {
+  display: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .profile-overview {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .profile-image {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 10px;
+  }
+
+  .profile-username {
+    font-size: 18px;
+  }
+
+  .bio {
+    font-size: 0.9rem;
+  }
+  .my-products h3,
+  .my-services h3,
+  .recent-activity h3 {
+    font-size: 1.3rem;
+  }
+
+  .add-btn {
+    width: 100%;
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-container {
+    padding: 10px;
+  }
+
+  .profile-header {
+    padding: 15px;
+  }
+
+  .profile-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .profile-image {
+    width: 80px;
+    height: 80px;
+  }
+
+  .profile-username {
+    font-size: 16px;
+  }
+
+  .bio {
+    font-size: 0.85rem;
+  }
+
+  .add-btn {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
 }
