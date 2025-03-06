@@ -9,6 +9,8 @@ import {
   FaPlus,
   FaRegComment,
   FaRegHeart,
+  FaRegThumbsUp,
+  FaThumbsUp,
 
   // FaComment,
 
@@ -117,14 +119,14 @@ const liked_items: ServiceRes = favorite_items as ServiceRes;
      
         </div>
         {liked_items && liked_items.liked_services && liked_items.liked_services.some((item: Service) => item.id === service.id) ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px',  }}>
-            <FaHeart style={{ color: 'red' }} onClick={handleDislikeService} /> {service.likeCount}
-            <FaComment /> {service.comments.length}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin:'10px' }}>
+            <FaThumbsUp size={24} style={{ color: 'blue', margin:'10px' }} onClick={handleDislikeService}  /> 
+            <FaRegComment size={24} /> {service.comments.length}
           </div>
         ) : (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <FaRegHeart onClick={handleLikeService} /> {likeCount}
-            <FaComment /> {service.comments.length}
+          <div  style={{ display: 'flex', alignItems: 'center', gap: '8px', margin:'10px' }}>
+            <FaRegThumbsUp  size={24} onClick={handleLikeService} style={{ margin:'10px' }} />
+            <FaRegComment size={24}/> {service.comments.length}
           </div>
         )}
 

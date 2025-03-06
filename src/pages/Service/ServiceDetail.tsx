@@ -3,7 +3,7 @@ import { useGetFavoriteItemsQuery, useGetSingleServiceQuery } from "../../store/
 import { useEffect, useState } from "react";
 import { BASE_URL } from "../../store/constants";
 import { Comment, Service, SingleService } from "../../store/type";
-import { FaHeart, FaCommentAlt, FaMapMarkerAlt, FaUser, FaRegHeart } from "react-icons/fa";
+import { FaHeart, FaCommentAlt, FaMapMarkerAlt, FaUser, FaRegHeart, FaThumbsUp, FaRegThumbsUp } from "react-icons/fa";
 import "./ServiceDetail.css";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
@@ -129,23 +129,19 @@ const ServiceDetail = () => {
           </div>
 
           <div className="service-actions">
-   
-            <button className="service-btn service-btn-like">
-                            {liked_items && liked_items.liked_services && liked_items.liked_services.some((item:Service) => item.id === serviceItem.service.id) ? (
-                        <div>
-                          <FaHeart size={24} />
-                    
-                        </div>
-                      ) : (
-                        <div>
-                          <FaRegHeart size={24} />
-                 
-                        </div>
-                      )}
-            </button>
-            <button className="service-btn service-btn-chat" onClick={() => navigate("/chat")}>
-              <FaCommentAlt /> Chat
-            </button>
+           
+  {liked_items?.liked_services?.some((item: Service) => item.id === serviceItem.service.id) ? (
+    <div>
+      <FaThumbsUp size={24} /> Like
+    </div>
+  ) : (
+    <div>
+      <FaRegThumbsUp size={24} /> Like
+    </div>
+  )}
+            <div>
+              <FaCommentAlt size={24} /> Chat              
+           </div>
           </div>
         </section>
       </div>

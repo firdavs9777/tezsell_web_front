@@ -1,10 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useGetFavoriteItemsQuery, useGetSingleProductQuery, useLikeProductMutation, useUnlikeProductMutation } from "../../store/slices/productsApiSlice";
+import {
+  useGetFavoriteItemsQuery,
+  useGetSingleProductQuery,
+  useLikeProductMutation,
+  useUnlikeProductMutation,
+} from "../../store/slices/productsApiSlice";
 import { Product, SingleProduct } from "../../store/type";
 import "./ProductDetail.css";
 import { BASE_URL } from "../../store/constants";
-import { FaHeart, FaRegHeart, FaArrowLeft } from "react-icons/fa"; // Importing FaArrowLeft
+import {
+  FaHeart,
+  FaRegHeart,
+  FaArrowLeft,
+  FaThumbsUp,
+  FaRegThumbsUp,
+  FaCommentAlt,
+} from "react-icons/fa"; // Importing FaArrowLeft
 
 import { useSelector } from "react-redux";
 import { ServiceRes } from "../Profile/MainProfile";
@@ -14,12 +26,19 @@ import { toast } from "react-toastify";
 const ProductDetail = () => {
   const { id } = useParams();
   const { data, isLoading, error, refetch } = useGetSingleProductQuery(id);
-  const [likeProduct, { isLoading: create_loading_like }] = useLikeProductMutation()
-  const [dislikeProduct, { isLoading: create_loading_unlike }] = useUnlikeProductMutation()
+  const [likeProduct, { isLoading: create_loading_like }] =
+    useLikeProductMutation();
+  const [dislikeProduct, { isLoading: create_loading_unlike }] =
+    useUnlikeProductMutation();
 
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
-  const { data: favorite_items, isLoading: fav_loading, error: fav_error, refetch: reload } = useGetFavoriteItemsQuery({
+  const {
+    data: favorite_items,
+    isLoading: fav_loading,
+    error: fav_error,
+    refetch: reload,
+  } = useGetFavoriteItemsQuery({
     token: token,
   });
 
@@ -31,7 +50,7 @@ const ProductDetail = () => {
 
   // Handle back navigation
   const handleGoBack = () => {
-    navigate('/'); // Go back to the previous page
+    navigate("/"); // Go back to the previous page
   };
 
   useEffect(() => {
@@ -66,19 +85,25 @@ const ProductDetail = () => {
   const handleLikeProduct = async () => {
     try {
       const token = userInfo?.token;
-      const response = await likeProduct({ productId: singleProduct.product.id, token: token });
+      const response = await likeProduct({
+        productId: singleProduct.product.id,
+        token: token,
+      });
 
       if (response.data) {
-        toast.success('Product liked successfully', { autoClose: 1000 });
+        toast.success("Product liked successfully", { autoClose: 1000 });
         refetch();
         reload();
       }
-    }
-    catch (error: unknown) {
+    } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error(error.message || "Error while creating product", { autoClose: 1000 });
+        toast.error(error.message || "Error while creating product", {
+          autoClose: 1000,
+        });
       } else {
-        toast.error("An unknown error occurred while creating the product", { autoClose: 3000 });
+        toast.error("An unknown error occurred while creating the product", {
+          autoClose: 3000,
+        });
       }
     }
   };
@@ -86,19 +111,25 @@ const ProductDetail = () => {
   const handleDislikeProduct = async () => {
     try {
       const token = userInfo?.token;
-      const response = await dislikeProduct({ productId: singleProduct.product.id, token: token });
+      const response = await dislikeProduct({
+        productId: singleProduct.product.id,
+        token: token,
+      });
 
       if (response.data) {
-        toast.success('Product disliked successfully', { autoClose: 1000 });
+        toast.success("Product disliked successfully", { autoClose: 1000 });
         refetch();
         reload();
       }
-    }
-    catch (error: unknown) {
+    } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error(error.message || "Error while creating product", { autoClose: 3000 });
+        toast.error(error.message || "Error while creating product", {
+          autoClose: 3000,
+        });
       } else {
-        toast.error("An unknown error occurred while creating the product", { autoClose: 3000 });
+        toast.error("An unknown error occurred while creating the product", {
+          autoClose: 3000,
+        });
       }
     }
   };
@@ -152,24 +183,39 @@ const ProductDetail = () => {
           <div className="product-rating">
             <p>Rating: {singleProduct.product.rating} / 5</p>
           </div>
-          {liked_items && liked_items.liked_products && liked_items.liked_products.some((item: Product) => item.id === singleProduct.product.id) ? (
-            <div>
-              <FaHeart size={24} onClick={handleDislikeProduct} />
-              {singleProduct.product.likeCount}
+
+          {liked_items &&
+          liked_items.liked_products &&
+          liked_items.liked_products.some(
+            (item: Product) => item.id === singleProduct.product.id
+          ) ? (
+            <div className="product-actions">
+              <button className="btn-like" onClick={handleDislikeProduct}>
+                <FaThumbsUp size={24} color="white" /> Like
+              </button>
             </div>
           ) : (
-            <div>
-              <FaRegHeart size={24} onClick={handleLikeProduct} />
-              {singleProduct.product.likeCount}
+            <div className="product-actions">
+              <button className="btn-dislike" onClick={handleLikeProduct}>
+                <FaRegThumbsUp size={24} /> Like
+              </button>
             </div>
           )}
+
           <div className="product-actions">
-            <button className="btn-add-to-cart">Chat</button>
+            <button className="btn-chat">
+              <FaCommentAlt size={24} /> Chat
+            </button>
           </div>
+
+          <div className="like-count-section">
+  <FaThumbsUp size={24} color="blue" /> {singleProduct.product.likeCount} 
+</div>
         </div>
       </div>
+
       <section className="recommended-products-section">
-        <h1>Recommended Products</h1>
+        <h1 className="section-title">Recommended Products</h1>
         <div className="rec-product-grid">
           {singleProduct.recommended_products.map((item: Product) => (
             <div

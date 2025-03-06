@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Product } from '../../store/type';
 import { BASE_URL } from '../../store/constants';
 import './SingleProduct.css';
 import { useNavigate } from 'react-router-dom';
-import { FaHeart, FaPlus, FaRegHeart } from 'react-icons/fa';
+import { FaHeart, FaPlus, FaRegHeart, FaRegThumbsUp, FaThumbsUp } from 'react-icons/fa';
 
 import { IoLocationOutline } from "react-icons/io5";
 import { MdDescription } from "react-icons/md";
@@ -20,18 +20,19 @@ interface SingleProductProps {
 const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
   const navigate = useNavigate();
 
-
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
   const { data: favorite_items, isLoading: fav_loading, error: fav_error, refetch: reload } = useGetFavoriteItemsQuery({
     token: token,
   });
-  const [likeProduct, { isLoading: create_loading_like }] = useLikeProductMutation()
-    const [dislikeProduct, { isLoading: create_loading_unlike }] = useUnlikeProductMutation()
+  const [likeProduct, { isLoading: create_loading_like }] = useLikeProductMutation();
+  const [dislikeProduct, { isLoading: create_loading_unlike }] = useUnlikeProductMutation();
   
   const liked_items: ServiceRes = favorite_items as ServiceRes;
 
-
+  const [likeCount, setLikeCount] = useState(0);
+  const [isLiked, setIsLiked] = useState(false);
+  
   const redirectHandler = (id: number) => {
     navigate(`/product/${id}`);
   };
@@ -46,46 +47,89 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
   };
 
   const formattedDate = new Date(product.created_at).toLocaleDateString();
-
-
-    const handleLikeProduct = async () => {
-      try {
-        const token = userInfo?.token;
-        const response = await likeProduct({ productId: product.id, token: token });
   
-        if (response.data) {
-          toast.success('Product liked successfully', { autoClose: 1000 });
+  useEffect(() => {
+    if (product && product.likeCount !== undefined) {
+      setLikeCount(product.likeCount);
+    }
+    
+    // Check if this product is liked by the user
+    if (liked_items && liked_items.liked_products) {
+      const isProductLiked = liked_items.liked_products.some((item: Product) => item.id === product.id);
+      setIsLiked(isProductLiked);
+    }
+  }, [product, liked_items]);
+
+  const handleLikeProduct = async () => {
+    if (!userInfo || !token) {
+      toast.error('You must be logged in to like products', { autoClose: 2000 });
+      return;
+    }
+    
+    try {
+      // Optimistic update
+      setLikeCount(prevCount => prevCount + 1);
+      setIsLiked(true);
       
-          reload();
+      const response = await likeProduct({ productId: product.id, token: token });
+
+      if (response.data) {
+        toast.success('Product liked successfully', { autoClose: 1000 });
+        // If server returns a different count, sync with it
+        if (response.data !== undefined) {
+           const liked_product = response.data as Product;
+          setLikeCount(liked_product.likeCount);
         }
+        reload();
       }
-      catch (error: unknown) {
-        if (error instanceof Error) {
-          toast.error(error.message || "Error while creating product", { autoClose: 1000 });
-        } else {
-          toast.error("An unknown error occurred while creating the product", { autoClose: 3000 });
+    }
+    catch (error: unknown) {
+      // Revert optimistic update on error
+      setLikeCount(prevCount => prevCount - 1);
+      setIsLiked(false);
+      
+      if (error instanceof Error) {
+        toast.error(error.message || "Error while liking product", { autoClose: 1000 });
+      } else {
+        toast.error("An unknown error occurred while liking the product", { autoClose: 3000 });
+      }
+    }
+  };
+
+  const handleDislikeProduct = async () => {
+    if (!userInfo || !token) {
+      toast.error('You must be logged in to unlike products', { autoClose: 2000 });
+      return;
+    }
+    
+    try {
+   
+      setIsLiked(false);
+      
+      const response = await dislikeProduct({ productId: product.id, token: token });
+
+      if (response.data) {
+        toast.success('Product disliked successfully', { autoClose: 1000 });
+        // If server returns a different count, sync with it
+        const liked_product = response.data as Product;
+        if (response.data !== undefined) {
+          setLikeCount(liked_product.likeCount);
         }
+        reload();
       }
-    };
-  
-    const handleDislikeProduct = async () => {
-      try {
-        const token = userInfo?.token;
-        const response = await dislikeProduct({ productId: product.id, token: token });
-  
-        if (response.data) {
-          toast.success('Product disliked successfully', { autoClose: 1000 });
-          reload();
-        }
+    }
+    catch (error: unknown) {
+      // Revert optimistic update on error
+      setLikeCount(prevCount => prevCount + 1);
+      setIsLiked(true);
+      
+      if (error instanceof Error) {
+        toast.error(error.message || "Error while disliking product", { autoClose: 3000 });
+      } else {
+        toast.error("An unknown error occurred while disliking the product", { autoClose: 3000 });
       }
-      catch (error: unknown) {
-        if (error instanceof Error) {
-          toast.error(error.message || "Error while creating product", { autoClose: 3000 });
-        } else {
-          toast.error("An unknown error occurred while creating the product", { autoClose: 3000 });
-        }
-      }
-    };
+    }
+  };
 
   return (
     <div className="product-card">
@@ -103,9 +147,9 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
       <div className="product-details" >
         <h2 className="product-price" onClick={() => redirectHandler(product.id)}>{formatPrice(product.price)} So'm</h2>
         <p className="product-title" onClick={() => redirectHandler(product.id)}>
-
           <MdDescription />
-          {product.title}</p>
+          {product.title}
+        </p>
 
         <p className="product-location" onClick={() => redirectHandler(product.id)}>
           <IoLocationOutline />    {product.location ? product.location.region + ' - ' : ''}
@@ -113,21 +157,24 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
         </p>
 
         <div className="like-container" >
-
-          {liked_items && liked_items.liked_products && liked_items.liked_products.some((item: Product) => item.id === product.id) ? (<div>
-            <FaHeart style={{ color: 'red' }} onClick={handleDislikeProduct}/> { product.likeCount}</div>) : (<div>
-              <FaRegHeart onClick={handleLikeProduct} /> { product.likeCount}
-          </div>)} 
+          {isLiked ? (
+            <div>
+              <FaThumbsUp size={24} style={{ color: 'blue' }} onClick={handleDislikeProduct} /> 
+            </div>
+          ) : (
+            <div>
+              <FaRegThumbsUp size={24} onClick={handleLikeProduct} /> 
+            </div>
+          )} 
         </div>
 
         <p className="product-created-at">{formattedDate}</p>
       </div>
       {userInfo ? (
         <div className="add-new-product" onClick={handleNewProductRedirect}>
-        <FaPlus style={{ fontSize: '30px', color: 'white' }} />
-      </div>
+          <FaPlus style={{ fontSize: '30px', color: 'white' }} />
+        </div>
       ) : (<p>-</p>)}
-     
     </div>
   );
 };
