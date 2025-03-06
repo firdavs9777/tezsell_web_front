@@ -1,5 +1,5 @@
 
-import { SERVICES_URL, SERVICES_CATEGORY, LIKE_SERVICE, DISLIKE_PRODUCT, DISLIKE_SERVICE } from '../constants';
+import { SERVICES_URL, SERVICES_CATEGORY, LIKE_SERVICE, DISLIKE_PRODUCT, DISLIKE_SERVICE, USER_FAV_PRODS } from '../constants';
 
 import { apiSlice } from "./apiSlice";
 
@@ -42,6 +42,18 @@ export const servicessApiSlice = apiSlice.injectEndpoints({
             },
             invalidatesTags: ['Service'],
         }),
+        getFavoriteItems: builder.query({
+                 query: ({ token }: { token: string }) => {
+                      return {
+                                url: USER_FAV_PRODS,
+                        headers: {
+                          Authorization: `Token ${token}`, // Pass token in headers
+                        },
+                        credentials: "include",
+                      };
+                    },
+                    invalidatesTags: ["Service"],
+            }),
          likeService: builder.mutation({
               query: ({
                 serviceId,
@@ -83,5 +95,5 @@ export const servicessApiSlice = apiSlice.injectEndpoints({
 
     })
 });
-export const { useGetServicesQuery, useGetSingleServiceQuery, useGetServiceCategoryListQuery, useCreateServiceMutation, useLikeServiceMutation, useUnlikeServiceMutation } = servicessApiSlice;
+export const { useGetServicesQuery, useGetSingleServiceQuery, useGetFavoriteItemsQuery, useGetServiceCategoryListQuery, useCreateServiceMutation, useLikeServiceMutation, useUnlikeServiceMutation } = servicessApiSlice;
 export default servicessApiSlice.reducer;

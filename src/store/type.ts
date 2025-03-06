@@ -50,6 +50,7 @@ export interface Category {
   id: number;
   key: string;
   name: string;
+  icon: string;
 }
 
 export interface Service {
@@ -57,7 +58,7 @@ export interface Service {
   name: string;
   description: string;
   category: Category;
-    likeCount: number;
+  likeCount: number;
   location: Location;
   comments: Comment[];
   images: Image[];

@@ -1,14 +1,15 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useGetSingleServiceQuery } from "../../store/slices/serviceApiSlice";
+import { useGetFavoriteItemsQuery, useGetSingleServiceQuery } from "../../store/slices/serviceApiSlice";
 import { useEffect, useState } from "react";
 import { BASE_URL } from "../../store/constants";
-import { Comment, SingleService } from "../../store/type";
-import { FaHeart, FaCommentAlt, FaMapMarkerAlt, FaUser } from "react-icons/fa";
+import { Comment, Service, SingleService } from "../../store/type";
+import { FaHeart, FaCommentAlt, FaMapMarkerAlt, FaUser, FaRegHeart } from "react-icons/fa";
 import "./ServiceDetail.css";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { useCreateCommentMutation, useGetCommentsQuery } from "../../store/slices/commentApiSlice";
 import { toast } from "react-toastify";
+import { ServiceRes } from "../Profile/MainProfile";
 
 const ServiceDetail = () => {
   const { id } = useParams();
@@ -20,7 +21,9 @@ const ServiceDetail = () => {
   
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
-  
+    const { data: favorite_items, isLoading: favorite_loading, error: favorite_error, refetch: reload_fav } = useGetFavoriteItemsQuery({
+      token: token,
+    });
   // Ensure serviceItem is available and defined
   const serviceItem: SingleService | null = data as SingleService;
   const serviceId = serviceItem?.service.id;
@@ -28,6 +31,8 @@ const ServiceDetail = () => {
     serviceId: serviceId || "", // Ensure serviceId is not undefined
     token: token,
   });  
+
+  const liked_items: ServiceRes = favorite_items as ServiceRes;
   
   // Make sure comments data is in the correct format
   const comments: Comment[] = comments_data as Comment[] || [];
@@ -45,8 +50,14 @@ const ServiceDetail = () => {
   if (isLoading) {
     return <div className="loading">Loading...</div>;
   }
+    if (fav_loading) {
+    return <div className="loading">Loading...</div>;
+  }
 
   if (error || !serviceItem) {
+    return <div className="error">Error Occurred...</div>;
+  }
+    if (fav_error || !serviceItem) {
     return <div className="error">Error Occurred...</div>;
   }
   const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -118,8 +129,19 @@ const ServiceDetail = () => {
           </div>
 
           <div className="service-actions">
+   
             <button className="service-btn service-btn-like">
-              <FaHeart /> Like
+                            {liked_items && liked_items.liked_services && liked_items.liked_services.some((item:Service) => item.id === serviceItem.service.id) ? (
+                        <div>
+                          <FaHeart size={24} />
+                    
+                        </div>
+                      ) : (
+                        <div>
+                          <FaRegHeart size={24} />
+                 
+                        </div>
+                      )}
             </button>
             <button className="service-btn service-btn-chat" onClick={() => navigate("/chat")}>
               <FaCommentAlt /> Chat
