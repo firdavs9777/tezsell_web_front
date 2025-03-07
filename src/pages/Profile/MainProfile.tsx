@@ -8,7 +8,7 @@ import {
   useGetUserServicesQuery,
   useUpdateLoggedUserInfoMutation,
 } from "../../store/slices/users";
-import { useGetFavoriteItemsQuery } from "../../store/slices/productsApiSlice";
+import { useGetDistrictsListQuery, useGetFavoriteItemsQuery, useGetRegionsListQuery } from "../../store/slices/productsApiSlice";
 import { BASE_URL } from "../../store/constants";
 import {
   Product,
@@ -16,6 +16,9 @@ import {
   ServiceResponse,
   Service,
   UserInfo,
+  RegionsList,
+  DistrictsList,
+ 
 } from "../../store/type";
 import "./MainProfile.css";
 import { FaUserCircle } from "react-icons/fa";
@@ -58,6 +61,24 @@ const MainProfile = () => {
     refetch: refresh,
   } = useGetLoggedinUserInfoQuery({ token });
 
+  const {
+    data: regions,
+    isLoading: regionLoad,
+    error: regionError,
+    refetch: regionFetch
+  } = useGetRegionsListQuery({})
+ 
+  const [currentRegion, setCurrentRegion] = useState('');
+  const {
+    data: districts,
+    isLoading: districtLoad,
+    error: districtError,
+    refetch: districtFetch
+  } = useGetDistrictsListQuery( currentRegion );
+
+  const [currentDistrict, setCurrentDistrict] = useState('');
+  const [selectedRegion, setSelectedRegion] = useState('');
+  const [selectedDistrict, setSelectedDistrict] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
 
   const [newImage, setNewImage] = useState<File | null>(null);
@@ -71,6 +92,7 @@ const MainProfile = () => {
 
   const profileInfo: UserInfo | undefined = loggedUserInfo as UserInfo;
   const [newUsername, setNewUsername] = useState("");
+  console.log(districts);
   useEffect(() => {
     if (token) {
       refetch();
@@ -78,6 +100,8 @@ const MainProfile = () => {
       reload();
       refresh();
     }
+    setCurrentRegion(profileInfo?.data?.location.region);
+    setCurrentDistrict(profileInfo?.data?.location.district);
     setNewUsername(profileInfo?.data?.username || "");
   }, [token, refetch, serviceRefetch, reload, refresh, profileInfo]);
 
@@ -92,6 +116,9 @@ const MainProfile = () => {
     }
   }, [newImage]);
 
+  const regions_list: RegionsList = regions as RegionsList;
+  const district_list: DistrictsList = districts as DistrictsList;
+
   if (!token) return <div>Please log in to view products</div>;
   if (isLoading || serviceLoading || favLoading) return <div>Loading...</div>;
   if (error || serviceError || favError) return <div>Error loading data</div>;
@@ -105,7 +132,7 @@ const MainProfile = () => {
 
   const handleProfileUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(); // ✅ Declare once
+    const formData = new FormData();
     if (newUsername) {
       formData.append("username", newUsername);
     }
@@ -149,7 +176,7 @@ const MainProfile = () => {
         <div className="profile-top">
           <div className="profile-overview">
             {profileInfo.data.profile_image &&
-            profileInfo.data.profile_image.image ? (
+              profileInfo.data.profile_image.image ? (
               <img
                 src={`${BASE_URL}${profileInfo.data.profile_image.image}`}
                 alt="User profile"
@@ -176,7 +203,28 @@ const MainProfile = () => {
                 value={newUsername}
                 onChange={(e) => setNewUsername(e.target.value)}
               />
+              <label htmlFor="">Current Location: </label>
 
+              <div className="current-location">
+                <select value={currentRegion}   onChange={(e) => setCurrentRegion(e.target.value)}
+>
+                  {regions_list.regions.map((region, index) => (
+                    <option key={index} value={region.region} >
+                      {region.region}
+                    </option>
+                  ))}
+                </select>
+                 <select value={currentDistrict}   onChange={(e) => setCurrentDistrict(e.target.value)}
+>
+                  {district_list && district_list?.districts.map((district, index) => (
+                    <option key={index} value={district.district} >
+                      {district.district}
+                    </option>
+                  ))}
+                </select>
+
+      
+              </div>
               <label>Profile Image</label>
               <div className="image-preview">
                 {imagePreview ? (
@@ -197,6 +245,7 @@ const MainProfile = () => {
                   />
                 )}
               </div>
+
               <div className="upload-container">
                 {/* Custom button to trigger file input */}
                 <label htmlFor="file-upload" className="custom-upload-btn">
@@ -212,8 +261,12 @@ const MainProfile = () => {
                   accept="image/*"
                 />
               </div>
+
               <button type="submit" className="upload-btn">
-                Update Profile
+                Update
+              </button>
+              <button type="submit" className="close-btn" onClick={handleClose}>
+                Close
               </button>
             </form>
           </div>
