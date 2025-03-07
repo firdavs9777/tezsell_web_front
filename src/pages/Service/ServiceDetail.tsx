@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useGetFavoriteItemsQuery, useGetSingleServiceQuery } from "../../store/slices/serviceApiSlice";
+import { useGetFavoriteItemsQuery, useGetSingleServiceQuery, useLikeServiceMutation, useUnlikeServiceMutation } from "../../store/slices/serviceApiSlice";
 import { useEffect, useState } from "react";
 import { BASE_URL } from "../../store/constants";
 import { Comment, Service, SingleService } from "../../store/type";
@@ -7,96 +7,143 @@ import { FaHeart, FaCommentAlt, FaMapMarkerAlt, FaUser, FaRegHeart, FaThumbsUp, 
 import "./ServiceDetail.css";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
-import {
-  useCreateCommentMutation,
-  useGetCommentsQuery,
-} from "../../store/slices/commentApiSlice";
+import { useCreateCommentMutation, useGetCommentsQuery } from "../../store/slices/commentApiSlice";
 import { toast } from "react-toastify";
 import { ServiceRes } from "../Profile/MainProfile";
 
 const ServiceDetail = () => {
   const { id } = useParams();
-  const { data, isLoading, error } = useGetSingleServiceQuery(id);
-  const [createComment, { isLoading: create_loading }] =
-    useCreateCommentMutation();
+  const { data, isLoading, error, refetch } = useGetSingleServiceQuery(id);
+  const [createComment, { isLoading: create_loading }] = useCreateCommentMutation()
 
-  const [text, setText] = useState<string>("");
+  const [likeService, { isLoading: create_loading_like }] =
+    useLikeServiceMutation();
+  const [dislikeService, { isLoading: create_loading_unlike }] =
+    useUnlikeServiceMutation();
+
+  const [text, setText] = useState<string>('');
 
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
-    const { data: favorite_items, isLoading: favorite_loading, error: favorite_error, refetch: reload_fav } = useGetFavoriteItemsQuery({
-      token: token,
-    });
+  const { data: favorite_items, isLoading: favorite_loading, error: favorite_error, refetch: reload_fav } = useGetFavoriteItemsQuery({
+    token: token,
+  });
   // Ensure serviceItem is available and defined
   const serviceItem: SingleService | null = data as SingleService;
   const serviceId = serviceItem?.service.id;
-  const {
-    data: comments_data,
-    isLoading: fav_loading,
-    error: fav_error,
-    refetch: reload,
-  } = useGetCommentsQuery({
+  const { data: comments_data, isLoading: fav_loading, error: fav_error, refetch: reload } = useGetCommentsQuery({
     serviceId: serviceId || "", // Ensure serviceId is not undefined
     token: token,
-  });  
+  });
 
   const liked_items: ServiceRes = favorite_items as ServiceRes;
-  
+
   // Make sure comments data is in the correct format
-  const comments: Comment[] = (comments_data as Comment[]) || [];
+  const comments: Comment[] = comments_data as Comment[] || [];
 
   const [selectedImage, setSelectedImage] = useState<string>("");
-  const navigate = useNavigate();
+
 
   // Update selectedImage when serviceItem or serviceItem images are available
   useEffect(() => {
     if (serviceItem?.service.images?.length) {
-      setSelectedImage(
-        `${BASE_URL}/services${serviceItem.service.images[0].image}`
-      );
+      setSelectedImage(`${BASE_URL}/services${serviceItem.service.images[0].image}`);
     }
   }, [serviceItem]);
 
   if (isLoading) {
     return <div className="loading">Loading...</div>;
   }
-    if (fav_loading) {
+  if (fav_loading) {
     return <div className="loading">Loading...</div>;
   }
 
   if (error || !serviceItem) {
     return <div className="error">Error Occurred...</div>;
   }
-    if (fav_error || !serviceItem) {
+  if (fav_error || !serviceItem) {
     return <div className="error">Error Occurred...</div>;
   }
-  const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append("name", text);
+
+
+  const handleLikeService = async () => {
     try {
       const token = userInfo?.token;
-      const response = await createComment({
-        text: text,
-        serviceId: service.id,
-        token,
+      const response = await likeService({
+        serviceId: serviceItem.service.id,
+        token: token,
       });
 
       if (response.data) {
-        toast.success("Comment created successfully");
+        toast.success("Service liked successfully", { autoClose: 1000 });
+        refetch();
         reload();
-        setText("");
-      } else {
-        toast.error("Error occured during the creation");
+        reload_fav();
       }
     } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || "Error while creating product", {
+          autoClose: 1000,
+        });
+      } else {
+        toast.error("An unknown error occurred while creating the product", {
+          autoClose: 3000,
+        });
+      }
+    }
+  };
+
+  const handleDislikeService = async () => {
+    try {
+      const token = userInfo?.token;
+      const response = await dislikeService({
+        serviceId: serviceItem.service.id,
+        token: token,
+      });
+
+      if (response.data) {
+        toast.success("Service disliked successfully", { autoClose: 1000 });
+        refetch();
+        reload();
+        reload_fav();
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || "Error while creating product", {
+          autoClose: 3000,
+        });
+      } else {
+        toast.error("An unknown error occurred while creating the product", {
+          autoClose: 3000,
+        });
+      }
+    }
+  };
+  const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append('name', text);
+    try {
+      const token = userInfo?.token;
+      const response = await createComment({ text: text, serviceId: service.id, token });
+
+      if (response.data) {
+        toast.success('Comment created successfully');
+        reload();
+        setText('');
+      }
+      else {
+        toast.error('Error occured during the creation')
+      }
+    }
+    catch (error: unknown) {
       if (error instanceof Error) {
         toast.error(error.message || "Error while creating service");
       } else {
         toast.error("An unknown error occurred while creating the service");
       }
     }
-  };
+  }
 
   const { service } = serviceItem;
 
@@ -111,22 +158,12 @@ const ServiceDetail = () => {
                   key={index}
                   src={`${BASE_URL}/services${image.image}`}
                   alt={`${service.name} ${index + 1}`}
-                  onClick={() =>
-                    setSelectedImage(`${BASE_URL}/services${image.image}`)
-                  }
-                  className={
-                    selectedImage === `${BASE_URL}/services${image.image}`
-                      ? "thumbnail-selected"
-                      : ""
-                  }
+                  onClick={() => setSelectedImage(`${BASE_URL}/services${image.image}`)}
+                  className={selectedImage === `${BASE_URL}/services${image.image}` ? "thumbnail-selected" : ""}
                 />
               ))}
             </div>
-            <img
-              className="service-selected-image"
-              src={selectedImage}
-              alt={service.name}
-            />
+            <img className="service-selected-image" src={selectedImage} alt={service.name} />
           </div>
         </section>
 
@@ -137,78 +174,55 @@ const ServiceDetail = () => {
 
           <div className="service-detail-info">
             <div className="service-owner">
-              {service.userName.profile_image &&
-              service.userName.profile_image.image ? (
-                <img
-                  src={`${BASE_URL}/${service.userName.profile_image.image}`}
-                  alt={service.userName.username}
-                  className="owner-profile-image"
-                />
-              ) : (
-                <FaUserCircle className="profile-icon" />
-              )}
-
+              <img
+                src={`${BASE_URL}/${service.userName.profile_image.image}`}
+                alt={service.userName.username}
+                className="owner-profile-image"
+              />
               <div>
-                <p>
-                  <FaUser /> {service.userName.username}
-                </p>
-                <p>
-                  <FaMapMarkerAlt /> {service.userName.location.region} -{" "}
-                  {service.userName.location.district}
-                </p>
+                <p><FaUser /> {service.userName.username}</p>
+                <p><FaMapMarkerAlt /> {service.userName.location.region} - {service.userName.location.district}</p>
               </div>
             </div>
           </div>
 
           <div className="service-actions">
-           
-  {liked_items?.liked_services?.some((item: Service) => item.id === serviceItem.service.id) ? (
-    <div>
-      <FaThumbsUp size={24} /> Like
-    </div>
-  ) : (
-    <div>
-      <FaRegThumbsUp size={24} /> Like
-    </div>
-  )}
+
+            {liked_items && liked_items?.liked_services?.some((item: Service) => item.id === serviceItem.service.id) ? (
+              <div onClick={handleDislikeService}>
+                <FaThumbsUp size={24} color="blue" /> Like
+              </div>
+            ) : (
+              <div onClick={handleLikeService}>
+                <FaRegThumbsUp size={24} /> Like
+              </div>
+            )}
             <div>
-              <FaCommentAlt size={24} /> Chat              
-           </div>
+              <FaCommentAlt size={24} /> Chat
+            </div>
           </div>
         </section>
       </div>
+
       <section className="comments-section">
-        <h2 className="comments-title">Comments ({comments.length})</h2>
+        <h2 className="comments-title">Comments</h2>
         <div className="comments-list">
           {comments.length ? (
             comments.map((comment, index) => (
               <div key={index} className="comment-card">
                 <div className="comment-author-info">
-                  {comment.user.profile_image &&
-                  comment.user.profile_image.image ? (
-                    <img
-                      src={`${BASE_URL}/${comment.user.profile_image.image}`}
-                      alt={comment.user.username}
-                      className="comment-author-image"
-                    />
-                  ) : (
-                    <FaUserCircle className="profile-icon" />
-                  )}
-
+                  <img
+                    src={`${BASE_URL}/${comment.user.profile_image.image}`}
+                    alt={comment.user.username}
+                    className="comment-author-image"
+                  />
                   <div className="comment-author-details">
-                    {comment.user && comment.user && (
-                      <p className="comment-author">
-                        <span className="comment-author">
-                          <FaUser color="#007bff" /> {comment.user.username}
-                        </span>
-                        <br />
-                        <span className="comment-location">
-                          <FaMapMarkerAlt />
-                          {comment.user.location.region},{" "}
-                          {comment.user.location.district}
-                        </span>
-                      </p>
-                    )}
+                    <p className="comment-author">{comment.user.username}</p>
+                    <p className="comment-location">
+                      {comment.user.location
+                        ? `${comment.user.location.region}, ${comment.user.location.district}`
+                        : ""}
+                    </p>
                   </div>
                 </div>
                 <p className="comment-text">{comment.text}</p>
@@ -218,9 +232,7 @@ const ServiceDetail = () => {
               </div>
             ))
           ) : (
-            <p className="no-comments">
-              No comments yet. Be the first to comment!
-            </p>
+            <p className="no-comments">No comments yet. Be the first to comment!</p>
           )}
         </div>
 
@@ -239,9 +251,11 @@ const ServiceDetail = () => {
             </form>
           </div>
         ) : (
-          <p className="login-prompt">Please login first</p>
+          <p>Please login first</p>
         )}
+
       </section>
+
 
       <section className="recommended-services-container">
         <h3>Recommended Services</h3>

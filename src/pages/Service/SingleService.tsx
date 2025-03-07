@@ -162,21 +162,25 @@ const SingleService: React.FC<SingleServiceProps> = ({ service }) => {
           <br />
         </div>
         {liked_items &&
-        liked_items.liked_services &&
-        liked_items.liked_services.some(
-          (item: Service) => item.id === service.id
-        ) ? (
+          liked_items.liked_services &&
+          liked_items.liked_services.some((item) => item.id === service.id) ? (
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <FaHeart style={{ color: "red" }} onClick={handleDislikeService} />{" "}
-            {service.likeCount}
-            <FaComment /> {service.comments.length}
+            <FaThumbsUp size={24} style={{ color: "blue" }} onClick={handleDislikeService} />
+            <FaComment
+              size={24}
+              style={{ color: service.comments.length === 0 ? "#999" : "inherit" }}
+            /> {service.comments.length}
           </div>
         ) : (
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <FaRegHeart onClick={handleLikeService} /> {likeCount}
-            <FaComment /> {service.comments.length}
+            <FaRegThumbsUp size={24} onClick={handleLikeService} />
+            <FaComment
+              size={24}
+              style={{ color: service.comments.length === 0 ? "#999" : "inherit" }}
+            /> {service.comments.length}
           </div>
-        )}
+        )
+        }
       </div>
       {userInfo ? (
         <div className="add-new-service" onClick={handleNewServiceRedirect}>
