@@ -18,14 +18,12 @@ import {
   UserInfo,
   RegionsList,
   DistrictsList,
- 
 } from "../../store/type";
 import "./MainProfile.css";
 import { FaUserCircle } from "react-icons/fa";
 import Modal from "../../components/Modal";
-import { setCredentials } from "../../store/slices/authSlice";
 import { toast } from "react-toastify";
-import { useDispatch } from "react-redux";
+
 export interface ServiceRes {
   liked_services: Service[];
   liked_products: Product[];
@@ -36,122 +34,150 @@ const MainProfile = () => {
   const token = userInfo?.token;
   const navigate = useNavigate();
 
+  // API queries
   const {
     data: productsData,
-    isLoading,
-    error,
-    refetch,
+    isLoading: productsLoading,
+    error: productsError,
+    refetch: refetchProducts,
   } = useGetUserProductsQuery({ token });
+  
   const {
     data: servicesData,
-    isLoading: serviceLoading,
-    error: serviceError,
-    refetch: serviceRefetch,
+    isLoading: servicesLoading,
+    error: servicesError,
+    refetch: refetchServices,
   } = useGetUserServicesQuery({ token });
+  
   const {
     data: likedItemsData,
-    isLoading: favLoading,
-    error: favError,
-    refetch: reload,
+    isLoading: likedItemsLoading,
+    error: likedItemsError,
+    refetch: refetchLikedItems,
   } = useGetFavoriteItemsQuery({ token });
+  
   const {
     data: loggedUserInfo,
-    isLoading: loggedUserLoad,
-    error: loginError,
-    refetch: refresh,
+    isLoading: userInfoLoading,
+    error: userInfoError,
+    refetch: refetchUserInfo,
   } = useGetLoggedinUserInfoQuery({ token });
 
   const {
     data: regions,
-    isLoading: regionLoad,
-    error: regionError,
-    refetch: regionFetch
-  } = useGetRegionsListQuery({})
+    isLoading: regionsLoading,
+  } = useGetRegionsListQuery({});
  
   const [currentRegion, setCurrentRegion] = useState('');
+  
   const {
     data: districts,
-    isLoading: districtLoad,
-    error: districtError,
-    refetch: districtFetch
-  } = useGetDistrictsListQuery( currentRegion );
+    isLoading: districtsLoading,
+  } = useGetDistrictsListQuery(currentRegion);
 
+  // State
   const [currentDistrict, setCurrentDistrict] = useState('');
-  const [selectedRegion, setSelectedRegion] = useState('');
-  const [selectedDistrict, setSelectedDistrict] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
-
   const [newImage, setNewImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-
-  const [updateProfile] = useUpdateLoggedUserInfoMutation(); // Assuming there's an API for updating the profile
-  // const dispatch = useDispatch();
-  const products: ProductResponse | undefined = productsData as ProductResponse;
-  const services: ServiceResponse | undefined = servicesData as ServiceResponse;
-  const likedItems: ServiceRes | undefined = likedItemsData as ServiceRes;
-
-  const profileInfo: UserInfo | undefined = loggedUserInfo as UserInfo;
   const [newUsername, setNewUsername] = useState("");
-  console.log(districts);
+
+  // API mutations
+  const [updateProfile] = useUpdateLoggedUserInfoMutation();
+  
+  // Type assertions
+  const products = productsData as ProductResponse;
+  const services = servicesData as ServiceResponse;
+  const likedItems = likedItemsData as ServiceRes;
+  const profileInfo = loggedUserInfo as UserInfo;
+  const regionsList = regions as RegionsList;
+  const districtsList = districts as DistrictsList;
+
+  // Data fetching
   useEffect(() => {
     if (token) {
-      refetch();
-      serviceRefetch();
-      reload();
-      refresh();
+      refetchProducts();
+      refetchServices();
+      refetchLikedItems();
+      refetchUserInfo();
     }
-    setCurrentRegion(profileInfo?.data?.location.region);
-    setCurrentDistrict(profileInfo?.data?.location.district);
-    setNewUsername(profileInfo?.data?.username || "");
-  }, [token, refetch, serviceRefetch, reload, refresh, profileInfo]);
+  }, [token, refetchProducts, refetchServices, refetchLikedItems, refetchUserInfo]);
 
+  // Initialize form values when profile data is loaded
+  useEffect(() => {
+    if (profileInfo?.data) {
+      setCurrentRegion(profileInfo.data.location.region);
+      setCurrentDistrict(profileInfo.data.location.district);
+      setNewUsername(profileInfo.data.username || "");
+    }
+  }, [profileInfo]);
+
+  // Handle image preview
   useEffect(() => {
     if (newImage) {
       const objectUrl = URL.createObjectURL(newImage);
       setImagePreview(objectUrl);
-
       return () => URL.revokeObjectURL(objectUrl);
     } else {
       setImagePreview(null);
     }
   }, [newImage]);
 
-  const regions_list: RegionsList = regions as RegionsList;
-  const district_list: DistrictsList = districts as DistrictsList;
+  // Loading and error handling
+  if (!token) return <div className="auth-message">Please log in to view your profile</div>;
+  
+  const isLoading = productsLoading || servicesLoading || likedItemsLoading || userInfoLoading || regionsLoading || districtsLoading;
+  if (isLoading) return <div className="loading">Loading...</div>;
+  
+  const hasError = productsError || servicesError || likedItemsError || userInfoError;
+  if (hasError) return <div className="error-message">Error loading profile data</div>;
 
-  if (!token) return <div>Please log in to view products</div>;
-  if (isLoading || serviceLoading || favLoading) return <div>Loading...</div>;
-  if (error || serviceError || favError) return <div>Error loading data</div>;
+  // Modal handlers
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
 
-  if (loggedUserLoad) return <div>Loading....</div>;
-  if (loginError) return <div>Error Loading...</div>;
   const handleClose = () => {
-    setModalOpen(!modalOpen);
+    setModalOpen(false);
     setImagePreview(null);
+    setNewImage(null);
+    setNewUsername(profileInfo?.data.username);
+    setCurrentRegion(profileInfo?.data.location.region);
+    setCurrentDistrict(profileInfo?.data.location.district);
+
   };
 
   const handleProfileUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData();
+    
     if (newUsername) {
       formData.append("username", newUsername);
+  
     }
+   const matchedDistrict =  districtsList.districts.find(d => d.district === currentDistrict);
+    if (matchedDistrict) {
+    const locationId = matchedDistrict.id; // Get the id of the matched district
+    console.log("Location ID:", locationId);
+    formData.append("location_id", locationId.toString());
+}  
     if (newImage) {
       formData.append("profile_image", newImage);
     }
 
+    
     try {
-      const token = userInfo?.token;
-      const response: Response | any = await updateProfile({
+      const response = await updateProfile({
         userData: formData,
         token,
       }).unwrap();
+      
       if (response) {
-        toast.success("Profile info updated", { autoClose: 3000 });
-        refresh();
+        toast.success("Profile successfully updated", { autoClose: 3000 });
+        refetchUserInfo();
         handleClose();
       } else {
-        toast.error("Profile info updated", { autoClose: 3000 });
+        toast.error("Failed to update profile", { autoClose: 3000 });
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -159,11 +185,31 @@ const MainProfile = () => {
           autoClose: 3000,
         });
       } else {
-        toast.error("An unknown error occurred while updating the profile", {
+        toast.error("An unknown error occurred", {
           autoClose: 3000,
         });
       }
     }
+  };
+
+  // Render helpers
+  const renderItemList = (items: any[], nameKey: string, limit = 3) => {
+    if (!items || !items.length) return <p>No items available</p>;
+    
+    return (
+      <>
+        <ul className="item-list">
+          {items.slice(0, limit).map((item, index) => (
+            <li key={item.id || index}>{item[nameKey]}</li>
+          ))}
+        </ul>
+        {items.length > limit && (
+          <button className="see-more-btn" onClick={() => navigate("/my-products")}>
+            See More
+          </button>
+        )}
+      </>
+    );
   };
 
   return (
@@ -175,8 +221,7 @@ const MainProfile = () => {
       <div className="profile-content">
         <div className="profile-top">
           <div className="profile-overview">
-            {profileInfo.data.profile_image &&
-              profileInfo.data.profile_image.image ? (
+            {profileInfo.data.profile_image?.image ? (
               <img
                 src={`${BASE_URL}${profileInfo.data.profile_image.image}`}
                 alt="User profile"
@@ -186,195 +231,129 @@ const MainProfile = () => {
               <FaUserCircle className="profile-icon" />
             )}
             <p className="profile-username">{profileInfo.data.username}</p>
-            <br />
           </div>
-          <button className="edit-btn" onClick={handleClose}>
+          <button className="edit-btn" onClick={handleOpenModal}>
             Edit Profile
           </button>
         </div>
 
         <Modal onClose={handleClose} isOpen={modalOpen}>
           <div className="edit-profile-form">
-            <h1>Edit Profile</h1>
+            <h2>Edit Profile</h2>
             <form onSubmit={handleProfileUpdate}>
-              <label>Username</label>
-              <input
-                type="text"
-                value={newUsername}
-                onChange={(e) => setNewUsername(e.target.value)}
-              />
-              <label htmlFor="">Current Location: </label>
-
-              <div className="current-location">
-                <select value={currentRegion}   onChange={(e) => setCurrentRegion(e.target.value)}
->
-                  {regions_list.regions.map((region, index) => (
-                    <option key={index} value={region.region} >
-                      {region.region}
-                    </option>
-                  ))}
-                </select>
-                 <select value={currentDistrict}   onChange={(e) => setCurrentDistrict(e.target.value)}
->
-                  {district_list && district_list?.districts.map((district, index) => (
-                    <option key={index} value={district.district} >
-                      {district.district}
-                    </option>
-                  ))}
-                </select>
-
-      
-              </div>
-              <label>Profile Image</label>
-              <div className="image-preview">
-                {imagePreview ? (
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="image-preview-img"
-                  />
-                ) : (
-                  <img
-                    src={
-                      profileInfo.data.profile_image
-                        ? `${BASE_URL}${profileInfo.data.profile_image.image}`
-                        : "/default-profile.png"
-                    }
-                    alt="Existing profile"
-                    className="image-preview-img"
-                  />
-                )}
-              </div>
-
-              <div className="upload-container">
-                {/* Custom button to trigger file input */}
-                <label htmlFor="file-upload" className="custom-upload-btn">
-                  Choose a file
-                </label>
+              <div className="form-group">
+                <label htmlFor="username">Username</label>
                 <input
-                  type="file"
-                  id="file-upload"
-                  className="file-input"
-                  onChange={(e) =>
-                    setNewImage(e.target.files ? e.target.files[0] : null)
-                  }
-                  accept="image/*"
+                  id="username"
+                  type="text"
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
                 />
               </div>
+              
+              <div className="form-group">
+                <label htmlFor="location">Current Location</label>
+                <div className="location-selects">
+                  <select 
+                    id="region"
+                    value={currentRegion}
+                    onChange={(e) => setCurrentRegion(e.target.value)}
+                  >
+                    {regionsList?.regions?.map((region, index) => (
+                      <option key={index} value={region.region}>
+                        {region.region}
+                      </option>
+                    ))}
+                  </select>
+                  <select 
+                    id="district"
+                    value={currentDistrict}
+                    onChange={(e) => setCurrentDistrict(e.target.value)}
+                  >
+                    {districtsList?.districts?.map((district, index) => (
+                      <option key={index} value={district.district}>
+                         {district.district}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
 
-              <button type="submit" className="upload-btn">
-                Update
-              </button>
-              <button type="submit" className="close-btn" onClick={handleClose}>
-                Close
-              </button>
+              <div className="form-group">
+                <label htmlFor="profile-image">Profile Image</label>
+                <div className="image-preview">
+                  {imagePreview ? (
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="image-preview-img"
+                    />
+                  ) : (
+                    <img
+                      src={
+                        profileInfo.data.profile_image
+                          ? `${BASE_URL}${profileInfo.data.profile_image.image}`
+                          : "/default-profile.png"
+                      }
+                      alt="Existing profile"
+                      className="image-preview-img"
+                    />
+                  )}
+                </div>
+
+                <div className="upload-container">
+                  <label htmlFor="file-upload" className="custom-upload-btn">
+                    Choose a file
+                  </label>
+                  <input
+                    type="file"
+                    id="file-upload"
+                    className="file-input"
+                    onChange={(e) =>
+                      setNewImage(e.target.files ? e.target.files[0] : null)
+                    }
+                    accept="image/*"
+                  />
+                </div>
+              </div>
+
+              <div className="form-actions">
+                <button type="submit" className="upload-btn">
+                  Update
+                </button>
+                <button type="button" className="close-btn" onClick={handleClose}>
+                  Cancel
+                </button>
+              </div>
             </form>
           </div>
         </Modal>
 
-        <div className="my-products">
-          <h3>
-            My Products - Total Products ({products?.results?.length || 0})
-          </h3>
-          {products.results && products.results.length ? (
-            <>
-              <ul>
-                {products.results.slice(0, 3).map((product) => (
-                  <li key={product.id}>{product.title}</li>
-                ))}
-              </ul>
-
-              {products.results.length > 3 && (
-                <button
-                  className="see-more-btn"
-                  onClick={() => navigate("/my-products")}
-                >
-                  See More
-                </button>
-              )}
-            </>
-          ) : (
-            <p>No products available</p>
-          )}
-
+        <section className="my-products">
+          <h3>My Products ({products?.results?.length || 0})</h3>
+          {renderItemList(products?.results || [], 'title')}
           <button className="add-btn" onClick={() => navigate("/new-product")}>
             Add New Product
           </button>
-        </div>
+        </section>
 
-        <div className="my-services">
-          <h3>
-            My Services - Total Services ({services?.results?.length || 0})
-          </h3>
-          {services.results && services.results.length ? (
-            <>
-              <ul>
-                {services.results.slice(0, 3).map((service) => (
-                  <li key={service.id}>{service.name}</li>
-                ))}
-              </ul>
-              {services.results.length > 3 && (
-                <button
-                  className="see-more-btn"
-                  onClick={() => navigate("/my-products")}
-                >
-                  See More
-                </button>
-              )}
-            </>
-          ) : (
-            <p>No services available</p>
-          )}
+        <section className="my-services">
+          <h3>My Services ({services?.results?.length || 0})</h3>
+          {renderItemList(services?.results || [], 'name')}
           <button className="add-btn" onClick={() => navigate("/new-service")}>
             Add New Service
           </button>
-        </div>
+        </section>
 
-        <div className="recent-activity">
+        <section className="recent-activity">
           <h3>Favorite Products ({likedItems?.liked_products?.length || 0})</h3>
-          {likedItems?.liked_products?.length ? (
-            <>
-              <ul>
-                {likedItems.liked_products.slice(0, 3).map((product, index) => (
-                  <li key={index}>{product.title}</li>
-                ))}
-              </ul>
-              {likedItems.liked_products.length > 3 && (
-                <button
-                  className="see-more-btn"
-                  onClick={() => navigate("/my-products")}
-                >
-                  See More
-                </button>
-              )}
-            </>
-          ) : (
-            <p>No favorite products</p>
-          )}
-        </div>
+          {renderItemList(likedItems?.liked_products || [], 'title')}
+        </section>
 
-        <div className="recent-activity">
+        <section className="recent-activity">
           <h3>Favorite Services ({likedItems?.liked_services?.length || 0})</h3>
-          {likedItems?.liked_services?.length ? (
-            <>
-              <ul>
-                {likedItems.liked_services.slice(0, 3).map((service, index) => (
-                  <li key={index}>{service.name}</li>
-                ))}
-              </ul>
-              {likedItems.liked_services.length > 3 && (
-                <button
-                  className="see-more-btn"
-                  onClick={() => navigate("/my-products")}
-                >
-                  See More
-                </button>
-              )}
-            </>
-          ) : (
-            <p>No favorite services</p>
-          )}
-        </div>
+          {renderItemList(likedItems?.liked_services || [], 'name')}
+        </section>
       </div>
     </div>
   );

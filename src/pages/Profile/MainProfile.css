@@ -1,138 +1,218 @@
+/* Base styles */
 .profile-container {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 20px;
-
+  color: #333;
 }
+
+/* Header */
 .profile-header {
   background-color: #008cba;
   color: white;
   text-align: center;
   padding: 20px;
-
+  border-radius: 8px 8px 0 0;
+  margin-bottom: 20px;
 }
+
 .profile-header h1 {
   margin: 0;
-  font-size: 2rem;
+  font-size: 1.8rem;
+  font-weight: 600;
 }
-.profile-top {
+
+/* Profile content sections */
+.profile-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.profile-top,
+.my-products,
+.my-services,
+.recent-activity {
   background-color: white;
-  padding: 20px;
-  margin-top: 20px;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
+
+.profile-top:hover,
+.my-products:hover,
+.my-services:hover,
+.recent-activity:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Profile overview */
+.profile-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .profile-overview {
   display: flex;
   align-items: center;
-  padding: 10px;
-  margin: 10px;
+  gap: 20px;
 }
-.profile-image {
-  width: 120px;
-  height: 120px;
+
+.profile-image,
+.profile-icon {
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
-  margin-right: 20px;
   object-fit: cover;
+  border: 3px solid #f0f0f0;
 }
-.profile-details {
-  flex: 1;
-  min-width: 200px;
+
+.profile-icon {
+  color: #cccccc;
 }
+
 .profile-username {
-  font-size: 22px;
-  font-weight: bold;
-  color: #333;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
 }
-.bio-section {
-  margin-top: 10px;
-}
-.bio {
-  font-size: 1rem;
-  color: #777;
-  margin: 10px 0;
+
+/* Buttons */
+.edit-btn,
+.see-more-btn,
+.add-btn,
+.upload-btn,
+.close-btn,
+.custom-upload-btn {
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  padding: 10px 16px;
 }
 
 .edit-btn {
   background-color: #008cba;
   color: white;
-  border: none;
-  padding: 10px;
-  font-size: 0.9rem;
-  margin-left:20px;
 }
+
 .edit-btn:hover {
-  background-color: #007b9a;
+  background-color: #006d8a;
 }
+
 .see-more-btn {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  font-size: 14px;
-  font-weight: bold;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease-in-out;
+  background-color: #f8f9fa;
+  color: #008cba;
+  border: 1px solid #dee2e6;
   margin-top: 10px;
-  display: block;
-  width: fit-content;
 }
 
 .see-more-btn:hover {
-  background-color: #0056b3;
+  background-color: #e9ecef;
 }
 
-.my-products,
-.my-services,
-.recent-activity {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-top: 20px;
+.add-btn {
+  background-color: #28a745;
+  color: white;
+  margin-top: 15px;
 }
+
+.add-btn:hover {
+  background-color: #218838;
+}
+
+/* Section headers */
 .my-products h3,
 .my-services h3,
 .recent-activity h3 {
   margin-top: 0;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
+  position: relative;
+  padding-bottom: 8px;
 }
-.my-products ul,
-.my-services ul,
-.recent-activity ul {
+
+.my-products h3:after,
+.my-services h3:after,
+.recent-activity h3:after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 40px;
+  height: 3px;
+  background-color: #008cba;
+}
+
+/* Lists */
+.item-list {
   list-style-type: none;
-  padding-left: 0;
+  padding: 0;
+  margin: 15px 0;
 }
-.my-products li,
-.my-services li,
-.recent-activity li {
-  margin: 8px 0;
-  font-size: 1rem;
+
+.item-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s;
+}
+
+.item-list li:hover {
+  background-color: #f8f9fa;
+}
+
+/* Modal Form */
+.edit-profile-form {
+  padding: 20px;
+}
+
+.edit-profile-form h2 {
+  margin-top: 0;
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
   color: #555;
 }
-.add-btn {
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  cursor: pointer;
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
   border-radius: 4px;
-  transition: background-color 0.3s;
-  margin-top: 10px;
+  font-size: 1rem;
 }
-.add-btn:hover {
-  background-color: #218838;
+
+.location-selects {
+  display: flex;
+  gap: 10px;
 }
-.edit-profile-form {
-  background-color: white;
-  border-radius: 8px;
+
+.location-selects select {
+  flex: 1;
 }
+
 .image-preview {
-  margin-bottom: 10px;
-  width: 400px;
-  height: 400px;
+  width: 100%;
+  height: 300px;
+  border-radius: 4px;
   overflow: hidden;
-  
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
 }
 
 .image-preview-img {
@@ -140,81 +220,101 @@
   height: 100%;
   object-fit: cover;
 }
+
 .upload-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  margin-bottom: 20px;
 }
-.upload-btn {
-  margin-top: 20px;
-  background-color: #FFE082;
-  color: #333;
-  font-weight: 700;
-  padding: 10px 20px;
-  border-radius: 5px;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-.close-btn {
-  background-color: #f30303;
-  color: #fff;
-  font-weight: 700;
-  padding: 10px 20px;
-  border-radius: 5px;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  margin-left: 10px;
-}
+
 .custom-upload-btn {
-  background-color: #FFE082;
+  background-color: #f8f9fa;
   color: #333;
-  font-weight: 700;
-  padding: 10px 20px;
-  border-radius: 5px;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s;
+  border: 1px solid #ddd;
+  display: inline-block;
+  text-align: center;
 }
 
 .custom-upload-btn:hover {
-  background-color: #0056b3;
+  background-color: #e9ecef;
 }
 
 .file-input {
   display: none;
 }
 
+.form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.upload-btn {
+  background-color: #28a745;
+  color: white;
+  flex: 1;
+}
+
+.upload-btn:hover {
+  background-color: #218838;
+}
+
+.close-btn {
+  background-color: #dc3545;
+  color: white;
+  flex: 1;
+}
+
+.close-btn:hover {
+  background-color: #c82333;
+}
+
+/* Status messages */
+.loading,
+.error-message,
+.auth-message {
+  text-align: center;
+  padding: 30px;
+  font-size: 1.2rem;
+  color: #555;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.error-message {
+  color: #dc3545;
+}
+
 /* Responsive Design */
-@media (max-width: 768px) {
-  .profile-overview {
+@media (min-width: 768px) {
+  .profile-content {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .profile-top {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 767px) {
+  .profile-top {
     flex-direction: column;
-    text-align: center;
+    align-items: flex-start;
   }
-
-  .profile-image {
-    width: 100px;
-    height: 100px;
-    margin-bottom: 10px;
-  }
-
-  .profile-username {
-    font-size: 18px;
-  }
-
-  .bio {
-    font-size: 0.9rem;
-  }
-  .my-products h3,
-  .my-services h3,
-  .recent-activity h3 {
-    font-size: 1.3rem;
-  }
-
-  .add-btn {
+  
+  .profile-overview {
     width: 100%;
-    padding: 12px;
+    margin-bottom: 15px;
+  }
+  
+  .edit-btn {
+    align-self: flex-start;
+  }
+  
+  .location-selects {
+    flex-direction: column;
+  }
+  
+  .form-actions {
+    flex-direction: column;
   }
 }
 
@@ -222,30 +322,22 @@
   .profile-container {
     padding: 10px;
   }
-
+  
   .profile-header {
     padding: 15px;
   }
-
-  .profile-header h1 {
-    font-size: 1.5rem;
+  
+  .profile-image,
+  .profile-icon {
+    width: 70px;
+    height: 70px;
   }
-
-  .profile-image {
-    width: 80px;
-    height: 80px;
-  }
-
+  
   .profile-username {
-    font-size: 16px;
+    font-size: 1.2rem;
   }
-
-  .bio {
-    font-size: 0.85rem;
-  }
-
-  .add-btn {
-    padding: 10px;
-    font-size: 0.9rem;
+  
+  .image-preview {
+    height: 200px;
   }
 }

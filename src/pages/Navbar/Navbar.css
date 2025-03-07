@@ -104,6 +104,9 @@ li:hover {
   font-weight: 400;
   cursor: pointer;
   transition: color 0.1s ease;
+  padding-bottom:10px;
+  margin-bottom: 10px;
+  display: flex;
 }
 .navbar-lang-btn:hover {
   background-color: transparent;
@@ -118,6 +121,9 @@ li:hover {
   font-weight: 400;
   cursor: pointer;
   transition: color 0.1s ease;
+}
+.username {
+  margin:5px;
 }
 .navbar-profile-btn:hover {
   background-color: transparent;

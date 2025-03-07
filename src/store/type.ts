@@ -104,7 +104,7 @@ export interface RegionsList {
 }
 export interface DistrictsList {
   success: boolean;
-  districts: { district: string }[];
+  districts: { district: string , id: number}[];
 }
 export interface ProductResponse {
   count: number;

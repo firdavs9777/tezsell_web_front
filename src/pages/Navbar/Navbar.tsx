@@ -138,7 +138,9 @@ const Navbar = () => {
                       }`}
                     />
                   )}
-                  {profileInfo.data.username}
+                  <span className="username">
+                 {profileInfo.data.username}
+                  </span>
                 </button>
                 <ul className="dropdown-menu">
                   <li>
