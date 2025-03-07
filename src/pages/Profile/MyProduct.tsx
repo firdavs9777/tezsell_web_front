@@ -3,7 +3,7 @@ import { Product } from "../../store/type";
 import { BASE_URL } from "../../store/constants";
 import "./MyProduct.css";
 import { useNavigate } from "react-router-dom";
-import { FaEdit, FaHeart, FaPlus, FaRegHeart, FaTrash } from "react-icons/fa";
+import { FaEdit, FaHeart, FaPlus, FaRegHeart, FaRegThumbsUp, FaThumbsUp, FaTrash } from "react-icons/fa";
 import { IoLocationOutline } from "react-icons/io5";
 import { MdDescription } from "react-icons/md";
 import { useSelector } from "react-redux";
@@ -178,15 +178,16 @@ const MyProduct: React.FC<SingleProductProps> = ({ product }) => {
             (item: Product) => item.id === product.id
           ) ? (
             <div>
-              <FaHeart
-                style={{ color: "red" }}
+                <FaThumbsUp
+                  size={24}
+                style={{ color: "blue" }}
                 onClick={handleDislikeProduct}
-              />{" "}
-              {product.likeCount}
+              />
+
             </div>
           ) : (
             <div>
-              <FaRegHeart onClick={handleLikeProduct} /> {product.likeCount}
+              <FaRegThumbsUp size={24} onClick={handleLikeProduct} /> 
             </div>
           )}
         </div>

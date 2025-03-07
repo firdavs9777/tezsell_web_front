@@ -27,6 +27,9 @@ const MyProductEdit: React.FC<SingleProductType> = ({
   const closeHandler = () => {
     setCloseModel(false);
   };
+  const submitHandler = () => {
+    
+  }
   if (isLoading) {
     return <div className="loading">Loading...</div>;
   }
@@ -37,7 +40,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
   return (
     <Modal onClose={closeHandler} isOpen={closeModel}>
       <h1>Product Edit</h1>
-      <form>
+      <form onSubmit={submitHandler}>
         <label htmlFor="">Product Title</label>
         <input
           type="text"
@@ -50,9 +53,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
           value={newProductDesc}
           onChange={(e) => setNewProdDesc(e.target.value)}
         />
-        <p>{productId}</p>
-        <p>{newProdName}</p>
-        <p>{newProductDesc}</p>
+   
       </form>
     </Modal>
   );

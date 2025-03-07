@@ -1,10 +1,9 @@
 .product-card {
   display: flex;
-  flex-direction: column;
-  justify-content: start;
+  justify-content: center;
   border: 1px solid #eee5e5;
   border-radius: 15px;
-  margin: 10px;
+  
   width: 300px;
   padding:10px;
   transition: transform 0.2s ease-in-out;
