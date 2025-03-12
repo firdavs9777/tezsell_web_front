@@ -111,6 +111,10 @@ const MyProduct: React.FC<SingleProductProps> = ({ product }) => {
   const handleEditModal = () => {
     setIsEdit(!isEdit);
   };
+  const closeHandler = async () => {
+    reload();
+  }
+  
 
   return (
     <div className="product-card">
@@ -118,9 +122,10 @@ const MyProduct: React.FC<SingleProductProps> = ({ product }) => {
         className="image-container"
         onClick={() => redirectHandler(product.id)}
       >
+        
         {product && product.images.length > 0 ? (
           <img
-            src={`${BASE_URL}/products${product.images[0].image}`}
+            src={`${product.images[0].image}`}
             alt={product.title}
             className="product-image"
           />
@@ -166,6 +171,7 @@ const MyProduct: React.FC<SingleProductProps> = ({ product }) => {
         {/* Open the modal when isEdit is true */}
         {isEdit && (
           <MyProductEdit
+            onClose={closeHandler}
             productId={product.id.toString()}
             closeModelStatus={isEdit}
           />

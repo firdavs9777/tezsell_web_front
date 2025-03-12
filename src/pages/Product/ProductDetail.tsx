@@ -24,9 +24,11 @@ import { useSelector } from "react-redux";
 import { ServiceRes } from "../Profile/MainProfile";
 import { RootState } from "../../store";
 import { toast } from "react-toastify";
+import MyProductEdit from "../Profile/ProductEdit";
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const [isEdit, setIsEdit] = useState(false);
   const { data, isLoading, error, refetch } = useGetSingleProductQuery(id);
   const [likeProduct, { isLoading: create_loading_like }] =
     useLikeProductMutation();
@@ -135,7 +137,12 @@ const ProductDetail = () => {
       }
     }
   };
-
+  const handleEditModal = () => {
+    setIsEdit(!isEdit);
+  };
+  const onCloseHandler = () => {
+    refetch()
+  }
   return (
     <div>
       <div className="product-detail-container">
@@ -188,8 +195,8 @@ const ProductDetail = () => {
           {userInfo?.user_info.id == singleProduct.product.userName.id ? (
       <div className="product-modification">
                     <p className="product-edit">
-                      <span >
-                        <FaEdit  /> Edit
+                      <span onClick={handleEditModal} >
+                        <FaEdit onClick={handleEditModal} /> Edit
                       </span>
                     </p>
                     <p className="product-delete">
@@ -199,6 +206,14 @@ const ProductDetail = () => {
                   </div>
           ): (<></>)}
             
+          
+                  {isEdit && (
+            <MyProductEdit
+              onClose={onCloseHandler}
+            productId={singleProduct.product.id.toString()}
+            closeModelStatus={isEdit}
+          />
+        )}
           
 
           {liked_items &&
