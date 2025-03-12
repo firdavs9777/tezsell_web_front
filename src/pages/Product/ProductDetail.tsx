@@ -16,6 +16,8 @@ import {
   FaThumbsUp,
   FaRegThumbsUp,
   FaCommentAlt,
+  FaEdit,
+  FaTrash,
 } from "react-icons/fa"; // Importing FaArrowLeft
 
 import { useSelector } from "react-redux";
@@ -183,6 +185,21 @@ const ProductDetail = () => {
           <div className="product-rating">
             <p>Rating: {singleProduct.product.rating} / 5</p>
           </div>
+          {userInfo?.user_info.id == singleProduct.product.userName.id ? (
+      <div className="product-modification">
+                    <p className="product-edit">
+                      <span >
+                        <FaEdit  /> Edit
+                      </span>
+                    </p>
+                    <p className="product-delete">
+                      <FaTrash />
+                      <span>Delete</span>
+                    </p>
+                  </div>
+          ): (<></>)}
+            
+          
 
           {liked_items &&
           liked_items.liked_products &&

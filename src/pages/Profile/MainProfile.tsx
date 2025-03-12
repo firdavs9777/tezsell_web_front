@@ -191,6 +191,9 @@ const MainProfile = () => {
       }
     }
   };
+   const redirectHandler = (id: number) => {
+    navigate(`/product/${id}`);
+  };
 
   // Render helpers
   const renderItemList = (items: any[], nameKey: string, limit = 3) => {
@@ -200,7 +203,7 @@ const MainProfile = () => {
       <>
         <ul className="item-list">
           {items.slice(0, limit).map((item, index) => (
-            <li key={item.id || index}>{item[nameKey]}</li>
+            <li key={item.id || index} onClick={() => redirectHandler(item.id)}>{item[nameKey]}</li>
           ))}
         </ul>
         {items.length > limit && (
