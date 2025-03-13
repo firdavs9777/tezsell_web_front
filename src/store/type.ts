@@ -77,7 +77,7 @@ export interface ServiceResponse {
 }
 
 interface ProductImage {
-  id?: number | string,
+  id?: number,
   image: string;
   alt_text: string | null;
 }

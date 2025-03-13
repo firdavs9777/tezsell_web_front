@@ -141,7 +141,16 @@ const ProductDetail = () => {
     setIsEdit(!isEdit);
   };
   const onCloseHandler = () => {
-    refetch()
+    refetch();
+    if (singleProduct.product.images) {
+     setSelectedImage(
+        `${BASE_URL}/products${singleProduct.product.images[0].image}`
+      ); 
+    }
+    else {
+      setSelectedImage('')
+    }
+     
   }
   return (
     <div>

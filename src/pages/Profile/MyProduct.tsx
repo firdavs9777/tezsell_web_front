@@ -20,9 +20,10 @@ import MyProductEdit from "./ProductEdit";
 
 interface SingleProductProps {
   product: Product;
+  refresh: () => void;
 }
 
-const MyProduct: React.FC<SingleProductProps> = ({ product }) => {
+const MyProduct: React.FC<SingleProductProps> = ({ product,refresh }) => {
   const navigate = useNavigate();
   const [isEdit, setIsEdit] = useState(false);
 
@@ -113,6 +114,7 @@ const MyProduct: React.FC<SingleProductProps> = ({ product }) => {
   };
   const closeHandler = async () => {
     reload();
+    refresh();
   }
   
 
