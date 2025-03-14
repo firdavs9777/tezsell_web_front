@@ -34,5 +34,16 @@
   "loading_message_category": "Загрузка категорий...",
   "loading_category_error": "Ошибка при загрузке категорий",
   "profile_update_success_message": "Профиль успешно обновлен",
-  "profile_update_fail_message": "Не удалось обновить профиль"
+  "profile_update_fail_message": "Не удалось обновить профиль",
+  "see_more_btn": "Посмотреть больше",
+  "profile_page_title":"Страница профиля",
+  "edit_profile_modal_title": "Редактировать профиль",
+   "username_label": "Имя пользователя",
+   "location_label": "Текущее местоположение",
+    "profile_image_label": "Изображение профиля",
+    "choose_file_label": "Выберите файл",
+     "upload_btn_label": "Обновить",
+      "cancel_btn_label":  "Отменить"
+  
+  
 }

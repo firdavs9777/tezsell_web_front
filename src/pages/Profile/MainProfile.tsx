@@ -186,7 +186,7 @@ const MainProfile = () => {
           autoClose: 3000,
         });
       } else {
-        toast.error("An unknown error occurred", {
+        toast.error(t("error_message"), {
           autoClose: 3000,
         });
       }
@@ -209,7 +209,7 @@ const MainProfile = () => {
         </ul>
         {items.length > limit && (
           <button className="see-more-btn" onClick={() => navigate("/my-products")}>
-            See More
+            {t("see_more_btn")}
           </button>
         )}
       </>
@@ -219,7 +219,7 @@ const MainProfile = () => {
   return (
     <div className="profile-container">
       <div className="profile-header">
-        <h1>Profile Page</h1>
+        <h1>{ t('profile_page_title')}</h1>
       </div>
 
       <div className="profile-content">
@@ -237,16 +237,16 @@ const MainProfile = () => {
             <p className="profile-username">{profileInfo.data.username}</p>
           </div>
           <button className="edit-btn" onClick={handleOpenModal}>
-            Edit Profile
+            {t('edit_profile_modal_title')}
           </button>
         </div>
 
         <Modal onClose={handleClose} isOpen={modalOpen}>
           <div className="edit-profile-form">
-            <h2>Edit Profile</h2>
+            <h2>  {t('edit_profile_modal_title')}</h2>
             <form onSubmit={handleProfileUpdate}>
               <div className="form-group">
-                <label htmlFor="username">Username</label>
+                <label htmlFor="username">{t('username_label')}</label>
                 <input
                   id="username"
                   type="text"
@@ -256,7 +256,7 @@ const MainProfile = () => {
               </div>
               
               <div className="form-group">
-                <label htmlFor="location">Current Location</label>
+                <label htmlFor="location">{t('location_label')}</label>
                 <div className="location-selects">
                   <select 
                     id="region"
@@ -284,7 +284,7 @@ const MainProfile = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="profile-image">Profile Image</label>
+                <label htmlFor="profile-image"> {t('profile_image_label')}</label>
                 <div className="image-preview">
                   {imagePreview ? (
                     <img
@@ -307,7 +307,7 @@ const MainProfile = () => {
 
                 <div className="upload-container">
                   <label htmlFor="file-upload" className="custom-upload-btn">
-                    Choose a file
+                    {t("choose_file_label")}
                   </label>
                   <input
                     type="file"
@@ -323,10 +323,10 @@ const MainProfile = () => {
 
               <div className="form-actions">
                 <button type="submit" className="upload-btn">
-                  Update
+                 {t('upload_btn_label')}
                 </button>
                 <button type="button" className="close-btn" onClick={handleClose}>
-                  Cancel
+                       {t('cancel_btn_label')}
                 </button>
               </div>
             </form>

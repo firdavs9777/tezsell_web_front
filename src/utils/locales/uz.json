@@ -34,6 +34,14 @@
   "loading_message_category": "Kategoriyalar yuklanmoqda...",
   "loading_category_error": "Kategoriyalarni yuklashda xatolik yuz berdi",
   "profile_update_success_message": "Profil muvaffaqiyatli yangilandi",
-  "profile_update_fail_message": "Profilni yangilashda xatolik yuz berdi"
-
+  "profile_update_fail_message": "Profilni yangilashda xatolik yuz berdi", 
+  "see_more_btn":"Ko'proq ko'rish",
+  "profile_page_title":"Profil Sahifasi",
+  "edit_profile_modal_title": "Profilni tahrirlash",
+   "username_label": "Foydalanuvchi ismi",
+   "location_label": "Hozirgi manzil",
+   "profile_image_label": "Profil rasmi",
+    "choose_file_label":  "Faylni tanlash",
+    "upload_btn_label":"Yangilash",
+     "cancel_btn_label": "Bekor qilish"    
 }
