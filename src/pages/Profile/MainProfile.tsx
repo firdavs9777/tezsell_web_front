@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "../../store";
+import { useTranslation } from 'react-i18next';
 import {
   useGetLoggedinUserInfoQuery,
   useGetUserProductsQuery,
@@ -82,7 +83,7 @@ const MainProfile = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [newUsername, setNewUsername] = useState("");
 
-  // API mutations
+    const { t, i18n } = useTranslation();
   const [updateProfile] = useUpdateLoggedUserInfoMutation();
   
   // Type assertions
@@ -173,11 +174,11 @@ const MainProfile = () => {
       }).unwrap();
       
       if (response) {
-        toast.success("Profile successfully updated", { autoClose: 3000 });
+        toast.success(t("profile_update_success_message"), { autoClose: 3000 });
         refetchUserInfo();
         handleClose();
       } else {
-        toast.error("Failed to update profile", { autoClose: 3000 });
+        toast.error(t("profile_update_fail_message"), { autoClose: 3000 });
       }
     } catch (error: unknown) {
       if (error instanceof Error) {

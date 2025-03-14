@@ -32,5 +32,8 @@
   "loading_message_location": "Manzillar yuklanmoqda...",
   "loading_location_error": "Manzillarni yuklashda xatolik yuz berdi",
   "loading_message_category": "Kategoriyalar yuklanmoqda...",
-  "loading_category_error": "Kategoriyalarni yuklashda xatolik yuz berdi"
+  "loading_category_error": "Kategoriyalarni yuklashda xatolik yuz berdi",
+  "profile_update_success_message": "Profil muvaffaqiyatli yangilandi",
+  "profile_update_fail_message": "Profilni yangilashda xatolik yuz berdi"
+
 }

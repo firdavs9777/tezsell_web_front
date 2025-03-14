@@ -34,5 +34,7 @@
    "loading_message_location":"Loading location ...",
    "loading_location_error": "Error while loading location",
    "loading_message_category":"Loading categories ...",
-   "loading_category_error":"Error loading categories:"
+   "loading_category_error":"Error loading categories:",
+   "profile_update_success_message": "Profile updated successfully",
+   "profile_update_fail_message": "Failed to update profile"
 }

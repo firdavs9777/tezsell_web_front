@@ -32,5 +32,7 @@
   "loading_message_location": "Загрузка локаций...",
   "loading_location_error": "Ошибка при загрузке локаций",
   "loading_message_category": "Загрузка категорий...",
-  "loading_category_error": "Ошибка при загрузке категорий"
+  "loading_category_error": "Ошибка при загрузке категорий",
+  "profile_update_success_message": "Профиль успешно обновлен",
+  "profile_update_fail_message": "Не удалось обновить профиль"
 }
