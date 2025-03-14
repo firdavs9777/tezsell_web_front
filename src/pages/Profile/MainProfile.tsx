@@ -334,28 +334,28 @@ const MainProfile = () => {
         </Modal>
 
         <section className="my-products">
-          <h3>My Products ({products?.results?.length || 0})</h3>
+          <h3> {t('my_products_title')} ({products?.results?.length || 0})</h3>
           {renderItemList(products?.results || [], 'title')}
           <button className="add-btn" onClick={() => navigate("/new-product")}>
-            Add New Product
+     {t("add_new_product_btn")}
           </button>
         </section>
 
         <section className="my-services">
-          <h3>My Services ({services?.results?.length || 0})</h3>
+          <h3>{t('my_services_title')} ({services?.results?.length || 0})</h3>
           {renderItemList(services?.results || [], 'name')}
           <button className="add-btn" onClick={() => navigate("/new-service")}>
-            Add New Service
+         {t('add_new_service_btn')}
           </button>
         </section>
 
         <section className="recent-activity">
-          <h3>Favorite Products ({likedItems?.liked_products?.length || 0})</h3>
+          <h3>{t('favorite_products_title')} ({likedItems?.liked_products?.length || 0})</h3>
           {renderItemList(likedItems?.liked_products || [], 'title')}
         </section>
 
         <section className="recent-activity">
-          <h3>Favorite Services ({likedItems?.liked_services?.length || 0})</h3>
+          <h3>{t('favorite_services_title')} ({likedItems?.liked_services?.length || 0})</h3>
           {renderItemList(likedItems?.liked_services || [], 'name')}
         </section>
       </div>

@@ -41,7 +41,16 @@
    "username_label": "Foydalanuvchi ismi",
    "location_label": "Hozirgi manzil",
    "profile_image_label": "Profil rasmi",
-    "choose_file_label":  "Faylni tanlash",
-    "upload_btn_label":"Yangilash",
-     "cancel_btn_label": "Bekor qilish"    
+  "choose_file_label":  "Faylni tanlash",
+   "upload_btn_label":"Yangilash",
+    "cancel_btn_label": "Bekor qilish",
+    "my_products_title": "Mening mahsulotlarim",
+    "my_services_title": "Mening xizmatlarim",
+      "favorite_products_title": "Sevimli mahsulotlar",
+  "favorite_services_title": "Sevimli xizmatlar",
+  "add_new_product_btn": "Yangi mahsulot qo'shish",
+  "add_new_service_btn":  "Yangi xizmat qo'shish",
+  "services_title": "Xizmatlar",
+  "products_title":  "Mahsulotlar",
+  "download_mobile_app": "Mobil ilovani yuklab oling"
 }

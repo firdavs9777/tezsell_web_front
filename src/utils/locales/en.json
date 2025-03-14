@@ -43,8 +43,17 @@
     "username_label": "Username",
     "location_label":"Current Location",
     "profile_image_label":  "Profile Image",
-      "choose_file_label": "Choose a file",
-       "upload_btn_label":  "Update",
-        "cancel_btn_label": "Cancel"
+    "choose_file_label": "Choose a file",
+    "upload_btn_label":  "Update",
+     "cancel_btn_label": "Cancel", 
+     "products_title": "Products",
+     "services_title": "Services",
+   "my_products_title":  "My Products",
+     "my_services_title": "My Services",
+           "favorite_products_title": "Favorite Products",
+  "favorite_services_title": "Favorite Services",
+  "add_new_product_btn": "Add New Product",
+  "add_new_service_btn":  "Add New Service",
+  "download_mobile_app": "Download the mobile app"
              
 }
