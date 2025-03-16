@@ -16,15 +16,19 @@ import {
   FaThumbsUp,
   FaRegThumbsUp,
   FaCommentAlt,
+  FaEdit,
+  FaTrash,
 } from "react-icons/fa"; // Importing FaArrowLeft
 
 import { useSelector } from "react-redux";
 import { ServiceRes } from "../Profile/MainProfile";
 import { RootState } from "../../store";
 import { toast } from "react-toastify";
+import MyProductEdit from "../Profile/ProductEdit";
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const [isEdit, setIsEdit] = useState(false);
   const { data, isLoading, error, refetch } = useGetSingleProductQuery(id);
   const [likeProduct, { isLoading: create_loading_like }] =
     useLikeProductMutation();
@@ -133,7 +137,21 @@ const ProductDetail = () => {
       }
     }
   };
-
+  const handleEditModal = () => {
+    setIsEdit(!isEdit);
+  };
+  const onCloseHandler = () => {
+    refetch();
+    if (singleProduct.product.images) {
+     setSelectedImage(
+        `${BASE_URL}/products${singleProduct.product.images[0].image}`
+      ); 
+    }
+    else {
+      setSelectedImage('')
+    }
+     
+  }
   return (
     <div>
       <div className="product-detail-container">
@@ -183,6 +201,29 @@ const ProductDetail = () => {
           <div className="product-rating">
             <p>Rating: {singleProduct.product.rating} / 5</p>
           </div>
+          {userInfo?.user_info.id == singleProduct.product.userName.id ? (
+      <div className="product-modification">
+                    <p className="product-edit">
+                      <span onClick={handleEditModal} >
+                        <FaEdit onClick={handleEditModal} /> Edit
+                      </span>
+                    </p>
+                    <p className="product-delete">
+                      <FaTrash />
+                      <span>Delete</span>
+                    </p>
+                  </div>
+          ): (<></>)}
+            
+          
+                  {isEdit && (
+            <MyProductEdit
+              onClose={onCloseHandler}
+            productId={singleProduct.product.id.toString()}
+            closeModelStatus={isEdit}
+          />
+        )}
+          
 
           {liked_items &&
           liked_items.liked_products &&

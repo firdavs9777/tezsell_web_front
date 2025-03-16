@@ -115,7 +115,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         id: string;
       }) => {
         return {
-          url: `${USER_PRODUCT}/${id}`,
+          url: `${USER_PRODUCT}/${id}/`,
           method: "PUT",
           body: productData,
           headers: {

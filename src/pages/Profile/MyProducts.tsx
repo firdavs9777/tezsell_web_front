@@ -17,12 +17,15 @@ const MyProducts = () => {
     refetch,
   } = useGetUserProductsQuery({ token });
   const { t, i18n } = useTranslation();
+  const refetchHandler = async () => {
+    refetch();
+  }
   const products: ProductResponse | undefined = productsData as ProductResponse;
   return (
     <div className="product-list">
       {products?.results?.length ? (
         products.results.map((product: Product) => (
-          <MyProduct product={product} key={product.id} />
+          <MyProduct product={product} key={product.id} refresh={refetchHandler} />
         ))
       ) : (
         <p>{t("product_error")}</p>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "../../store";
+import { useTranslation } from "react-i18next";
 import {
   useGetLoggedinUserInfoQuery,
   useGetUserProductsQuery,
@@ -85,7 +86,7 @@ const MainProfile = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [newUsername, setNewUsername] = useState("");
 
-  // API mutations
+  const { t, i18n } = useTranslation();
   const [updateProfile] = useUpdateLoggedUserInfoMutation();
 
   // Type assertions
@@ -193,11 +194,11 @@ const MainProfile = () => {
       const ActionPayload: Response | any = response;
       dispatch(setCredentials({ ...ActionPayload }));
       if (response) {
-        toast.success("Profile successfully updated", { autoClose: 3000 });
+        toast.success(t("profile_update_success_message"), { autoClose: 3000 });
         refetchUserInfo();
         handleClose();
       } else {
-        toast.error("Failed to update profile", { autoClose: 3000 });
+        toast.error(t("profile_update_fail_message"), { autoClose: 3000 });
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -205,11 +206,14 @@ const MainProfile = () => {
           autoClose: 3000,
         });
       } else {
-        toast.error("An unknown error occurred", {
+        toast.error(t("error_message"), {
           autoClose: 3000,
         });
       }
     }
+  };
+  const redirectHandler = (id: number) => {
+    navigate(`/product/${id}`);
   };
 
   // Render helpers
@@ -220,15 +224,18 @@ const MainProfile = () => {
       <>
         <ul className="item-list">
           {items.slice(0, limit).map((item, index) => (
-            <li key={item.id || index}>{item[nameKey]}</li>
+            <li key={item.id || index} onClick={() => redirectHandler(item.id)}>
+              {item[nameKey]}
+            </li>
           ))}
         </ul>
         {items.length > limit && (
-          <Button
-            variant="see-more"
+          <button
+            className="see-more-btn"
             onClick={() => navigate("/my-products")}
-            label="See More"
-          />
+          >
+            {t("see_more_btn")}
+          </button>
         )}
       </>
     );
@@ -237,7 +244,7 @@ const MainProfile = () => {
   return (
     <div className="profile-container">
       <div className="profile-header">
-        <h1>Profile Page</h1>
+        <h1>{t("profile_page_title")}</h1>
       </div>
 
       <div className="profile-content">
@@ -254,20 +261,17 @@ const MainProfile = () => {
             )}
             <p className="profile-username">{profileInfo.data.username}</p>
           </div>
-          <Button
-            variant="edit"
-            onClick={handleOpenModal}
-            type="button"
-            label="Edit Profile"
-          />
+          <button className="edit-btn" onClick={handleOpenModal}>
+            {t("edit_profile_modal_title")}
+          </button>
         </div>
 
         <Modal onClose={handleClose} isOpen={modalOpen}>
           <div className="edit-profile-form">
-            <h2>Edit Profile</h2>
+            <h2> {t("edit_profile_modal_title")}</h2>
             <form onSubmit={handleProfileUpdate}>
               <div className="form-group">
-                <label htmlFor="username">Username</label>
+                <label htmlFor="username">{t("username_label")}</label>
                 <input
                   id="username"
                   type="text"
@@ -277,7 +281,7 @@ const MainProfile = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="location">Current Location</label>
+                <label htmlFor="location">{t("location_label")}</label>
                 <div className="location-selects">
                   <select
                     id="region"
@@ -305,7 +309,10 @@ const MainProfile = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="profile-image">Profile Image</label>
+                <label htmlFor="profile-image">
+                  {" "}
+                  {t("profile_image_label")}
+                </label>
                 <div className="image-preview">
                   {imagePreview ? (
                     <img
@@ -328,7 +335,7 @@ const MainProfile = () => {
 
                 <div className="upload-container">
                   <label htmlFor="file-upload" className="custom-upload-btn">
-                    Choose a file
+                    {t("choose_file_label")}
                   </label>
                   <input
                     type="file"
@@ -343,49 +350,55 @@ const MainProfile = () => {
               </div>
 
               <div className="form-actions">
-                <Button label="Update" type="submit" variant="upload" />
-                <Button
-                  label="Cancel"
+                <button type="submit" className="upload-btn">
+                  {t("upload_btn_label")}
+                </button>
+                <button
                   type="button"
-                  variant="close"
+                  className="close-btn"
                   onClick={handleClose}
-                />
+                >
+                  {t("cancel_btn_label")}
+                </button>
               </div>
             </form>
           </div>
         </Modal>
 
         <section className="my-products">
-          <h3>My Products ({products?.results?.length || 0})</h3>
+          <h3>
+            {" "}
+            {t("my_products_title")} ({products?.results?.length || 0})
+          </h3>
           {renderItemList(products?.results || [], "title")}
-
-          <Button
-            variant="add"
-            label="Add New Product"
-            onClick={() => navigate("/new-product")}
-            type="button"
-          />
+          <button className="add-btn" onClick={() => navigate("/new-product")}>
+            {t("add_new_product_btn")}
+          </button>
         </section>
 
         <section className="my-services">
-          <h3>My Services ({services?.results?.length || 0})</h3>
+          <h3>
+            {t("my_services_title")} ({services?.results?.length || 0})
+          </h3>
           {renderItemList(services?.results || [], "name")}
-
-          <Button
-            variant="add"
-            label="Add New Service"
-            type="button"
-            onClick={() => navigate("/new-service")}
-          />
+          <button className="add-btn" onClick={() => navigate("/new-service")}>
+            {t("add_new_service_btn")}
+          </button>
         </section>
 
         <section className="recent-activity">
-          <h3>Favorite Products ({likedItems?.liked_products?.length || 0})</h3>
+          <h3>
+            {t("favorite_products_title")} (
+            {likedItems?.liked_products?.length || 0})
+          </h3>
           {renderItemList(likedItems?.liked_products || [], "title")}
         </section>
 
         <section className="recent-activity">
-          <h3>Favorite Services ({likedItems?.liked_services?.length || 0})</h3>
+          <h3>
+            {t("favorite_services_title")} (
+            {likedItems?.liked_services?.length || 0})
+          </h3>
           {renderItemList(likedItems?.liked_services || [], "name")}
         </section>
       </div>

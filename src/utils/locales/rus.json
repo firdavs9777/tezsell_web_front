@@ -32,5 +32,27 @@
   "loading_message_location": "Загрузка локаций...",
   "loading_location_error": "Ошибка при загрузке локаций",
   "loading_message_category": "Загрузка категорий...",
-  "loading_category_error": "Ошибка при загрузке категорий"
+  "loading_category_error": "Ошибка при загрузке категорий",
+  "profile_update_success_message": "Профиль успешно обновлен",
+  "profile_update_fail_message": "Не удалось обновить профиль",
+  "see_more_btn": "Посмотреть больше",
+  "profile_page_title":"Страница профиля",
+  "edit_profile_modal_title": "Редактировать профиль",
+   "username_label": "Имя пользователя",
+   "location_label": "Текущее местоположение",
+  "profile_image_label": "Изображение профиля",
+  "choose_file_label": "Выберите файл",
+  "upload_btn_label": "Обновить",
+  "cancel_btn_label":  "Отменить",
+  "my_products_title": "Мои продукты",
+  "my_services_title": "Мои услуги",
+  "favorite_products_title": "Избранные продукты",
+  "favorite_services_title": "Избранные услуги",
+  "add_new_product_btn": "Добавить новый продукт",
+  "add_new_service_btn":  "Добавить новую услугу",
+  "products_title":  "Продукты",
+  "services_title": "Услуги",
+  "download_mobile_app": "Скачайте мобильное приложение"
+
+
 }
