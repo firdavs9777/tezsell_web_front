@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "../../store";
 import {
@@ -8,7 +8,11 @@ import {
   useGetUserServicesQuery,
   useUpdateLoggedUserInfoMutation,
 } from "../../store/slices/users";
-import { useGetDistrictsListQuery, useGetFavoriteItemsQuery, useGetRegionsListQuery } from "../../store/slices/productsApiSlice";
+import {
+  useGetDistrictsListQuery,
+  useGetFavoriteItemsQuery,
+  useGetRegionsListQuery,
+} from "../../store/slices/productsApiSlice";
 import { BASE_URL } from "../../store/constants";
 import {
   Product,
@@ -23,6 +27,8 @@ import "./MainProfile.css";
 import { FaUserCircle } from "react-icons/fa";
 import Modal from "../../components/Modal";
 import { toast } from "react-toastify";
+import Button from "../../components/Button";
+import { setCredentials } from "../../store/slices/authSlice";
 
 export interface ServiceRes {
   liked_services: Service[];
@@ -33,7 +39,7 @@ const MainProfile = () => {
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   // API queries
   const {
     data: productsData,
@@ -41,21 +47,21 @@ const MainProfile = () => {
     error: productsError,
     refetch: refetchProducts,
   } = useGetUserProductsQuery({ token });
-  
+
   const {
     data: servicesData,
     isLoading: servicesLoading,
     error: servicesError,
     refetch: refetchServices,
   } = useGetUserServicesQuery({ token });
-  
+
   const {
     data: likedItemsData,
     isLoading: likedItemsLoading,
     error: likedItemsError,
     refetch: refetchLikedItems,
   } = useGetFavoriteItemsQuery({ token });
-  
+
   const {
     data: loggedUserInfo,
     isLoading: userInfoLoading,
@@ -63,20 +69,17 @@ const MainProfile = () => {
     refetch: refetchUserInfo,
   } = useGetLoggedinUserInfoQuery({ token });
 
-  const {
-    data: regions,
-    isLoading: regionsLoading,
-  } = useGetRegionsListQuery({});
- 
-  const [currentRegion, setCurrentRegion] = useState('');
-  
-  const {
-    data: districts,
-    isLoading: districtsLoading,
-  } = useGetDistrictsListQuery(currentRegion);
+  const { data: regions, isLoading: regionsLoading } = useGetRegionsListQuery(
+    {}
+  );
+
+  const [currentRegion, setCurrentRegion] = useState("");
+
+  const { data: districts, isLoading: districtsLoading } =
+    useGetDistrictsListQuery(currentRegion);
 
   // State
-  const [currentDistrict, setCurrentDistrict] = useState('');
+  const [currentDistrict, setCurrentDistrict] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [newImage, setNewImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -84,7 +87,7 @@ const MainProfile = () => {
 
   // API mutations
   const [updateProfile] = useUpdateLoggedUserInfoMutation();
-  
+
   // Type assertions
   const products = productsData as ProductResponse;
   const services = servicesData as ServiceResponse;
@@ -101,7 +104,13 @@ const MainProfile = () => {
       refetchLikedItems();
       refetchUserInfo();
     }
-  }, [token, refetchProducts, refetchServices, refetchLikedItems, refetchUserInfo]);
+  }, [
+    token,
+    refetchProducts,
+    refetchServices,
+    refetchLikedItems,
+    refetchUserInfo,
+  ]);
 
   // Initialize form values when profile data is loaded
   useEffect(() => {
@@ -124,13 +133,24 @@ const MainProfile = () => {
   }, [newImage]);
 
   // Loading and error handling
-  if (!token) return <div className="auth-message">Please log in to view your profile</div>;
-  
-  const isLoading = productsLoading || servicesLoading || likedItemsLoading || userInfoLoading || regionsLoading || districtsLoading;
+  if (!token)
+    return (
+      <div className="auth-message">Please log in to view your profile</div>
+    );
+
+  const isLoading =
+    productsLoading ||
+    servicesLoading ||
+    likedItemsLoading ||
+    userInfoLoading ||
+    regionsLoading ||
+    districtsLoading;
   if (isLoading) return <div className="loading">Loading...</div>;
-  
-  const hasError = productsError || servicesError || likedItemsError || userInfoError;
-  if (hasError) return <div className="error-message">Error loading profile data</div>;
+
+  const hasError =
+    productsError || servicesError || likedItemsError || userInfoError;
+  if (hasError)
+    return <div className="error-message">Error loading profile data</div>;
 
   // Modal handlers
   const handleOpenModal = () => {
@@ -144,34 +164,34 @@ const MainProfile = () => {
     setNewUsername(profileInfo?.data.username);
     setCurrentRegion(profileInfo?.data.location.region);
     setCurrentDistrict(profileInfo?.data.location.district);
-
   };
 
   const handleProfileUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData();
-    
+
     if (newUsername) {
       formData.append("username", newUsername);
-  
     }
-   const matchedDistrict =  districtsList.districts.find(d => d.district === currentDistrict);
+    const matchedDistrict = districtsList.districts.find(
+      (d) => d.district === currentDistrict
+    );
     if (matchedDistrict) {
-    const locationId = matchedDistrict.id; // Get the id of the matched district
-    console.log("Location ID:", locationId);
-    formData.append("location_id", locationId.toString());
-}  
+      const locationId = matchedDistrict.id; // Get the id of the matched district
+      console.log("Location ID:", locationId);
+      formData.append("location_id", locationId.toString());
+    }
     if (newImage) {
       formData.append("profile_image", newImage);
     }
 
-    
     try {
       const response = await updateProfile({
         userData: formData,
         token,
       }).unwrap();
-      
+      const ActionPayload: Response | any = response;
+      dispatch(setCredentials({ ...ActionPayload }));
       if (response) {
         toast.success("Profile successfully updated", { autoClose: 3000 });
         refetchUserInfo();
@@ -195,7 +215,7 @@ const MainProfile = () => {
   // Render helpers
   const renderItemList = (items: any[], nameKey: string, limit = 3) => {
     if (!items || !items.length) return <p>No items available</p>;
-    
+
     return (
       <>
         <ul className="item-list">
@@ -204,9 +224,11 @@ const MainProfile = () => {
           ))}
         </ul>
         {items.length > limit && (
-          <button className="see-more-btn" onClick={() => navigate("/my-products")}>
-            See More
-          </button>
+          <Button
+            variant="see-more"
+            onClick={() => navigate("/my-products")}
+            label="See More"
+          />
         )}
       </>
     );
@@ -232,9 +254,12 @@ const MainProfile = () => {
             )}
             <p className="profile-username">{profileInfo.data.username}</p>
           </div>
-          <button className="edit-btn" onClick={handleOpenModal}>
-            Edit Profile
-          </button>
+          <Button
+            variant="edit"
+            onClick={handleOpenModal}
+            type="button"
+            label="Edit Profile"
+          />
         </div>
 
         <Modal onClose={handleClose} isOpen={modalOpen}>
@@ -250,11 +275,11 @@ const MainProfile = () => {
                   onChange={(e) => setNewUsername(e.target.value)}
                 />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="location">Current Location</label>
                 <div className="location-selects">
-                  <select 
+                  <select
                     id="region"
                     value={currentRegion}
                     onChange={(e) => setCurrentRegion(e.target.value)}
@@ -265,14 +290,14 @@ const MainProfile = () => {
                       </option>
                     ))}
                   </select>
-                  <select 
+                  <select
                     id="district"
                     value={currentDistrict}
                     onChange={(e) => setCurrentDistrict(e.target.value)}
                   >
                     {districtsList?.districts?.map((district, index) => (
                       <option key={index} value={district.district}>
-                         {district.district}
+                        {district.district}
                       </option>
                     ))}
                   </select>
@@ -318,12 +343,13 @@ const MainProfile = () => {
               </div>
 
               <div className="form-actions">
-                <button type="submit" className="upload-btn">
-                  Update
-                </button>
-                <button type="button" className="close-btn" onClick={handleClose}>
-                  Cancel
-                </button>
+                <Button label="Update" type="submit" variant="upload" />
+                <Button
+                  label="Cancel"
+                  type="button"
+                  variant="close"
+                  onClick={handleClose}
+                />
               </div>
             </form>
           </div>
@@ -331,28 +357,36 @@ const MainProfile = () => {
 
         <section className="my-products">
           <h3>My Products ({products?.results?.length || 0})</h3>
-          {renderItemList(products?.results || [], 'title')}
-          <button className="add-btn" onClick={() => navigate("/new-product")}>
-            Add New Product
-          </button>
+          {renderItemList(products?.results || [], "title")}
+
+          <Button
+            variant="add"
+            label="Add New Product"
+            onClick={() => navigate("/new-product")}
+            type="button"
+          />
         </section>
 
         <section className="my-services">
           <h3>My Services ({services?.results?.length || 0})</h3>
-          {renderItemList(services?.results || [], 'name')}
-          <button className="add-btn" onClick={() => navigate("/new-service")}>
-            Add New Service
-          </button>
+          {renderItemList(services?.results || [], "name")}
+
+          <Button
+            variant="add"
+            label="Add New Service"
+            type="button"
+            onClick={() => navigate("/new-service")}
+          />
         </section>
 
         <section className="recent-activity">
           <h3>Favorite Products ({likedItems?.liked_products?.length || 0})</h3>
-          {renderItemList(likedItems?.liked_products || [], 'title')}
+          {renderItemList(likedItems?.liked_products || [], "title")}
         </section>
 
         <section className="recent-activity">
           <h3>Favorite Services ({likedItems?.liked_services?.length || 0})</h3>
-          {renderItemList(likedItems?.liked_services || [], 'name')}
+          {renderItemList(likedItems?.liked_services || [], "name")}
         </section>
       </div>
     </div>

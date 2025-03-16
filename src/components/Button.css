@@ -1,0 +1,74 @@
+.btn {
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    justify-content: center;
+    transition: background-color 0.2s, transform 0.1s;
+    padding: 10px 16px;
+    margin-left: 10px;
+}
+.btn:hover {
+    transform: scale(1);
+    opacity: 0.9;
+}
+.edit-btn {
+    background-color: #ffc107;
+    color: #333;
+}
+.edit-btn:hover {
+    background-color: #e0a800;
+}
+.see-more-btn {
+    background-color: #28a745;
+    color: white;
+}
+.see-more-btn:hover {
+    background-color: #218838;
+}
+
+.add-btn {
+    background-color: #007bff;
+    color: white;
+}
+.add-btn:hover {
+    background-color: #0056b3;
+}
+.upload-btn {
+    background-color: #17a2b8;
+    color: white;
+}
+.upload-btn:hover {
+    background-color: #138496;
+}
+
+.close-btn {
+    background-color: #dc3545;
+    color: white;
+}
+.close-btn:hover {
+    background-color: #c82333;
+}
+.custom-upload-btn {
+    background-color: rgba(166, 166, 167, 0.888);
+    color: white;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    padding: 10px 16px;
+    border-radius: 20px;
+}
+.custom-upload-btn:hover {
+    background-color: #999;
+    color: #fff;
+}
+
+.btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+.btn:disabled:hover {
+    opacity: 1;
+    transform: none;
+}

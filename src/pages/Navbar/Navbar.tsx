@@ -125,7 +125,7 @@ const Navbar = () => {
                 <button className="navbar-profile-btn">
                   {profileInfo ? (
                     <img
-                      src={`${BASE_URL}${profileInfo.data.profile_image.image}`}
+                      src={`${BASE_URL}${profileInfo?.data.profile_image?.image}`}
                       alt="User profile"
                       className="navbar-profile-image"
                     />
@@ -138,9 +138,7 @@ const Navbar = () => {
                       }`}
                     />
                   )}
-                  <span className="username">
-                 {profileInfo.data.username}
-                  </span>
+                  <span className="username">{profileInfo.data.username}</span>
                 </button>
                 <ul className="dropdown-menu">
                   <li>
