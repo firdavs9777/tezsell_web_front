@@ -1,37 +1,64 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useGetFavoriteItemsQuery, useGetSingleServiceQuery, useLikeServiceMutation, useUnlikeServiceMutation } from "../../store/slices/serviceApiSlice";
+import {
+  useGetFavoriteItemsQuery,
+  useGetSingleServiceQuery,
+  useLikeServiceMutation,
+  useUnlikeServiceMutation,
+} from "../../store/slices/serviceApiSlice";
 import { useEffect, useState } from "react";
 import { BASE_URL } from "../../store/constants";
 import { Comment, Service, SingleService } from "../../store/type";
-import { FaHeart, FaCommentAlt, FaMapMarkerAlt, FaUser, FaRegHeart, FaThumbsUp, FaRegThumbsUp } from "react-icons/fa";
+import {
+  FaHeart,
+  FaCommentAlt,
+  FaMapMarkerAlt,
+  FaUser,
+  FaRegHeart,
+  FaThumbsUp,
+  FaRegThumbsUp,
+} from "react-icons/fa";
 import "./ServiceDetail.css";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
-import { useCreateCommentMutation, useGetCommentsQuery } from "../../store/slices/commentApiSlice";
+import {
+  useCreateCommentMutation,
+  useGetCommentsQuery,
+} from "../../store/slices/commentApiSlice";
 import { toast } from "react-toastify";
 import { ServiceRes } from "../Profile/MainProfile";
 
 const ServiceDetail = () => {
   const { id } = useParams();
   const { data, isLoading, error, refetch } = useGetSingleServiceQuery(id);
-  const [createComment, { isLoading: create_loading }] = useCreateCommentMutation()
+  const [createComment, { isLoading: create_loading }] =
+    useCreateCommentMutation();
 
   const [likeService, { isLoading: create_loading_like }] =
     useLikeServiceMutation();
   const [dislikeService, { isLoading: create_loading_unlike }] =
     useUnlikeServiceMutation();
 
-  const [text, setText] = useState<string>('');
+  const [text, setText] = useState<string>("");
 
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
-  const { data: favorite_items, isLoading: favorite_loading, error: favorite_error, refetch: reload_fav } = useGetFavoriteItemsQuery({
+  const {
+    data: favorite_items,
+    isLoading: favorite_loading,
+    error: favorite_error,
+    refetch: reload_fav,
+  } = useGetFavoriteItemsQuery({
     token: token,
   });
   // Ensure serviceItem is available and defined
   const serviceItem: SingleService | null = data as SingleService;
   const serviceId = serviceItem?.service.id;
-  const { data: comments_data, isLoading: fav_loading, error: fav_error, refetch: reload } = useGetCommentsQuery({
+  const {
+    data: comments_data,
+    isLoading: fav_loading,
+    error: fav_error,
+    refetch: reload,
+  } = useGetCommentsQuery({
     serviceId: serviceId || "", // Ensure serviceId is not undefined
     token: token,
   });
@@ -39,15 +66,16 @@ const ServiceDetail = () => {
   const liked_items: ServiceRes = favorite_items as ServiceRes;
 
   // Make sure comments data is in the correct format
-  const comments: Comment[] = comments_data as Comment[] || [];
+  const comments: Comment[] = (comments_data as Comment[]) || [];
 
   const [selectedImage, setSelectedImage] = useState<string>("");
-
 
   // Update selectedImage when serviceItem or serviceItem images are available
   useEffect(() => {
     if (serviceItem?.service.images?.length) {
-      setSelectedImage(`${BASE_URL}/services${serviceItem.service.images[0].image}`);
+      setSelectedImage(
+        `${BASE_URL}/services${serviceItem.service.images[0].image}`
+      );
     }
   }, [serviceItem]);
 
@@ -64,7 +92,6 @@ const ServiceDetail = () => {
   if (fav_error || !serviceItem) {
     return <div className="error">Error Occurred...</div>;
   }
-
 
   const handleLikeService = async () => {
     try {
@@ -122,28 +149,30 @@ const ServiceDetail = () => {
   const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append('name', text);
+    formData.append("name", text);
     try {
       const token = userInfo?.token;
-      const response = await createComment({ text: text, serviceId: service.id, token });
+      const response = await createComment({
+        text: text,
+        serviceId: service.id,
+        token,
+      });
 
       if (response.data) {
-        toast.success('Comment created successfully');
+        toast.success("Comment created successfully");
         reload();
-        setText('');
+        setText("");
+      } else {
+        toast.error("Error occured during the creation");
       }
-      else {
-        toast.error('Error occured during the creation')
-      }
-    }
-    catch (error: unknown) {
+    } catch (error: unknown) {
       if (error instanceof Error) {
         toast.error(error.message || "Error while creating service");
       } else {
         toast.error("An unknown error occurred while creating the service");
       }
     }
-  }
+  };
 
   const { service } = serviceItem;
 
@@ -158,12 +187,22 @@ const ServiceDetail = () => {
                   key={index}
                   src={`${BASE_URL}/services${image.image}`}
                   alt={`${service.name} ${index + 1}`}
-                  onClick={() => setSelectedImage(`${BASE_URL}/services${image.image}`)}
-                  className={selectedImage === `${BASE_URL}/services${image.image}` ? "thumbnail-selected" : ""}
+                  onClick={() =>
+                    setSelectedImage(`${BASE_URL}/services${image.image}`)
+                  }
+                  className={
+                    selectedImage === `${BASE_URL}/services${image.image}`
+                      ? "thumbnail-selected"
+                      : ""
+                  }
                 />
               ))}
             </div>
-            <img className="service-selected-image" src={selectedImage} alt={service.name} />
+            <img
+              className="service-selected-image"
+              src={selectedImage}
+              alt={service.name}
+            />
           </div>
         </section>
 
@@ -180,15 +219,22 @@ const ServiceDetail = () => {
                 className="owner-profile-image"
               />
               <div>
-                <p><FaUser /> {service.userName.username}</p>
-                <p><FaMapMarkerAlt /> {service.userName.location.region} - {service.userName.location.district}</p>
+                <p>
+                  <FaUser /> {service.userName.username}
+                </p>
+                <p>
+                  <FaMapMarkerAlt /> {service.userName.location.region} -{" "}
+                  {service.userName.location.district}
+                </p>
               </div>
             </div>
           </div>
 
           <div className="service-actions">
-
-            {liked_items && liked_items?.liked_services?.some((item: Service) => item.id === serviceItem.service.id) ? (
+            {liked_items &&
+            liked_items?.liked_services?.some(
+              (item: Service) => item.id === serviceItem.service.id
+            ) ? (
               <div onClick={handleDislikeService}>
                 <FaThumbsUp size={24} color="blue" /> Like
               </div>
@@ -211,11 +257,23 @@ const ServiceDetail = () => {
             comments.map((comment, index) => (
               <div key={index} className="comment-card">
                 <div className="comment-author-info">
-                  <img
+                  {/* <img
                     src={`${BASE_URL}/${comment.user.profile_image.image}`}
                     alt={comment.user.username}
                     className="comment-author-image"
+                  /> */}
+
+                  <img
+                    src={
+                      comment.user.profile_image?.image
+                        ? `${BASE_URL}/${comment.user.profile_image.image}`
+                        : "/path/to/fallback-image.jpg"
+                    }
+                    alt={comment.user.username}
+                    className="comment-author-image"
+                    // Fallback if the image fails to load
                   />
+
                   <div className="comment-author-details">
                     <p className="comment-author">{comment.user.username}</p>
                     <p className="comment-location">
@@ -232,7 +290,9 @@ const ServiceDetail = () => {
               </div>
             ))
           ) : (
-            <p className="no-comments">No comments yet. Be the first to comment!</p>
+            <p className="no-comments">
+              No comments yet. Be the first to comment!
+            </p>
           )}
         </div>
 
@@ -253,9 +313,7 @@ const ServiceDetail = () => {
         ) : (
           <p>Please login first</p>
         )}
-
       </section>
-
 
       <section className="recommended-services-container">
         <h3>Recommended Services</h3>

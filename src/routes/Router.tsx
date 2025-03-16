@@ -11,6 +11,7 @@ import ServiceDetail from "../pages/Service/ServiceDetail";
 import NewService from "../pages/Service/NewService";
 import MainProfile from "../pages/Profile/MainProfile";
 import MyProducts from "../pages/Profile/MyProducts";
+import MyServices from "../pages/Profile/MyServices";
 
 const Router = () => {
   return (
@@ -26,6 +27,7 @@ const Router = () => {
       <Route path="/new-service" element={<NewService />} />
       <Route path="/myprofile" element={<MainProfile />} />
       <Route path="/my-products" element={<MyProducts />} />
+      <Route path="/my-services" element={<MyServices />} />
     </Routes>
   );
 };

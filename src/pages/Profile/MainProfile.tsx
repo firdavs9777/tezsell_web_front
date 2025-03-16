@@ -28,8 +28,9 @@ import "./MainProfile.css";
 import { FaUserCircle } from "react-icons/fa";
 import Modal from "../../components/Modal";
 import { toast } from "react-toastify";
-import Button from "../../components/Button";
+
 import { setCredentials } from "../../store/slices/authSlice";
+import Button from "../../components/Button";
 
 export interface ServiceRes {
   liked_services: Service[];
@@ -178,8 +179,7 @@ const MainProfile = () => {
       (d) => d.district === currentDistrict
     );
     if (matchedDistrict) {
-      const locationId = matchedDistrict.id; // Get the id of the matched district
-      console.log("Location ID:", locationId);
+      const locationId = matchedDistrict.id;
       formData.append("location_id", locationId.toString());
     }
     if (newImage) {
@@ -215,6 +215,9 @@ const MainProfile = () => {
   const redirectHandler = (id: number) => {
     navigate(`/product/${id}`);
   };
+  const redirectHandlerService = (id: number) => {
+    navigate(`/service/${id}`);
+  };
 
   // Render helpers
   const renderItemList = (items: any[], nameKey: string, limit = 3) => {
@@ -230,12 +233,36 @@ const MainProfile = () => {
           ))}
         </ul>
         {items.length > limit && (
-          <button
-            className="see-more-btn"
+          <Button
             onClick={() => navigate("/my-products")}
-          >
-            {t("see_more_btn")}
-          </button>
+            label={t("see_more_btn")}
+            variant="see-more"
+          />
+        )}
+      </>
+    );
+  };
+  const renderServiceList = (items: any[], nameKey: string, limit = 3) => {
+    if (!items || !items.length) return <p>No items available</p>;
+
+    return (
+      <>
+        <ul className="item-list">
+          {items.slice(0, limit).map((item, index) => (
+            <li
+              key={item.id || index}
+              onClick={() => redirectHandlerService(item.id)}
+            >
+              {item[nameKey]}
+            </li>
+          ))}
+        </ul>
+        {items.length > limit && (
+          <Button
+            onClick={() => navigate("/my-services")}
+            label={t("see_more_btn")}
+            variant="see-more"
+          />
         )}
       </>
     );
@@ -261,9 +288,11 @@ const MainProfile = () => {
             )}
             <p className="profile-username">{profileInfo.data.username}</p>
           </div>
-          <button className="edit-btn" onClick={handleOpenModal}>
-            {t("edit_profile_modal_title")}
-          </button>
+          <Button
+            variant="edit"
+            onClick={handleOpenModal}
+            label={t("edit_profile_modal_title")}
+          />
         </div>
 
         <Modal onClose={handleClose} isOpen={modalOpen}>
@@ -350,16 +379,12 @@ const MainProfile = () => {
               </div>
 
               <div className="form-actions">
-                <button type="submit" className="upload-btn">
-                  {t("upload_btn_label")}
-                </button>
-                <button
-                  type="button"
-                  className="close-btn"
+                <Button type="submit" label={t("upload_btn_label")} />
+                <Button
+                  label={t("cancel_btn_label")}
                   onClick={handleClose}
-                >
-                  {t("cancel_btn_label")}
-                </button>
+                  variant="close"
+                />
               </div>
             </form>
           </div>
@@ -371,19 +396,25 @@ const MainProfile = () => {
             {t("my_products_title")} ({products?.results?.length || 0})
           </h3>
           {renderItemList(products?.results || [], "title")}
-          <button className="add-btn" onClick={() => navigate("/new-product")}>
-            {t("add_new_product_btn")}
-          </button>
+
+          <Button
+            variant="add"
+            onClick={() => navigate("/new-product")}
+            label={t("add_new_product_btn")}
+          />
         </section>
 
         <section className="my-services">
           <h3>
             {t("my_services_title")} ({services?.results?.length || 0})
           </h3>
-          {renderItemList(services?.results || [], "name")}
-          <button className="add-btn" onClick={() => navigate("/new-service")}>
-            {t("add_new_service_btn")}
-          </button>
+          {renderServiceList(services?.results || [], "name")}
+
+          <Button
+            label={t("add_new_service_btn")}
+            onClick={() => navigate("/new-service")}
+            variant="add"
+          />
         </section>
 
         <section className="recent-activity">
