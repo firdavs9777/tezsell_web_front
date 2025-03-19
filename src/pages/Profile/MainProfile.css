@@ -1,4 +1,3 @@
-/* Base styles */
 .profile-container {
   font-family: 'Segoe UI', Arial, sans-serif;
   max-width: 1200px;
@@ -6,8 +5,6 @@
   padding: 20px;
   color: #333;
 }
-
-/* Header */
 .profile-header {
   background-color: #008cba;
   color: white;
@@ -16,20 +13,16 @@
   border-radius: 8px 8px 0 0;
   margin-bottom: 20px;
 }
-
 .profile-header h1 {
   margin: 0;
   font-size: 1.8rem;
   font-weight: 600;
 }
-
-/* Profile content sections */
 .profile-content {
   display: grid;
   grid-template-columns: 1fr;
   gap: 20px;
 }
-
 .profile-top,
 .my-products,
 .my-services,
@@ -40,7 +33,6 @@
   padding: 20px;
   transition: transform 0.2s, box-shadow 0.2s;
 }
-
 .profile-top:hover,
 .my-products:hover,
 .my-services:hover,
@@ -48,20 +40,16 @@
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
-
-/* Profile overview */
 .profile-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-
 .profile-overview {
   display: flex;
   align-items: center;
   gap: 20px;
 }
-
 .profile-image,
 .profile-icon {
   width: 100px;
@@ -70,19 +58,14 @@
   object-fit: cover;
   border: 3px solid #f0f0f0;
 }
-
 .profile-icon {
   color: #cccccc;
 }
-
 .profile-username {
   font-size: 1.5rem;
   font-weight: 600;
   margin: 0;
 }
-
-
-/* Section headers */
 .my-products h3,
 .my-services h3,
 .recent-activity h3 {
@@ -91,7 +74,6 @@
   position: relative;
   padding-bottom: 8px;
 }
-
 .my-products h3:after,
 .my-services h3:after,
 .recent-activity h3:after {
@@ -103,47 +85,37 @@
   height: 3px;
   background-color: #008cba;
 }
-
-/* Lists */
 .item-list {
   list-style-type: none;
   padding: 0;
   margin: 15px 0;
 }
-
 .item-list li {
   padding: 8px 0;
   border-bottom: 1px solid #f0f0f0;
   transition: background-color 0.2s;
 }
-
 .item-list li:hover {
   background-color: #f8f9fa;
 }
-
-/* Modal Form */
 .edit-profile-form {
   padding: 20px;
 }
-
 .edit-profile-form h2 {
   margin-top: 0;
   color: #333;
   font-size: 1.5rem;
   margin-bottom: 20px;
 }
-
 .form-group {
   margin-bottom: 20px;
 }
-
 .form-group label {
   display: block;
   margin-bottom: 8px;
   font-weight: 600;
   color: #555;
 }
-
 .form-group input,
 .form-group select {
   width: 100%;
@@ -152,16 +124,13 @@
   border-radius: 4px;
   font-size: 1rem;
 }
-
 .location-selects {
   display: flex;
   gap: 10px;
 }
-
 .location-selects select {
   flex: 1;
 }
-
 .image-preview {
   width: 100%;
   height: 300px;
@@ -170,35 +139,42 @@
   margin-bottom: 15px;
   border: 1px solid #ddd;
 }
-
 .image-preview-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width: 100%; 
+  height: 300px;
+  object-fit: fit; 
+  border-radius: 10px; 
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Soft shadow for a modern look */
+  transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out; /* Smooth transition effects */
 }
-
+.image-preview-img:hover {
+  transform: scale(1.05); /* Slight zoom effect on hover */
+  opacity: 0.9; /* Slight fade effect */
+}
+.image-preview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden; /* Ensures no overflow issues */
+  background: #f8f8f8; /* Light background for better contrast */
+  border-radius: 12px; /* Matches the image's border-radius */
+  padding: 5px; /* Adds some spacing inside */
+}
 .upload-container {
   margin-bottom: 20px;
 }
-
-
-
-
 .file-input {
   display: none;
 }
-
 .form-actions {
   display: flex;
   gap: 10px;
 }
-
 .upload-btn {
   background-color: #28a745;
   color: white;
   flex: 1;
 }
-
 .upload-btn:hover {
   background-color: #218838;
 }
@@ -212,8 +188,6 @@
 .close-btn:hover {
   background-color: #c82333;
 }
-
-/* Status messages */
 .loading,
 .error-message,
 .auth-message {

@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   useGetFavoriteItemsQuery,
   useGetSingleServiceQuery,
@@ -9,11 +9,9 @@ import { useEffect, useState } from "react";
 import { BASE_URL } from "../../store/constants";
 import { Comment, Service, SingleService } from "../../store/type";
 import {
-  FaHeart,
   FaCommentAlt,
   FaMapMarkerAlt,
   FaUser,
-  FaRegHeart,
   FaThumbsUp,
   FaRegThumbsUp,
 } from "react-icons/fa";
@@ -213,11 +211,25 @@ const ServiceDetail = () => {
 
           <div className="service-detail-info">
             <div className="service-owner">
-              <img
-                src={`${BASE_URL}/${service.userName.profile_image.image}`}
-                alt={service.userName.username}
-                className="owner-profile-image"
-              />
+              {service.userName.profile_image != null ? (
+                <img
+                  src={`${BASE_URL}/${service.userName.profile_image.image}`}
+                  alt={service.userName.username}
+                  className="owner-profile-image"
+                />
+              ) : (
+                <svg
+                  className="comment-author-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="40"
+                  height="40"
+                  fill="gray"
+                >
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+                </svg>
+              )}
               <div>
                 <p>
                   <FaUser /> {service.userName.username}
@@ -257,22 +269,25 @@ const ServiceDetail = () => {
             comments.map((comment, index) => (
               <div key={index} className="comment-card">
                 <div className="comment-author-info">
-                  {/* <img
-                    src={`${BASE_URL}/${comment.user.profile_image.image}`}
-                    alt={comment.user.username}
-                    className="comment-author-image"
-                  /> */}
-
-                  <img
-                    src={
-                      comment.user.profile_image?.image
-                        ? `${BASE_URL}/${comment.user.profile_image.image}`
-                        : "/path/to/fallback-image.jpg"
-                    }
-                    alt={comment.user.username}
-                    className="comment-author-image"
-                    // Fallback if the image fails to load
-                  />
+                  {comment.user.profile_image != null ? (
+                    <img
+                      src={`${BASE_URL}/${comment.user.profile_image.image}`}
+                      alt={comment.user.username}
+                      className="comment-author-image"
+                    />
+                  ) : (
+                    <svg
+                      className="comment-author-icon"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      width="40"
+                      height="40"
+                      fill="gray"
+                    >
+                      <circle cx="12" cy="8" r="4" />
+                      <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+                    </svg>
+                  )}
 
                   <div className="comment-author-details">
                     <p className="comment-author">{comment.user.username}</p>
