@@ -157,7 +157,17 @@ const Register = () => {
             </button>
           )}
           {currentStep < 4 && (
-            <button onClick={nextStep} className="register-next" type="button">
+            <button
+              onClick={nextStep}
+              className="register-next"
+              type="button"
+              disabled={
+                (currentStep === 1 && !isPhoneVerified) ||
+                (currentStep === 2 && regionName === "") ||
+                (currentStep === 3 && districtName === "") ||
+                (currentStep === 4 && (userName === "" || userPassword === ""))
+              }
+            >
               {t("next_button")}
             </button>
           )}

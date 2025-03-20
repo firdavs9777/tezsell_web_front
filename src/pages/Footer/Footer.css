@@ -1,10 +1,14 @@
 .footer {
-  background-color: transparent;
+  background-color: #f8f9fa; /* Light gray for visibility */
   color: #333;
-  padding: 10px;
+  padding: 20px;
   display: flex;
+  justify-content: center;
   align-items: center;
+  box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.15); /* Soft shadow */
+  border-top: 2px solid #007bff; /* Blue border for emphasis */
 }
+
 
 .footer-content {
   display: flex;

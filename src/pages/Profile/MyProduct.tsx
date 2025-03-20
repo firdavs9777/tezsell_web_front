@@ -1,9 +1,17 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Product } from "../../store/type";
 import { BASE_URL } from "../../store/constants";
 import "./MyProduct.css";
 import { useNavigate } from "react-router-dom";
-import { FaEdit, FaHeart, FaPlus, FaRegHeart, FaRegThumbsUp, FaThumbsUp, FaTrash } from "react-icons/fa";
+import {
+  FaEdit,
+  FaHeart,
+  FaPlus,
+  FaRegHeart,
+  FaRegThumbsUp,
+  FaThumbsUp,
+  FaTrash,
+} from "react-icons/fa";
 import { IoLocationOutline } from "react-icons/io5";
 import { MdDescription } from "react-icons/md";
 import { useSelector } from "react-redux";
@@ -17,13 +25,13 @@ import { ServiceRes } from "../Profile/MainProfile";
 import { toast } from "react-toastify";
 import { FaDeleteLeft } from "react-icons/fa6";
 import MyProductEdit from "./ProductEdit";
-
+import { useDeleteUserProductMutation } from "../../store/slices/users";
 interface SingleProductProps {
   product: Product;
   refresh: () => void;
 }
 
-const MyProduct: React.FC<SingleProductProps> = ({ product,refresh }) => {
+const MyProduct: React.FC<SingleProductProps> = ({ product, refresh }) => {
   const navigate = useNavigate();
   const [isEdit, setIsEdit] = useState(false);
 
@@ -39,6 +47,7 @@ const MyProduct: React.FC<SingleProductProps> = ({ product,refresh }) => {
   });
   const [likeProduct, { isLoading: create_loading_like }] =
     useLikeProductMutation();
+  const [deleteProduct] = useDeleteUserProductMutation();
   const [dislikeProduct, { isLoading: create_loading_unlike }] =
     useUnlikeProductMutation();
 
@@ -115,16 +124,56 @@ const MyProduct: React.FC<SingleProductProps> = ({ product,refresh }) => {
   const closeHandler = async () => {
     reload();
     refresh();
-  }
-  
+  };
 
+  const deleteProductHandler = async () => {
+    // Create a custom toast with "Yes" and "No" buttons
+    const confirmToast = toast.info(
+      "Are you sure you want to delete this product?",
+      {
+        position: "top-center",
+        autoClose: false, // Prevent auto-close, waiting for user action
+        closeOnClick: false,
+        draggable: false,
+        onClose: () => {
+          // Optional: You can handle cleanup or any other tasks when toast is closed
+        },
+        render: () => (
+          <div>
+            <p>Are you sure you want to delete this product?</p>
+            <button
+              onClick={async () => {
+                const token = userInfo?.token;
+                try {
+                  const response = await deleteProduct({
+                    productId: product.id,
+                    token: token,
+                  });
+                  toast.success("Product deleted successfully");
+                } catch {
+                  toast.error("Error occurred while deleting the product");
+                }
+                toast.dismiss(confirmToast); // Dismiss the confirmation toast
+              }}
+            >
+              Yes
+            </button>
+            <button
+              onClick={() => toast.dismiss(confirmToast)} // Dismiss the confirmation toast without action
+            >
+              No
+            </button>
+          </div>
+        ),
+      }
+    );
+  };
   return (
     <div className="product-card">
       <div
         className="image-container"
         onClick={() => redirectHandler(product.id)}
       >
-        
         {product && product.images.length > 0 ? (
           <img
             src={`${product.images[0].image}`}
@@ -164,7 +213,7 @@ const MyProduct: React.FC<SingleProductProps> = ({ product,refresh }) => {
               <FaEdit onClick={handleEditModal} /> Edit
             </span>
           </p>
-          <p className="product-delete">
+          <p className="product-delete" onClick={deleteProductHandler}>
             <FaTrash />
             <span>Delete</span>
           </p>
@@ -186,16 +235,15 @@ const MyProduct: React.FC<SingleProductProps> = ({ product,refresh }) => {
             (item: Product) => item.id === product.id
           ) ? (
             <div>
-                <FaThumbsUp
-                  size={24}
+              <FaThumbsUp
+                size={24}
                 style={{ color: "blue" }}
                 onClick={handleDislikeProduct}
               />
-
             </div>
           ) : (
             <div>
-              <FaRegThumbsUp size={24} onClick={handleLikeProduct} /> 
+              <FaRegThumbsUp size={24} onClick={handleLikeProduct} />
             </div>
           )}
         </div>

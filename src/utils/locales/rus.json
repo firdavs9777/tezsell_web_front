@@ -83,5 +83,15 @@
   "username": "Имя пользователя",
   "password": "Пароль",
   "enter_username": "Введите имя пользователя",
-  "enter_password": "Введите пароль"
+  "enter_password": "Введите пароль",
+    "login": "Войти",
+    "welcome_message": "Добро пожаловать в Tezsell, войдите с помощью номера телефона",
+    "phone_number": "Номер телефона",
+    "enter_phone_number": "Введите ваш номер телефона: 941234567",
+    "password": "Пароль",
+    "enter_password": "Введите ваш пароль",
+    "forgot_password": "Забыли пароль?",
+    "no_account": "Еще нет аккаунта? Зарегистрируйтесь здесь",
+    "success_login": "Успешный вход"
+  
 }
