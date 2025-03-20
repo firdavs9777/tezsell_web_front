@@ -10,6 +10,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { RegisterInfo } from "../../../store/type";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../../../store/slices/authSlice";
+import { useTranslation } from "react-i18next";
 const Register = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [phoneNumber, setPhoneNumber] = useState("+821082773725");
@@ -23,17 +24,20 @@ const Register = () => {
   const dispatch = useDispatch();
   const { search } = useLocation();
   const sp = new URLSearchParams(search);
+  const { t, i18n } = useTranslation();
   const redirect = sp.get("redirect") || "/";
   const handlePhoneVerification = (status: boolean) => {
     setIsPhoneVerified(status);
     if (status) {
-      toast.success("Phone number verified! You can proceed to the next step.");
+      toast.success(`${t("register_phone_number_success")}`);
     }
     setCurrentStep((prevStep) => prevStep + 1);
   };
   const handleRegionSelect = (status: boolean, region: string) => {
     if (status) {
-      toast.success(`Region Selected: ${region} `, { autoClose: 3000 });
+      toast.success(`${t("region_selected_message")} ${region} `, {
+        autoClose: 3000,
+      });
     }
     setRegionName(region);
     setCurrentStep((prevStep) => prevStep + 1);
@@ -41,28 +45,31 @@ const Register = () => {
   const handleSelectDistrict = (district: string) => {
     if (district) {
       setDistrictName(district);
-      toast.success(`District Selected', ${district}`, { autoClose: 3000 });
+      toast.success(`${t("district_select_message")}, ${district}`, {
+        autoClose: 3000,
+      });
     }
     setCurrentStep((prevStep) => prevStep + 1);
   };
   const nextStep = () => {
-    console.log(isPhoneVerified);
     if (currentStep === 1 && !isPhoneVerified) {
-      toast.error("Please verify your phone number before proceeding", {
+      toast.error(`${t("phone_number_emtpy_message")}`, {
         autoClose: 3000,
       });
       return;
     }
     if (currentStep === 2 && regionName === "") {
-      toast.error("Please select the region first", { autoClose: 3000 });
+      toast.error(`${t("region_emtpy_message")}`, { autoClose: 3000 });
       return;
     }
     if (currentStep === 3 && districtName === "") {
-      toast.error("Please select the district", { autoClose: 3000 });
+      toast.error(`${t("district_emtpy_message")}`, { autoClose: 3000 });
       return;
     }
     if (currentStep === 4 && userName === "" && userPassword === "") {
-      toast.error("Please input username and password", { autoClose: 3000 });
+      toast.error(`${t("username_password_emtpy_message")}`, {
+        autoClose: 3000,
+      });
       return;
     }
     setCurrentStep((prevStep) => prevStep + 1);
@@ -91,18 +98,20 @@ const Register = () => {
       ).unwrap();
       const ActionPayload: Response | any = registerInfo;
       dispatch(setCredentials({ ...ActionPayload }));
-      toast.success("Successfully registered");
+      toast.success("Successfully registered", { autoClose: 3000 });
       navigate(redirect);
-    } catch (error: any) {
-      toast.error(error?.error);
+    } catch {
+      toast.error("Error occured, please double check infomation", {
+        autoClose: 3000,
+      });
     }
   };
   return (
     <form onSubmit={submitRegister}>
       <div className="register-container">
-        <h1 className="login-header">Register</h1>
+        <h1 className="login-header">{t("register_title")}</h1>
         <div className="step-container">
-          <p>Step {currentStep} out of 4</p>
+          <p>{t("step_indicator", { currentStep })}</p>
         </div>
         {currentStep === 1 && (
           <>
@@ -144,17 +153,17 @@ const Register = () => {
               className="register-cancel"
               type="button"
             >
-              Previous
+              {t("previous_button")}
             </button>
           )}
           {currentStep < 4 && (
             <button onClick={nextStep} className="register-next" type="button">
-              Next
+              {t("next_button")}
             </button>
           )}
           {currentStep == 4 && (
             <button className="register-complete" type="submit">
-              Complete
+              {t("complete_button")}
             </button>
           )}
         </div>

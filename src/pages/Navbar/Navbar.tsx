@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css";
@@ -20,19 +20,28 @@ import { FaUserPlus } from "react-icons/fa6";
 import { RootState } from "../../store/index";
 import { BASE_URL } from "../../store/constants";
 import { UserInfo } from "../../store/type";
-// import { useLogoutUserMutation } from '../../store/slices/authSlice';
+import { toast } from "react-toastify";
 const Navbar = () => {
   const [activeLink, setActiveLink] = useState("/");
-
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
-  const token = userInfo?.token;
+  const [token, setToken] = useState(userInfo?.token);
   const {
     data: loggedUserInfo,
     isLoading: loggedUserLoad,
     error: loginError,
     refetch: refresh,
-  } = useGetLoggedinUserInfoQuery({ token });
-
+  } = useGetLoggedinUserInfoQuery(
+    { token: userInfo?.token || "" },
+    {
+      skip: !userInfo?.token,
+    }
+  );
+  useEffect(() => {
+    if (userInfo?.token) {
+      refresh();
+    }
+  }, [userInfo?.token, refresh]);
+  const profileInfo: UserInfo | undefined = loggedUserInfo as UserInfo;
   const { t, i18n } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -40,22 +49,21 @@ const Navbar = () => {
   const [logoutApiCall] = useLogoutUserMutation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  // Function to change the language
   const changeLanguage = (lang: string) => {
     i18n.changeLanguage(lang);
-    setIsDropdownOpen(false); // Close the dropdown after selecting a language
+    setIsDropdownOpen(false);
   };
   const logoutHandler = async () => {
     try {
-      logoutApiCall(userInfo.token).unwrap();
-      dispatch(logout(userInfo)); // Corrected dispatch call without passing userInfo
+      await logoutApiCall(userInfo?.token).unwrap();
+      await dispatch(logout(userInfo));
       navigate("/login");
-    } catch (error: any) {
-      alert(error.message);
+      toast.success("Logged out successfully", { autoClose: 2000 });
+    } catch {
+      toast.error("Error occured", { autoClose: 2000 });
     }
   };
-  const profileInfo: UserInfo | undefined = loggedUserInfo as UserInfo;
+
   return (
     <header className="navbar">
       <Link
@@ -111,7 +119,7 @@ const Navbar = () => {
             </a>
           </li>
 
-          {profileInfo ? (
+          {profileInfo && userInfo?.token ? (
             <>
               <li
                 onClick={() => {

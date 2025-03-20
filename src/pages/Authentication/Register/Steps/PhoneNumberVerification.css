@@ -1,27 +1,86 @@
+/* Improved PhoneNumberVerification Styles */
 .register-step-one {
-  width: 300px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 350px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
+}
+
+.register-step-one label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 5px;
+  color: #333;
 }
 
 .register-mobile-number, input[type="text"] {
   width: 100%;
-  padding: 10px;
-  margin: 10px 0;
+  padding: 12px;
+  margin-bottom: 10px;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
+
+.register-mobile-number:focus, input[type="text"]:focus {
+  border-color: #30caa0;
+  outline: none;
+}
+
+.register-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .register-button {
-  padding: 10px 15px;
-  background-color: #30caa0;
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #30caa0, #22b58d);
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: background 0.3s;
+  margin-bottom:10px;
+}
+.register-verify {
+  width: 100%;
+  padding: 12px;
+  background: #017af3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: background 0.3s;
+  margin-bottom:10px;
+}
+
+.register-button:hover {
+  background: linear-gradient(135deg, #22b58d, #1e9e7b);
 }
 
 .register-button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+
+@media (max-width: 400px) {
+  .register-step-one {
+    width: 90%;
+    padding: 15px;
+  }
+  .register-button {
+    font-size: 14px;
+    padding: 10px;
+  }
 }
