@@ -104,12 +104,12 @@
   border-bottom: none;
 }
 
-/* Product list grid */
 .product-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-  padding: 5px 15px 20px;
+  display: flex;
+  flex-direction: column;
+  
+  justify-content: center; 
+  padding: 5px 12px 10px;
 }
 
 /* Pagination container */
@@ -154,7 +154,6 @@
   color: #dc3545;
 }
 
-/* Clear all filters button */
 .clear-category {
   background-color: #dc3545;
   color: white;
@@ -208,6 +207,7 @@
   }
   
   .product-list {
+    justify-content: center;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   }
 }
