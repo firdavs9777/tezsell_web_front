@@ -42,21 +42,21 @@ const MainProfile = () => {
     error: productsError,
     refetch: refetchProducts,
   } = useGetUserProductsQuery({ token });
-  
+
   const {
     data: servicesData,
     isLoading: servicesLoading,
     error: servicesError,
     refetch: refetchServices,
   } = useGetUserServicesQuery({ token });
-  
+
   const {
     data: likedItemsData,
     isLoading: likedItemsLoading,
     error: likedItemsError,
     refetch: refetchLikedItems,
   } = useGetFavoriteItemsQuery({ token });
-  
+
   const {
     data: loggedUserInfo,
     isLoading: userInfoLoading,
@@ -68,9 +68,9 @@ const MainProfile = () => {
     data: regions,
     isLoading: regionsLoading,
   } = useGetRegionsListQuery({});
- 
+
   const [currentRegion, setCurrentRegion] = useState('');
-  
+
   const {
     data: districts,
     isLoading: districtsLoading,
@@ -83,9 +83,9 @@ const MainProfile = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [newUsername, setNewUsername] = useState("");
 
-    const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [updateProfile] = useUpdateLoggedUserInfoMutation();
-  
+
   // Type assertions
   const products = productsData as ProductResponse;
   const services = servicesData as ServiceResponse;
@@ -126,10 +126,10 @@ const MainProfile = () => {
 
   // Loading and error handling
   if (!token) return <div className="auth-message">Please log in to view your profile</div>;
-  
+
   const isLoading = productsLoading || servicesLoading || likedItemsLoading || userInfoLoading || regionsLoading || districtsLoading;
   if (isLoading) return <div className="loading">Loading...</div>;
-  
+
   const hasError = productsError || servicesError || likedItemsError || userInfoError;
   if (hasError) return <div className="error-message">Error loading profile data</div>;
 
@@ -151,28 +151,28 @@ const MainProfile = () => {
   const handleProfileUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData();
-    
+
     if (newUsername) {
       formData.append("username", newUsername);
-  
+
     }
-   const matchedDistrict =  districtsList.districts.find(d => d.district === currentDistrict);
+    const matchedDistrict = districtsList.districts.find(d => d.district === currentDistrict);
     if (matchedDistrict) {
-    const locationId = matchedDistrict.id; // Get the id of the matched district
-    console.log("Location ID:", locationId);
-    formData.append("location_id", locationId.toString());
-}  
+      const locationId = matchedDistrict.id; // Get the id of the matched district
+      console.log("Location ID:", locationId);
+      formData.append("location_id", locationId.toString());
+    }
     if (newImage) {
       formData.append("profile_image", newImage);
     }
 
-    
+
     try {
       const response = await updateProfile({
         userData: formData,
         token,
       }).unwrap();
-      
+
       if (response) {
         toast.success(t("profile_update_success_message"), { autoClose: 3000 });
         refetchUserInfo();
@@ -192,21 +192,34 @@ const MainProfile = () => {
       }
     }
   };
-   const redirectHandler = (id: number) => {
+  const redirectHandler = (id: number) => {
     navigate(`/product/${id}`);
   };
+  const redirectServiceHandler = (id: number) => {
+    navigate(`/service/${id}`);
+  }
 
   // Render helpers
   const renderItemList = (items: any[], nameKey: string, limit = 3) => {
     if (!items || !items.length) return <p>No items available</p>;
-    
+
     return (
       <>
         <ul className="item-list">
           {items.slice(0, limit).map((item, index) => (
-            <li key={item.id || index} onClick={() => redirectHandler(item.id)}>{item[nameKey]}</li>
+            item.comments ? (
+                      <li key={item.id || index} onClick={() => redirectServiceHandler(item.id)}>
+                {item[nameKey]}
+              </li>
+              
+            ) : (
+              <li key={item.id || index} onClick={() => redirectHandler(item.id)}>
+                {item[nameKey]}
+              </li>
+            )
           ))}
         </ul>
+
         {items.length > limit && (
           <button className="see-more-btn" onClick={() => navigate("/my-products")}>
             {t("see_more_btn")}
@@ -219,7 +232,7 @@ const MainProfile = () => {
   return (
     <div className="profile-container">
       <div className="profile-header">
-        <h1>{ t('profile_page_title')}</h1>
+        <h1>{t('profile_page_title')}</h1>
       </div>
 
       <div className="profile-content">
@@ -254,11 +267,11 @@ const MainProfile = () => {
                   onChange={(e) => setNewUsername(e.target.value)}
                 />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="location">{t('location_label')}</label>
                 <div className="location-selects">
-                  <select 
+                  <select
                     id="region"
                     value={currentRegion}
                     onChange={(e) => setCurrentRegion(e.target.value)}
@@ -269,14 +282,14 @@ const MainProfile = () => {
                       </option>
                     ))}
                   </select>
-                  <select 
+                  <select
                     id="district"
                     value={currentDistrict}
                     onChange={(e) => setCurrentDistrict(e.target.value)}
                   >
                     {districtsList?.districts?.map((district, index) => (
                       <option key={index} value={district.district}>
-                         {district.district}
+                        {district.district}
                       </option>
                     ))}
                   </select>
@@ -323,10 +336,10 @@ const MainProfile = () => {
 
               <div className="form-actions">
                 <button type="submit" className="upload-btn">
-                 {t('upload_btn_label')}
+                  {t('upload_btn_label')}
                 </button>
                 <button type="button" className="close-btn" onClick={handleClose}>
-                       {t('cancel_btn_label')}
+                  {t('cancel_btn_label')}
                 </button>
               </div>
             </form>
@@ -337,7 +350,7 @@ const MainProfile = () => {
           <h3> {t('my_products_title')} ({products?.results?.length || 0})</h3>
           {renderItemList(products?.results || [], 'title')}
           <button className="add-btn" onClick={() => navigate("/new-product")}>
-     {t("add_new_product_btn")}
+            {t("add_new_product_btn")}
           </button>
         </section>
 
@@ -345,7 +358,7 @@ const MainProfile = () => {
           <h3>{t('my_services_title')} ({services?.results?.length || 0})</h3>
           {renderItemList(services?.results || [], 'name')}
           <button className="add-btn" onClick={() => navigate("/new-service")}>
-         {t('add_new_service_btn')}
+            {t('add_new_service_btn')}
           </button>
         </section>
 
