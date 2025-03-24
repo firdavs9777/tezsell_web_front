@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import "./Login.css";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useLoginUserMutation } from "../../../store/slices/users";
-import { useDispatch } from "react-redux";
 import { setCredentials } from "../../../store/slices/authSlice";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
 
 const Login = () => {
+  const { t } = useTranslation();
   const [phoneNumber, setPhoneNumber] = useState("+82");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
@@ -20,6 +21,7 @@ const Login = () => {
   const { search } = useLocation();
   const sp = new URLSearchParams(search);
   const redirect = sp.get("redirect") || "/";
+
   useEffect(() => {
     if (userInfo) {
       navigate(redirect);
@@ -36,9 +38,11 @@ const Login = () => {
       setPhoneNumber("+82");
     }
   };
+
   const clickHandler = () => {
     setShowPass((prev) => !prev);
   };
+
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
@@ -46,45 +50,42 @@ const Login = () => {
         phone_number: phoneNumber,
         password,
       }).unwrap();
-      const ActionPayload: Response | any = userInfo;
-      dispatch(setCredentials({ ...ActionPayload }));
-      toast.success("Successfully logged");
+      dispatch(setCredentials({ ...userInfo }));
+      toast.success(t("success_login"));
       navigate(redirect);
     } catch (error: any) {
       toast.error(error?.error);
     }
   };
+
   if (isLoading) {
     return <p>Loading....</p>;
   }
+
   return (
     <form className="login-container" onSubmit={submitHandler}>
-      <h1 className="login-header">Login</h1>
-      <p>
-        Tezsellga hush kelibsiz, <br />
-        telefon orqali mavjud hisobingizga kiring
-      </p>
+      <h1 className="login-header">{t("login")}</h1>
+      <p>{t("welcome_message")}</p>
       <div className="form-group">
-        <label htmlFor="phoneNumber">Phone Number</label>
+        <label htmlFor="phoneNumber">{t("phone_number")}</label>
         <input
           className="mobile-number"
           type="tel"
           id="phoneNumber"
           value={phoneNumber}
           onChange={handlePhoneNumberChange}
-          placeholder="Enter your phone number: 941234567"
+          placeholder={t("enter_phone_number")}
         />
       </div>
       <div className="form-group">
-        <label htmlFor="password">Password</label>
-
+        <label htmlFor="password">{t("password")}</label>
         <div className="password-container">
           <input
             type={showPass ? "text" : "password"}
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
+            placeholder={t("enter_password")}
             className="password"
           />
           {showPass ? (
@@ -95,15 +96,14 @@ const Login = () => {
         </div>
       </div>
       <button className="login-button" type="submit">
-        Login
+        {t("login")}
       </button>
-
       <div className="additional-links">
         <p>
-          <Link to="/forgot-password">Forgot password?</Link>
+          <Link to="/forgot-password">{t("forgot_password")}</Link>
         </p>
         <p>
-          <Link to="/register">No registered yet, register here</Link>
+          <Link to="/register">{t("no_account")}</Link>
         </p>
       </div>
     </form>

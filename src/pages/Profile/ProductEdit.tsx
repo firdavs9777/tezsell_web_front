@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Modal from "../../components/Modal";
-import { 
-  useGetSingleProductQuery, 
-  useGetCategoryListQuery, 
-  useGetFavoriteItemsQuery
+import {
+  useGetSingleProductQuery,
+  useGetCategoryListQuery,
+  useGetFavoriteItemsQuery,
 } from "../../store/slices/productsApiSlice";
 import { SingleProduct, Category } from "../../store/type";
 import { toast } from "react-toastify";
@@ -11,7 +11,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { useUpdateUserProductMutation } from "../../store/slices/users";
 import { BASE_URL } from "../../store/constants";
-import './ProductEdit.css'
+import "./ProductEdit.css";
 interface SingleProductType {
   productId: string;
   closeModelStatus: boolean;
@@ -28,24 +28,34 @@ interface ExistingImage {
 const MyProductEdit: React.FC<SingleProductType> = ({
   productId,
   closeModelStatus,
-  onClose
+  onClose,
 }) => {
-  const { data, isLoading: productLoading, error: productError, refetch: refetch_single_product } = useGetSingleProductQuery(productId);
-  const { data: categoryData, isLoading: categoryLoading, error: categoryError } = useGetCategoryListQuery({});
-  const [updateProduct, { isLoading: updateLoading }] = useUpdateUserProductMutation();
+  const {
+    data,
+    isLoading: productLoading,
+    error: productError,
+    refetch: refetch_single_product,
+  } = useGetSingleProductQuery(productId);
+  const {
+    data: categoryData,
+    isLoading: categoryLoading,
+    error: categoryError,
+  } = useGetCategoryListQuery({});
+  const [updateProduct, { isLoading: updateLoading }] =
+    useUpdateUserProductMutation();
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
-  
+
   const singleProduct: SingleProduct = data as SingleProduct;
   const category_list = categoryData as Category[];
-  
-  const [title, setTitle] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
+
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
   const [existingImages, setExistingImages] = useState<ExistingImage[]>([]);
   const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
-  const [newImageFiles, setNewImageFiles] = useState<File[]>([]); 
-  const [price, setPrice] = useState<string>('');
-  const [condition, setCondition] = useState<string>('');
-  const [category, setCategory] = useState<string>('');
+  const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
+  const [price, setPrice] = useState<string>("");
+  const [condition, setCondition] = useState<string>("");
+  const [category, setCategory] = useState<string>("");
   const [isOpen, setIsOpen] = useState<boolean>(closeModelStatus);
   const [imageUploading, setImageUploading] = useState<boolean>(false);
 
@@ -62,11 +72,11 @@ const MyProductEdit: React.FC<SingleProductType> = ({
   // Populate the form with existing product data
   useEffect(() => {
     if (singleProduct?.product) {
-      setTitle(singleProduct.product.title || '');
-      setDescription(singleProduct.product.description || '');
-      setPrice(formatPrice(singleProduct.product.price?.toString() || ''));
-      setCondition(singleProduct.product.condition || '');
-      
+      setTitle(singleProduct.product.title || "");
+      setDescription(singleProduct.product.description || "");
+      setPrice(formatPrice(singleProduct.product.price?.toString() || ""));
+      setCondition(singleProduct.product.condition || "");
+
       // Find and set the category
       if (category_list && singleProduct.product.category) {
         const productCategory = category_list.find(
@@ -76,14 +86,17 @@ const MyProductEdit: React.FC<SingleProductType> = ({
           setCategory(productCategory.name);
         }
       }
-      
+
       // Set existing images if available
-      if (singleProduct.product.images && singleProduct.product.images.length > 0) {
-        const images = singleProduct.product.images.map(image => ({
+      if (
+        singleProduct.product.images &&
+        singleProduct.product.images.length > 0
+      ) {
+        const images = singleProduct.product.images.map((image) => ({
           id: image.id || 11,
           image: image.image,
           fullUrl: `${BASE_URL}${image.image}`, // Fixed URL construction
-          isDeleted: false
+          isDeleted: false,
         }));
         console.log("Loaded existing images:", images);
         setExistingImages(images);
@@ -113,20 +126,28 @@ const MyProductEdit: React.FC<SingleProductType> = ({
     const fileArray: File[] = Array.from(files);
 
     // Validate file types and sizes
-    const validFileTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/jpg'];
+    const validFileTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+      "image/jpg",
+    ];
     const maxFileSize = 5 * 1024 * 1024; // 5MB
 
-    const invalidFiles = fileArray.filter(file => 
-      !validFileTypes.includes(file.type) || file.size > maxFileSize
+    const invalidFiles = fileArray.filter(
+      (file) => !validFileTypes.includes(file.type) || file.size > maxFileSize
     );
 
     if (invalidFiles.length > 0) {
-      toast.error("Some files were not added. Please use JPG, PNG, GIF or WebP files under 5MB.");
-      // Filter out invalid files
-      const validFiles = fileArray.filter(file => 
-        validFileTypes.includes(file.type) && file.size <= maxFileSize
+      toast.error(
+        "Some files were not added. Please use JPG, PNG, GIF or WebP files under 5MB."
       );
-      
+      // Filter out invalid files
+      const validFiles = fileArray.filter(
+        (file) => validFileTypes.includes(file.type) && file.size <= maxFileSize
+      );
+
       if (validFiles.length === 0) {
         setImageUploading(false);
         return;
@@ -146,26 +167,30 @@ const MyProductEdit: React.FC<SingleProductType> = ({
     });
 
     // Once all files are read, update the state for previews and actual files
-    Promise.all(fileReaderPromises).then(() => {
-      // Combine existing and new images
-      const updatedNewImagePreviews = [...newImagePreviews, ...previews];
-      const updatedNewImageFiles = [...newImageFiles, ...fileArray];
-      
-      // Set the new previews and new image files to the state
-      setNewImagePreviews(updatedNewImagePreviews); 
-      setNewImageFiles(updatedNewImageFiles);
-      setImageUploading(false);
-    }).catch(() => {
-      setImageUploading(false);
-      toast.error("Error processing image files");
-    });
+    Promise.all(fileReaderPromises)
+      .then(() => {
+        // Combine existing and new images
+        const updatedNewImagePreviews = [...newImagePreviews, ...previews];
+        const updatedNewImageFiles = [...newImageFiles, ...fileArray];
+
+        // Set the new previews and new image files to the state
+        setNewImagePreviews(updatedNewImagePreviews);
+        setNewImageFiles(updatedNewImageFiles);
+        setImageUploading(false);
+      })
+      .catch(() => {
+        setImageUploading(false);
+        toast.error("Error processing image files");
+      });
   };
 
   // Confirm before removing existing image
   const handleRemoveExistingImage = (index: number) => {
-    const confirmRemove = window.confirm("Are you sure you want to remove this image?");
+    const confirmRemove = window.confirm(
+      "Are you sure you want to remove this image?"
+    );
     if (confirmRemove) {
-      setExistingImages(prev => {
+      setExistingImages((prev) => {
         const updated = [...prev];
         updated[index] = { ...updated[index], isDeleted: true };
         return updated;
@@ -184,11 +209,11 @@ const MyProductEdit: React.FC<SingleProductType> = ({
   };
 
   const formatPrice = (value: string): string => {
-    const numericValue = value.replace(/[^0-9]/g, '');
+    const numericValue = value.replace(/[^0-9]/g, "");
     const integerPart = numericValue;
-    const formattedInt = parseInt(integerPart || '0', 10)
-      .toLocaleString('en-US')
-      .replace(/,/g, '.');
+    const formattedInt = parseInt(integerPart || "0", 10)
+      .toLocaleString("en-US")
+      .replace(/,/g, ".");
     return formattedInt;
   };
 
@@ -210,37 +235,39 @@ const MyProductEdit: React.FC<SingleProductType> = ({
   // Validate all required fields
   const validateForm = (): boolean => {
     if (!title.trim()) {
-      toast.error("Title is required", {autoClose: 3000});
+      toast.error("Title is required", { autoClose: 3000 });
       return false;
     }
-    
+
     if (!description.trim()) {
-      toast.error("Description is required", {autoClose: 3000});
+      toast.error("Description is required", { autoClose: 3000 });
       return false;
     }
-    
+
     if (!price.trim()) {
-      toast.error("Price is required", {autoClose: 3000});
+      toast.error("Price is required", { autoClose: 3000 });
       return false;
     }
-    
+
     if (!condition) {
-      toast.error("Condition is required", {autoClose: 3000});
+      toast.error("Condition is required", { autoClose: 3000 });
       return false;
     }
-    
+
     // Check if at least one image exists (either existing or new)
-    const hasExistingImages = existingImages.some(img => !img.isDeleted);
+    const hasExistingImages = existingImages.some((img) => !img.isDeleted);
     const hasNewImages = newImageFiles.length > 0;
-    
+
     if (!hasExistingImages && !hasNewImages) {
-      toast.error("At least one product image is required", {autoClose: 3000});
+      toast.error("At least one product image is required", {
+        autoClose: 3000,
+      });
       return false;
     }
 
     // Validate category
     if (!category) {
-      toast.error("Category is required", {autoClose: 3000});
+      toast.error("Category is required", { autoClose: 3000 });
       return false;
     }
 
@@ -250,101 +277,111 @@ const MyProductEdit: React.FC<SingleProductType> = ({
   // Prepare form data for submission
   const prepareFormData = (): FormData | null => {
     const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('condition', condition);
-    formData.append('currency', 'Sum');
-    formData.append('in_stock', 'true');
-    
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("condition", condition);
+    formData.append("currency", "Sum");
+    formData.append("in_stock", "true");
+
     // Price handling
-    const cleanedPrice = price.replace(/\./g, '');
-    formData.append('price', cleanedPrice);
-    
+    const cleanedPrice = price.replace(/\./g, "");
+    formData.append("price", cleanedPrice);
+
     // Handle existing images - add IDs of images to keep
     const imagesToKeep = existingImages
-      .filter(img => !img.isDeleted)
-      .map(img => img.id);
-      
-    imagesToKeep.forEach(id => {
-      formData.append('existing_images', id);
+      .filter((img) => !img.isDeleted)
+      .map((img) => img.id);
+
+    imagesToKeep.forEach((id) => {
+      formData.append("existing_images", id);
     });
-    
+
     // Add new images
     if (newImageFiles.length > 0) {
       console.log("Adding new images:", newImageFiles.length);
       newImageFiles.forEach((file) => {
-        formData.append('new_images', file); 
+        formData.append("new_images", file);
       });
     }
-    
+
     // Add location and user info
     if (!userInfo?.user_info?.location?.id) {
-      toast.error("User location information is missing", {autoClose: 3000});
+      toast.error("User location information is missing", { autoClose: 3000 });
       return null;
     }
-    
-    formData.append('location_id', userInfo.user_info.location.id);
-    formData.append('userName_id', userInfo.user_info.id);
-    formData.append('userAddress_id', userInfo.user_info.location.id);
-    
+
+    formData.append("location_id", userInfo.user_info.location.id);
+    formData.append("userName_id", userInfo.user_info.id);
+    formData.append("userAddress_id", userInfo.user_info.location.id);
+
     // Add category
-    const selectedCategory = category_list.find((item: Category) => item.name === category);
+    const selectedCategory = category_list.find(
+      (item: Category) => item.name === category
+    );
     if (selectedCategory) {
       const selectedCategoryId = selectedCategory.id;
-      formData.append('category_id', selectedCategoryId.toString());
+      formData.append("category_id", selectedCategoryId.toString());
     } else {
-      toast.error("Category not found, select the category first", {autoClose: 3000});
+      toast.error("Category not found, select the category first", {
+        autoClose: 3000,
+      });
       return null;
     }
-    
+
     return formData;
   };
 
   const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     // Validate form
     if (!validateForm()) {
       return;
     }
-    
+
     // Prepare form data
     const formData = prepareFormData();
     if (!formData) {
       return;
     }
-    
+
     // Debug the form data being sent
     console.log("Form data being sent:");
     for (let pair of formData.entries()) {
-      console.log(pair[0] + ': ' + (typeof pair[1] === 'string' ? pair[1] : 'File'));
+      console.log(
+        pair[0] + ": " + (typeof pair[1] === "string" ? pair[1] : "File")
+      );
     }
-    
+
     try {
       const token = userInfo?.token;
-      const response = await updateProduct({ 
-        id: productId, 
-        productData: formData, 
-        token 
+      const response = await updateProduct({
+        id: productId,
+        productData: formData,
+        token,
       });
-      
-      if ('data' in response) {
-        toast.success('Product updated successfully', { autoClose: 3000 });
+
+      if ("data" in response) {
+        toast.success("Product updated successfully", { autoClose: 3000 });
         refetch_single_product();
         closeHandler();
-      } else if ('error' in response) {
+      } else if ("error" in response) {
         // Handle specific error responses
         if (response.error?.data?.message) {
-          toast.error(response.error.data.message, {autoClose: 3000});
+          toast.error(response.error.data.message, { autoClose: 3000 });
         } else {
-          toast.error("Failed to update product", {autoClose: 3000});
+          toast.error("Failed to update product", { autoClose: 3000 });
         }
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error(error.message || "Error while updating product", {autoClose: 3000});
+        toast.error(error.message || "Error while updating product", {
+          autoClose: 3000,
+        });
       } else {
-        toast.error("An unknown error occurred while updating the product", {autoClose: 3000});
+        toast.error("An unknown error occurred while updating the product", {
+          autoClose: 3000,
+        });
       }
     }
   };
@@ -358,8 +395,8 @@ const MyProductEdit: React.FC<SingleProductType> = ({
   }
 
   // Calculate total visible images for display
-  const totalVisibleImages = 
-    existingImages.filter(img => !img.isDeleted).length + 
+  const totalVisibleImages =
+    existingImages.filter((img) => !img.isDeleted).length +
     newImagePreviews.length;
 
   return (
@@ -454,32 +491,33 @@ const MyProductEdit: React.FC<SingleProductType> = ({
               <label>Product Images * ({totalVisibleImages}/10)</label>
               <div className="image-preview-container">
                 {/* Existing Images */}
-                {existingImages.map((image, index) => (
-                  !image.isDeleted && (
-                    <div key={`existing-${index}`} className="image-wrapper">
-                      <img 
-                        src={image.fullUrl} 
-                        alt={`Existing ${index}`} 
-                        className="image-preview" 
-                      />
-                      <button
-                        type="button"
-                        className="remove-image-button"
-                        onClick={() => handleRemoveExistingImage(index)}
-                      >
-                        X
-                      </button>
-                    </div>
-                  )
-                ))}
-                
+                {existingImages.map(
+                  (image, index) =>
+                    !image.isDeleted && (
+                      <div key={`existing-${index}`} className="image-wrapper">
+                        <img
+                          src={image.fullUrl}
+                          alt={`Existing ${index}`}
+                          className="image-preview"
+                        />
+                        <button
+                          type="button"
+                          className="remove-image-button"
+                          onClick={() => handleRemoveExistingImage(index)}
+                        >
+                          X
+                        </button>
+                      </div>
+                    )
+                )}
+
                 {/* New Images */}
                 {newImagePreviews.map((preview, index) => (
                   <div key={`new-${index}`} className="image-wrapper">
-                    <img 
-                      src={preview} 
-                      alt={`New ${index}`} 
-                      className="image-preview" 
+                    <img
+                      src={preview}
+                      alt={`New ${index}`}
+                      className="image-preview"
                     />
                     <button
                       type="button"
@@ -490,17 +528,19 @@ const MyProductEdit: React.FC<SingleProductType> = ({
                     </button>
                   </div>
                 ))}
-                
+
                 {/* Add more button */}
                 {totalVisibleImages < 10 && (
                   <div
                     className="upload-more-wrapper"
-                    onClick={() => document.getElementById('image-upload')?.click()}
+                    onClick={() =>
+                      document.getElementById("image-upload")?.click()
+                    }
                   >
                     <span className="plus-icon">+</span>
                   </div>
                 )}
-                
+
                 {/* Loading indicator for images */}
                 {imageUploading && (
                   <div className="image-loading-indicator">
@@ -518,20 +558,21 @@ const MyProductEdit: React.FC<SingleProductType> = ({
                 style={{ display: "none" }}
               />
               <small className="image-requirements">
-                * At least one image is required. You can upload up to 10 images (JPG, PNG, GIF, WebP under 5MB each).
+                * At least one image is required. You can upload up to 10 images
+                (JPG, PNG, GIF, WebP under 5MB each).
               </small>
             </div>
 
             <div className="product-form-group">
-              <button 
-                type="submit" 
-                className="product-form-submit-button" 
+              <button
+                type="submit"
+                className="product-form-submit-button"
                 disabled={updateLoading || imageUploading}
               >
                 {updateLoading ? "Updating..." : "Update Product"}
               </button>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="product-form-cancel-button"
                 onClick={closeHandler}
               >

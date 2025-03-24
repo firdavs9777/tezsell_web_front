@@ -57,7 +57,7 @@
   background-color: #0056b3;
 }
 .register-next {
-  max-width: 300px;
+  width: 300px;
   padding: 10px;
   background-color: #007bff;
   color: white;
@@ -66,6 +66,12 @@
   border-radius: 4px;
   cursor: pointer;
   margin: 10px;
+}
+.register-next:disabled {
+  background-color: #ccc; /* Grey out the button */
+  color: #666; /* Change text color */
+  cursor: not-allowed; /* Change cursor to indicate it's not clickable */
+  opacity: 0.6; /* Slightly fade out the button */
 }
 
 .register-next:hover {

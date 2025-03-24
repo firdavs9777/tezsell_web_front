@@ -1,27 +1,37 @@
 import { useGetDistrictsListQuery } from "../../../../store/slices/productsApiSlice";
 import { DistrictsList } from "../../../../store/type";
+import { useTranslation } from "react-i18next";
 
 interface DistrictProps {
-  regionName: string; 
+  regionName: string;
   district: string;
-  onSelect: (district: string) => void;  
+  onSelect: (district: string) => void;
 }
 
-const DistrictSelect: React.FC<DistrictProps> = ({ regionName, district, onSelect }) => {
-  const { data: districtsList, isLoading, error } = useGetDistrictsListQuery(regionName);
+const DistrictSelect: React.FC<DistrictProps> = ({
+  regionName,
+  district,
+  onSelect,
+}) => {
+  const {
+    data: districtsList,
+    isLoading,
+    error,
+  } = useGetDistrictsListQuery(regionName);
   const districts: DistrictsList = districtsList as DistrictsList;
+  const { t, i18n } = useTranslation();
 
   if (isLoading) {
-    return <div>It is loading ...</div>;
+    return <div>{t("loading")}</div>;
   }
   if (error) {
-    return <div>Error Occurred</div>;
+    return <div>{t("error_message")}</div>;
   }
 
   return (
     <div>
-      <h1>District List</h1>
-      <p>Select a district:</p>
+      <h1>{t("district_select_title")}</h1>
+      <p>{t("district_select_paragraph")}</p>
       {districts.districts.map((item, index) => (
         <p
           key={index}
@@ -34,7 +44,7 @@ const DistrictSelect: React.FC<DistrictProps> = ({ regionName, district, onSelec
             color: district === item.district ? "blue" : "black", // Compare with the selected region
           }}
         >
-          {item.district}
+          {index + 1}:{item.district}
         </p>
       ))}
     </div>
