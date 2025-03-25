@@ -29,10 +29,6 @@
   "page_info": "Page of",
   "page_next": "Next",
   "page_last": "Last",
-<<<<<<< HEAD
-=======
-  "loading": "Loading.. ",
->>>>>>> 1ee404aaf63ad960feab94f8b2b01284caaec378
   "loading_message_product": "Loading products ...",
   "loading_message_error": "Error while loading",
   "loading_message_location": "Loading location ...",
