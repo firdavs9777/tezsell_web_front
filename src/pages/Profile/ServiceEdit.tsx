@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from "react";
 import Modal from "../../components/Modal";
-import {
-  useGetSingleProductQuery,
-  useGetCategoryListQuery,
-  useGetFavoriteItemsQuery,
-} from "../../store/slices/productsApiSlice";
-import { SingleProduct, Category } from "../../store/type";
+import { useGetFavoriteItemsQuery } from "../../store/slices/productsApiSlice";
+import { Category, SingleService } from "../../store/type";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { useUpdateUserProductMutation } from "../../store/slices/users";
 import { BASE_URL } from "../../store/constants";
 import "./ProductEdit.css";
-interface SingleProductType {
-  productId: string;
-  closeModelStatus: boolean;
+import {
+  useGetServiceCategoryListQuery,
+  useGetSingleServiceQuery,
+  useUpdateUserServiceMutation,
+} from "../../store/slices/serviceApiSlice";
+interface SingleServiceType {
+  serviceId?: string;
+  closeModelStatus?: boolean;
   onClose: () => void;
 }
 
@@ -25,8 +26,8 @@ interface ExistingImage {
   isDeleted?: boolean;
 }
 
-const MyProductEdit: React.FC<SingleProductType> = ({
-  productId,
+const MyServiceEdit: React.FC<SingleServiceType> = ({
+  serviceId,
   closeModelStatus,
   onClose,
 }) => {
@@ -35,25 +36,24 @@ const MyProductEdit: React.FC<SingleProductType> = ({
     isLoading: productLoading,
     error: productError,
     refetch: refetch_single_product,
-  } = useGetSingleProductQuery(productId);
+  } = useGetSingleServiceQuery(serviceId);
   const {
     data: categoryData,
     isLoading: categoryLoading,
     error: categoryError,
-  } = useGetCategoryListQuery({});
-  const [updateProduct, { isLoading: updateLoading }] =
-    useUpdateUserProductMutation();
+  } = useGetServiceCategoryListQuery({});
+  const [updateService, { isLoading: updateLoading }] =
+    useUpdateUserServiceMutation();
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
 
-  const singleProduct: SingleProduct = data as SingleProduct;
+  const singleProduct: SingleService = data as SingleService;
   const category_list = categoryData as Category[];
 
-  const [title, setTitle] = useState<string>("");
+  const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [existingImages, setExistingImages] = useState<ExistingImage[]>([]);
   const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
   const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
-  const [price, setPrice] = useState<string>("");
   const [condition, setCondition] = useState<string>("");
   const [category, setCategory] = useState<string>("");
   const [isOpen, setIsOpen] = useState<boolean>(closeModelStatus);
@@ -71,31 +71,32 @@ const MyProductEdit: React.FC<SingleProductType> = ({
 
   // Populate the form with existing product data
   useEffect(() => {
-    if (singleProduct?.product) {
-      setTitle(singleProduct.product.title || "");
-      setDescription(singleProduct.product.description || "");
-      setPrice(formatPrice(singleProduct.product.price?.toString() || ""));
-      setCondition(singleProduct.product.condition || "");
+    if (singleProduct?.service) {
+      setName(singleProduct.service.name || "");
+      setDescription(singleProduct.service.description || "");
 
       // Find and set the category
-      if (category_list && singleProduct.product.category) {
+      if (category_list && singleProduct.service.category) {
         const productCategory = category_list.find(
-          (item: Category) => item.id === singleProduct.product.category.id
+          (item: Category) => item.id === singleProduct.service.category.id
         );
         if (productCategory) {
           setCategory(productCategory.name);
         }
       }
+
+      // Set existing images if available
       if (
-        singleProduct.product.images &&
-        singleProduct.product.images.length > 0
+        singleProduct.service.images &&
+        singleProduct.service.images.length > 0
       ) {
-        const images = singleProduct.product.images.map((image) => ({
+        const images = singleProduct.service.images.map((image) => ({
           id: image.id || 11,
           image: image.image,
           fullUrl: `${BASE_URL}${image.image}`, // Fixed URL construction
           isDeleted: false,
         }));
+        console.log("Loaded existing images:", images);
         setExistingImages(images);
       } else {
         // Clear existing images if there are none in the API response
@@ -117,10 +118,12 @@ const MyProductEdit: React.FC<SingleProductType> = ({
       toast.error("You can upload a maximum of 10 images");
       return;
     }
+
     setImageUploading(true);
     const previews: string[] = [];
     const fileArray: File[] = Array.from(files);
 
+    // Validate file types and sizes
     const validFileTypes = [
       "image/jpeg",
       "image/png",
@@ -203,20 +206,20 @@ const MyProductEdit: React.FC<SingleProductType> = ({
     setCategory(e.target.value);
   };
 
-  const formatPrice = (value: string): string => {
-    const numericValue = value.replace(/[^0-9]/g, "");
-    const integerPart = numericValue;
-    const formattedInt = parseInt(integerPart || "0", 10)
-      .toLocaleString("en-US")
-      .replace(/,/g, ".");
-    return formattedInt;
-  };
+  //   const formatPrice = (value: string): string => {
+  //     const numericValue = value.replace(/[^0-9]/g, "");
+  //     const integerPart = numericValue;
+  //     const formattedInt = parseInt(integerPart || "0", 10)
+  //       .toLocaleString("en-US")
+  //       .replace(/,/g, ".");
+  //     return formattedInt;
+  //   };
 
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value;
-    const formattedValue = formatPrice(rawValue);
-    setPrice(formattedValue);
-  };
+  //   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //     const rawValue = e.target.value;
+  //     const formattedValue = formatPrice(rawValue);
+  //     setPrice(formattedValue);
+  //   };
 
   const closeHandler = () => {
     setIsOpen(false);
@@ -229,7 +232,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
 
   // Validate all required fields
   const validateForm = (): boolean => {
-    if (!title.trim()) {
+    if (!name.trim()) {
       toast.error("Title is required", { autoClose: 3000 });
       return false;
     }
@@ -239,48 +242,41 @@ const MyProductEdit: React.FC<SingleProductType> = ({
       return false;
     }
 
-    if (!price.trim()) {
-      toast.error("Price is required", { autoClose: 3000 });
-      return false;
-    }
+    // if (!price.trim()) {
+    //   toast.error("Price is required", { autoClose: 3000 });
+    //   return false;
+    // }
 
     if (!condition) {
       toast.error("Condition is required", { autoClose: 3000 });
       return false;
     }
-
-    // Check if at least one image exists (either existing or new)
     const hasExistingImages = existingImages.some((img) => !img.isDeleted);
     const hasNewImages = newImageFiles.length > 0;
-
     if (!hasExistingImages && !hasNewImages) {
       toast.error("At least one product image is required", {
         autoClose: 3000,
       });
       return false;
     }
-
-    // Validate category
     if (!category) {
       toast.error("Category is required", { autoClose: 3000 });
       return false;
     }
-
     return true;
   };
 
-  // Prepare form data for submission
   const prepareFormData = (): FormData | null => {
     const formData = new FormData();
-    formData.append("title", title);
+    formData.append("name", name);
     formData.append("description", description);
     formData.append("condition", condition);
-    formData.append("currency", "Sum");
-    formData.append("in_stock", "true");
+    // formData.append("currency", "Sum");
+    // formData.append("in_stock", "true");
 
     // Price handling
-    const cleanedPrice = price.replace(/\./g, "");
-    formData.append("price", cleanedPrice);
+    // const cleanedPrice = price.replace(/\./g, "");
+    // formData.append("price", cleanedPrice);
 
     // Handle existing images - add IDs of images to keep
     const imagesToKeep = existingImages
@@ -350,9 +346,9 @@ const MyProductEdit: React.FC<SingleProductType> = ({
 
     try {
       const token = userInfo?.token;
-      const response = await updateProduct({
-        id: productId,
-        productData: formData,
+      const response = await updateService({
+        id: serviceId,
+        serviceData: formData,
         token,
       });
 
@@ -397,24 +393,24 @@ const MyProductEdit: React.FC<SingleProductType> = ({
   return (
     <Modal onClose={closeHandler} isOpen={isOpen}>
       <div className="new-product">
-        <h1 className="new-product-title">Edit Product</h1>
+        <h1 className="new-product-title">Edit Service</h1>
         <div className="new-product-container">
           <form className="new-product-form" onSubmit={submitFormHandler}>
             <div className="product-form-group">
-              <label htmlFor="product-title">Product Title *</label>
+              <label htmlFor="product-title">Service Title *</label>
               <input
                 id="product-title"
                 type="text"
                 placeholder="Enter product title"
                 required
                 className="product-form-input"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
               />
             </div>
 
             <div className="product-form-group">
-              <label htmlFor="product-description">Product Description *</label>
+              <label htmlFor="product-description">Service Description *</label>
               <textarea
                 id="product-description"
                 placeholder="Enter product description"
@@ -425,7 +421,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
               ></textarea>
             </div>
 
-            <div className="product-form-group">
+            {/* <div className="product-form-group">
               <label htmlFor="product-price">Product Price *</label>
               <input
                 id="product-price"
@@ -437,10 +433,10 @@ const MyProductEdit: React.FC<SingleProductType> = ({
                 className="product-form-input"
               />
               <span>So'm</span>
-            </div>
+            </div> */}
 
             <div className="product-form-group">
-              <label htmlFor="product-condition">Product Condition *</label>
+              <label htmlFor="product-condition">Produc Condition *</label>
               <select
                 id="product-condition"
                 required
@@ -457,7 +453,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
             </div>
 
             <div className="product-form-group">
-              <label htmlFor="product-category">Product Category *</label>
+              <label htmlFor="product-category">Service Category *</label>
               <select
                 id="product-category"
                 required
@@ -483,7 +479,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
             </div>
 
             <div className="product-form-group">
-              <label>Product Images * ({totalVisibleImages}/10)</label>
+              <label>Service Images * ({totalVisibleImages}/10)</label>
               <div className="image-preview-container">
                 {/* Existing Images */}
                 {existingImages.map(
@@ -535,8 +531,6 @@ const MyProductEdit: React.FC<SingleProductType> = ({
                     <span className="plus-icon">+</span>
                   </div>
                 )}
-
-                {/* Loading indicator for images */}
                 {imageUploading && (
                   <div className="image-loading-indicator">
                     <span>Uploading...</span>
@@ -581,4 +575,4 @@ const MyProductEdit: React.FC<SingleProductType> = ({
   );
 };
 
-export default MyProductEdit;
+export default MyServiceEdit;

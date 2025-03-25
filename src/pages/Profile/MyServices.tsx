@@ -4,9 +4,8 @@ import { useTranslation } from "react-i18next";
 import { Service, ServiceResponse } from "../../store/type";
 import MyService from "./MyService";
 
-
 const MyServices = () => {
-    const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
   //   const navigate = useNavigate();
   const {
@@ -18,25 +17,30 @@ const MyServices = () => {
   const { t, i18n } = useTranslation();
   const refetchHandler = async () => {
     refetch();
-  }
+  };
   if (isLoading) {
-    return <div>Loading...</div>
+    return <div>Loading...</div>;
   }
   if (error) {
-    return <div>Error occured ...</div>
+    return <div>Error occured ...</div>;
   }
   const services: ServiceResponse | undefined = servicesData as ServiceResponse;
+  console.log(services);
   return (
-       <div className="product-list">
+    <div className="product-list">
       {services?.results?.length ? (
-      services.results.map((service: Service) => (
-          <MyService service={service} key={service.id} refresh={refetchHandler} />
+        services.results.map((service: Service) => (
+          <MyService
+            service={service}
+            key={service.id}
+            refresh={refetchHandler}
+          />
         ))
       ) : (
         <p>{t("product_error")}</p>
       )}
     </div>
-  )
-}
+  );
+};
 
 export default MyServices;

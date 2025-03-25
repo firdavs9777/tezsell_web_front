@@ -5,9 +5,7 @@ import "./MyProduct.css";
 import { useNavigate } from "react-router-dom";
 import {
   FaEdit,
-  FaHeart,
   FaPlus,
-  FaRegHeart,
   FaRegThumbsUp,
   FaThumbsUp,
   FaTrash,
@@ -218,8 +216,6 @@ const MyProduct: React.FC<SingleProductProps> = ({ product, refresh }) => {
             <span>Delete</span>
           </p>
         </div>
-
-        {/* Open the modal when isEdit is true */}
         {isEdit && (
           <MyProductEdit
             onClose={closeHandler}
