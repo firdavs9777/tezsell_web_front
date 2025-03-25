@@ -41,7 +41,7 @@ const MainProfile = () => {
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+
   // API queries
   const {
     data: productsData,
@@ -401,17 +401,15 @@ const MainProfile = () => {
         <section className="my-products">
           <h3> {t('my_products_title')} ({products?.results?.length || 0})</h3>
           {renderItemList(products?.results || [], 'title')}
-          <button className="add-btn" onClick={() => navigate("/new-product")}>
-            {t("add_new_product_btn")}
-          </button>
+          <Button label={t("add_new_product_btn")} onClick={() => navigate("/new-product")} variant="add"/>
+            
         </section>
 
         <section className="my-services">
           <h3>{t('my_services_title')} ({services?.results?.length || 0})</h3>
           {renderServiceList(services?.results || [], 'name')}
-          <button className="add-btn" onClick={() => navigate("/new-service")}>
-            {t('add_new_service_btn')}
-          </button>
+ 
+                    <Button label={t('add_new_service_btn')} onClick={() => navigate("/new-service")} variant="add"/>
         </section>
 
         <section className="recent-activity">

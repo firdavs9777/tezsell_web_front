@@ -20,6 +20,12 @@ const MyProducts = () => {
   const refetchHandler = async () => {
     refetch();
   }
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
+  if (error) {
+    return <div>Error occured ...</div>
+  }
   const products: ProductResponse | undefined = productsData as ProductResponse;
   return (
     <div className="product-list">
