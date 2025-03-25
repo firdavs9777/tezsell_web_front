@@ -57,7 +57,6 @@ const MainProfile = () => {
     refetch: refetchServices,
   } = useGetUserServicesQuery({ token });
 
-
   const {
     data: likedItemsData,
     isLoading: likedItemsLoading,
@@ -72,17 +71,28 @@ const MainProfile = () => {
     refetch: refetchUserInfo,
   } = useGetLoggedinUserInfoQuery({ token });
 
+<<<<<<< HEAD
   const {
     data: regions,
     isLoading: regionsLoading,
   } = useGetRegionsListQuery({});
- 
+
   const [currentRegion, setCurrentRegion] = useState('');
-  
+
   const {
     data: districts,
     isLoading: districtsLoading,
   } = useGetDistrictsListQuery(currentRegion);
+=======
+  const { data: regions, isLoading: regionsLoading } = useGetRegionsListQuery(
+    {}
+  );
+
+  const [currentRegion, setCurrentRegion] = useState("");
+
+  const { data: districts, isLoading: districtsLoading } =
+    useGetDistrictsListQuery(currentRegion);
+>>>>>>> 1ee404aaf63ad960feab94f8b2b01284caaec378
 
   // State
   const [currentDistrict, setCurrentDistrict] = useState("");
@@ -139,13 +149,34 @@ const MainProfile = () => {
   }, [newImage]);
 
   // Loading and error handling
+<<<<<<< HEAD
   if (!token) return <div className="auth-message">Please log in to view your profile</div>;
-  
+
   const isLoading = productsLoading || servicesLoading || likedItemsLoading || userInfoLoading || regionsLoading || districtsLoading;
   if (isLoading) return <div className="loading">Loading...</div>;
-  
+
   const hasError = productsError || servicesError || likedItemsError || userInfoError;
   if (hasError) return <div className="error-message">Error loading profile data</div>;
+=======
+  if (!token)
+    return (
+      <div className="auth-message">Please log in to view your profile</div>
+    );
+
+  const isLoading =
+    productsLoading ||
+    servicesLoading ||
+    likedItemsLoading ||
+    userInfoLoading ||
+    regionsLoading ||
+    districtsLoading;
+  if (isLoading) return <div className="loading">Loading...</div>;
+
+  const hasError =
+    productsError || servicesError || likedItemsError || userInfoError;
+  if (hasError)
+    return <div className="error-message">Error loading profile data</div>;
+>>>>>>> 1ee404aaf63ad960feab94f8b2b01284caaec378
 
   // Modal handlers
   const handleOpenModal = () => {
@@ -167,25 +198,42 @@ const MainProfile = () => {
 
     if (newUsername) {
       formData.append("username", newUsername);
-  
+<<<<<<< HEAD
+
     }
-   const matchedDistrict =  districtsList.districts.find(d => d.district === currentDistrict);
+    const matchedDistrict = districtsList.districts.find(d => d.district === currentDistrict);
     if (matchedDistrict) {
-    const locationId = matchedDistrict.id; // Get the id of the matched district
-    console.log("Location ID:", locationId);
-    formData.append("location_id", locationId.toString());
-}  
+      const locationId = matchedDistrict.id; // Get the id of the matched district
+      console.log("Location ID:", locationId);
+=======
+    }
+    const matchedDistrict = districtsList.districts.find(
+      (d) => d.district === currentDistrict
+    );
+    if (matchedDistrict) {
+      const locationId = matchedDistrict.id;
+>>>>>>> 1ee404aaf63ad960feab94f8b2b01284caaec378
+      formData.append("location_id", locationId.toString());
+    }
     if (newImage) {
       formData.append("profile_image", newImage);
     }
 
-    
+<<<<<<< HEAD
+
+=======
+>>>>>>> 1ee404aaf63ad960feab94f8b2b01284caaec378
     try {
       const response = await updateProfile({
         userData: formData,
         token,
       }).unwrap();
-      
+<<<<<<< HEAD
+
+=======
+      const ActionPayload: Response | any = response;
+      dispatch(setCredentials({ ...ActionPayload }));
+>>>>>>> 1ee404aaf63ad960feab94f8b2b01284caaec378
       if (response) {
         toast.success(t("profile_update_success_message"), { autoClose: 3000 });
         refetchUserInfo();
@@ -208,6 +256,15 @@ const MainProfile = () => {
   const redirectHandler = (id: number) => {
     navigate(`/product/${id}`);
   };
+<<<<<<< HEAD
+  const redirectServiceHandler = (id: number) => {
+    navigate(`/service/${id}`);
+  }
+=======
+  const redirectHandlerService = (id: number) => {
+    navigate(`/service/${id}`);
+  };
+>>>>>>> 1ee404aaf63ad960feab94f8b2b01284caaec378
 
   // Render helpers
   const renderItemList = (items: any[], nameKey: string, limit = 3) => {
@@ -217,10 +274,50 @@ const MainProfile = () => {
       <>
         <ul className="item-list">
           {items.slice(0, limit).map((item, index) => (
-            <li key={item.id || index} onClick={() => redirectHandler(item.id)}>{item[nameKey]}</li>
+<<<<<<< HEAD
+            item.comments ? (
+                      <li key={item.id || index} onClick={() => redirectServiceHandler(item.id)}>
+                {item[nameKey]}
+              </li>
+              
+            ) : (
+              <li key={item.id || index} onClick={() => redirectHandler(item.id)}>
+                {item[nameKey]}
+              </li>
+            )
+=======
+            <li key={item.id || index} onClick={() => redirectHandler(item.id)}>
+              {item[nameKey]}
+            </li>
+>>>>>>> 1ee404aaf63ad960feab94f8b2b01284caaec378
           ))}
         </ul>
 
+        {items.length > limit && (
+          <Button
+            onClick={() => navigate("/my-products")}
+            label={t("see_more_btn")}
+            variant="see-more"
+          />
+        )}
+      </>
+    );
+  };
+  const renderServiceList = (items: any[], nameKey: string, limit = 3) => {
+    if (!items || !items.length) return <p>No items available</p>;
+
+    return (
+      <>
+        <ul className="item-list">
+          {items.slice(0, limit).map((item, index) => (
+            <li
+              key={item.id || index}
+              onClick={() => redirectHandlerService(item.id)}
+            >
+              {item[nameKey]}
+            </li>
+          ))}
+        </ul>
         {items.length > limit && (
           <Button
             onClick={() => navigate("/my-services")}
@@ -235,7 +332,11 @@ const MainProfile = () => {
   return (
     <div className="profile-container">
       <div className="profile-header">
-        <h1>{ t('profile_page_title')}</h1>
+<<<<<<< HEAD
+        <h1>{t('profile_page_title')}</h1>
+=======
+        <h1>{t("profile_page_title")}</h1>
+>>>>>>> 1ee404aaf63ad960feab94f8b2b01284caaec378
       </div>
 
       <div className="profile-content">
@@ -353,22 +454,32 @@ const MainProfile = () => {
               </div>
 
               <div className="form-actions">
+<<<<<<< HEAD
                 <button type="submit" className="upload-btn">
-                 {t('upload_btn_label')}
+                  {t('upload_btn_label')}
                 </button>
                 <button type="button" className="close-btn" onClick={handleClose}>
-                       {t('cancel_btn_label')}
+                  {t('cancel_btn_label')}
                 </button>
+=======
+                <Button type="submit" label={t("upload_btn_label")} />
+                <Button
+                  label={t("cancel_btn_label")}
+                  onClick={handleClose}
+                  variant="close"
+                />
+>>>>>>> 1ee404aaf63ad960feab94f8b2b01284caaec378
               </div>
             </form>
           </div>
         </Modal>
 
         <section className="my-products">
+<<<<<<< HEAD
           <h3> {t('my_products_title')} ({products?.results?.length || 0})</h3>
           {renderItemList(products?.results || [], 'title')}
           <button className="add-btn" onClick={() => navigate("/new-product")}>
-     {t("add_new_product_btn")}
+            {t("add_new_product_btn")}
           </button>
         </section>
 
@@ -376,8 +487,34 @@ const MainProfile = () => {
           <h3>{t('my_services_title')} ({services?.results?.length || 0})</h3>
           {renderItemList(services?.results || [], 'name')}
           <button className="add-btn" onClick={() => navigate("/new-service")}>
-         {t('add_new_service_btn')}
+            {t('add_new_service_btn')}
           </button>
+=======
+          <h3>
+            {" "}
+            {t("my_products_title")} ({products?.results?.length || 0})
+          </h3>
+          {renderItemList(products?.results || [], "title")}
+
+          <Button
+            variant="add"
+            onClick={() => navigate("/new-product")}
+            label={t("add_new_product_btn")}
+          />
+        </section>
+
+        <section className="my-services">
+          <h3>
+            {t("my_services_title")} ({services?.results?.length || 0})
+          </h3>
+          {renderServiceList(services?.results || [], "name")}
+
+          <Button
+            label={t("add_new_service_btn")}
+            onClick={() => navigate("/new-service")}
+            variant="add"
+          />
+>>>>>>> 1ee404aaf63ad960feab94f8b2b01284caaec378
         </section>
 
         <section className="recent-activity">
