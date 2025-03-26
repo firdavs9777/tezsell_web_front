@@ -27,6 +27,7 @@ export interface Comment {
 }
 
 export interface Image {
+  id?: number;
   image: string;
   alt_text: string | null;
 }
@@ -77,7 +78,7 @@ export interface ServiceResponse {
 }
 
 interface ProductImage {
-  id?: number,
+  id?: number;
   image: string;
   alt_text: string | null;
 }
@@ -105,7 +106,7 @@ export interface RegionsList {
 }
 export interface DistrictsList {
   success: boolean;
-  districts: { district: string , id: number}[];
+  districts: { district: string; id: number }[];
 }
 export interface ProductResponse {
   count: number;
