@@ -6,6 +6,7 @@ import productsSliceReducer from './slices/productsApiSlice';
 import servicesSliceReducer from './slices/serviceApiSlice';
 import authSliceReducer from './slices/authSlice';
 import commentsSliceReducer from './slices/commentApiSlice'
+import chatsSliceReducer  from './slices/chatSlice';
 import storage from 'redux-persist/lib/storage'; // This uses localStorage
 
 const persistConfig = {
@@ -18,6 +19,7 @@ const persistedProductReducer = persistReducer(persistConfig, productsSliceReduc
 const persistedAuthReducer = persistReducer(persistConfig, authSliceReducer);
 const persistedServiceReducer = persistReducer(persistConfig, servicesSliceReducer);
 const persistedCommentReducer = persistReducer(persistConfig, commentsSliceReducer);
+const persistedChatsReducer = persistReducer(persistConfig, chatsSliceReducer);
 const rootReducer = configureStore({
   reducer: {
     [apiSlice.reducerPath]: apiSlice.reducer,
@@ -25,6 +27,7 @@ const rootReducer = configureStore({
     service: persistedServiceReducer,
     auth: persistedAuthReducer, 
     comment: persistedCommentReducer,
+    chat: persistedChatsReducer
   },
   middleware:(getDefaultMiddleware) => getDefaultMiddleware().concat(apiSlice.middleware),
   devTools: true
