@@ -19,3 +19,4 @@ export const LIKE_PRODUCT = "/global/like/product/";
 export const DISLIKE_PRODUCT = "/global/unlike/product/";
 export const LIKE_SERVICE = "/global/like/service/";
 export const DISLIKE_SERVICE = "/global/unlike/service/";
+export const CHAT_MAIN = "/chats";

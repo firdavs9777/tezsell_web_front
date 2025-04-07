@@ -1,16 +1,26 @@
-/* Reset body and html margins/paddings */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Your custom styles */
 html, body {
+  height: 100%;
   margin: 0;
   padding: 0;
-  height: 100%; /* Ensure the body takes up full height */
-  width: 100%;  /* Ensure the body takes up full width */
-  overflow-x: hidden; /* Prevent horizontal scroll if necessary */
+  font-family: 'Inter', sans-serif;
+  background-color: #fff;
 }
 
-body {
-  font-family: Arial, sans-serif; /* Or any font of your choice */
+.page-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-* {
-  box-sizing: border-box; /* Makes sure padding doesn't cause layout issues */
+h1, h2, h3 {
+  font-family: 'Poppins', sans-serif;
+}
+
+.content {
+  flex: 1;
 }
