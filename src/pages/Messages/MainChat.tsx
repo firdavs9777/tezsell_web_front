@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import MainChatRoom from "./ChatRoom";
 import MainChatWindow from "./ChatWindow";
 import {
@@ -10,20 +11,20 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 
 const MainChat = () => {
-  const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
+  const navigate = useNavigate();
+  const { chatId } = useParams(); // Get chatId from URL if present
+  const [selectedChatId, setSelectedChatId] = useState<number | null>(
+    chatId ? parseInt(chatId) : null
+  );
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
 
-  const {
-    data,
-    isLoading,
-    error
-  } = useGetAllChatMessagesQuery({ token });
+  const { data, isLoading, error } = useGetAllChatMessagesQuery({ token });
 
   const {
     data: single_room,
     isLoading: load_room,
-    error: singleRoomError
+    error: singleRoomError,
   } = useGetSingleChatMessagesQuery(
     { chatId: selectedChatId?.toString(), token },
     { skip: selectedChatId === null }
@@ -32,14 +33,26 @@ const MainChat = () => {
   const chats: Chat[] = (data?.results as Chat[]) || [];
   const selectedChat = chats.find((chat) => chat.id === selectedChatId);
 
+  // Handle chat selection with URL navigation
+  const handleSelectChat = (chatId: number) => {
+    setSelectedChatId(chatId);
+    navigate(`/chat/${chatId}`); // Update URL when chat is selected
+  };
+
+  // Update selected chat if URL changes
+  useEffect(() => {
+    if (chatId) {
+      setSelectedChatId(parseInt(chatId));
+    }
+  }, [chatId]);
+
   return (
     <div className="flex flex-row h-screen">
-      {/* Chat Room List */}
       <div className="w-1/3 border-r border-gray-300 overflow-y-auto">
         <MainChatRoom
           chats={chats}
           selectedChatId={selectedChatId}
-          onSelectChat={setSelectedChatId}
+          onSelectChat={handleSelectChat}
           isLoading={isLoading}
           error={error}
         />

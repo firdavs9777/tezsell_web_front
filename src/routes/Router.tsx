@@ -31,6 +31,7 @@ const Router = () => {
       <Route path="/my-services" element={<MyServices />} />
       <Route path="/my-services" element={<MyServices />} />
       <Route path="/chat" element={<MainChat />} />
+      <Route path="/chat/:chatId" element={<MainChat />} />
     </Routes>
   );
 };

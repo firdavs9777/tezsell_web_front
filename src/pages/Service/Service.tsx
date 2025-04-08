@@ -1,229 +1,293 @@
 import React, { useState } from "react";
-import { useGetAllLocationListQuery} from "../../store/slices/productsApiSlice";
-import { AllLocationList, Category,  Service, ServiceResponse } from "../../store/type";
-import { useTranslation } from 'react-i18next';
+import { useGetAllLocationListQuery } from "../../store/slices/productsApiSlice";
+import {
+  AllLocationList,
+  Category,
+  Service,
+  ServiceResponse,
+} from "../../store/type";
+import { useTranslation } from "react-i18next";
 import SingleService from "./SingleService";
-import './Service.css';
 import Modal from "../../components/Modal";
 import { IoSearch } from "react-icons/io5";
 import { BiCategory } from "react-icons/bi";
 import { FaLocationDot } from "react-icons/fa6";
 import Pagination from "../../components/Pagination";
-import { useGetServiceCategoryListQuery, useGetServicesQuery } from "../../store/slices/serviceApiSlice";
+import {
+  useGetServiceCategoryListQuery,
+  useGetServicesQuery,
+} from "../../store/slices/serviceApiSlice";
 
 const ServiceScreen = () => {
   const [showModal, setShowModal] = useState(false);
   const [showLocationModal, setLocationModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchCategoryQuery, setSearchCategoryQuery] = useState('');
-  const [searchLocationQuery, setSearchLocationQuery] = useState('');
-  const [searchServiceQuery, setSearchServiceQuery] = useState('');
-  const [pageSize, setPageSize] = useState(10);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(''); // Set to null for no selection initially
-  const [selectedRegion, setSelectedRegion] = useState<string | null>('');
-  const [selectedDistrict, setSelectedtDistrict] = useState<string | null>('');
+  const [searchCategoryQuery, setSearchCategoryQuery] = useState("");
+  const [searchLocationQuery, setSearchLocationQuery] = useState("");
+  const [searchServiceQuery, setSearchServiceQuery] = useState("");
+  const [pageSize] = useState(10);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const [selectedDistrict, setSelectedtDistrict] = useState("");
   const { t } = useTranslation();
 
-  const toggleModal = () => {
-    setShowModal((prev) => !prev);
-  };
-  const toggleLocationModal = () => {
-    setLocationModal((prev) => !prev);
-  }
+  const toggleModal = () => setShowModal((prev) => !prev);
+  const toggleLocationModal = () => setLocationModal((prev) => !prev);
+  const nextPagehandler = (page) => setCurrentPage(page);
 
-  const nextPagehandler = (page: number) => {
-    setCurrentPage(page);
-  };
+  const {
+    data: data_category,
+    isLoading: isLoading_category,
+    error: error_cat,
+  } = useGetServiceCategoryListQuery({});
+  const {
+    data: all_location,
+    isLoading: isLoading_location,
+    error: error_loc,
+  } = useGetAllLocationListQuery({});
+  const { data, isLoading, error, refetch } = useGetServicesQuery({
+    currentPage,
+    page_size: pageSize,
+    category_name: selectedCategory,
+    region_name: selectedRegion,
+    district_name: selectedDistrict,
+    service_name: searchServiceQuery,
+  });
 
-  const { data: data_category, isLoading: isLoading_category, error: error_cat } = useGetServiceCategoryListQuery({});
-  const { data: all_location, isLoading: isLoading_location, error: error_loc } = useGetAllLocationListQuery({})
-  const { data, isLoading, error, refetch } = useGetServicesQuery({ currentPage, page_size: pageSize, category_name: selectedCategory, region_name: selectedRegion, district_name: selectedDistrict, service_name: searchServiceQuery });
+  const services = data as ServiceResponse;
+  const location_info = all_location as AllLocationList;
+  const categories = data_category as Category[];
 
-  const services: ServiceResponse = data as ServiceResponse;
-  const location_info: AllLocationList = all_location as AllLocationList;
-  const categories: Category[] = data_category as Category[];
-  
-  if (isLoading) {
-    return <div>{ t("loading_message_product")}</div>;
-  }
-  if (isLoading_location) {
-    return <div>{ t("loading_message_location")}</div>;
-  }
-  if (error) {
-    return <div>{t("loading_message_error")} {(error as { message: string }).message}</div>;
-  }
-  if (error_loc) {
-    return <div>{t("loading_location_error")} {(error as { message: string }).message}</div>;
-  }
-  if (isLoading_category) {
-    return <div>{t("loading_message_category")}</div>;
-  }
-  if (error_cat) {
-    return <div>{t("loading_category_error")} {(error_cat as { message: string }).message}</div>;
-  }
-  const handleCategorySelect = (categoryName: string) => {
-    setSelectedCategory(categoryName); // Set the selected category
-    toggleModal(); // Close the modal after selection
+  if (isLoading || isLoading_location || isLoading_category)
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center py-10 text-lg text-gray-600">
+          <div className="animate-spin inline-block w-6 h-6 border-4 border-current border-t-transparent rounded-full mb-2" />
+          <div>{t("loading")}</div>
+        </div>
+      </div>
+    );
+  if (error || error_loc || error_cat)
+    return (
+      <div className="text-center py-10 text-lg text-red-600 bg-red-50 rounded-lg shadow-sm border border-red-100">
+        {t("error")}
+      </div>
+    );
+
+  const handleCategorySelect = (categoryName) => {
+    setSelectedCategory(categoryName);
+    toggleModal();
   };
-  const handleLocationSelect = (regionName: string, districtName: string) => {
+  const handleLocationSelect = (regionName, districtName) => {
     setSelectedRegion(regionName);
     setSelectedtDistrict(districtName);
-    toggleLocationModal()
-  }
-  const reloadSearch = () => {
-    refetch()
-  }
-  const handleCategoryRemove = () => { 
-    setSelectedCategory('')
-  }
+    toggleLocationModal();
+  };
+  const reloadSearch = () => refetch();
+
+  const handleCategoryRemove = () => setSelectedCategory("");
   const handleLocationRemoveFilter = () => {
-    setSelectedRegion('')
-    setSelectedtDistrict('')
-  }
+    setSelectedRegion("");
+    setSelectedtDistrict("");
+  };
   const handleFilterRemove = () => {
-    if (selectedCategory !== '') {
-      setSelectedCategory('')
-    }
-    setSelectedRegion('')
-    setSelectedtDistrict('')
-  }
-  const totalCount = services.count || 0;
+    setSelectedCategory("");
+    setSelectedRegion("");
+    setSelectedtDistrict("");
+  };
+
   return (
-    <div>
-      <div className="service-search-area">
-        <button className="service-search-category" onClick={toggleLocationModal}>
-          <FaLocationDot size={20} className="search-icon" />
-          {t('search_location')}
+    <div className="px-4 sm:px-6 md:px-8 lg:px-10 py-6 max-w-screen-xl mx-auto">
+      {/* Search bar section, more like ProductScreen */}
+      <div className="flex flex-col md:flex-row gap-3 md:items-center mb-6">
+        <button
+          className="flex items-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-md transition duration-200"
+          onClick={toggleLocationModal}
+        >
+          <FaLocationDot size={20} className="text-blue-600" />
+          {t("search_location")}
         </button>
-        <button className="service-search-category" onClick={toggleModal}>
-          <BiCategory size={20} className="search-icon" />
-         {t('search_category')}
+
+        <button
+          className="flex items-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-md transition duration-200"
+          onClick={toggleModal}
+        >
+          <BiCategory size={20} className="text-green-600" />
+          {t("search_category")}
         </button>
-        <div className="search-input-wrapper">
-          <IoSearch size={20} className="search-input-icon" />
-          <input placeholder={t('search_service_placeholder')} className="search-input" value={searchServiceQuery} onChange={(e) => setSearchServiceQuery(e.target.value)}/>
+
+        <div className="relative flex-1 w-full">
+          <input
+            type="text"
+            placeholder={t("search_service_placeholder")}
+            className="w-full h-12 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200"
+            value={searchServiceQuery}
+            onChange={(e) => setSearchServiceQuery(e.target.value)}
+          />
         </div>
-        <button className="service-search-category" onClick={() => {
-          setSearchServiceQuery(searchServiceQuery);
-          reloadSearch();
-        }}>
-          <IoSearch size={20} className="search-icon" />
-          {t('search_text')}
+
+        <button
+          className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition duration-200"
+          onClick={reloadSearch}
+        >
+          <IoSearch size={20} />
+          <span className="hidden sm:inline">{t("search_text")}</span>
         </button>
       </div>
 
-      {selectedCategory && (
-        <div className="selected-category">
-          <p>{t('selected_category')} <strong>{selectedCategory}</strong></p>
-          <button className="category-remove" onClick={() => handleCategoryRemove()}>X</button>
+      {/* Active Filters */}
+      {(selectedCategory || (selectedRegion && selectedDistrict)) && (
+        <div className="mb-6 space-y-2">
+          {selectedCategory && (
+            <div className="flex items-center justify-between bg-yellow-100 px-4 py-2 rounded-md">
+              <span>
+                {t("selected_category")} <strong>{selectedCategory}</strong>
+              </span>
+              <button
+                onClick={handleCategoryRemove}
+                className="ml-4 text-red-500 font-bold hover:text-red-700 transition duration-200"
+              >
+                X
+              </button>
+            </div>
+          )}
+
+          {selectedRegion && selectedDistrict && (
+            <div className="flex items-center justify-between bg-pink-100 px-4 py-2 rounded-md">
+              <span>
+                {t("selected_location")} <strong>{selectedRegion}</strong> -{" "}
+                <strong>{selectedDistrict}</strong>
+              </span>
+              <button
+                onClick={handleLocationRemoveFilter}
+                className="ml-4 text-red-500 font-bold hover:text-red-700 transition duration-200"
+              >
+                X
+              </button>
+            </div>
+          )}
+
+          {(selectedRegion || selectedDistrict || selectedCategory) && (
+            <button
+              onClick={handleFilterRemove}
+              className="bg-red-100 hover:bg-red-200 text-sm px-4 py-1 rounded-md transition duration-200"
+            >
+              {t("clear_filters")}
+            </button>
+          )}
         </div>
       )}
-      {selectedRegion && selectedDistrict && (
-        <div className="selected-location">
-          <p>{t('selected_location')} <strong>{selectedRegion}</strong> - <strong>{selectedDistrict}</strong></p>
-                  <button className="location-remove" onClick={() => handleLocationRemoveFilter()}>X</button>
-        </div>
-      )}
-      {(selectedRegion || selectedDistrict || selectedCategory) && (
-        <button className="clear-category" onClick={handleFilterRemove}>Clear All Filters</button>
-      )}
 
-
-      <div className="service-list">
+      {/* Services grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {services?.results?.length ? (
           services.results.map((service: Service) => (
-            <SingleService service={service} key={service.id}  />
+            <SingleService key={service.id} service={service} />
           ))
         ) : (
-            <p>{ t('service_error')}</p>
+          <div className="col-span-full bg-gray-50 py-10 px-6 rounded-lg text-center">
+            <p className="text-gray-500">{t("service_error")}</p>
+          </div>
         )}
       </div>
-      <div className="pagination-container">
-        <Pagination
-          currentPage={currentPage}
-          totalCount={totalCount}
-          pageSize={pageSize}
-          onPageChange={nextPagehandler}
-        />
-      </div>
-      <Modal isOpen={showLocationModal} onClose={toggleLocationModal}>
-        <h1>{ t('location_header')}</h1>
-        <div className="selected-category">
+
+      {/* Pagination */}
+      {services?.results?.length > 0 && (
+        <div className="mt-8 flex justify-center">
+          <Pagination
+            currentPage={currentPage}
+            totalCount={services.count || 0}
+            pageSize={pageSize}
+            onPageChange={nextPagehandler}
+          />
         </div>
+      )}
+
+      {/* Location Modal */}
+      <Modal isOpen={showLocationModal} onClose={toggleLocationModal}>
+        <h1 className="text-xl font-bold mb-4 text-gray-800">
+          {t("location_header")}
+        </h1>
         <input
           type="text"
-          placeholder={t('location_placeholder')}
+          placeholder={t("location_placeholder")}
           value={searchLocationQuery}
           onChange={(e) => setSearchLocationQuery(e.target.value)}
-          style={{
-            padding: '8px',
-            marginBottom: '10px',
-            width: '100%',
-            borderRadius: '4px',
-            border: '1px solid #ccc',
-          }}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4"
         />
-        {location_info.regions.map((region) => {
-          // Filter districts based on the search query
-          const filteredDistricts = region.districts.filter((district) =>
-            district.toLowerCase().includes(searchLocationQuery.toLowerCase())
-          );
-
-          if (filteredDistricts.length > 0) {
-            return (
-              <div key={region.region}>
-                <h2>{region.region}</h2>
-                <ul>
-                  {filteredDistricts.map((district, index) => (
-                    <li key={index} onClick={() => handleLocationSelect(region.region, district)} style={{
-                        backgroundColor: selectedDistrict === district ? '#08b3f7' : 'transparent',
-                  color: selectedDistrict === district ? 'white' : 'black', 
-                    }}>
-                      {district}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+        <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
+          {location_info.regions.map((region) => {
+            const filteredDistricts = region.districts.filter((d) =>
+              d.toLowerCase().includes(searchLocationQuery.toLowerCase())
             );
-          }
-          return null; // Return null if no districts match
-        })}
+            return (
+              filteredDistricts.length > 0 && (
+                <div
+                  key={region.region}
+                  className="border-b border-gray-200 pb-3 last:border-b-0"
+                >
+                  <h2 className="font-bold mt-2 mb-2 text-gray-700">
+                    {region.region}
+                  </h2>
+                  <ul className="space-y-1">
+                    {filteredDistricts.map((district, i) => (
+                      <li
+                        key={i}
+                        onClick={() =>
+                          handleLocationSelect(region.region, district)
+                        }
+                        className={`cursor-pointer px-3 py-2 rounded-md transition duration-200 ${
+                          selectedDistrict === district
+                            ? "bg-blue-500 text-white"
+                            : "bg-gray-100 hover:bg-blue-200"
+                        }`}
+                      >
+                        {district}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )
+            );
+          })}
+        </div>
       </Modal>
 
+      {/* Category Modal */}
       <Modal isOpen={showModal} onClose={toggleModal}>
-        <h3>{t('category_header') }</h3>
+        <h3 className="text-xl font-bold mb-4 text-gray-800">
+          {t("category_header")}
+        </h3>
         <input
           type="text"
-          placeholder={t('category_placeholder')}
+          placeholder={t("category_placeholder")}
           value={searchCategoryQuery}
           onChange={(e) => setSearchCategoryQuery(e.target.value)}
-          style={{
-            padding: '8px',
-            marginBottom: '10px',
-            width: '100%',
-            borderRadius: '4px',
-            border: '1px solid #ccc',
-          }}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4"
         />
-        <ul className="categories-list">
+        <ul className="divide-y divide-gray-200 max-h-72 overflow-y-auto">
           {categories?.length ? (
-            categories.filter((category: Category) => category.name.toLowerCase().includes(searchCategoryQuery.toLowerCase())).map((category: Category) => (
-              <li
-                key={category.id}
-                onClick={() => handleCategorySelect(category.name)}
-                style={{
-                  padding: '10px',
-                  cursor: 'pointer',
-                  borderBottom: '1px solid #ccc',
-                  backgroundColor: selectedCategory === category.name ? '#08b3f7' : 'transparent',
-                  color: selectedCategory === category.name ? 'white' : 'black', 
-                }}
-              >
-                <p>{category.name}</p>
-              </li>
-            ))
+            categories
+              .filter((c) =>
+                c.name.toLowerCase().includes(searchCategoryQuery.toLowerCase())
+              )
+              .map((c) => (
+                <li
+                  key={c.id}
+                  onClick={() => handleCategorySelect(c.name)}
+                  className={`p-3 cursor-pointer hover:bg-blue-200 transition duration-200 ${
+                    selectedCategory === c.name
+                      ? "bg-blue-500 text-white"
+                      : "bg-white"
+                  }`}
+                >
+                  {c.name}
+                </li>
+              ))
           ) : (
-              <li>{ t('category_error')}</li>
+            <li className="p-3 text-gray-500 text-center">
+              {t("category_error")}
+            </li>
           )}
         </ul>
       </Modal>

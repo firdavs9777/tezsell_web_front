@@ -10,8 +10,6 @@ import { Product, SingleProduct } from "../../store/type";
 import "./ProductDetail.css";
 import { BASE_URL } from "../../store/constants";
 import {
-  FaHeart,
-  FaRegHeart,
   FaArrowLeft,
   FaThumbsUp,
   FaRegThumbsUp,
@@ -48,7 +46,8 @@ const ProductDetail = () => {
   } = useGetFavoriteItemsQuery({
     token: token,
   });
-const [createChatRoom, { isLoading: chatLoading }] = useCreateChatRoomMutation();
+  const [createChatRoom, { isLoading: chatLoading }] =
+    useCreateChatRoomMutation();
 
   const liked_items: ServiceRes = favorite_items as ServiceRes;
 
@@ -147,207 +146,208 @@ const [createChatRoom, { isLoading: chatLoading }] = useCreateChatRoomMutation()
   const onCloseHandler = () => {
     refetch();
     if (singleProduct.product.images) {
-     setSelectedImage(
+      setSelectedImage(
         `${BASE_URL}/products${singleProduct.product.images[0].image}`
-      ); 
+      );
+    } else {
+      setSelectedImage("");
     }
-    else {
-      setSelectedImage('')
-    }
-     
-  }
+  };
   const handleChat = async () => {
-  if (!userInfo?.token || !userInfo?.user_info?.id) {
-    toast.error("You must be logged in to start a chat");
-    return;
-  }
-
-  try {
-    const productOwnerId = singleProduct.product.userName.id;
-    const currentUserId = userInfo.user_info.id;
-
-    // Avoid chatting with yourself
-    if (currentUserId === productOwnerId) {
-      toast.info("You can't chat with yourself.");
+    if (!userInfo?.token || !userInfo?.user_info?.id) {
+      toast.error("You must be logged in to start a chat");
       return;
     }
 
-    const chatName = `${singleProduct.product.userName.username}`;
+    try {
+      const productOwnerId = singleProduct.product.userName.id;
+      const currentUserId = userInfo.user_info.id;
 
-    const result= await createChatRoom({
-      name: chatName,
-      participants: [currentUserId, productOwnerId],
-      token: userInfo.token,
-    });
+      // Avoid chatting with yourself
+      if (currentUserId === productOwnerId) {
+        toast.info("You can't chat with yourself.");
+        return;
+      }
 
-    if ('data' in result) {
-      const res = result.data as Chat;
-      const chatId = res.id;
-      toast.success("Chat room created!");
-      navigate(`/chat/${chatId}`); // Redirect to chat page
-    } else {
-      throw new Error("Failed to create chat");
+      const chatName = `${singleProduct.product.userName.username}`;
+
+      const result = await createChatRoom({
+        name: chatName,
+        participants: [currentUserId, productOwnerId],
+        token: userInfo.token,
+      });
+
+      if ("data" in result) {
+        const res = result.data as Chat;
+        const chatId = res.id;
+        toast.success("Chat room created!");
+        navigate(`/chat/${chatId}`); // Redirect to chat page
+      } else {
+        throw new Error("Failed to create chat");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Chat creation failed");
     }
-  } catch (error: any) {
-    toast.error(error.message || "Chat creation failed");
-  }
-};
+  };
 
   return (
-    <div>
-      <div className="product-detail-container">
-        {/* Back button */}
-        <div className="back-button" onClick={handleGoBack}>
-          <FaArrowLeft size={24} />
-        </div>
+    <div className="p-4 max-w-7xl mx-auto">
+      {/* Back Button */}
+      <div
+        className="mb-4 cursor-pointer text-gray-600 hover:text-black"
+        onClick={handleGoBack}
+      >
+        <FaArrowLeft size={24} />
+      </div>
 
-        <div className="product-detail-left">
-          <div className="product-image-gallery">
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Left - Product Images */}
+        <div className="flex-1">
+          <div className="w-full">
             <img
-              className="selected-image"
-              src={`${selectedImage}`}
+              className="w-full h-auto rounded-xl object-cover"
+              src={selectedImage}
               alt={singleProduct.product.title}
             />
-            <div className="image-thumbnails">
-              {singleProduct.product.images.map((image, index) => (
-                <img
-                  key={index}
-                  className="thumbnail"
-                  src={`${BASE_URL}/products${image.image}`}
-                  alt={singleProduct.product.title}
-                  onClick={() => handleImageClick(image.image)}
-                />
-              ))}
-            </div>
+          </div>
+          <div className="flex flex-wrap gap-2 mt-4">
+            {singleProduct.product.images.map((image, index) => (
+              <img
+                key={index}
+                src={`${BASE_URL}/products${image.image}`}
+                alt="thumbnail"
+                className="w-16 h-16 object-cover rounded-md cursor-pointer border hover:border-blue-500"
+                onClick={() => handleImageClick(image.image)}
+              />
+            ))}
           </div>
         </div>
 
-        <div className="product-detail-right">
-          <h1 className="product-title">{singleProduct.product.title}</h1>
-          <p className="product-description">
-            {singleProduct.product.description}
-          </p>
-          <div className="product-info">
-            <p className="product-price">
+        {/* Right - Product Details */}
+        <div className="flex-1 space-y-4">
+          <h1 className="text-2xl font-bold">{singleProduct.product.title}</h1>
+          <p className="text-gray-600">{singleProduct.product.description}</p>
+
+          <div className="space-y-1">
+            <p className="text-xl font-semibold text-green-600">
               {formatPrice(singleProduct.product.price)}{" "}
               {singleProduct.product.currency}
             </p>
-            <p className="product-availability">
+            <p className="text-sm">
               {singleProduct.product.in_stock ? "In Stock" : "Out of Stock"}
             </p>
-            <p className="product-condition">
+            <p className="text-sm">
               Condition: {singleProduct.product.condition}
             </p>
           </div>
-          <div className="product-rating">
-            <p>Rating: {singleProduct.product.rating} / 5</p>
-          </div>
-          
-          <div className="flex p-2 m-2 ">
-                         {singleProduct.product.userName?.profile_image ? (
-                <img
-                  src={`${BASE_URL}/${singleProduct.product.userName.profile_image.image}`}
-                  alt={singleProduct.product.userName.username}
-                  className="owner-profile-image m-1"
-                />
-              ) : (
-                <svg
-                  className="comment-author-icon"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  width="50"
-                  height="50"
-                  fill="gray"
-                >
-                  <circle cx="12" cy="8" r="4" />
-                  <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
-                </svg>
-              )}
-              <div className="p-2">
-                          <p className="p-2">
-                            <FaUser /> {singleProduct.product.userName.username}
-                          </p>
-                          <p className="p-2">
-                            <FaMapMarkerAlt /> {singleProduct.product.userName?.region} -{" "}
-                 {singleProduct.product.userName.location.district}
-                          </p>
-                        </div>
- </div>
-          {userInfo?.user_info.id == singleProduct.product.userName.id ? (
-      <div className="product-modification">
-                    <p className="product-edit">
-                      <span onClick={handleEditModal} >
-                        <FaEdit onClick={handleEditModal} /> Edit
-                      </span>
-                    </p>
-                    <p className="product-delete">
-                      <FaTrash />
-                      <span>Delete</span>
-                    </p>
-                  </div>
-          ): (<></>)}
-            
-          
-                  {isEdit && (
-            <MyProductEdit
-              onClose={onCloseHandler}
-            productId={singleProduct.product.id.toString()}
-            closeModelStatus={isEdit}
-          />
-        )}
-          
 
-          {liked_items &&
-          liked_items.liked_products &&
-          liked_items.liked_products.some(
-            (item: Product) => item.id === singleProduct.product.id
-          ) ? (
-            <div className="product-actions">
-              <button className="btn-like" onClick={handleDislikeProduct}>
-                <FaThumbsUp size={24} color="white" /> Like
-              </button>
+          <div className="text-sm text-gray-500">
+            Rating: {singleProduct.product.rating} / 5
+          </div>
+
+          <div className="flex items-center gap-4 p-2 border rounded-md">
+            {singleProduct.product.userName?.profile_image ? (
+              <img
+                src={`${BASE_URL}/${singleProduct.product.userName.profile_image.image}`}
+                alt="profile"
+                className="w-12 h-12 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-12 h-12 flex items-center justify-center bg-gray-200 rounded-full">
+                <FaUser size={24} />
+              </div>
+            )}
+            <div>
+              <p className="font-semibold">
+                {singleProduct.product.userName.username}
+              </p>
+              <p className="text-sm text-gray-600">
+                <FaMapMarkerAlt className="inline mr-1" />
+                {singleProduct.product.userName?.region} -{" "}
+                {singleProduct.product.userName.location.district}
+              </p>
             </div>
-          ) : (
-            <div className="product-actions">
-              <button className="btn-dislike" onClick={handleLikeProduct}>
-                <FaRegThumbsUp size={24} /> Like
+          </div>
+
+          {userInfo?.user_info.id === singleProduct.product.userName.id && (
+            <div className="flex gap-4 mt-4">
+              <button
+                onClick={handleEditModal}
+                className="flex items-center gap-1 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+              >
+                <FaEdit /> Edit
+              </button>
+              <button className="flex items-center gap-1 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+                <FaTrash /> Delete
               </button>
             </div>
           )}
 
-          <div className="product-actions">
-            <button className="btn-chat" onClick={handleChat}>
-              <FaCommentAlt size={24} /> Chat
+          {isEdit && (
+            <MyProductEdit
+              onClose={onCloseHandler}
+              productId={singleProduct.product.id.toString()}
+              closeModelStatus={isEdit}
+            />
+          )}
+
+          <div className="flex gap-4 mt-6">
+            {liked_items?.liked_products?.some(
+              (item: Product) => item.id === singleProduct.product.id
+            ) ? (
+              <button
+                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                onClick={handleDislikeProduct}
+              >
+                <FaThumbsUp /> Liked
+              </button>
+            ) : (
+              <button
+                className="flex items-center gap-2 bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
+                onClick={handleLikeProduct}
+              >
+                <FaRegThumbsUp /> Like
+              </button>
+            )}
+
+            <button
+              className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+              onClick={handleChat}
+            >
+              <FaCommentAlt /> Chat
             </button>
           </div>
 
-          <div className="like-count-section">
-  <FaThumbsUp size={24} color="blue" /> {singleProduct.product.likeCount} 
-</div>
+          <div className="flex items-center gap-2 mt-2 text-blue-600 font-semibold">
+            <FaThumbsUp /> {singleProduct.product.likeCount}
+          </div>
         </div>
       </div>
 
-      <section className="recommended-products-section">
-        <h1 className="section-title">Recommended Products</h1>
-        <div className="rec-product-grid">
+      {/* Recommended Section */}
+      <section className="mt-10">
+        <h2 className="text-xl font-semibold mb-4">Recommended Products</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {singleProduct.recommended_products.map((item: Product) => (
             <div
               key={item.id}
-              className="rec-product-card"
               onClick={() => redirectHandler(item.id)}
+              className="bg-white rounded-lg border shadow hover:shadow-lg cursor-pointer p-3 transition"
             >
               <img
                 src={`${BASE_URL}/products${item.images[0]?.image}`}
                 alt={item.title}
-                className="rec-product-image"
+                className="w-full h-32 object-cover rounded-md mb-2"
               />
-              <h3 className="rec-product-title">{item.title.slice(0, 15)}</h3>
-              <p className="rec-product-description">
+              <h3 className="text-sm font-semibold">
+                {item.title.slice(0, 15)}
+              </h3>
+              <p className="text-xs text-gray-500">
                 {item.description.slice(0, 10)}...
               </p>
-              <div className="rec-product-footer">
-                <span className="rec-product-price">{item.price} So'm </span>
-                <span className="rec-product-condition">{item.condition}</span>
+              <div className="flex justify-between text-sm mt-1">
+                <span className="text-green-600">{item.price} So'm</span>
+                <span className="text-gray-500">{item.condition}</span>
               </div>
             </div>
           ))}

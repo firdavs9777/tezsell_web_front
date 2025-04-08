@@ -49,8 +49,7 @@ const MainChatRoom: React.FC<MainChatRoomProps> = ({
   }
 
   return (
-<aside className="w-full sm:w-80 md:w-96 h-screen bg-white border border-gray-200 shadow-md overflow-y-auto p-4 m-4">
-
+    <aside className="w-full sm:w-80 md:w-96 h-screen bg-white border border-gray-200 shadow-md overflow-y-auto p-4 m-4">
       <div className="p-4 sticky top-0 bg-white z-10 border-b-2 text-start">
         <h1 className="text-xl font-bold">Chat List</h1>
       </div>
@@ -59,24 +58,27 @@ const MainChatRoom: React.FC<MainChatRoomProps> = ({
         {chats.length === 0 ? (
           <p className="text-gray-400">No chats available.</p>
         ) : (
-          chats.map((chat) => (
-            <div
-              key={chat.id}
-              className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                chat.id === selectedChatId
-                  ? "bg-blue-100 text-blue-800"
-                  : "bg-gray-100 hover:bg-gray-200"
-              }`}
-              onClick={() => onSelectChat(chat.id)}
-            >
-              <div className="font-medium">{chat.name}</div>
-              {chat.last_message && (
-                <div className="text-sm text-gray-600 truncate">
-                  {chat.last_message.content}
-                </div>
-              )}
-            </div>
-          ))
+          chats
+            .slice()
+            .reverse()
+            .map((chat) => (
+              <div
+                key={chat.id}
+                className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                  chat.id === selectedChatId
+                    ? "bg-blue-100 text-blue-800"
+                    : "bg-gray-100 hover:bg-gray-200"
+                }`}
+                onClick={() => onSelectChat(chat.id)}
+              >
+                <div className="font-medium">{chat.name}</div>
+                {chat.last_message && (
+                  <div className="text-sm text-gray-600 truncate">
+                    {chat.last_message.content}
+                  </div>
+                )}
+              </div>
+            ))
         )}
       </div>
     </aside>
