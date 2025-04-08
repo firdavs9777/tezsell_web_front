@@ -18,6 +18,8 @@ import {
   FaCommentAlt,
   FaEdit,
   FaTrash,
+  FaUser,
+  FaMapMarkerAlt,
 } from "react-icons/fa"; // Importing FaArrowLeft
 
 import { useSelector } from "react-redux";
@@ -25,6 +27,7 @@ import { ServiceRes } from "../Profile/MainProfile";
 import { RootState } from "../../store";
 import { toast } from "react-toastify";
 import MyProductEdit from "../Profile/ProductEdit";
+import { Chat, useCreateChatRoomMutation } from "../../store/slices/chatSlice";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -45,6 +48,7 @@ const ProductDetail = () => {
   } = useGetFavoriteItemsQuery({
     token: token,
   });
+const [createChatRoom, { isLoading: chatLoading }] = useCreateChatRoomMutation();
 
   const liked_items: ServiceRes = favorite_items as ServiceRes;
 
@@ -152,6 +156,43 @@ const ProductDetail = () => {
     }
      
   }
+  const handleChat = async () => {
+  if (!userInfo?.token || !userInfo?.user_info?.id) {
+    toast.error("You must be logged in to start a chat");
+    return;
+  }
+
+  try {
+    const productOwnerId = singleProduct.product.userName.id;
+    const currentUserId = userInfo.user_info.id;
+
+    // Avoid chatting with yourself
+    if (currentUserId === productOwnerId) {
+      toast.info("You can't chat with yourself.");
+      return;
+    }
+
+    const chatName = `${singleProduct.product.userName.username}`;
+
+    const result= await createChatRoom({
+      name: chatName,
+      participants: [currentUserId, productOwnerId],
+      token: userInfo.token,
+    });
+
+    if ('data' in result) {
+      const res = result.data as Chat;
+      const chatId = res.id;
+      toast.success("Chat room created!");
+      navigate(`/chat/${chatId}`); // Redirect to chat page
+    } else {
+      throw new Error("Failed to create chat");
+    }
+  } catch (error: any) {
+    toast.error(error.message || "Chat creation failed");
+  }
+};
+
   return (
     <div>
       <div className="product-detail-container">
@@ -201,6 +242,37 @@ const ProductDetail = () => {
           <div className="product-rating">
             <p>Rating: {singleProduct.product.rating} / 5</p>
           </div>
+          
+          <div className="flex p-2 m-2 ">
+                         {singleProduct.product.userName?.profile_image ? (
+                <img
+                  src={`${BASE_URL}/${singleProduct.product.userName.profile_image.image}`}
+                  alt={singleProduct.product.userName.username}
+                  className="owner-profile-image m-1"
+                />
+              ) : (
+                <svg
+                  className="comment-author-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="50"
+                  height="50"
+                  fill="gray"
+                >
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+                </svg>
+              )}
+              <div className="p-2">
+                          <p className="p-2">
+                            <FaUser /> {singleProduct.product.userName.username}
+                          </p>
+                          <p className="p-2">
+                            <FaMapMarkerAlt /> {singleProduct.product.userName?.region} -{" "}
+                 {singleProduct.product.userName.location.district}
+                          </p>
+                        </div>
+ </div>
           {userInfo?.user_info.id == singleProduct.product.userName.id ? (
       <div className="product-modification">
                     <p className="product-edit">
@@ -244,7 +316,7 @@ const ProductDetail = () => {
           )}
 
           <div className="product-actions">
-            <button className="btn-chat">
+            <button className="btn-chat" onClick={handleChat}>
               <FaCommentAlt size={24} /> Chat
             </button>
           </div>

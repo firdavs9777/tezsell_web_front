@@ -48,6 +48,18 @@ export const messagesApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: ["Message"], // optional depending on use
     }),
+    createChatRoom: builder.mutation<Chat, { name: string, participants: number[], token: string }>({
+      query: ({ name, participants, token }) => ({
+        url: `${CHAT_MAIN}/`,
+        method: "POST",
+        headers: {
+          Authorization: `Token ${token}`, // Add token to the Authorization header
+        },
+        body: { name, participants },
+        credentials: "include",
+      }),
+      invalidatesTags: ["Message"],
+    }),
     getSingleChatMessages: builder.query<ChatResponse, {chatId: string, token: string }>({
       query: ({ chatId, token }) => ({
         url: `${CHAT_MAIN}/${chatId}`,
@@ -61,5 +73,5 @@ export const messagesApiSlice = apiSlice.injectEndpoints({
   }),
 });
 
-export const { useGetAllChatMessagesQuery, useGetSingleChatMessagesQuery } = messagesApiSlice;
+export const { useGetAllChatMessagesQuery, useGetSingleChatMessagesQuery, useCreateChatRoomMutation } = messagesApiSlice;
 export default messagesApiSlice.reducer;
