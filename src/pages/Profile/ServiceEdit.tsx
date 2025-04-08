@@ -5,7 +5,7 @@ import { Category, SingleService } from "../../store/type";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
-import { useUpdateUserProductMutation } from "../../store/slices/users";
+
 import { BASE_URL } from "../../store/constants";
 import "./ProductEdit.css";
 import {
@@ -14,8 +14,8 @@ import {
   useUpdateUserServiceMutation,
 } from "../../store/slices/serviceApiSlice";
 interface SingleServiceType {
-  serviceId?: string;
-  closeModelStatus?: boolean;
+  serviceId: string;
+  closeModelStatus: boolean;
   onClose: () => void;
 }
 

@@ -12,6 +12,7 @@ import NewService from "../pages/Service/NewService";
 import MainProfile from "../pages/Profile/MainProfile";
 import MyProducts from "../pages/Profile/MyProducts";
 import MyServices from "../pages/Profile/MyServices";
+import MainChat from "../pages/Messages/MainChat";
 
 const Router = () => {
   return (
@@ -28,6 +29,8 @@ const Router = () => {
       <Route path="/myprofile" element={<MainProfile />} />
       <Route path="/my-products" element={<MyProducts />} />
       <Route path="/my-services" element={<MyServices />} />
+      <Route path="/my-services" element={<MyServices />} />
+      <Route path="/chat" element={<MainChat />} />
     </Routes>
   );
 };

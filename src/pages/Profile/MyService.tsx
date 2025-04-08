@@ -121,7 +121,7 @@ const MyService: React.FC<SingleServiceProps> = ({ service, refresh }) => {
       >
         {service.images.length > 0 ? (
           <img
-            src={`${BASE_URL}${service.images[0].image}`}
+            src={`${service.images[0].image}`}
             alt={service.name}
             className="service-image"
           />

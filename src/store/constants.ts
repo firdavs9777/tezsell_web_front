@@ -19,4 +19,8 @@ export const LIKE_PRODUCT = "/global/like/product/";
 export const DISLIKE_PRODUCT = "/global/unlike/product/";
 export const LIKE_SERVICE = "/global/like/service/";
 export const DISLIKE_SERVICE = "/global/unlike/service/";
+<<<<<<< HEAD
 export const CHAT_ROOM_URL = '/chats'
+=======
+export const CHAT_MAIN = "/chats";
+>>>>>>> 89aa9f9f98efbda413f235f33e2bac459e0f6b7c
