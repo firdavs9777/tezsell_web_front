@@ -1,4 +1,4 @@
-import { CHAT_MAIN, SERVICES_URL } from "../constants";
+import { CHAT_MAIN } from "../constants";
 import { apiSlice } from "./apiSlice";
 
 export interface Chat {
@@ -21,6 +21,21 @@ export interface ChatResponse {
   previous?: number | null;
   results: Chat[];
 }
+
+export interface SingleMessage {
+  id: number;
+  content: string;
+  timestamp: string;
+  sender: {
+    id: number;
+    username: string;
+  }
+}
+export interface SingleChat {
+  success: boolean;
+  chat: Chat;
+  messages:SingleMessage[] 
+}
 export const messagesApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getAllChatMessages: builder.query<ChatResponse, { token: string }>({
@@ -33,8 +48,18 @@ export const messagesApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: ["Message"], // optional depending on use
     }),
+    getSingleChatMessages: builder.query<ChatResponse, {chatId: string, token: string }>({
+      query: ({ chatId, token }) => ({
+        url: `${CHAT_MAIN}/${chatId}`,
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+        credentials: "include",
+      }),
+      providesTags: ["Message"], // optional depending on use
+    }),
   }),
 });
 
-export const { useGetAllChatMessagesQuery } = messagesApiSlice;
+export const { useGetAllChatMessagesQuery, useGetSingleChatMessagesQuery } = messagesApiSlice;
 export default messagesApiSlice.reducer;

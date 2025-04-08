@@ -35,7 +35,7 @@ const MainChatRoom: React.FC<MainChatRoomProps> = ({
 }) => {
   if (isLoading)
     return (
-      <div className="flex justify-center items-center h-full">
+      <div className="flex justify-center items-center h-full w-full">
         <BiLoader className="animate-spin text-3xl text-blue-500" />
       </div>
     );
@@ -49,34 +49,37 @@ const MainChatRoom: React.FC<MainChatRoomProps> = ({
   }
 
   return (
-    <div className="chat-room-list p-4 max-h-screen overflow-y-auto bg-gray-50">
-      <h1 className="text-2xl font-bold mb-4">Chat List</h1>
+<aside className="w-full sm:w-80 md:w-96 h-screen bg-white border border-gray-200 shadow-md overflow-y-auto p-4 m-4">
 
-      {isLoading ? (
-        <p className="text-gray-500">Loading chats...</p>
-      ) : chats.length === 0 ? (
-        <p className="text-gray-400">No chats available.</p>
-      ) : (
-        chats.map((chat) => (
-          <div
-            key={chat.id}
-            className={`p-4 mb-2 rounded-lg cursor-pointer transition-colors ${
-              chat.id === selectedChatId
-                ? "bg-blue-100 text-blue-800"
-                : "bg-white hover:bg-gray-100"
-            }`}
-            onClick={() => onSelectChat(chat.id)}
-          >
-            <div className="font-medium">{chat.name}</div>
-            {chat.last_message && (
-              <div className="text-sm text-gray-500 truncate">
-                {chat.last_message.content}
-              </div>
-            )}
-          </div>
-        ))
-      )}
-    </div>
+      <div className="p-4 sticky top-0 bg-white z-10 border-b-2 text-start">
+        <h1 className="text-xl font-bold">Chat List</h1>
+      </div>
+
+      <div className="px-4 py-2 space-y-2">
+        {chats.length === 0 ? (
+          <p className="text-gray-400">No chats available.</p>
+        ) : (
+          chats.map((chat) => (
+            <div
+              key={chat.id}
+              className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                chat.id === selectedChatId
+                  ? "bg-blue-100 text-blue-800"
+                  : "bg-gray-100 hover:bg-gray-200"
+              }`}
+              onClick={() => onSelectChat(chat.id)}
+            >
+              <div className="font-medium">{chat.name}</div>
+              {chat.last_message && (
+                <div className="text-sm text-gray-600 truncate">
+                  {chat.last_message.content}
+                </div>
+              )}
+            </div>
+          ))
+        )}
+      </div>
+    </aside>
   );
 };
 
