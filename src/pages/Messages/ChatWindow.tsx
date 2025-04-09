@@ -2,24 +2,21 @@ import React, { useState, useRef, useEffect } from "react";
 import { SingleChat } from "../../store/slices/chatSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { SerializedError } from "@reduxjs/toolkit";
 
 interface MainChatWindowProps {
-  chat:
-    | {
-        id: number;
-        name: string;
-      }
-    | undefined;
   messages: SingleChat | undefined;
   isLoading: boolean;
-  error: any;
+  error?: FetchBaseQueryError | SerializedError | undefined;
+  onSendMessage: (content: string) => void;
 }
 
 const MainChatWindow: React.FC<MainChatWindowProps> = ({
-  chat,
   messages,
   isLoading,
   error,
+  onSendMessage,
 }) => {
   const userId = useSelector(
     (state: RootState) => state.auth.userInfo?.user_info.id
@@ -27,10 +24,9 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  const handleSend = () => {
+  const handleSendMessage = async (content: string) => {
     if (newMessage.trim() === "") return;
-    console.log("Send:", newMessage);
-    setNewMessage("");
+    await onSendMessage(content);
   };
 
   useEffect(() => {
@@ -43,7 +39,7 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
 
   return (
     <div className="flex flex-col h-full p-4 border-l border-gray-300 text-center">
-      <h2 className="text-lg font-semibold mb-4">Chat: {chat?.name}</h2>
+      {/* <h2 className="text-lg font-semibold mb-4">Chat: {chat?.name}</h2> */}
 
       <div className="flex-1 overflow-y-auto space-y-3 pr-2">
         {messages?.messages
@@ -88,7 +84,7 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
           className="flex-1 px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300"
         />
         <button
-          onClick={handleSend}
+          onClick={() => handleSendMessage(newMessage)}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           Send

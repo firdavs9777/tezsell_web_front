@@ -4,11 +4,14 @@ import MainChatRoom from "./ChatRoom";
 import MainChatWindow from "./ChatWindow";
 import {
   Chat,
+  useCreateChatRoomMessageMutation,
+  useDeleteSingleChatRoomMutation,
   useGetAllChatMessagesQuery,
   useGetSingleChatMessagesQuery,
 } from "../../store/slices/chatSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
+import { toast } from "react-toastify";
 
 const MainChat = () => {
   const navigate = useNavigate();
@@ -19,24 +22,89 @@ const MainChat = () => {
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
 
-  const { data, isLoading, error } = useGetAllChatMessagesQuery({ token });
+  const { data, isLoading, error, refetch } = useGetAllChatMessagesQuery({
+    token,
+  });
 
   const {
     data: single_room,
     isLoading: load_room,
     error: singleRoomError,
+    refetch: reload_chat,
   } = useGetSingleChatMessagesQuery(
     { chatId: selectedChatId?.toString(), token },
     { skip: selectedChatId === null }
   );
 
+  const [deleteChat] = useDeleteSingleChatRoomMutation();
+  const [sendMessage] = useCreateChatRoomMessageMutation();
   const chats: Chat[] = (data?.results as Chat[]) || [];
   const selectedChat = chats.find((chat) => chat.id === selectedChatId);
-
   // Handle chat selection with URL navigation
   const handleSelectChat = (chatId: number) => {
     setSelectedChatId(chatId);
     navigate(`/chat/${chatId}`); // Update URL when chat is selected
+  };
+
+  const handleDelete = (chatId: number) => {
+    const ConfirmToast = () => (
+      <div className="h-[70px] m-2">
+        <p className="mb-2">Are you sure you want to delete this chat?</p>
+        <div className="flex justify-center gap-2">
+          <button
+            onClick={async () => {
+              try {
+                await deleteChat({
+                  chatId: chatId.toString(),
+                  token,
+                });
+                toast.success("Chat deleted successfully");
+                refetch();
+              } catch {
+                toast.error("Error occurred while deleting the chat");
+              }
+              toast.dismiss(); // Close the confirmation toast
+            }}
+            className="bg-[#333] text-[#fff] px-3 py-1 rounded"
+          >
+            Yes
+          </button>
+          <button
+            onClick={() => toast.dismiss()}
+            className="bg-gray-300 text-[red] px-3 py-1 rounded"
+          >
+            No
+          </button>
+        </div>
+      </div>
+    );
+
+    toast.info(<ConfirmToast />, {
+      position: "top-center",
+      autoClose: false,
+      closeOnClick: false,
+      draggable: false,
+      closeButton: false,
+    });
+  };
+
+  const handleSendMessage = async (content: string) => {
+    if (!selectedChatId) {
+      toast.error("No chat selected.");
+      return;
+    }
+
+    try {
+      await sendMessage({
+        chatId: selectedChatId.toString(),
+        token,
+        content,
+      });
+      toast.success("Message sent successfully");
+      reload_chat();
+    } catch {
+      toast.error("Error occurred while sending the message");
+    }
   };
 
   // Update selected chat if URL changes
@@ -53,6 +121,7 @@ const MainChat = () => {
           chats={chats}
           selectedChatId={selectedChatId}
           onSelectChat={handleSelectChat}
+          onDeleteChat={handleDelete}
           isLoading={isLoading}
           error={error}
         />
@@ -62,10 +131,10 @@ const MainChat = () => {
       <div className="w-2/3 overflow-y-auto">
         {selectedChatId && (
           <MainChatWindow
-            chat={selectedChat}
             messages={single_room}
             isLoading={load_room}
             error={singleRoomError}
+            onSendMessage={handleSendMessage}
           />
         )}
       </div>

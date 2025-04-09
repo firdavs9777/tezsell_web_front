@@ -21,6 +21,10 @@ export interface ChatResponse {
   previous?: number | null;
   results: Chat[];
 }
+export interface successResponse {
+  success: boolean;
+  message: string;
+}
 
 export interface SingleMessage {
   id: number;
@@ -29,12 +33,12 @@ export interface SingleMessage {
   sender: {
     id: number;
     username: string;
-  }
+  };
 }
 export interface SingleChat {
   success: boolean;
   chat: Chat;
-  messages:SingleMessage[] 
+  messages: SingleMessage[];
 }
 export const messagesApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -48,7 +52,10 @@ export const messagesApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: ["Message"], // optional depending on use
     }),
-    createChatRoom: builder.mutation<Chat, { name: string, participants: number[], token: string }>({
+    createChatRoom: builder.mutation<
+      Chat,
+      { name: string; participants: number[]; token: string }
+    >({
       query: ({ name, participants, token }) => ({
         url: `${CHAT_MAIN}/`,
         method: "POST",
@@ -60,7 +67,10 @@ export const messagesApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Message"],
     }),
-    getSingleChatMessages: builder.query<ChatResponse, {chatId: string, token: string }>({
+    getSingleChatMessages: builder.query<
+      ChatResponse,
+      { chatId: string; token: string }
+    >({
       query: ({ chatId, token }) => ({
         url: `${CHAT_MAIN}/${chatId}`,
         headers: {
@@ -70,8 +80,43 @@ export const messagesApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: ["Message"], // optional depending on use
     }),
+    deleteSingleChatRoom: builder.mutation<
+      successResponse,
+      { chatId: string; token: string }
+    >({
+      query: ({ chatId, token }) => ({
+        url: `${CHAT_MAIN}/${chatId}/`,
+        method: "DELETE",
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+        credentials: "include",
+      }),
+      invalidatesTags: ["Message"], // optional depending on use
+    }),
+    createChatRoomMessage: builder.mutation<
+      SingleMessage,
+      { chatId: string; token: string; content: string }
+    >({
+      query: ({ chatId, token, content }) => ({
+        url: `${CHAT_MAIN}/${chatId}/messages/`,
+        method: "POST",
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+        body: { content },
+        credentials: "include",
+      }),
+      invalidatesTags: ["Message"], // optional depending on use
+    }),
   }),
 });
 
-export const { useGetAllChatMessagesQuery, useGetSingleChatMessagesQuery, useCreateChatRoomMutation } = messagesApiSlice;
+export const {
+  useGetAllChatMessagesQuery,
+  useGetSingleChatMessagesQuery,
+  useCreateChatRoomMutation,
+  useDeleteSingleChatRoomMutation,
+  useCreateChatRoomMessageMutation,
+} = messagesApiSlice;
 export default messagesApiSlice.reducer;

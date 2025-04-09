@@ -23,6 +23,7 @@ interface MainChatRoomProps {
   chats: Chat[];
   selectedChatId: number | null;
   onSelectChat: (id: number) => void;
+  onDeleteChat: (id: number) => void;
   isLoading?: boolean;
   error?: FetchBaseQueryError | SerializedError | undefined;
 }
@@ -31,6 +32,7 @@ const MainChatRoom: React.FC<MainChatRoomProps> = ({
   chats,
   selectedChatId,
   onSelectChat,
+  onDeleteChat,
   isLoading,
   error,
 }) => {
@@ -45,10 +47,9 @@ const MainChatRoom: React.FC<MainChatRoomProps> = ({
     chat.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleDeleteChat = (chatId: number, e: React.MouseEvent) => {
+  const handleDeleteChat = async (chatId: number, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering chat selection
-    console.log("Delete chat with ID:", chatId);
-    // Future: add delete API or state update
+    await onDeleteChat(chatId);
   };
 
   if (isLoading)
@@ -69,9 +70,10 @@ const MainChatRoom: React.FC<MainChatRoomProps> = ({
   return (
     <aside className="w-full md:w-64 lg:w-80 xl:w-96 h-full md:h-screen bg-white border border-gray-200 shadow-md overflow-hidden flex flex-col">
       <div className="p-3 md:p-4 sticky top-0 bg-white z-10 border-b border-gray-200">
-        <h1 className="text-lg md:text-xl font-bold text-gray-800">Chat List</h1>
+        <h1 className="text-lg md:text-xl font-bold text-gray-800">
+          Chat List
+        </h1>
         <div className="relative mt-2 md:mt-3">
-  
           <input
             type="text"
             placeholder={t("search_product_placeholder")}
@@ -86,7 +88,9 @@ const MainChatRoom: React.FC<MainChatRoomProps> = ({
         {filteredChats.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center h-32 p-4">
             <p className="text-gray-500">No chats found</p>
-            <p className="text-sm text-gray-400 mt-1">Try a different search term</p>
+            <p className="text-sm text-gray-400 mt-1">
+              Try a different search term
+            </p>
           </div>
         ) : (
           <div className="space-y-1 md:space-y-2 p-2 md:p-3">
@@ -105,16 +109,22 @@ const MainChatRoom: React.FC<MainChatRoomProps> = ({
                 >
                   <div className="flex items-center p-2 md:p-3 w-full">
                     <div className="flex-shrink-0 mr-2 md:mr-3 hidden sm:block">
-                      <BiMessageSquareDetail 
+                      <BiMessageSquareDetail
                         className={`text-lg md:text-xl ${
-                          chat.id === selectedChatId ? "text-blue-500" : "text-gray-400"
-                        }`} 
+                          chat.id === selectedChatId
+                            ? "text-blue-500"
+                            : "text-gray-400"
+                        }`}
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className={`font-medium text-sm md:text-base truncate ${
-                        chat.id === selectedChatId ? "text-blue-700" : "text-gray-800"
-                      }`}>
+                      <div
+                        className={`font-medium text-sm md:text-base truncate ${
+                          chat.id === selectedChatId
+                            ? "text-blue-700"
+                            : "text-gray-800"
+                        }`}
+                      >
                         {chat.name}
                       </div>
                       {chat.last_message && (
