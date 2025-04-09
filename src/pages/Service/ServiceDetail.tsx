@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   useGetFavoriteItemsQuery,
   useGetSingleServiceQuery,
@@ -25,6 +25,8 @@ import {
 } from "../../store/slices/commentApiSlice";
 import { toast } from "react-toastify";
 import { ServiceRes } from "../Profile/MainProfile";
+import { Chat, useCreateChatRoomMutation } from "../../store/slices/chatSlice";
+
 
 const ServiceDetail = () => {
   const { id } = useParams();
@@ -38,7 +40,9 @@ const ServiceDetail = () => {
     useUnlikeServiceMutation();
 
   const [text, setText] = useState<string>("");
-
+   const navigate = useNavigate();
+  const [createChatRoom, { isLoading: chatLoading }] =
+    useCreateChatRoomMutation();
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
   const {
@@ -179,6 +183,42 @@ const ServiceDetail = () => {
   };
 
   const { service } = serviceItem;
+  const handleChat = async () => {
+    if (!userInfo?.token || !userInfo?.user_info?.id) {
+      toast.error("You must be logged in to start a chat");
+      return;
+    }
+
+    try {
+      const productOwnerId =  service.userName.id;
+      const currentUserId = userInfo.user_info.id;
+
+      // Avoid chatting with yourself
+      if (currentUserId === productOwnerId) {
+        toast.info("You can't chat with yourself.");
+        return;
+      }
+
+      const chatName = `${service.userName.username}`;
+
+      const result = await createChatRoom({
+        name: chatName,
+        participants: [currentUserId, productOwnerId],
+        token: userInfo.token,
+      });
+
+      if ("data" in result) {
+        const res = result.data as Chat;
+        const chatId = res.id;
+        toast.success("Chat room created!");
+        navigate(`/chat/${chatId}`); // Redirect to chat page
+      } else {
+        throw new Error("Failed to create chat");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Chat creation failed");
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 md:px-6 lg:px-8">
@@ -307,7 +347,7 @@ const ServiceDetail = () => {
                 <span>Like</span>
               </button>
 
-              <button className="flex items-center justify-center gap-2 px-6 py-3 bg-green-100 text-green-700 rounded-md flex-1 min-w-[120px] hover:bg-green-200 transition-colors">
+              <button className="flex items-center justify-center gap-2 px-6 py-3 bg-green-100 text-green-700 rounded-md flex-1 min-w-[120px] hover:bg-green-200 transition-colors"  onClick={handleChat}>
                 <FaCommentAlt size={18} />
                 <span>Chat</span>
               </button>
