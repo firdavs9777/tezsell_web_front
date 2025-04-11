@@ -116,7 +116,8 @@ const MainChat = () => {
 
   return (
     <div className="flex flex-row h-screen">
-      <div className="w-1/3 border-r border-gray-300 overflow-y-auto">
+      {/* Sidebar Chat List - 30% */}
+      <div className="w-[30%] border-r border-gray-300 overflow-y-auto">
         <MainChatRoom
           chats={chats}
           selectedChatId={selectedChatId}
@@ -127,15 +128,19 @@ const MainChat = () => {
         />
       </div>
 
-      {/* Chat Messages */}
-      <div className="w-2/3 overflow-y-auto">
-        {selectedChatId && (
+      {/* Chat Window - 70% */}
+      <div className="w-[70%] overflow-y-auto">
+        {selectedChatId ? (
           <MainChatWindow
             messages={single_room}
             isLoading={load_room}
             error={singleRoomError}
             onSendMessage={handleSendMessage}
           />
+        ) : (
+          <div className="flex items-center justify-center h-full text-gray-500">
+            Select a chat to start messaging
+          </div>
         )}
       </div>
     </div>
