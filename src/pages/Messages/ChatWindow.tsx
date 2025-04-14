@@ -80,6 +80,13 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleSendMessage(newMessage);
+              setNewMessage("");
+            }
+          }}
           placeholder="Type a message..."
           className="flex-1 px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300"
         />

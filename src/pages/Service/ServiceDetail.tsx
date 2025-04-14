@@ -154,33 +154,37 @@ const ServiceDetail = () => {
       }
     }
   };
-  const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append("name", text);
-    try {
-      const token = userInfo?.token;
-      const response = await createComment({
-        text: text,
-        serviceId: service.id,
-        token,
-      });
+const handleSubmit = async () => {
+  const formData = new FormData();
+  formData.append("name", text);
+  try {
+    const token = userInfo?.token;
+    const response = await createComment({
+      text: text,
+      serviceId: service.id,
+      token,
+    });
 
-      if (response.data) {
-        toast.success("Comment created successfully");
-        reload();
-        setText("");
-      } else {
-        toast.error("Error occured during the creation");
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error(error.message || "Error while creating service");
-      } else {
-        toast.error("An unknown error occurred while creating the service");
-      }
+    if (response.data) {
+      toast.success("Comment created successfully");
+      reload();
+      setText("");
+    } else {
+      toast.error("Error occurred during the creation");
     }
-  };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      toast.error(error.message || "Error while creating service");
+    } else {
+      toast.error("An unknown error occurred while creating the service");
+    }
+  }
+};
+
+const submitFormHandler = (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  handleSubmit();
+};
 
   const { service } = serviceItem;
   const handleChat = async () => {
@@ -422,6 +426,12 @@ const ServiceDetail = () => {
                 placeholder="Write a comment..."
                 value={text}
                 onChange={(e) => setText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit();
+                  }
+                }}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y min-h-[100px]"
               />
               <div className="flex justify-end mt-3">
