@@ -132,6 +132,7 @@ const MainChat = () => {
       <div className="w-[70%] overflow-y-auto">
         {selectedChatId ? (
           <MainChatWindow
+            chatId={selectedChatId}
             messages={single_room}
             isLoading={load_room}
             error={singleRoomError}

@@ -31,6 +31,7 @@ import { toast } from "react-toastify";
 
 import { setCredentials } from "../../store/slices/authSlice";
 import Button from "../../components/Button";
+import Card from "../../components/Card";
 
 export interface ServiceRes {
   liked_services: Service[];
@@ -267,7 +268,8 @@ const MainProfile = () => {
   };
 
   return (
-    <div className="profile-container">
+    <Card>
+   
       <div className="profile-header">
         <h1>{t('profile_page_title')}</h1>
       </div>
@@ -428,7 +430,8 @@ const MainProfile = () => {
           {renderItemList(likedItems?.liked_services || [], "name")}
         </section>
       </div>
-    </div>
+  
+      </Card>
   );
 };
 

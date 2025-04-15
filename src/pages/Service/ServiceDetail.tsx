@@ -417,8 +417,6 @@ const submitFormHandler = (e: React.FormEvent<HTMLFormElement>) => {
             )}
           </div>
         </div>
-
-        {/* Comment form */}
         {userInfo ? (
           <div className="bg-gray-50 rounded-lg p-4">
             <form onSubmit={submitFormHandler}>

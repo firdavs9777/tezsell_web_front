@@ -263,8 +263,8 @@ const ProductDetail = () => {
               </p>
               <p className="text-sm text-gray-600">
                 <FaMapMarkerAlt className="inline mr-1" />
-                {singleProduct.product.userName?.region} -{" "}
-                {singleProduct.product.userName.location.district}
+
+                {singleProduct.product?.userName?.location?.district}
               </p>
             </div>
           </div>
