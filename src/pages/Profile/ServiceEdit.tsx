@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Modal from "../../components/Modal";
-import { useGetFavoriteItemsQuery } from "../../store/slices/productsApiSlice";
+
 import { Category, SingleService } from "../../store/type";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
@@ -37,6 +37,7 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
     error: productError,
     refetch: refetch_single_product,
   } = useGetSingleServiceQuery(serviceId);
+  console.log(data);
   const {
     data: categoryData,
     isLoading: categoryLoading,
@@ -46,7 +47,7 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
     useUpdateUserServiceMutation();
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
 
-  const singleProduct: SingleService = data as SingleService;
+  const singleService: SingleService = data as SingleService;
   const category_list = categoryData as Category[];
 
   const [name, setName] = useState<string>("");
@@ -54,31 +55,22 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
   const [existingImages, setExistingImages] = useState<ExistingImage[]>([]);
   const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
   const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
-  const [condition, setCondition] = useState<string>("");
+
   const [category, setCategory] = useState<string>("");
   const [isOpen, setIsOpen] = useState<boolean>(closeModelStatus);
   const [imageUploading, setImageUploading] = useState<boolean>(false);
 
-  const token = userInfo?.token;
-  const {
-    data: favorite_items,
-    isLoading: fav_loading,
-    error: fav_error,
-    refetch: reload,
-  } = useGetFavoriteItemsQuery({
-    token: token,
-  });
 
   // Populate the form with existing product data
   useEffect(() => {
-    if (singleProduct?.service) {
-      setName(singleProduct.service.name || "");
-      setDescription(singleProduct.service.description || "");
+    if (singleService?.service) {
+      setName(singleService.service.name || "");
+      setDescription(singleService.service.description || "");
 
       // Find and set the category
-      if (category_list && singleProduct.service.category) {
+      if (category_list && singleService.service.category) {
         const productCategory = category_list.find(
-          (item: Category) => item.id === singleProduct.service.category.id
+          (item: Category) => item.id === singleService.service.category.id
         );
         if (productCategory) {
           setCategory(productCategory.name);
@@ -87,11 +79,11 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
 
       // Set existing images if available
       if (
-        singleProduct.service.images &&
-        singleProduct.service.images.length > 0
+        singleService.service.images &&
+        singleService.service.images.length > 0
       ) {
-        const images = singleProduct.service.images.map((image) => ({
-          id: image.id || 11,
+        const images = singleService.service.images.map((image) => ({
+          id: image.id || 0,
           image: image.image,
           fullUrl: `${BASE_URL}${image.image}`, // Fixed URL construction
           isDeleted: false,
@@ -103,7 +95,7 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
         setExistingImages([]);
       }
     }
-  }, [singleProduct, category_list]);
+  }, [singleService, category_list]);
 
   const handleNewImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -206,25 +198,9 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
     setCategory(e.target.value);
   };
 
-  //   const formatPrice = (value: string): string => {
-  //     const numericValue = value.replace(/[^0-9]/g, "");
-  //     const integerPart = numericValue;
-  //     const formattedInt = parseInt(integerPart || "0", 10)
-  //       .toLocaleString("en-US")
-  //       .replace(/,/g, ".");
-  //     return formattedInt;
-  //   };
-
-  //   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //     const rawValue = e.target.value;
-  //     const formattedValue = formatPrice(rawValue);
-  //     setPrice(formattedValue);
-  //   };
-
   const closeHandler = () => {
     setIsOpen(false);
     onClose();
-    reload();
     setExistingImages([]);
     setNewImagePreviews([]);
     setNewImageFiles([]);
@@ -247,10 +223,7 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
     //   return false;
     // }
 
-    if (!condition) {
-      toast.error("Condition is required", { autoClose: 3000 });
-      return false;
-    }
+
     const hasExistingImages = existingImages.some((img) => !img.isDeleted);
     const hasNewImages = newImageFiles.length > 0;
     if (!hasExistingImages && !hasNewImages) {
@@ -270,7 +243,7 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
     const formData = new FormData();
     formData.append("name", name);
     formData.append("description", description);
-    formData.append("condition", condition);
+  
     // formData.append("currency", "Sum");
     // formData.append("in_stock", "true");
 
@@ -283,9 +256,13 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
       .filter((img) => !img.isDeleted)
       .map((img) => img.id);
 
+    console.log(imagesToKeep)
+  if (imagesToKeep.length > 0) {
     imagesToKeep.forEach((id) => {
-      formData.append("existing_images", id);
+      // Ensure we're sending a string representation of a number
+      formData.append("existing_images", String(id));
     });
+  }
 
     // Add new images
     if (newImageFiles.length > 0) {
@@ -435,22 +412,7 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
               <span>So'm</span>
             </div> */}
 
-            <div className="product-form-group">
-              <label htmlFor="product-condition">Produc Condition *</label>
-              <select
-                id="product-condition"
-                required
-                className="product-form-select"
-                value={condition}
-                onChange={(e) => setCondition(e.target.value)}
-              >
-                <option value="" disabled>
-                  Select condition
-                </option>
-                <option value="new">New</option>
-                <option value="used">Used</option>
-              </select>
-            </div>
+        
 
             <div className="product-form-group">
               <label htmlFor="product-category">Service Category *</label>
@@ -558,7 +520,7 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
                 className="product-form-submit-button"
                 disabled={updateLoading || imageUploading}
               >
-                {updateLoading ? "Updating..." : "Update Product"}
+                {updateLoading ? "Updating..." : "Update Service"}
               </button>
               <button
                 type="button"

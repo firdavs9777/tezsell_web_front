@@ -59,15 +59,6 @@ const MyProductEdit: React.FC<SingleProductType> = ({
   const [isOpen, setIsOpen] = useState<boolean>(closeModelStatus);
   const [imageUploading, setImageUploading] = useState<boolean>(false);
 
-  const token = userInfo?.token;
-  const {
-    data: favorite_items,
-    isLoading: fav_loading,
-    error: fav_error,
-    refetch: reload,
-  } = useGetFavoriteItemsQuery({
-    token: token,
-  });
 
   // Populate the form with existing product data
   useEffect(() => {
