@@ -93,6 +93,8 @@
     "enter_password": "Введите ваш пароль",
     "forgot_password": "Забыли пароль?",
     "no_account": "Еще нет аккаунта? Зарегистрируйтесь здесь",
-    "success_login": "Успешный вход"
+    "success_login": "Успешный вход",
+    "my_profile": "Мой профиль",
+    "logout": "Выйти"
   
 }

@@ -94,5 +94,8 @@
   "enter_password": "Enter your password",
   "forgot_password": "Forgot password?",
   "no_account": "No account yet? Register here",
-  "success_login": "Successfully logged"
+  "success_login": "Successfully logged",
+  "my_profile": "My Profile",
+  "logout": "logout"
+  
 }

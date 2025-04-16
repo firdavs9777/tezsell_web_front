@@ -93,6 +93,7 @@
     "enter_password": "Parolingizni kiriting",
     "forgot_password": "Parolni unutdingizmi?",
     "no_account": "Hisobingiz yo‘qmi? Bu yerda ro‘yxatdan o‘ting",
-    "success_login": "Muvaffaqiyatli kirdingiz"
-  
+    "success_login": "Muvaffaqiyatli kirdingiz",
+    "my_profile": "Mening profilim",
+    "logout": "Chiqish"
 }
