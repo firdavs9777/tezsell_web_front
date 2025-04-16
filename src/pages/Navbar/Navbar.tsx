@@ -191,7 +191,14 @@ const Navbar = () => {
                 alt="profile"
                 className="w-8 h-8 rounded-full"
               />
-              <span className="text-gray-800">{profileInfo.data.username}</span>
+         <span className={`text-gray-800 ${
+  activeLink === "/myprofile" || activeLink === "/my-services" || activeLink === "/my-products"
+    ? "text-[blue] border-b-2 border-blue-600 text-[16px]"
+    : "text-gray-700 hover:text-blue-600 "
+}`}>
+  {profileInfo.data.username}
+</span>
+
             </button>
             {isProfileDropDownOpen && (
               <ul
