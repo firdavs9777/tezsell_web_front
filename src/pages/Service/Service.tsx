@@ -97,7 +97,7 @@ const ServiceScreen = () => {
   };
 
   return (
-    <div className="px-4 sm:px-6 md:px-8 lg:px-10 py-6 max-w-screen-xl mx-auto">
+    <div className="px-4 sm:px-6 md:px-8 lg:px-10 py-6 max-w-6xl mx-auto">
       {/* Search bar section, more like ProductScreen */}
       <div className="flex flex-col md:flex-row gap-3 md:items-center mb-6">
         <button

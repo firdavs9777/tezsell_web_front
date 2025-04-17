@@ -95,6 +95,13 @@
     "no_account": "Еще нет аккаунта? Зарегистрируйтесь здесь",
     "success_login": "Успешный вход",
     "my_profile": "Мой профиль",
-    "logout": "Выйти"
+    "logout": "Выйти",
+    "new_product_title": "Название",
+"new_product_description": "Описание",
+"new_product_price": "Цена",
+"new_product_condition": "Состояние",
+"new_product_category": "Категория",
+"new_product_images": "Изображения"
+
   
 }

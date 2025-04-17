@@ -1,21 +1,17 @@
 import React, { useState } from "react";
-import "./NewProduct.css";
-import {
-  useCreateProductMutation,
-  useGetCategoryListQuery,
-} from "../../store/slices/productsApiSlice";
+import { useCreateProductMutation, useGetCategoryListQuery } from "../../store/slices/productsApiSlice";
 import { Category } from "../../store/type";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const NewProduct = () => {
   const navigate = useNavigate();
   const { data, isLoading, error } = useGetCategoryListQuery({});
   const category_list = data as Category[];
-  const [createProduct, { isLoading: create_loading }] =
-    useCreateProductMutation();
+  const [createProduct, { isLoading: create_loading }] = useCreateProductMutation();
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -25,6 +21,7 @@ const NewProduct = () => {
   const [condition, setCondition] = useState<string>("");
   const [category, setCategory] = useState<string>("");
   const [imageLength, setImageLength] = useState<number>(0);
+  const { t, i18n } = useTranslation();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -55,6 +52,7 @@ const NewProduct = () => {
       reader.readAsDataURL(file);
     });
   };
+
   const handleRemoveImage = (index: number) => {
     setImagePreviews((prev) => prev.filter((_, i) => i !== index));
     setImageFiles((prev) => prev.filter((_, i) => i !== index));
@@ -79,12 +77,15 @@ const NewProduct = () => {
     const formattedValue = formatPrice(rawValue);
     setPrice(formattedValue);
   };
+
   if (isLoading) {
     return <div>Loading....</div>;
   }
+
   if (create_loading) {
     return <div>Creating....</div>;
   }
+
   const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData();
@@ -93,16 +94,18 @@ const NewProduct = () => {
     formData.append("condition", condition);
     formData.append("currency", "Sum");
     formData.append("in_stock", "true");
-    // Price handling
+
     const cleanedPrice = price.replace(/\./g, "");
     formData.append("price", cleanedPrice);
-    // Image handling
+
     imageFiles.forEach((file) => {
       formData.append("images", file);
     });
+
     formData.append("location_id", userInfo.user_info.location.id);
     formData.append("userName_id", userInfo.user_info.id);
     formData.append("userAddress_id", userInfo?.user_info.location.id);
+
     const selectedCategory = category_list.find(
       (item: Category) => item.name === category
     );
@@ -114,6 +117,7 @@ const NewProduct = () => {
         autoClose: 3000,
       });
     }
+
     try {
       const token = userInfo?.token;
       const response = await createProduct({ productData: formData, token });
@@ -133,82 +137,85 @@ const NewProduct = () => {
       }
     }
   };
+
   return (
-    <div className="new-product">
-      <h1 className="new-product-title">Add New Product</h1>
-      <div className="new-product-container">
-        <form className="new-product-form" onSubmit={submitFormHandler}>
-          <div className="product-form-group">
-            <label htmlFor="product-title">Product Title *</label>
+    <div className="bg-gray-50 p-6 md:p-8 lg:p-12">
+      <h1 className="text-3xl font-semibold text-center mb-6">{t("add_new_product_btn")}</h1>
+      <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+        <form className="space-y-6" onSubmit={submitFormHandler}>
+          <div className="flex flex-col space-y-2">
+            <label htmlFor="product-title" className="font-medium">{t("new_product_title")} *</label>
             <input
               id="product-title"
               type="text"
-              placeholder="Enter product title"
+              placeholder={t("new_product_title")}
               required
-              className="product-form-input"
+              className="border p-2 rounded-md"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
           </div>
 
-          <div className="product-form-group">
-            <label htmlFor="product-description">Product Description *</label>
+          <div className="flex flex-col space-y-2">
+            <label htmlFor="product-description" className="font-medium">{t("new_product_description")} *</label>
             <textarea
               id="product-description"
-              placeholder="Enter product description"
+              placeholder={t("new_product_description")}
               required
-              className="product-form-textarea"
+              className="border p-2 rounded-md"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-            ></textarea>
-          </div>
-
-          <div className="product-form-group">
-            <label htmlFor="product-price">Product Price *</label>
-            <input
-              id="product-price"
-              type="text"
-              placeholder="Enter product price"
-              required
-              value={price}
-              onChange={handlePriceChange}
-              className="product-form-input"
             />
-            <span>So'm</span>
           </div>
 
-          <div className="product-form-group">
-            <label htmlFor="product-condition">Product Condition *</label>
+          <div className="flex flex-col space-y-2">
+            <label htmlFor="product-price" className="font-medium">{t("new_product_price")} *</label>
+            <div className="flex items-center space-x-2">
+              <input
+                id="product-price"
+                type="text"
+                placeholder={t("new_product_price")}
+                required
+                value={price}
+                onChange={handlePriceChange}
+                className="border p-2 rounded-md w-full"
+              />
+              <span>So'm</span>
+            </div>
+          </div>
+
+          <div className="flex flex-col space-y-2">
+            <label htmlFor="product-condition" className="font-medium">{t("new_product_condition")} *</label>
             <select
               id="product-condition"
               required
-              className="product-form-select"
+              className="border p-2 rounded-md"
               value={condition}
               onChange={(e) => setCondition(e.target.value)}
             >
-              <option value="" disabled selected>
-                Select condition
+              <option value="" disabled>
+                {t("select_condition")}
               </option>
-              <option value="new">New</option>
-              <option value="used">Used</option>
+              <option value="new">{t("new")}</option>
+              <option value="used">{t("used")}</option>
             </select>
           </div>
 
-          <div className="product-form-group">
-            <label htmlFor="product-category">Product Category</label>
+          <div className="flex flex-col space-y-2">
+            <label htmlFor="product-category" className="font-medium">{t("new_product_category")}</label>
             <select
               id="product-category"
-              className="product-form-select"
+              className="border p-2 rounded-md"
               value={category}
               onChange={handleCategoryChange}
             >
               <option value="" disabled>
-                Select category
+                {t("select_category")}
               </option>
               {isLoading ? (
-                <option>Loading...</option>
+                <option>{t("loading")}</option>
               ) : error ? (
-                <option>Error loading categories</option>
+                <option>{t("error_loading_categories")}</option>
               ) : (
                 category_list.map((categoryItem) => (
                   <option key={categoryItem.id} value={categoryItem.name}>
@@ -219,50 +226,56 @@ const NewProduct = () => {
             </select>
           </div>
 
-          <div className="product-form-group">
-            <label>
-              Product Images{" "}
-              {imageLength > 0 ? `${imagePreviews.length}/10` : "0/10"}{" "}
+          <div className="flex flex-col space-y-2">
+            <label className="font-medium">
+              {t("new_product_images")} {imageLength > 0 ? `${imagePreviews.length}/10` : "0/10"}
             </label>
-            <div className="image-preview-container">
+            <div className="flex space-x-4 flex-wrap">
               {imagePreviews.map((preview, index) => (
-                <div key={index} className="image-wrapper">
-                  <img
-                    src={preview}
-                    alt={`Preview ${index}`}
-                    className="image-preview"
-                  />
+                <div key={index} className="relative w-20 h-20">
+                  <img src={preview} alt={`Preview ${index}`} className="object-cover w-full h-full rounded-md" />
                   <button
                     type="button"
-                    className="remove-image-button"
+                    className="absolute top-0 right-0 text-white bg-black opacity-50 rounded-full w-6 h-6 flex items-center justify-center"
                     onClick={() => handleRemoveImage(index)}
                   >
                     X
                   </button>
                 </div>
               ))}
-              <div
-                className="upload-more-wrapper"
-                onClick={() => document.getElementById("image-upload")?.click()}
-              >
-                <span className="plus-icon">+</span>
-              </div>
+            </div>
+            <div
+              className="cursor-pointer text-center mt-4 py-2 px-4 bg-gray-300 rounded-md"
+              onClick={() => document.getElementById("image-upload")?.click()}
+            >
+              <span className="text-2xl">+</span>
             </div>
             <input
               id="image-upload"
               type="file"
               accept="image/*"
-              className="product-form-file"
+              className="hidden"
               onChange={handleImageChange}
               multiple
-              style={{ display: "none" }}
             />
           </div>
-          <div className="product-form-group">
-            <button type="submit" className="product-form-submit-button">
-              Submit
+
+          <div className="flex flex-col space-y-4">
+            <button
+              type="button"
+              onClick={() => navigate("/")}
+              className="px-6 py-2 bg-red-500 text-white rounded-md"
+            >
+              {t("cancel_btn_label")}
+            </button>
+            <button
+              type="submit"
+              className="px-6 py-2 bg-blue-500 text-white rounded-md"
+            >
+              {t("submit")}
             </button>
           </div>
+
         </form>
       </div>
     </div>

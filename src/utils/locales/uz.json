@@ -95,5 +95,12 @@
     "no_account": "Hisobingiz yo‘qmi? Bu yerda ro‘yxatdan o‘ting",
     "success_login": "Muvaffaqiyatli kirdingiz",
     "my_profile": "Mening profilim",
-    "logout": "Chiqish"
+    "logout": "Chiqish",
+    "new_product_title": "Sarlavha",
+"new_product_description": "Tavsif",
+"new_product_price": "Narxi",
+"new_product_condition": "Holati",
+"new_product_category": "Kategoriya",
+"new_product_images": "Rasmlar"
+
 }

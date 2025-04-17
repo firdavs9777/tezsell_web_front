@@ -96,6 +96,11 @@
   "no_account": "No account yet? Register here",
   "success_login": "Successfully logged",
   "my_profile": "My Profile",
-  "logout": "logout"
-  
+  "logout": "logout",
+  "new_product_title": "Title", 
+  "new_product_description": "Description",
+  "new_product_price": "Price",
+  "new_product_condition": "Condition",
+  "new_product_category":"Category",
+  "new_product_images":"Images"
 }

@@ -96,7 +96,7 @@ const ProductScreen = () => {
   const totalCount = products.count || 0;
 
   return (
-    <div className="px-4 max-w-7xl mx-auto">
+    <div className="px-4 max-w-6xl mx-auto">
       <div className="flex flex-col md:flex-row gap-3 md:items-center mb-4">
         <button
           className="flex items-center gap-2 mt-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-md"
