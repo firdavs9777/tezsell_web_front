@@ -4,10 +4,10 @@ import {
   useGetSingleServiceQuery,
   useLikeServiceMutation,
   useUnlikeServiceMutation,
-} from "../../store/slices/serviceApiSlice";
+} from "@store/slices/serviceApiSlice";
 import { useEffect, useState } from "react";
-import { BASE_URL } from "../../store/constants";
-import { Comment, Service, SingleService } from "../../store/type";
+import { BASE_URL } from "@store/constants";
+import { Comment, Service, SingleService } from "@store/type";
 import {
   FaCommentAlt,
   FaMapMarkerAlt,
@@ -22,11 +22,11 @@ import { RootState } from "../../store";
 import {
   useCreateCommentMutation,
   useGetCommentsQuery,
-} from "../../store/slices/commentApiSlice";
+} from "@store/slices/commentApiSlice";
 import { toast } from "react-toastify";
 import { ServiceRes } from "../Profile/MainProfile";
-import { Chat, useCreateChatRoomMutation } from "../../store/slices/chatSlice";
-import CommentsMain from "./CommentsMain";
+import { Chat, useCreateChatRoomMutation } from "@store/slices/chatSlice";
+import CommentsMain from "./Comments/CommentsMain";
 
 
 const ServiceDetail = () => {

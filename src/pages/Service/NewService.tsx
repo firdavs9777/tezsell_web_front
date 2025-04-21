@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import "./NewService.css";
-import { Category } from "../../store/type";
+import { Category } from "@store/type";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
-import { RootState } from "../../store";
+import { RootState } from "@store/index";
 import { useNavigate } from "react-router-dom";
 import {
   useCreateServiceMutation,
   useGetServiceCategoryListQuery,
-} from "../../store/slices/serviceApiSlice";
+} from "@store/slices/serviceApiSlice";
 
 const NewService = () => {
   const navigate = useNavigate();

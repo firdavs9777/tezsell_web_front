@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
 import Modal from "../../components/Modal";
 
-import { Category, SingleService } from "../../store/type";
+import { Category, SingleService } from "@store/type";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
-import { RootState } from "../../store";
+import { RootState } from "@store/index";
 
-import { BASE_URL } from "../../store/constants";
+import { BASE_URL } from "@store/constants";
 import "./ProductEdit.css";
 import {
   useGetServiceCategoryListQuery,
   useGetSingleServiceQuery,
   useUpdateUserServiceMutation,
-} from "../../store/slices/serviceApiSlice";
+} from "@store/slices/serviceApiSlice";
 interface SingleServiceType {
   serviceId: string;
   closeModelStatus: boolean;

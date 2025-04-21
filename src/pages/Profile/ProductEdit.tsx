@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
-import Modal from "../../components/Modal";
+import Modal from "@components/Modal";
 import {
   useGetSingleProductQuery,
   useGetCategoryListQuery,
-  useGetFavoriteItemsQuery,
-} from "../../store/slices/productsApiSlice";
+} from "@store/slices/productsApiSlice";
 import { SingleProduct, Category } from "../../store/type";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
-import { RootState } from "../../store";
-import { useUpdateUserProductMutation } from "../../store/slices/users";
-import { BASE_URL } from "../../store/constants";
+import { RootState } from "@store/index";
+import { useUpdateUserProductMutation } from "@store/slices/users";
+import { BASE_URL } from "@store/constants";
 import "./ProductEdit.css";
 interface SingleProductType {
   productId: string;

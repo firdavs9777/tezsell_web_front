@@ -1,14 +1,11 @@
 import React, { useState } from "react";
-import { Service } from "../../store/type";
-import { BASE_URL } from "../../store/constants";
+import { Service } from "@store/type";
+import { BASE_URL } from "@store/constants";
 import "./SingleService.css";
 import {
   FaComment,
-  FaHeart,
   FaMapMarkerAlt,
   FaPlus,
-  FaRegComment,
-  FaRegHeart,
   FaRegThumbsUp,
   FaThumbsUp,
 
@@ -16,13 +13,13 @@ import {
 } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { RootState } from "../../store";
-import { useGetFavoriteItemsQuery } from "../../store/slices/productsApiSlice";
+import { RootState } from "@store/index";
+import { useGetFavoriteItemsQuery } from "@store/slices/productsApiSlice";
 import { ServiceRes } from "../Profile/MainProfile";
 import {
   useLikeServiceMutation,
   useUnlikeServiceMutation,
-} from "../../store/slices/serviceApiSlice";
+} from "@store/slices/serviceApiSlice";
 import { toast } from "react-toastify";
 
 interface SingleServiceProps {

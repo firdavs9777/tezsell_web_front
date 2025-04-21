@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { useCreateProductMutation, useGetCategoryListQuery } from "../../store/slices/productsApiSlice";
-import { Category } from "../../store/type";
+import { useCreateProductMutation, useGetCategoryListQuery } from "@store/slices/productsApiSlice";
+import { Category } from "@store/type";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
-import { RootState } from "../../store";
+import { RootState } from "@store/index";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 

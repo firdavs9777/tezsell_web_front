@@ -3,20 +3,20 @@ import {
   useGetAllLocationListQuery,
   useGetCategoryListQuery,
   useGetProductsQuery,
-} from "../../store/slices/productsApiSlice";
+} from "@store/slices/productsApiSlice";
 import {
   AllLocationList,
   Category,
   Product,
   ProductResponse,
-} from "../../store/type";
+} from "@store/type";
 import { useTranslation } from "react-i18next";
 import SingleProduct from "./SingleProduct";
-import Modal from "../../components/Modal";
+import Modal from "@components/Modal";
 import { IoSearch } from "react-icons/io5";
 import { BiCategory } from "react-icons/bi";
 import { FaLocationDot } from "react-icons/fa6";
-import Pagination from "../../components/Pagination";
+import Pagination from "@components/Pagination";
 
 const ProductScreen = () => {
   const [showModal, setShowModal] = useState(false);

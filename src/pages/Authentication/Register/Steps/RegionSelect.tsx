@@ -1,6 +1,6 @@
 import React from "react";
-import { useGetRegionsListQuery } from "../../../../store/slices/productsApiSlice";
-import { RegionsList } from "../../../../store/type";
+import { useGetRegionsListQuery } from "@store/slices/productsApiSlice";
+import { RegionsList } from "@store/type";
 import { useTranslation } from "react-i18next";
 
 interface RegionSelectProps {

@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
-import { useGetUserServicesQuery } from "../../store/slices/users";
+import { useGetUserServicesQuery } from "@store/slices/users";
 import { useTranslation } from "react-i18next";
-import { Service, ServiceResponse } from "../../store/type";
+import { Service, ServiceResponse } from "@store/type";
 import MyService from "./MyService";
 
 const MyServices = () => {

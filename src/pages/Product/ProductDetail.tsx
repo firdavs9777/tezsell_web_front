@@ -5,10 +5,10 @@ import {
   useGetSingleProductQuery,
   useLikeProductMutation,
   useUnlikeProductMutation,
-} from "../../store/slices/productsApiSlice";
-import { Product, SingleProduct } from "../../store/type";
+} from "@store/slices/productsApiSlice";
+import { Product, SingleProduct } from "@store/type";
 import "./ProductDetail.css";
-import { BASE_URL } from "../../store/constants";
+import { BASE_URL } from "@store/constants";
 import {
   FaArrowLeft,
   FaThumbsUp,

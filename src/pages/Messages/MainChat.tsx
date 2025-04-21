@@ -8,9 +8,9 @@ import {
   useDeleteSingleChatRoomMutation,
   useGetAllChatMessagesQuery,
   useGetSingleChatMessagesQuery,
-} from "../../store/slices/chatSlice";
+} from "@store/slices/chatSlice";
 import { useSelector } from "react-redux";
-import { RootState } from "../../store";
+import { RootState } from "@store/index";
 import { toast } from "react-toastify";
 
 const MainChat = () => {

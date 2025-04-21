@@ -1,8 +1,8 @@
 // components/SingleComment.tsx
 import React from 'react';
-import { Comment } from '../../store/type';
+import { Comment } from '@store/type';
 import { FaUser } from 'react-icons/fa';
-import { BASE_URL } from '../../store/constants';
+import { BASE_URL } from '@store/constants';
 
 
 interface SingleCommentProps {

@@ -1,5 +1,5 @@
-import { useGetDistrictsListQuery } from "../../../../store/slices/productsApiSlice";
-import { DistrictsList } from "../../../../store/type";
+import { useGetDistrictsListQuery } from "@store/slices/productsApiSlice";
+import { DistrictsList } from "@store/type";
 import { useTranslation } from "react-i18next";
 
 interface DistrictProps {

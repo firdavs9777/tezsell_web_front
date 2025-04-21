@@ -1,11 +1,11 @@
 import React from "react";
 import MyProduct from "./MyProduct";
-import { Product, ProductResponse } from "../../store/type";
+import { Product, ProductResponse } from "@store/type";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-import { RootState } from "../../store";
+import { RootState } from "@store/index";
 import "./MyProducts.css";
-import { useGetUserProductsQuery } from "../../store/slices/users";
+import { useGetUserProductsQuery } from "@store/slices/users";
 const MyProducts = () => {
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;

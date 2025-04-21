@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import { SingleChat } from "../../store/slices/chatSlice";
+import { SingleChat } from "@store/slices/chatSlice";
 import { useSelector } from "react-redux";
-import { RootState } from "../../store";
+import { RootState } from "@store/index";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { SerializedError } from "@reduxjs/toolkit";
 

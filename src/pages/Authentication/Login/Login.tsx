@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import "./Login.css";
+import "@pages/Authentication/Login/Login.css";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
-import { useLoginUserMutation } from "../../../store/slices/users";
-import { setCredentials } from "../../../store/slices/authSlice";
+import { useLoginUserMutation } from "@store/slices/users";
+import { setCredentials } from "@store/slices/authSlice";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import {  useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "../../store";
 import { useTranslation } from "react-i18next";
@@ -8,13 +8,13 @@ import {
   useGetUserProductsQuery,
   useGetUserServicesQuery,
   useUpdateLoggedUserInfoMutation,
-} from "../../store/slices/users";
+} from "@store/slices/users";
 import {
   useGetDistrictsListQuery,
   useGetFavoriteItemsQuery,
   useGetRegionsListQuery,
-} from "../../store/slices/productsApiSlice";
-import { BASE_URL } from "../../store/constants";
+} from "@store/slices/productsApiSlice";
+import { BASE_URL } from "@store/constants";
 import {
   Product,
   ProductResponse,
@@ -23,13 +23,10 @@ import {
   UserInfo,
   RegionsList,
   DistrictsList,
-} from "../../store/type";
+} from "@store/type";
 import "./MainProfile.css";
-import { FaUserCircle } from "react-icons/fa";
 import Modal from "../../components/Modal";
 import { toast } from "react-toastify";
-
-import { setCredentials } from "../../store/slices/authSlice";
 import Button from "../../components/Button";
 import Card from "../../components/Card";
 

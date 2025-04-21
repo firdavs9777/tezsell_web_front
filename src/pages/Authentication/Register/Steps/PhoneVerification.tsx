@@ -3,7 +3,7 @@ import "./PhoneNumberVerification.css";
 import {
   useSendSmsUserMutation,
   useVerifyCodeUserMutation,
-} from "../../../../store/slices/users";
+} from "@store/slices/users";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 

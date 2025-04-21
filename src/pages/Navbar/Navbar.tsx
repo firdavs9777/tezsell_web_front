@@ -17,11 +17,11 @@ import { FaUserPlus } from "react-icons/fa6";
 import {
   useGetLoggedinUserInfoQuery,
   useLogoutUserMutation,
-} from "../../store/slices/users";
-import { logout } from "../../store/slices/authSlice";
-import { RootState } from "../../store/index";
-import { BASE_URL } from "../../store/constants";
-import { UserInfo } from "../../store/type";
+} from "@store/slices/users";
+import { logout } from "@store/slices/authSlice";
+import { RootState } from "@store/index";
+import { BASE_URL } from "@store/constants";
+import { UserInfo } from "@store/type";
 import { toast } from "react-toastify";
 
 const Navbar = () => {

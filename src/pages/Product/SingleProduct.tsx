@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Product } from "../../store/type";
-import { BASE_URL } from "../../store/constants";
+import { Product } from "@store/type";
+import { BASE_URL } from "@store/constants";
 import "./SingleProduct.css";
 import { useNavigate } from "react-router-dom";
 import { FaPlus, FaRegThumbsUp, FaThumbsUp } from "react-icons/fa";
@@ -13,7 +13,7 @@ import {
   useGetFavoriteItemsQuery,
   useLikeProductMutation,
   useUnlikeProductMutation,
-} from "../../store/slices/productsApiSlice";
+} from "@store/slices/productsApiSlice";
 import { ServiceRes } from "../Profile/MainProfile";
 import { toast } from "react-toastify";
 

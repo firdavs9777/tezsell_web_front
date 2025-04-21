@@ -1,5 +1,5 @@
 import React from 'react';
-import { Comment } from '../../store/type';
+import { Comment } from '../../../store/type';
 import SingleComment from './SingleComment';
 
 interface CommentsMainProps {

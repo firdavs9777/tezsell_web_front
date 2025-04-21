@@ -1,6 +1,5 @@
-import React, { useCallback, useState } from "react";
-import { Product } from "../../store/type";
-import { BASE_URL } from "../../store/constants";
+import React, { useState } from "react";
+import { Product } from "@store/type";
 import "./MyProduct.css";
 import { useNavigate } from "react-router-dom";
 import {
@@ -13,7 +12,7 @@ import {
 import { IoLocationOutline } from "react-icons/io5";
 import { MdDescription } from "react-icons/md";
 import { useSelector } from "react-redux";
-import { RootState } from "../../store";
+import { RootState } from "@store/index";
 import {
   useGetFavoriteItemsQuery,
   useLikeProductMutation,
@@ -21,9 +20,8 @@ import {
 } from "../../store/slices/productsApiSlice";
 import { ServiceRes } from "../Profile/MainProfile";
 import { toast } from "react-toastify";
-import { FaDeleteLeft } from "react-icons/fa6";
 import MyProductEdit from "./ProductEdit";
-import { useDeleteUserProductMutation } from "../../store/slices/users";
+import { useDeleteUserProductMutation } from "@store/slices/users";
 interface SingleProductProps {
   product: Product;
   refresh: () => void;
