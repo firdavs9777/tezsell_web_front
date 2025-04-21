@@ -19,34 +19,37 @@ const DistrictSelect: React.FC<DistrictProps> = ({
     error,
   } = useGetDistrictsListQuery(regionName);
   const districts: DistrictsList = districtsList as DistrictsList;
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   if (isLoading) {
-    return <div>{t("loading")}</div>;
+    return <div className="text-center text-gray-500">{t("loading")}</div>;
   }
   if (error) {
-    return <div>{t("error_message")}</div>;
+    return <div className="text-center text-red-500">{t("error_message")}</div>;
   }
 
   return (
-    <div>
-      <h1>{t("district_select_title")}</h1>
-      <p>{t("district_select_paragraph")}</p>
-      {districts.districts.map((item, index) => (
-        <p
-          key={index}
-          onClick={(event) => {
-            event.preventDefault();
-            onSelect(item.district); // Call the onSelect callback with the selected district
-          }}
-          style={{
-            cursor: "pointer",
-            color: district === item.district ? "blue" : "black", // Compare with the selected region
-          }}
-        >
-          {index + 1}:{item.district}
-        </p>
-      ))}
+    <div className="max-w-md mx-auto p-4 bg-white shadow-lg rounded-xl">
+      <h1 className="text-xl font-semibold text-gray-800 mb-2">{t("district_select_title")}</h1>
+      <p className="text-gray-600 mb-4">{t("district_select_paragraph")}</p>
+      <ul className="space-y-2">
+        {districts.districts.map((item, index) => (
+          <li
+            key={index}
+            onClick={(event) => {
+              event.preventDefault();
+              onSelect(item.district);
+            }}
+            className={`cursor-pointer px-4 py-2 rounded-lg transition duration-200 ${
+              district === item.district
+                ? "bg-blue-100 text-blue-700 font-semibold"
+                : "hover:bg-gray-100 text-gray-800"
+            }`}
+          >
+            {index + 1}. {item.district}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

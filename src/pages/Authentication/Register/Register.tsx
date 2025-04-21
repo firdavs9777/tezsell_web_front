@@ -1,16 +1,16 @@
 import React, { useState } from "react";
-import "@pages/Authentication/Register/Register.css";
 import PhoneNumberVerification from "@pages/Authentication/Register/Steps/PhoneVerification";
 import RegionSelect from "@pages/Authentication/Register/Steps/RegionSelect";
 import DistrictSelect from "@pages/Authentication/Register/Steps/DistrictSelect";
-import { toast } from "react-toastify";
 import SummaryRegister from "@pages/Authentication/Register/Steps/SummaryRegister";
+import { toast } from "react-toastify";
 import { useRegisterUserMutation } from "@store/slices/users";
 import { useLocation, useNavigate } from "react-router-dom";
 import { RegisterInfo } from "@store/type";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "@store/slices/authSlice";
 import { useTranslation } from "react-i18next";
+
 const Register = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [phoneNumber, setPhoneNumber] = useState("+821082773725");
@@ -24,24 +24,25 @@ const Register = () => {
   const dispatch = useDispatch();
   const { search } = useLocation();
   const sp = new URLSearchParams(search);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const redirect = sp.get("redirect") || "/";
+
   const handlePhoneVerification = (status: boolean) => {
     setIsPhoneVerified(status);
-    if (status) {
-      toast.success(`${t("register_phone_number_success")}`);
-    }
-    setCurrentStep((prevStep) => prevStep + 1);
+    if (status) toast.success(t("register_phone_number_success"));
+    setCurrentStep((prev) => prev + 1);
   };
+
   const handleRegionSelect = (status: boolean, region: string) => {
     if (status) {
-      toast.success(`${t("region_selected_message")} ${region} `, {
+      toast.success(`${t("region_selected_message")} ${region}`, {
         autoClose: 3000,
       });
     }
     setRegionName(region);
-    setCurrentStep((prevStep) => prevStep + 1);
+    setCurrentStep((prev) => prev + 1);
   };
+
   const handleSelectDistrict = (district: string) => {
     if (district) {
       setDistrictName(district);
@@ -49,34 +50,24 @@ const Register = () => {
         autoClose: 3000,
       });
     }
-    setCurrentStep((prevStep) => prevStep + 1);
+    setCurrentStep((prev) => prev + 1);
   };
+
   const nextStep = () => {
-    if (currentStep === 1 && !isPhoneVerified) {
-      toast.error(`${t("phone_number_emtpy_message")}`, {
-        autoClose: 3000,
-      });
-      return;
-    }
-    if (currentStep === 2 && regionName === "") {
-      toast.error(`${t("region_emtpy_message")}`, { autoClose: 3000 });
-      return;
-    }
-    if (currentStep === 3 && districtName === "") {
-      toast.error(`${t("district_emtpy_message")}`, { autoClose: 3000 });
-      return;
-    }
-    if (currentStep === 4 && userName === "" && userPassword === "") {
-      toast.error(`${t("username_password_emtpy_message")}`, {
-        autoClose: 3000,
-      });
-      return;
-    }
-    setCurrentStep((prevStep) => prevStep + 1);
+    if (currentStep === 1 && !isPhoneVerified)
+      return toast.error(t("phone_number_emtpy_message"));
+    if (currentStep === 2 && !regionName)
+      return toast.error(t("region_emtpy_message"));
+    if (currentStep === 3 && !districtName)
+      return toast.error(t("district_emtpy_message"));
+    if (currentStep === 4 && (!userName || !userPassword))
+      return toast.error(t("username_password_emtpy_message"));
+
+    setCurrentStep((prev) => prev + 1);
   };
 
   const prevStep = () => {
-    setCurrentStep((prevStep) => prevStep - 1);
+    setCurrentStep((prev) => prev - 1);
   };
 
   const submitRegister = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -93,86 +84,83 @@ const Register = () => {
       },
     };
     try {
-      const registerInfo: RegisterInfo | unknown = await registerUser(
-        registerInput
-      ).unwrap();
-      const ActionPayload: Response | any = registerInfo;
-      dispatch(setCredentials({ ...ActionPayload }));
-      toast.success("Successfully registered", { autoClose: 3000 });
+      const registerInfo = await registerUser(registerInput).unwrap();
+      dispatch(setCredentials({ ...(registerInfo as any) }));
+      toast.success(t("register_success"), { autoClose: 3000 });
       navigate(redirect);
     } catch {
-      toast.error("Error occured, please double check infomation", {
+      toast.error(t("register_error"), {
         autoClose: 3000,
       });
     }
   };
+
   return (
-    <form onSubmit={submitRegister}>
-      <div className="register-container">
-        <h1 className="login-header">{t("register_title")}</h1>
-        <div className="step-container">
-          <p>{t("step_indicator", { currentStep })}</p>
+    <form onSubmit={submitRegister} className="min-h-screen bg-gray-50 py-10 px-4">
+      <div className="max-w-xl mx-auto bg-white shadow-lg rounded-lg p-6">
+        <h1 className="text-2xl font-bold text-center text-gray-800 mb-4">
+          {t("register_title")}
+        </h1>
+        <div className="text-sm text-gray-500 text-center mb-6">
+          {t("step_indicator", { currentStep })}
         </div>
+
         {currentStep === 1 && (
-          <>
-            <PhoneNumberVerification
-              onVerify={handlePhoneVerification}
-              phoneNumber={phoneNumber}
-              setPhoneNumber={setPhoneNumber}
-            />
-          </>
+          <PhoneNumberVerification
+            onVerify={handlePhoneVerification}
+            phoneNumber={phoneNumber}
+            setPhoneNumber={setPhoneNumber}
+          />
         )}
         {currentStep === 2 && (
-          <div className="register-step-two">
-            <RegionSelect onSelect={handleRegionSelect} region={regionName} />
-          </div>
+          <RegionSelect onSelect={handleRegionSelect} region={regionName} />
         )}
         {currentStep === 3 && (
-          <div className="register-step-three">
-            <DistrictSelect
-              regionName={regionName}
-              district={districtName}
-              onSelect={handleSelectDistrict}
-            />
-          </div>
+          <DistrictSelect
+            regionName={regionName}
+            district={districtName}
+            onSelect={handleSelectDistrict}
+          />
         )}
         {currentStep === 4 && (
-          <div className="register-step-four">
-            <SummaryRegister
-              userName={userName}
-              userPassword={userPassword}
-              setUserName={setUserName}
-              setUserPassword={setUserPassword}
-            />
-          </div>
+          <SummaryRegister
+            userName={userName}
+            userPassword={userPassword}
+            setUserName={setUserName}
+            setUserPassword={setUserPassword}
+          />
         )}
-        <div className="button-container">
+
+        <div className="flex justify-between mt-6">
           {currentStep > 1 && (
             <button
-              onClick={prevStep}
-              className="register-cancel"
               type="button"
+              onClick={prevStep}
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition"
             >
               {t("previous_button")}
             </button>
           )}
           {currentStep < 4 && (
             <button
-              onClick={nextStep}
-              className="register-next"
               type="button"
+              onClick={nextStep}
+              className="ml-auto px-4 py-2 bg-blue-700 text-[#fff] rounded-md font-bold hover:bg-blue-700 transition disabled:opacity-50"
               disabled={
                 (currentStep === 1 && !isPhoneVerified) ||
                 (currentStep === 2 && regionName === "") ||
                 (currentStep === 3 && districtName === "") ||
-                (currentStep === 4 && (userName === "" || userPassword === ""))
+                (currentStep === 4 && (!userName || !userPassword))
               }
             >
               {t("next_button")}
             </button>
           )}
-          {currentStep == 4 && (
-            <button className="register-complete" type="submit">
+          {currentStep === 4 && (
+            <button
+              type="submit"
+              className="ml-auto px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
+            >
               {t("complete_button")}
             </button>
           )}
