@@ -23,7 +23,7 @@ const Login = () => {
   const redirect = sp.get("redirect") || "/";
 
   useEffect(() => {
-    if (userInfo) {
+    if (userInfo?.token) {
       navigate(redirect);
     }
   }, [userInfo, redirect, navigate]);
