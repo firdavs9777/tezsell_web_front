@@ -20,6 +20,7 @@ const Register = () => {
   const [userName, setUserName] = useState("");
   const [userPassword, setUserPassword] = useState("");
   const [registerUser, { isLoading }] = useRegisterUserMutation();
+  const [locationId, setLocationId] = useState<number>(0)
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { search } = useLocation();
@@ -43,13 +44,15 @@ const Register = () => {
     setCurrentStep((prev) => prev + 1);
   };
 
-  const handleSelectDistrict = (district: string) => {
-    if (district) {
+  const handleSelectDistrict = (district: string, id: number) => {
+    if (district && id) {
       setDistrictName(district);
+      setLocationId(id);
       toast.success(`${t("district_select_message")}, ${district}`, {
         autoClose: 3000,
       });
     }
+    
     setCurrentStep((prev) => prev + 1);
   };
 
@@ -77,11 +80,7 @@ const Register = () => {
       password: userPassword,
       phone_number: phoneNumber,
       user_type: "regular",
-      location: {
-        country: "Uzbekistan",
-        region: regionName,
-        district: districtName,
-      },
+      location_id: locationId
     };
     try {
       const registerInfo = await registerUser(registerInput).unwrap();

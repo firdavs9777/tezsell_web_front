@@ -5,10 +5,11 @@ import { useTranslation } from "react-i18next";
 interface DistrictProps {
   regionName: string;
   district: string;
-  onSelect: (district: string) => void;
+  onSelect: (district: string, id: number) => void;
 }
 
 const DistrictSelect: React.FC<DistrictProps> = ({
+
   regionName,
   district,
   onSelect,
@@ -38,7 +39,7 @@ const DistrictSelect: React.FC<DistrictProps> = ({
             key={index}
             onClick={(event) => {
               event.preventDefault();
-              onSelect(item.district);
+              onSelect(item.district, item.id);
             }}
             className={`cursor-pointer px-4 py-2 rounded-lg transition duration-200 ${
               district === item.district

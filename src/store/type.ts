@@ -167,5 +167,5 @@ export interface RegisterInfo {
   phone_number: string;
   password: string;
   user_type: string;
-  location: LocationInfo;
+  location_id: number;
 }
