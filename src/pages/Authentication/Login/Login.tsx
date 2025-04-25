@@ -20,11 +20,11 @@ const Login = () => {
 
   const { search } = useLocation();
   const sp = new URLSearchParams(search);
-  const redirect = sp.get("redirect") || "/";
+  const redirect = sp.get("redirect") || "/login";
 
   useEffect(() => {
     if (userInfo?.token) {
-      navigate(redirect);
+      navigate('/');
     }
   }, [userInfo, redirect, navigate]);
 

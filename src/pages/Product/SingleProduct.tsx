@@ -48,9 +48,9 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
     navigate(`/product/${id}`);
   };
 
-  const handleNewProductRedirect = () => {
-    navigate("/new-product");
-  };
+  // const handleNewProductRedirect = () => {
+  //   navigate("/new-product");
+  // };
 
   const formatPrice = (price: string) => {
     const priceNumber = parseFloat(price);
@@ -217,13 +217,7 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
 
         <p className="product-created-at">{formattedDate}</p>
       </div>
-      {userInfo ? (
-        <div className="add-new-product" onClick={handleNewProductRedirect}>
-          <FaPlus style={{ fontSize: "30px", color: "white" }} />
-        </div>
-      ) : (
-        <p>-</p>
-      )}
+      
     </div>
   );
 };

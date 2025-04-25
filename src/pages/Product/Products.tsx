@@ -4,6 +4,7 @@ import {
   useGetCategoryListQuery,
   useGetProductsQuery,
 } from "@store/slices/productsApiSlice";
+import { useSelector } from "react-redux";
 import {
   AllLocationList,
   Category,
@@ -17,6 +18,10 @@ import { IoSearch } from "react-icons/io5";
 import { BiCategory } from "react-icons/bi";
 import { FaLocationDot } from "react-icons/fa6";
 import Pagination from "@components/Pagination";
+import { useNavigate } from "react-router-dom";
+
+import { RootState } from "@store/index";
+import { FaPlus } from "react-icons/fa";
 
 const ProductScreen = () => {
   const [showModal, setShowModal] = useState(false);
@@ -30,7 +35,7 @@ const ProductScreen = () => {
   const [selectedRegion, setSelectedRegion] = useState<string | null>("");
   const [selectedDistrict, setSelectedtDistrict] = useState<string | null>("");
   const { t, i18n } = useTranslation();
-
+    const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const toggleModal = () => setShowModal((prev) => !prev);
   const toggleLocationModal = () => setLocationModal((prev) => !prev);
   const nextPagehandler = (page: number) => setCurrentPage(page);
@@ -53,7 +58,7 @@ const ProductScreen = () => {
     district_name: selectedDistrict,
     product_title: searchProductQuery,
   });
-
+  const navigate = useNavigate();
   const products: ProductResponse = data as ProductResponse;
   const location_info: AllLocationList = all_location as AllLocationList;
   const categories: Category[] = data_category as Category[];
@@ -92,7 +97,9 @@ const ProductScreen = () => {
     setSelectedRegion("");
     setSelectedtDistrict("");
   };
-
+  const handleNewProductRedirect = () => {
+    navigate("/new-product");
+  };
   const totalCount = products.count || 0;
 
   return (
@@ -195,6 +202,14 @@ const ProductScreen = () => {
           onPageChange={nextPagehandler}
         />
       </div>
+
+      {userInfo?.token ? (
+              <div className="add-new-product" onClick={handleNewProductRedirect}>
+                <FaPlus style={{ fontSize: "30px", color: "white" }} />
+              </div>
+            ) : (
+              <p>-dd</p>
+            )}
 
       {/* Location Modal */}
       <Modal isOpen={showLocationModal} onClose={toggleLocationModal}>

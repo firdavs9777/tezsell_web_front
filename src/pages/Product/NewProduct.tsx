@@ -101,6 +101,7 @@ const NewProduct = () => {
     imageFiles.forEach((file) => {
       formData.append("images", file);
     });
+    
 
     formData.append("location_id", userInfo.user_info.location.id);
     formData.append("userName_id", userInfo.user_info.id);
