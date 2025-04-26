@@ -24,7 +24,7 @@ const Login = () => {
 
   useEffect(() => {
     if (userInfo?.token) {
-      navigate('/');
+      navigate("/");
     }
   }, [userInfo, redirect, navigate]);
 
@@ -51,7 +51,7 @@ const Login = () => {
         password,
       }).unwrap();
       dispatch(setCredentials({ ...userInfo }));
-      toast.success(t("success_login"));
+      toast.success(t("success_login"), { autoClose: 2000 });
       navigate(redirect);
     } catch (error: any) {
       toast.error(error?.error);

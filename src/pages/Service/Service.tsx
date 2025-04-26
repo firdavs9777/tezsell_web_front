@@ -17,6 +17,8 @@ import {
   useGetServiceCategoryListQuery,
   useGetServicesQuery,
 } from "@store/slices/serviceApiSlice";
+import { FaPlus } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const ServiceScreen = () => {
   const [showModal, setShowModal] = useState(false);
@@ -34,7 +36,7 @@ const ServiceScreen = () => {
   const toggleModal = () => setShowModal((prev) => !prev);
   const toggleLocationModal = () => setLocationModal((prev) => !prev);
   const nextPagehandler = (page) => setCurrentPage(page);
-
+  const navigate = useNavigate();
   const {
     data: data_category,
     isLoading: isLoading_category,
@@ -94,6 +96,9 @@ const ServiceScreen = () => {
     setSelectedCategory("");
     setSelectedRegion("");
     setSelectedtDistrict("");
+  };
+  const handleNewServiceRedirect = () => {
+    navigate("/new-service");
   };
 
   return (
@@ -202,6 +207,9 @@ const ServiceScreen = () => {
           />
         </div>
       )}
+      <div className="add-new-service" onClick={handleNewServiceRedirect}>
+        <FaPlus style={{ fontSize: "30px", color: "#333" }} />
+      </div>
 
       {/* Location Modal */}
       <Modal isOpen={showLocationModal} onClose={toggleLocationModal}>

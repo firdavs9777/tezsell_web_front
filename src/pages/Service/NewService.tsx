@@ -1,16 +1,17 @@
 import React, { useState } from "react";
-import "./NewService.css";
 import { Category } from "@store/type";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { RootState } from "@store/index";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   useCreateServiceMutation,
   useGetServiceCategoryListQuery,
 } from "@store/slices/serviceApiSlice";
 
 const NewService = () => {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { data, isLoading, error } = useGetServiceCategoryListQuery({});
   const category_list = data as Category[];
@@ -23,12 +24,13 @@ const NewService = () => {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [category, setCategory] = useState<string>("");
   const [imageLength, setImageLength] = useState<number>(0);
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
     const totalImages = imagePreviews.length + files.length;
     if (totalImages > 10) {
-      toast.error("You can upload a maximum of 10 images");
+      toast.error(t("maxImagesError"));
       return;
     }
     const previews: string[] = [];
@@ -52,6 +54,7 @@ const NewService = () => {
       reader.readAsDataURL(file);
     });
   };
+
   const handleRemoveImage = (index: number) => {
     setImagePreviews((prev) => prev.filter((_, i) => i !== index));
     setImageFiles((prev) => prev.filter((_, i) => i !== index));
@@ -61,12 +64,27 @@ const NewService = () => {
     setCategory(e.target.value);
   };
 
+  // Language switcher function
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
+
   if (isLoading) {
-    return <div>Loading....</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        {t("loading")}
+      </div>
+    );
   }
+
   if (create_loading) {
-    return <div>Creating....</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        {t("creating")}
+      </div>
+    );
   }
+
   const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData();
@@ -80,7 +98,6 @@ const NewService = () => {
     formData.append("location_id", userInfo.user_info.location.id);
     formData.append("userName_id", userInfo.user_info.id);
     formData.append("userAddress_id", userInfo?.user_info.location.id);
-    alert(userInfo?.user_info.id);
     const selectedCategory = category_list.find(
       (item: Category) => item.name === category
     );
@@ -88,70 +105,93 @@ const NewService = () => {
       const selectedCategoryId = selectedCategory.id;
       formData.append("category_id", selectedCategoryId.toString());
     } else {
-      console.log("Category not found");
+      console.log(t("categoryNotFound"));
     }
     try {
       const token = userInfo?.token;
       const response = await createProduct({ productData: formData, token });
 
       if (response?.data) {
-        toast.success("Product created successfully");
+        toast.success(t("productCreatedSuccess"));
         navigate("/service");
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error(error.message || "Error while creating service");
+        toast.error(error.message || t("errorCreatingService"));
       } else {
-        toast.error("An unknown error occurred while creating the service");
+        toast.error(t("unknownError"));
       }
     }
   };
+
   return (
-    <div className="new-service">
-      <h1 className="new-service-title">Add New Service</h1>
-      <div className="new-service-container">
-        <form className="new-service-form" onSubmit={submitFormHandler}>
-          {/* Form Fields */}
-          <div className="service-form-group">
-            <label htmlFor="service-title">Service Name *</label>
+    <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      {/* Language selector */}
+
+      <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
+        {t("addNewService")}
+      </h1>
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <form className="space-y-6" onSubmit={submitFormHandler}>
+          {/* Service Name */}
+          <div className="space-y-2">
+            <label
+              htmlFor="service-title"
+              className="block text-sm font-medium text-gray-700"
+            >
+              {t("serviceName")}
+            </label>
             <input
               id="service-title"
               type="text"
-              placeholder="Enter service title"
+              placeholder={t("serviceNamePlaceholder")}
               required
-              className="service-form-input"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
           </div>
 
-          <div className="service-form-group">
-            <label htmlFor="service-description">Service Description *</label>
+          {/* Service Description */}
+          <div className="space-y-2">
+            <label
+              htmlFor="service-description"
+              className="block text-sm font-medium text-gray-700"
+            >
+              {t("serviceDescription")}
+            </label>
             <textarea
               id="service-description"
-              placeholder="Enter service description"
+              placeholder={t("serviceDescriptionPlaceholder")}
               required
-              className="service-form-textarea"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-32"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-            ></textarea>
+            />
           </div>
 
-          <div className="service-form-group">
-            <label htmlFor="service-category">Service Category*</label>
+          {/* Service Category */}
+          <div className="space-y-2">
+            <label
+              htmlFor="service-category"
+              className="block text-sm font-medium text-gray-700"
+            >
+              {t("serviceCategory")}
+            </label>
             <select
               id="service-category"
-              className="service-form-select"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               value={category}
               onChange={handleCategoryChange}
+              required
             >
               <option value="" disabled>
-                Select category
+                {t("selectCategory")}
               </option>
               {isLoading ? (
-                <option>Loading...</option>
+                <option>{t("loadingCategories")}</option>
               ) : error ? (
-                <option>Error loading categories</option>
+                <option>{t("errorLoadingCategories")}</option>
               ) : (
                 category_list.map((categoryItem) => (
                   <option key={categoryItem.id} value={categoryItem.name}>
@@ -162,48 +202,65 @@ const NewService = () => {
             </select>
           </div>
 
-          <div className="service-form-group">
-            <label>
-              Service Images{" "}
-              {imageLength > 0 ? `${imagePreviews.length}/10` : "0/10"}{" "}
+          {/* Service Images */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              {t("serviceImages")}{" "}
+              {imagePreviews.length > 0
+                ? `(${imagePreviews.length}/10)`
+                : "(0/10)"}
             </label>
-            <div className="image-preview-container">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               {imagePreviews.map((preview, index) => (
-                <div key={index} className="image-wrapper">
+                <div
+                  key={index}
+                  className="relative h-24 bg-gray-100 rounded-md overflow-hidden"
+                >
                   <img
                     src={preview}
                     alt={`Preview ${index}`}
-                    className="image-preview"
+                    className="w-full h-full object-cover"
                   />
                   <button
                     type="button"
-                    className="remove-image-button"
+                    className="absolute top-1 right-1 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs hover:bg-red-600 focus:outline-none"
                     onClick={() => handleRemoveImage(index)}
                   >
                     X
                   </button>
                 </div>
               ))}
-              <div
-                className="upload-more-wrapper"
-                onClick={() => document.getElementById("image-upload")?.click()}
-              >
-                <span className="plus-icon">+</span>
-              </div>
+              {imagePreviews.length < 10 && (
+                <div
+                  className="flex items-center justify-center h-24 bg-gray-100 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:bg-gray-50"
+                  onClick={() =>
+                    document.getElementById("image-upload")?.click()
+                  }
+                >
+                  <span className="text-2xl text-gray-500">+</span>
+                </div>
+              )}
             </div>
             <input
               id="image-upload"
               type="file"
               accept="image/*"
-              className="service-form-file"
+              className="hidden"
               onChange={handleImageChange}
               multiple
-              style={{ display: "none" }}
             />
+            <p className="text-xs text-gray-500 mt-1">
+              {t("imageUploadHelper")}
+            </p>
           </div>
-          <div className="service-form-group">
-            <button type="submit" className="service-form-submit-button">
-              Submit
+
+          {/* Submit Button */}
+          <div className="pt-4">
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+            >
+              {t("submit")}
             </button>
           </div>
         </form>

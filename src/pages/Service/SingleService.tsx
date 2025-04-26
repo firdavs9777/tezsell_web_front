@@ -49,10 +49,6 @@ const SingleService: React.FC<SingleServiceProps> = ({ service }) => {
   const redirectHandler = (id: number) => {
     navigate(`/service/${id}`);
   };
-  const handleNewServiceRedirect = () => {
-    navigate("/new-service");
-  };
-
   const [likeCount, setLikeCount] = useState(service.likeCount);
   const handleLikeService = async () => {
     try {
@@ -188,13 +184,6 @@ const SingleService: React.FC<SingleServiceProps> = ({ service }) => {
           </div>
         )}
       </div>
-      {userInfo ? (
-        <div className="add-new-service" onClick={handleNewServiceRedirect}>
-          <FaPlus style={{ fontSize: "30px", color: "#333" }} />
-        </div>
-      ) : (
-        <p></p>
-      )}
     </section>
   );
 };

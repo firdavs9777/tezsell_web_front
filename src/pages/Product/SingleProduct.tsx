@@ -167,7 +167,7 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
       >
         {product && product.images.length > 0 ? (
           <img
-            src={`${BASE_URL}/products${product.images[0].image}`}
+            src={`${BASE_URL}/${product.images[0].image}`}
             alt={product.title}
             className="product-image"
           />
@@ -217,7 +217,6 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
 
         <p className="product-created-at">{formattedDate}</p>
       </div>
-      
     </div>
   );
 };

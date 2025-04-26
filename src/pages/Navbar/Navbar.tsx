@@ -25,7 +25,7 @@ import { UserInfo } from "@store/type";
 import { toast } from "react-toastify";
 
 const Navbar = () => {
-  const [activeLink, setActiveLink] = useState("/");
+  const [activeLink, setActiveLink] = useState("/login");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isProfileDropDownOpen, setIsProfileDropDownOpen] = useState(false);
@@ -35,15 +35,28 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
 
-  const { data: loggedUserInfo, refetch: refresh } =
-    useGetLoggedinUserInfoQuery(
-      { token: userInfo?.token || "" },
-      { skip: !userInfo?.token }
-    );
+  const {
+    data: loggedUserInfo,
+    refetch: refresh,
+    isLoading,
+    isError,
+    error,
+  } = useGetLoggedinUserInfoQuery(
+    { token: userInfo?.token || "" },
+    {
+      skip: !userInfo?.token,
+      refetchOnMountOrArgChange: true,
+    }
+  );
 
+  // Add console logs to track what's happening
   useEffect(() => {
-    if (userInfo?.token) refresh();
-  }, [userInfo?.token, refresh]);
+    const token = userInfo?.token;
+    if (token) {
+      console.log("Refreshing with token");
+      refresh();
+    }
+  }, [userInfo, refresh, loggedUserInfo]);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -130,10 +143,11 @@ const Navbar = () => {
           <Link
             to="/service"
             onClick={() => handleNavLinkClick("/service")}
-            className={`flex items-center gap-1 font-medium text-lg ${activeLink === "/service"
-              ? "text-blue-600 border-b-2 border-blue-600"
-              : "text-gray-800 hover:text-blue-400"
-              }`}
+            className={`flex items-center gap-1 font-medium text-lg ${
+              activeLink === "/service"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-800 hover:text-blue-400"
+            }`}
           >
             <FaServicestack /> {t("service")}
           </Link>
@@ -142,10 +156,11 @@ const Navbar = () => {
           <Link
             to="/about"
             onClick={() => handleNavLinkClick("/about")}
-            className={`flex items-center gap-1 font-medium text-lg ${activeLink === "/about"
-              ? "text-blue-600 border-b-2 border-blue-600"
-              : "text-gray-800 hover:text-blue-400"
-              }`}
+            className={`flex items-center gap-1 font-medium text-lg ${
+              activeLink === "/about"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-800 hover:text-blue-400"
+            }`}
           >
             <FaInfoCircle /> {t("about")}
           </Link>
@@ -155,10 +170,11 @@ const Navbar = () => {
             <Link
               to="/chat"
               onClick={() => handleNavLinkClick("/chat")}
-              className={`flex items-center gap-1 font-medium text-lg ${activeLink === "/chat"
-                ? "text-blue-600 border-b-2 border-blue-600"
-                : "text-gray-800 hover:text-blue-400"
-                }`}
+              className={`flex items-center gap-1 font-medium text-lg ${
+                activeLink === "/chat"
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : "text-gray-800 hover:text-blue-400"
+              }`}
             >
               <FaEnvelope /> {t("chat")}
             </Link>
@@ -191,34 +207,37 @@ const Navbar = () => {
                 alt="profile"
                 className="w-8 h-8 rounded-full"
               />
-         <span className={`text-gray-800 ${
-  activeLink === "/myprofile" || activeLink === "/my-services" || activeLink === "/my-products"
-    ? "text-[blue] border-b-2 border-blue-600 text-[16px]"
-    : "text-gray-700 hover:text-blue-600 "
-}`}>
-  {profileInfo.data.username}
-</span>
-
+              <span
+                className={`text-gray-800 ${
+                  activeLink === "/myprofile" ||
+                  activeLink === "/my-services" ||
+                  activeLink === "/my-products"
+                    ? "text-[blue] border-b-2 border-blue-600 text-[16px]"
+                    : "text-gray-700 hover:text-blue-600 "
+                }`}
+              >
+                {profileInfo.data.username}
+              </span>
             </button>
             {isProfileDropDownOpen && (
               <ul
-                className={`mt-2 w-40 bg-yellow-400 rounded-lg shadow-lg py-2 z-50 ${isMenuOpen ? "" : "absolute right-0"
-                  }`}
+                className={`mt-2 w-40 bg-yellow-400 rounded-lg shadow-lg py-2 z-50 ${
+                  isMenuOpen ? "" : "absolute right-0"
+                }`}
               >
                 <li>
                   <Link
-
                     to="/myprofile"
                     onClick={() => {
                       handleNavLinkClick("/myprofile");
                       setIsProfileDropDownOpen(false);
                     }}
                     className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200
-                      ${activeLink === "/myprofile"
-                        ? "bg-blue-100 text-blue-700 font-semibold"
-                        : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
+                      ${
+                        activeLink === "/myprofile"
+                          ? "bg-blue-100 text-blue-700 font-semibold"
+                          : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
                       }`}
-
                   >
                     <FaUser className="mr-2" color="#333" />
                     {t("my_profile")}
@@ -233,9 +252,10 @@ const Navbar = () => {
                       setIsProfileDropDownOpen(false);
                     }}
                     className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200
-                      ${activeLink === "/my-services"
-                        ? "bg-blue-100 text-blue-700 font-semibold"
-                        : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
+                      ${
+                        activeLink === "/my-services"
+                          ? "bg-blue-100 text-blue-700 font-semibold"
+                          : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
                       }`}
                   >
                     <FaThList className="mr-1" color="#333" size={18} />
@@ -243,18 +263,18 @@ const Navbar = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link 
+                  <Link
                     to="/my-products"
                     onClick={() => {
                       handleNavLinkClick("/my-products");
                       setIsProfileDropDownOpen(false);
                     }}
-                      className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200
-                      ${activeLink === "/my-products"
-                        ? "bg-blue-100 text-blue-700 font-semibold"
-                        : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
+                    className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200
+                      ${
+                        activeLink === "/my-products"
+                          ? "bg-blue-100 text-blue-700 font-semibold"
+                          : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
                       }`}
-                  
                   >
                     <FaBoxOpen className="mr-1" color="#333" size={18} />
 
@@ -281,10 +301,11 @@ const Navbar = () => {
             <Link
               to="/login"
               onClick={() => handleNavLinkClick("/login")}
-              className={`flex items-center gap-1 text-lg font-medium ${activeLink === "/login"
-                ? "text-blue-600 border-b-2 border-blue-600"
-                : "text-gray-800 hover:text-blue-400"
-                }`}
+              className={`flex items-center gap-1 text-lg font-medium ${
+                activeLink === "/login"
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : "text-gray-800 hover:text-blue-400"
+              }`}
             >
               <FaUserPlus /> {t("login")}
             </Link>
@@ -305,16 +326,18 @@ const Navbar = () => {
           </button>
           {isDropdownOpen && (
             <ul
-              className={`mt-2 w-40 bg-yellow-400 rounded-lg shadow-lg py-2 z-50 ${isMenuOpen ? "" : "absolute right-0"
-                }`}
+              className={`mt-2 w-40 bg-yellow-400 rounded-lg shadow-lg py-2 z-50 ${
+                isMenuOpen ? "" : "absolute right-0"
+              }`}
             >
               <li>
                 <button
                   onClick={() => changeLanguage("uz")}
-                  className={`block w-full text-left px-4 py-2 hover:bg-blue-300 ${i18n.language === "uz"
-                    ? "text-blue-700 font-bold"
-                    : "text-white"
-                    }`}
+                  className={`block w-full text-left px-4 py-2 hover:bg-blue-300 ${
+                    i18n.language === "uz"
+                      ? "text-blue-700 font-bold"
+                      : "text-white"
+                  }`}
                 >
                   {t("language-uz")}
                 </button>
@@ -322,10 +345,11 @@ const Navbar = () => {
               <li>
                 <button
                   onClick={() => changeLanguage("ru")}
-                  className={`block w-full text-left px-4 py-2 hover:bg-blue-300 ${i18n.language === "ru"
-                    ? "text-blue-700 font-bold"
-                    : "text-white"
-                    }`}
+                  className={`block w-full text-left px-4 py-2 hover:bg-blue-300 ${
+                    i18n.language === "ru"
+                      ? "text-blue-700 font-bold"
+                      : "text-white"
+                  }`}
                 >
                   {t("language-ru")}
                 </button>
@@ -333,10 +357,11 @@ const Navbar = () => {
               <li>
                 <button
                   onClick={() => changeLanguage("en")}
-                  className={`block w-full text-left px-4 py-2 hover:bg-blue-300 ${i18n.language === "en"
-                    ? "text-blue-700 font-bold"
-                    : "text-white"
-                    }`}
+                  className={`block w-full text-left px-4 py-2 hover:bg-blue-300 ${
+                    i18n.language === "en"
+                      ? "text-blue-700 font-bold"
+                      : "text-white"
+                  }`}
                 >
                   {t("language-en")}
                 </button>
