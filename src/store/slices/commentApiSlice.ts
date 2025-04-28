@@ -5,7 +5,7 @@ export const commentsApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder: any) => ({
     getComments: builder.query({
       query: ({ serviceId, token }: { serviceId: string; token: string }) => ({
-        url: `${SERVICES_URL}/${serviceId}comments`,
+        url: `${SERVICES_URL}/${serviceId}/comments`,
         headers: {
           Authorization: `Token ${token}`, // Pass token in headers
         },

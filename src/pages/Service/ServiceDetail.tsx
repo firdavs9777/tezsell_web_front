@@ -57,13 +57,14 @@ const ServiceDetail = () => {
   // Ensure serviceItem is available and defined
   const serviceItem: SingleService | null = data as SingleService;
   const serviceId = serviceItem?.service.id;
+
   const {
     data: comments_data,
     isLoading: fav_loading,
     error: fav_error,
     refetch: reload,
   } = useGetCommentsQuery({
-    serviceId: serviceId || "", // Ensure serviceId is not undefined
+    serviceId: serviceId , // Ensure serviceId is not undefined
     token: token,
   });
 
@@ -78,7 +79,7 @@ const ServiceDetail = () => {
   useEffect(() => {
     if (serviceItem?.service.images?.length) {
       setSelectedImage(
-        `${BASE_URL}/services${serviceItem.service.images[0].image}`
+        `${BASE_URL}${serviceItem.service.images[0].image}`
       );
     }
   }, [serviceItem]);
@@ -260,10 +261,10 @@ const submitFormHandler = (e: React.FormEvent<HTMLFormElement>) => {
                   className="h-16 w-16 flex-shrink-0 overflow-hidden rounded"
                 >
                   <img
-                    src={`${BASE_URL}/services${image.image}`}
+                    src={`${BASE_URL}${image.image}`}
                     alt={`${service.name} ${index + 1}`}
                     onClick={() =>
-                      setSelectedImage(`${BASE_URL}/services${image.image}`)
+                      setSelectedImage(`${BASE_URL}${image.image}`)
                     }
                     className={`h-full w-full object-cover cursor-pointer border-2 ${
                       selectedImage === `${BASE_URL}/services${image.image}`

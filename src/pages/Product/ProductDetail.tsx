@@ -63,7 +63,7 @@ const ProductDetail = () => {
   useEffect(() => {
     if (singleProduct?.product.images.length > 0) {
       setSelectedImage(
-        `${BASE_URL}/products${singleProduct.product.images[0].image}`
+        `${BASE_URL}${singleProduct.product.images[0].image}`
       );
     }
   }, [singleProduct]);
@@ -214,7 +214,7 @@ const ProductDetail = () => {
             {singleProduct.product.images.map((image, index) => (
               <img
                 key={index}
-                src={`${BASE_URL}/products${image.image}`}
+                src={`${BASE_URL}${image.image}`}
                 alt="thumbnail"
                 className="w-16 h-16 object-cover rounded-md cursor-pointer border hover:border-blue-500"
                 onClick={() => handleImageClick(image.image)}
@@ -335,7 +335,7 @@ const ProductDetail = () => {
               className="bg-white rounded-lg border shadow hover:shadow-lg cursor-pointer p-3 transition"
             >
               <img
-                src={`${BASE_URL}/products${item.images[0]?.image}`}
+                src={`${BASE_URL}/${item.images[0]?.image}`}
                 alt={item.title}
                 className="w-full h-32 object-cover rounded-md mb-2"
               />
