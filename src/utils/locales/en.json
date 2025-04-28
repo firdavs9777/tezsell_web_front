@@ -117,5 +117,7 @@
   "productCreatedSuccess": "Product created successfully",
   "errorCreatingService": "Error while creating service",
   "unknownError": "An unknown error occurred while creating the service",
-  "submit": "Submit"
+  "submit": "Submit",
+  "select_category":"Select Category",
+  "select_condition": "Select Condition"
 }

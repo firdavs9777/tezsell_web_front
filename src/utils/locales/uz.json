@@ -100,7 +100,6 @@
   "new_product_category": "Kategoriya",
   "new_product_images": "Rasmlar",
   "addNewService": "Yangi xizmat qo'shish",
-
   "creating": "Yaratilmoqda...",
   "serviceName": "Xizmat nomi *",
   "serviceNamePlaceholder": "Xizmat nomini kiriting",
@@ -117,5 +116,10 @@
   "productCreatedSuccess": "Mahsulot muvaffaqiyatli yaratildi",
   "errorCreatingService": "Xizmatni yaratishda xatolik yuz berdi",
   "unknownError": "Xizmatni yaratishda noma'lum xatolik yuz berdi",
-  "submit": "Yuklash"
+  "submit": "Yuklash",
+    "select_category": "Kategoriya tanlang",
+    "select_condition": "Holatini tanlang"
+
+
+
 }

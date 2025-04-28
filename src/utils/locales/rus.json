@@ -116,5 +116,8 @@
   "productCreatedSuccess": "Продукт успешно создан",
   "errorCreatingService": "Ошибка при создании услуги",
   "unknownError": "При создании услуги произошла неизвестная ошибка",
-  "submit": "Отправить"
+  "submit": "Отправить",
+    "select_category": "Выберите категорию", 
+  "select_condition": "Выберите состояние (Новое/Б/У)"
+
 }
