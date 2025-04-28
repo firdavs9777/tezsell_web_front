@@ -316,7 +316,7 @@ const ServiceDetail = () => {
             {/* Service owner info */}
             <div className="flex items-center p-4 bg-gray-50 rounded-lg mb-6">
               <div className="mr-4 w-12 h-12 flex-shrink-0">
-                {service.userName.profile_image != null ? (
+                  {service.userName?.profile_image?.image ? (
                   <div className="w-12 h-12 rounded-full overflow-hidden">
                     <img
                       src={`${BASE_URL}/${service.userName.profile_image.image}`}
@@ -333,12 +333,12 @@ const ServiceDetail = () => {
               <div>
                 <p className="flex items-center text-gray-800 font-medium">
                   <FaUser className="mr-2 text-gray-500" />
-                  {service.userName.username}
+                  {service?.userName?.username}
                 </p>
                 <p className="flex items-center text-gray-600 text-sm mt-1">
                   <FaMapMarkerAlt className="mr-2 text-gray-500" />
-                  {service.userName.location.region} -{" "}
-                  {service.userName.location.district}
+                  {service?.userName?.location.region} -{" "}
+                  {service?.userName?.location.district}
                 </p>
               </div>
             </div>

@@ -1,4 +1,4 @@
-import { SERVICES_URL } from "../constants";
+import { DISLIKE_COMMENT, LIKE_COMMENT, SERVICES_URL } from "../constants";
 import { apiSlice } from "./apiSlice";
 
 export const commentsApiSlice = apiSlice.injectEndpoints({
@@ -35,9 +35,47 @@ export const commentsApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: ["Comment"],
     }),
+    likeComment: builder.mutation({
+          query: ({
+            commentId,
+            token,
+          }: {
+            commentId: string,
+            token: string;
+          }) => {
+            return {
+              url: `${LIKE_COMMENT}${commentId}/`,
+              method: "POST",
+              headers: {
+                Authorization: `Token ${token}`, // Add token to the Authorization header
+              },
+              credentials: "include",
+            };
+          },
+          invalidatesTags: ["Comment"],
+    }),
+      unlikeComment: builder.mutation({
+          query: ({
+            commentId,
+            token,
+          }: {
+            commentId: string,
+            token: string;
+          }) => {
+            return {
+              url: `${DISLIKE_COMMENT}${commentId}/`,
+              method: "POST",
+              headers: {
+                Authorization: `Token ${token}`, // Add token to the Authorization header
+              },
+              credentials: "include",
+            };
+          },
+          invalidatesTags: ["Comment"],
+        }),
   }),
 });
 
-export const { useGetCommentsQuery, useCreateCommentMutation } =
+export const { useGetCommentsQuery, useCreateCommentMutation, useLikeCommentMutation, useUnlikeCommentMutation} =
   commentsApiSlice;
 export default commentsApiSlice.reducer;

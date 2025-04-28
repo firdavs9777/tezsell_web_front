@@ -33,6 +33,7 @@ import Card from "../../components/Card";
 export interface ServiceRes {
   liked_services: Service[];
   liked_products: Product[];
+  liked_comments?: Comment[];
 }
 
 const MainProfile = () => {

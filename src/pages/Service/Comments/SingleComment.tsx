@@ -3,6 +3,10 @@ import { Comment } from '@store/type';
 import { FaUser, FaHeart, FaReply, FaChevronDown, FaChevronUp, FaThumbsUp } from 'react-icons/fa';
 import { BASE_URL } from '@store/constants';
 import MainReply from './Replies/MainReply';
+import { useLikeCommentMutation, useUnlikeCommentMutation } from '@store/slices/commentApiSlice';
+import { useSelector } from 'react-redux';
+import { RootState } from '@store/index';
+import { toast } from 'react-toastify';
 
 interface SingleCommentProps {
   comment: Comment;
@@ -25,9 +29,15 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment }) => {
   const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 20));
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [replyText, setReplyText] = useState('');
-  const [showReplies, setShowReplies] = useState(false);
   
+  const [showReplies, setShowReplies] = useState(false);
+    const [likeComment, { isLoading: create_loading_like }] =
+      useLikeCommentMutation();
+      const [dislikeComment, { isLoading: create_loading_dislike }] =
+      useUnlikeCommentMutation();
   // Mock replies data
+
+    const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const [replies, setReplies] = useState<Reply[]>([
     {
       id: '1',
@@ -50,7 +60,31 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment }) => {
       }
     }
   ]);
+  const handleLikeComment = async () => {
+    try {
+      const token = userInfo?.token;
+      const response = await likeComment({
+        commentId: comment.id,
+        token: token,
+      });
 
+      if (response.data) {
+        toast.success("Comment liked successfully", { autoClose: 1000 });
+        // refetch();
+        // reload();
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || "Error while creating product", {
+          autoClose: 1000,
+        });
+      } else {
+        toast.error("An unknown error occurred while creating the product", {
+          autoClose: 3000,
+        });
+      }
+    }
+  };
   const handleLike = () => {
     if (liked) {
       setLikeCount(likeCount - 1);
@@ -118,7 +152,7 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment }) => {
       <div className="flex items-center gap-6 text-sm pb-3 border-b border-gray-100">
         <button 
           className={`flex items-center gap-1 ${liked ? ' text-blue-700' : ' text-gray-700'}  transition-colors`}
-          onClick={handleLike}
+          onClick={handleLikeComment}
         >
           <FaThumbsUp /> <span>{likeCount}</span>
         </button>
