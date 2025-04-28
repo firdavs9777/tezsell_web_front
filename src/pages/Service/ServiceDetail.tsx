@@ -15,6 +15,7 @@ import {
   FaThumbsUp,
   FaRegThumbsUp,
   FaArrowLeft,
+  FaSignInAlt,
 } from "react-icons/fa";
 import "./ServiceDetail.css";
 import { useSelector } from "react-redux";
@@ -28,7 +29,6 @@ import { ServiceRes } from "../Profile/MainProfile";
 import { Chat, useCreateChatRoomMutation } from "@store/slices/chatSlice";
 import CommentsMain from "./Comments/CommentsMain";
 
-
 const ServiceDetail = () => {
   const { id } = useParams();
   const { data, isLoading, error, refetch } = useGetSingleServiceQuery(id);
@@ -41,11 +41,13 @@ const ServiceDetail = () => {
     useUnlikeServiceMutation();
 
   const [text, setText] = useState<string>("");
-   const navigate = useNavigate();
+  const navigate = useNavigate();
   const [createChatRoom, { isLoading: chatLoading }] =
     useCreateChatRoomMutation();
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
+  const isLoggedIn = !!userInfo; // Boolean check if user is logged in
+  
   const {
     data: favorite_items,
     isLoading: favorite_loading,
@@ -53,7 +55,8 @@ const ServiceDetail = () => {
     refetch: reload_fav,
   } = useGetFavoriteItemsQuery({
     token: token,
-  });
+  }, { skip: !isLoggedIn }); // Skip query if user is not logged in
+  
   // Ensure serviceItem is available and defined
   const serviceItem: SingleService | null = data as SingleService;
   const serviceId = serviceItem?.service.id;
@@ -64,9 +67,9 @@ const ServiceDetail = () => {
     error: fav_error,
     refetch: reload,
   } = useGetCommentsQuery({
-    serviceId: serviceId , // Ensure serviceId is not undefined
+    serviceId: serviceId, // Ensure serviceId is not undefined
     token: token,
-  });
+  }, { skip: !isLoggedIn }); // Skip query if user is not logged in
 
   const liked_items: ServiceRes = favorite_items as ServiceRes;
 
@@ -84,7 +87,7 @@ const ServiceDetail = () => {
     }
   }, [serviceItem]);
 
-  if (isLoading || fav_loading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="text-center">
@@ -95,7 +98,7 @@ const ServiceDetail = () => {
     );
   }
 
-  if (error || fav_error || !serviceItem) {
+  if (error || !serviceItem) {
     return (
       <div className="bg-red-100 p-4 rounded-lg text-red-700 text-center my-8 mx-4">
         Error Occurred. Please try again later.
@@ -104,8 +107,13 @@ const ServiceDetail = () => {
   }
 
   const handleLikeService = async () => {
+    if (!isLoggedIn) {
+      toast.info("Please log in to like this service", { autoClose: 2000 });
+      navigate("/login");
+      return;
+    }
+    
     try {
-      const token = userInfo?.token;
       const response = await likeService({
         serviceId: serviceItem.service.id,
         token: token,
@@ -119,11 +127,11 @@ const ServiceDetail = () => {
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error(error.message || "Error while creating product", {
+        toast.error(error.message || "Error while liking service", {
           autoClose: 1000,
         });
       } else {
-        toast.error("An unknown error occurred while creating the product", {
+        toast.error("An unknown error occurred", {
           autoClose: 3000,
         });
       }
@@ -131,72 +139,82 @@ const ServiceDetail = () => {
   };
 
   const handleDislikeService = async () => {
+    if (!isLoggedIn) {
+      toast.info("Please log in to interact with this service", { autoClose: 2000 });
+      navigate("/login");
+      return;
+    }
+    
     try {
-      const token = userInfo?.token;
       const response = await dislikeService({
         serviceId: serviceItem.service.id,
         token: token,
       });
 
       if (response.data) {
-        toast.success("Service disliked successfully", { autoClose: 1000 });
+        toast.success("Service removed from likes", { autoClose: 1000 });
         refetch();
         reload();
         reload_fav();
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error(error.message || "Error while creating product", {
+        toast.error(error.message || "Error while unliking service", {
           autoClose: 3000,
         });
       } else {
-        toast.error("An unknown error occurred while creating the product", {
+        toast.error("An unknown error occurred", {
           autoClose: 3000,
         });
       }
     }
   };
-const handleSubmit = async () => {
-  const formData = new FormData();
-  formData.append("name", text);
-  try {
-    const token = userInfo?.token;
-    const response = await createComment({
-      text: text,
-      serviceId: service.id,
-      token,
-    });
-
-    if (response.data) {
-      toast.success("Comment created successfully");
-      reload();
-      setText("");
-    } else {
-      toast.error("Error occurred during the creation");
+  
+  const handleSubmit = async () => {
+    if (!text.trim()) {
+      toast.info("Please enter a comment");
+      return;
     }
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      toast.error(error.message || "Error while creating service");
-    } else {
-      toast.error("An unknown error occurred while creating the service");
-    }
-  }
-};
+    
+    try {
+      const response = await createComment({
+        text: text,
+        serviceId: serviceItem.service.id,
+        token,
+      });
 
-const submitFormHandler = (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  handleSubmit();
-};
+      if (response.data) {
+        toast.success("Comment created successfully");
+        reload();
+        setText("");
+      } else {
+        toast.error("Error occurred during the creation");
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || "Error while creating comment");
+      } else {
+        toast.error("An unknown error occurred");
+      }
+    }
+  };
+
+  const submitFormHandler = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    handleSubmit();
+  };
 
   const { service } = serviceItem;
+  
   const handleChat = async () => {
-    if (!userInfo?.token || !userInfo?.user_info?.id) {
-      toast.error("You must be logged in to start a chat");
+    if (!isLoggedIn) {
+      toast.info("Please log in to start a chat", { autoClose: 2000 });
+      navigate("/login");
       return;
     }
 
     try {
-      const productOwnerId =  service.userName.id;
+      const productOwnerId = service.userName.id;
       const currentUserId = userInfo.user_info.id;
 
       // Avoid chatting with yourself
@@ -329,21 +347,21 @@ const submitFormHandler = (e: React.FormEvent<HTMLFormElement>) => {
             <div className="flex flex-wrap gap-4">
               <button
                 onClick={
-                  liked_items?.liked_services?.some(
+                  isLoggedIn && liked_items?.liked_services?.some(
                     (item: Service) => item.id === serviceItem.service.id
                   )
                     ? handleDislikeService
                     : handleLikeService
                 }
                 className={`flex items-center justify-center gap-2 px-6 py-3 rounded-md flex-1 min-w-[120px] transition-colors ${
-                  liked_items?.liked_services?.some(
+                  isLoggedIn && liked_items?.liked_services?.some(
                     (item: Service) => item.id === serviceItem.service.id
                   )
                     ? "bg-blue-100 text-blue-700"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                {liked_items?.liked_services?.some(
+                {isLoggedIn && liked_items?.liked_services?.some(
                   (item: Service) => item.id === serviceItem.service.id
                 ) ? (
                   <FaThumbsUp size={18} />
@@ -353,7 +371,10 @@ const submitFormHandler = (e: React.FormEvent<HTMLFormElement>) => {
                 <span>Like</span>
               </button>
 
-              <button className="flex items-center justify-center gap-2 px-6 py-3 bg-green-100 text-green-700 rounded-md flex-1 min-w-[120px] hover:bg-green-200 transition-colors"  onClick={handleChat}>
+              <button 
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-green-100 text-green-700 rounded-md flex-1 min-w-[120px] hover:bg-green-200 transition-colors"
+                onClick={handleChat}
+              >
                 <FaCommentAlt size={18} />
                 <span>Chat</span>
               </button>
@@ -365,41 +386,61 @@ const submitFormHandler = (e: React.FormEvent<HTMLFormElement>) => {
       {/* Comments section */}
       <section className="mt-10 bg-white rounded-lg shadow-md p-6">
         <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
-          Comments ({comments.length})
+          Comments {isLoggedIn && `(${comments.length})`}
         </h2>
 
-        {/* Comments list - SCROLLABLE */}
-     
-        <CommentsMain comments={comments}/>
-        {userInfo ? (
-          <div className="bg-gray-50 rounded-lg p-4">
-            <form onSubmit={submitFormHandler}>
-              <textarea
-                placeholder="Write a comment..."
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSubmit();
-                  }
-                }}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y min-h-[100px]"
-              />
-              <div className="flex justify-end mt-3">
-                <button
-                  type="submit"
-                  disabled={create_loading}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-300"
-                >
-                  {create_loading ? "Posting..." : "Post Comment"}
-                </button>
-              </div>
-            </form>
-          </div>
+        {isLoggedIn ? (
+          <>
+            {/* Comments list - Shown only to logged in users */}
+            <CommentsMain comments={comments} />
+            
+            {/* Comment form */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <form onSubmit={submitFormHandler}>
+                <textarea
+                  placeholder="Write a comment..."
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSubmit();
+                    }
+                  }}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y min-h-[100px]"
+                />
+                <div className="flex justify-end mt-3">
+                  <button
+                    type="submit"
+                    disabled={create_loading}
+                    className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-300"
+                  >
+                    {create_loading ? "Posting..." : "Post Comment"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </>
         ) : (
-          <div className="bg-yellow-50 border border-yellow-100 text-yellow-800 p-4 rounded-lg text-center">
-            Please login to leave a comment
+          <div className="bg-blue-50 border border-blue-100 p-6 rounded-lg text-center">
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <div className="text-blue-700 bg-blue-100 p-3 rounded-full">
+                <FaSignInAlt size={24} />
+              </div>
+              <h3 className="text-lg font-medium text-blue-800">
+                Comments are only visible to logged-in users
+              </h3>
+              <p className="text-blue-600 mb-2">
+                Sign in to view and post comments for this service
+              </p>
+              <Link
+                to="/login"
+                className="inline-flex items-center px-5 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
+              >
+                <FaSignInAlt className="mr-2" />
+                Log In
+              </Link>
+            </div>
           </div>
         )}
       </section>
