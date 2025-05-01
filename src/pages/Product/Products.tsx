@@ -35,7 +35,7 @@ const ProductScreen = () => {
   const [selectedRegion, setSelectedRegion] = useState<string | null>("");
   const [selectedDistrict, setSelectedtDistrict] = useState<string | null>("");
   const { t, i18n } = useTranslation();
-    const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const toggleModal = () => setShowModal((prev) => !prev);
   const toggleLocationModal = () => setLocationModal((prev) => !prev);
   const nextPagehandler = (page: number) => setCurrentPage(page);
@@ -103,8 +103,8 @@ const ProductScreen = () => {
   const totalCount = products.count || 0;
 
   return (
-    <div className="px-4 max-w-6xl mx-auto">
-      <div className="flex flex-col md:flex-row gap-3 md:items-center mb-4">
+    <div className="px-4 max-w-7xl m-2">
+      <div className="flex flex-col md:flex-row gap-3 md:items-center m-5 p-10">
         <button
           className="flex items-center gap-2 mt-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-md"
           onClick={toggleLocationModal}
@@ -204,12 +204,12 @@ const ProductScreen = () => {
       </div>
 
       {userInfo?.token ? (
-              <div className="add-new-product" onClick={handleNewProductRedirect}>
-                <FaPlus style={{ fontSize: "30px", color: "white" }} />
-              </div>
-            ) : (
-              <p>-dd</p>
-            )}
+        <div className="add-new-product" onClick={handleNewProductRedirect}>
+          <FaPlus style={{ fontSize: "30px", color: "white" }} />
+        </div>
+      ) : (
+        <p>-dd</p>
+      )}
 
       {/* Location Modal */}
       <Modal isOpen={showLocationModal} onClose={toggleLocationModal}>
