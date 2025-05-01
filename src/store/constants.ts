@@ -1,7 +1,8 @@
-export const BASE_URL = "http://146.190.165.156";
-// export const BASE_URL = "http://127.0.0.1:8000";
+// export const BASE_URL = "http://146.190.165.156";
+export const BASE_URL = "http://127.0.0.1:8000";
 export const PRODUCTS_URL = "/products/api/products";
 export const SERVICES_URL = "/services/api/services";
+export const COMMENTS_URL = "/services/api/comments";
 export const SERVICES_CATEGORY = "/services/api/categories";
 export const REGISTER_URL = "/accounts/register/";
 export const LOGIN_URL = "/accounts/login/";

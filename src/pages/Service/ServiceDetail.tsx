@@ -47,16 +47,19 @@ const ServiceDetail = () => {
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
   const isLoggedIn = !!userInfo; // Boolean check if user is logged in
-  
+
   const {
     data: favorite_items,
     isLoading: favorite_loading,
     error: favorite_error,
     refetch: reload_fav,
-  } = useGetFavoriteItemsQuery({
-    token: token,
-  }, { skip: !isLoggedIn }); // Skip query if user is not logged in
-  
+  } = useGetFavoriteItemsQuery(
+    {
+      token: token,
+    },
+    { skip: !isLoggedIn }
+  ); // Skip query if user is not logged in
+
   // Ensure serviceItem is available and defined
   const serviceItem: SingleService | null = data as SingleService;
   const serviceId = serviceItem?.service.id;
@@ -66,10 +69,13 @@ const ServiceDetail = () => {
     isLoading: fav_loading,
     error: fav_error,
     refetch: reload,
-  } = useGetCommentsQuery({
-    serviceId: serviceId, // Ensure serviceId is not undefined
-    token: token,
-  }, { skip: !isLoggedIn }); // Skip query if user is not logged in
+  } = useGetCommentsQuery(
+    {
+      serviceId: serviceId, // Ensure serviceId is not undefined
+      token: token,
+    },
+    { skip: !isLoggedIn }
+  ); // Skip query if user is not logged in
 
   const liked_items: ServiceRes = favorite_items as ServiceRes;
 
@@ -81,9 +87,7 @@ const ServiceDetail = () => {
   // Update selectedImage when serviceItem or serviceItem images are available
   useEffect(() => {
     if (serviceItem?.service.images?.length) {
-      setSelectedImage(
-        `${BASE_URL}${serviceItem.service.images[0].image}`
-      );
+      setSelectedImage(`${BASE_URL}${serviceItem.service.images[0].image}`);
     }
   }, [serviceItem]);
 
@@ -112,7 +116,7 @@ const ServiceDetail = () => {
       navigate("/login");
       return;
     }
-    
+
     try {
       const response = await likeService({
         serviceId: serviceItem.service.id,
@@ -140,11 +144,13 @@ const ServiceDetail = () => {
 
   const handleDislikeService = async () => {
     if (!isLoggedIn) {
-      toast.info("Please log in to interact with this service", { autoClose: 2000 });
+      toast.info("Please log in to interact with this service", {
+        autoClose: 2000,
+      });
       navigate("/login");
       return;
     }
-    
+
     try {
       const response = await dislikeService({
         serviceId: serviceItem.service.id,
@@ -169,13 +175,13 @@ const ServiceDetail = () => {
       }
     }
   };
-  
+
   const handleSubmit = async () => {
     if (!text.trim()) {
       toast.info("Please enter a comment");
       return;
     }
-    
+
     try {
       const response = await createComment({
         text: text,
@@ -205,7 +211,7 @@ const ServiceDetail = () => {
   };
 
   const { service } = serviceItem;
-  
+
   const handleChat = async () => {
     if (!isLoggedIn) {
       toast.info("Please log in to start a chat", { autoClose: 2000 });
@@ -316,7 +322,7 @@ const ServiceDetail = () => {
             {/* Service owner info */}
             <div className="flex items-center p-4 bg-gray-50 rounded-lg mb-6">
               <div className="mr-4 w-12 h-12 flex-shrink-0">
-                  {service.userName?.profile_image?.image ? (
+                {service.userName?.profile_image?.image ? (
                   <div className="w-12 h-12 rounded-full overflow-hidden">
                     <img
                       src={`${BASE_URL}/${service.userName.profile_image.image}`}
@@ -347,21 +353,24 @@ const ServiceDetail = () => {
             <div className="flex flex-wrap gap-4">
               <button
                 onClick={
-                  isLoggedIn && liked_items?.liked_services?.some(
+                  isLoggedIn &&
+                  liked_items?.liked_services?.some(
                     (item: Service) => item.id === serviceItem.service.id
                   )
                     ? handleDislikeService
                     : handleLikeService
                 }
                 className={`flex items-center justify-center gap-2 px-6 py-3 rounded-md flex-1 min-w-[120px] transition-colors ${
-                  isLoggedIn && liked_items?.liked_services?.some(
+                  isLoggedIn &&
+                  liked_items?.liked_services?.some(
                     (item: Service) => item.id === serviceItem.service.id
                   )
                     ? "bg-blue-100 text-blue-700"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                {isLoggedIn && liked_items?.liked_services?.some(
+                {isLoggedIn &&
+                liked_items?.liked_services?.some(
                   (item: Service) => item.id === serviceItem.service.id
                 ) ? (
                   <FaThumbsUp size={18} />
@@ -371,7 +380,7 @@ const ServiceDetail = () => {
                 <span>Like</span>
               </button>
 
-              <button 
+              <button
                 className="flex items-center justify-center gap-2 px-6 py-3 bg-green-100 text-green-700 rounded-md flex-1 min-w-[120px] hover:bg-green-200 transition-colors"
                 onClick={handleChat}
               >
@@ -393,7 +402,7 @@ const ServiceDetail = () => {
           <>
             {/* Comments list - Shown only to logged in users */}
             <CommentsMain comments={comments} />
-            
+
             {/* Comment form */}
             <div className="bg-gray-50 rounded-lg p-4">
               <form onSubmit={submitFormHandler}>

@@ -1,26 +1,49 @@
-import React, { useState } from 'react';
-import { Comment } from '@store/type';
-import { FaUser, FaHeart, FaReply, FaChevronDown, FaChevronUp, FaThumbsUp } from 'react-icons/fa';
-import { BASE_URL } from '@store/constants';
-import MainReply from './Replies/MainReply';
-import { useLikeCommentMutation, useUnlikeCommentMutation } from '@store/slices/commentApiSlice';
-import { useSelector } from 'react-redux';
-import { RootState } from '@store/index';
-import { toast } from 'react-toastify';
+import React, { useState } from "react";
+import { Comment } from "@store/type";
+import {
+  FaUser,
+  FaHeart,
+  FaReply,
+  FaChevronDown,
+  FaChevronUp,
+  FaThumbsUp,
+} from "react-icons/fa";
+import { BASE_URL } from "@store/constants";
+import MainReply from "./Replies/MainReply";
+import {
+  useCreateReplyMutation,
+  useGetRepliesQuery,
+  useLikeCommentMutation,
+  useUnlikeCommentMutation,
+} from "@store/slices/commentApiSlice";
+import { useSelector } from "react-redux";
+import { RootState } from "@store/index";
+import { toast } from "react-toastify";
+import { useGetFavoriteItemsQuery } from "@store/slices/productsApiSlice";
+import { ServiceRes } from "@pages/Profile/MainProfile";
 
 interface SingleCommentProps {
   comment: Comment;
 }
+interface ReplyResponse {
+  success: boolean;
+  count: number;
+  data: Reply[];
+}
 
 // Fake reply type structure
-interface Reply {
-  id: string;
+export interface Reply {
+  id: number;
   text: string;
   created_at: string;
   user: {
+    id: number;
     username: string;
-    profile_image?: { image: string } | null;
-    location?: { region: string; district: string } | null;
+    user_type: string;
+    phone_number: string;
+    profile_image?: { image: string; alt_text: string } | null;
+    location?: { country: string; region: string; district: string } | null;
+    is_active: boolean;
   };
 }
 
@@ -28,38 +51,42 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment }) => {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 20));
   const [showReplyForm, setShowReplyForm] = useState(false);
-  const [replyText, setReplyText] = useState('');
-  
-  const [showReplies, setShowReplies] = useState(false);
-    const [likeComment, { isLoading: create_loading_like }] =
-      useLikeCommentMutation();
-      const [dislikeComment, { isLoading: create_loading_dislike }] =
-      useUnlikeCommentMutation();
-  // Mock replies data
+  const [replyText, setReplyText] = useState("");
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
 
-    const userInfo = useSelector((state: RootState) => state.auth.userInfo);
-  const [replies, setReplies] = useState<Reply[]>([
+  const token = userInfo?.token;
+  const id = comment.id.toString();
+  const { data, isLoading, error, refetch } = useGetRepliesQuery({
+    commentId: id,
+    token: token,
+  });
+
+  const repliesResponse = data as ReplyResponse | undefined;
+  const replies: Reply[] = repliesResponse?.data || [];
+  const [createReply, { isLoading: create_loading }] = useCreateReplyMutation();
+
+  const [showReplies, setShowReplies] = useState(false);
+
+  const isLoggedIn = !!userInfo;
+  const {
+    data: favorite_items,
+    isLoading: favorite_loading,
+    error: favorite_error,
+    refetch: reload_fav,
+  } = useGetFavoriteItemsQuery(
     {
-      id: '1',
-      text: 'Great point! I completely agree with your perspective.',
-      created_at: new Date(Date.now() - 3600000).toISOString(),
-      user: {
-        username: 'user123',
-        profile_image: null,
-        location: { region: 'New York', district: 'Manhattan' }
-      }
+      token: token,
     },
-    {
-      id: '2',
-      text: 'Thanks for sharing this information. Very helpful!',
-      created_at: new Date(Date.now() - 7200000).toISOString(),
-      user: {
-        username: 'traveler45',
-        profile_image: null,
-        location: { region: 'California', district: 'San Francisco' }
-      }
-    }
-  ]);
+    { skip: !isLoggedIn }
+  ); // Skip query if user is not logged in
+
+  const [likeComment, { isLoading: create_loading_like }] =
+    useLikeCommentMutation();
+  const [dislikeComment, { isLoading: create_loading_dislike }] =
+    useUnlikeCommentMutation();
+  // Mock replies data
+  const liked_items: ServiceRes = favorite_items as ServiceRes;
+
   const handleLikeComment = async () => {
     try {
       const token = userInfo?.token;
@@ -94,24 +121,39 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment }) => {
     setLiked(!liked);
   };
 
-  const handleReplySubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (replyText.trim()) {
-      const newReply: Reply = {
-        id: Date.now().toString(),
+  const handleReplySubmit = async () => {
+    if (!replyText.trim()) {
+      toast.info("Please enter a reply first");
+      return;
+    }
+
+    try {
+      const response = await createReply({
         text: replyText,
-        created_at: new Date().toISOString(),
-        user: {
-          username: 'currentUser', // This would be the logged-in user
-          profile_image: null,
-          location: { region: 'Your Region', district: 'Your District' }
-        }
-      };
-      setReplies([...replies, newReply]);
-      setReplyText('');
+        commentId: comment.id,
+        token,
+      });
+      if (response.data) {
+        toast.success("Comment created successfully");
+        refetch();
+        setReplyText("");
+      } else {
+        toast.error("Error occurred during the creation");
+      }
+      setReplyText("");
       setShowReplyForm(false);
       setShowReplies(true);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || "Error while creating comment");
+      } else {
+        toast.error("An unknown error occurred");
+      }
     }
+  };
+  const submitFormHandler = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    handleReplySubmit();
   };
 
   return (
@@ -133,9 +175,7 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment }) => {
           )}
         </div>
         <div>
-          <p className="font-medium text-gray-800">
-            {comment.user.username}
-          </p>
+          <p className="font-medium text-gray-800">{comment.user.username}</p>
           <p className="text-xs text-gray-500">
             {comment.user.location
               ? `${comment.user.location.region}, ${comment.user.location.district}`
@@ -146,53 +186,64 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment }) => {
           {new Date(comment.created_at).toLocaleString()}
         </div>
       </div>
-      
+
       <p className="text-gray-700 mb-4">{comment.text}</p>
-      
+
       <div className="flex items-center gap-6 text-sm pb-3 border-b border-gray-100">
-        <button 
-          className={`flex items-center gap-1 ${liked ? ' text-blue-700' : ' text-gray-700'}  transition-colors`}
+        <button
+          className={`flex items-center gap-1 ${
+            liked ? " text-blue-700" : " text-gray-700"
+          }  transition-colors`}
           onClick={handleLikeComment}
         >
           <FaThumbsUp /> <span>{likeCount}</span>
         </button>
-        
-        <button 
+        <button
           className="flex items-center gap-1 text-gray-500 hover:text-blue-500 transition-colors"
           onClick={() => setShowReplyForm(!showReplyForm)}
         >
           <FaReply /> <span>Reply</span>
         </button>
-        
+
         {replies.length > 0 && (
-          <button 
+          <button
             className="flex items-center gap-1 text-gray-500 hover:text-blue-500 transition-colors ml-auto"
             onClick={() => setShowReplies(!showReplies)}
           >
             <span>{replies.length} replies</span>
-            {showReplies ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
+            {showReplies ? (
+              <FaChevronUp size={12} />
+            ) : (
+              <FaChevronDown size={12} />
+            )}
           </button>
         )}
       </div>
-      
+
       {showReplyForm && (
-        <form onSubmit={handleReplySubmit} className="mt-3 mb-3">
+        <form onSubmit={submitFormHandler} className="mt-3 mb-3">
           <textarea
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
             rows={2}
             placeholder="Write a reply..."
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleReplySubmit();
+              }
+            }}
           />
           <div className="flex justify-end gap-2 mt-2">
-            <button 
+            <button
               type="button"
               className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
               onClick={() => setShowReplyForm(false)}
             >
               Cancel
             </button>
-            <button 
+            <button
               type="submit"
               className="px-4 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
               disabled={!replyText.trim()}
@@ -202,9 +253,9 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment }) => {
           </div>
         </form>
       )}
-      
+
       {showReplies && replies.length > 0 && (
-        <MainReply replies={replies} showReplies={showReplies}/>
+        <MainReply replies={replies} showReplies={showReplies} />
       )}
     </div>
   );
