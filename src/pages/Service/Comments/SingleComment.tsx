@@ -26,6 +26,7 @@ import { RootState } from "@store/index";
 import { toast } from "react-toastify";
 import { useGetFavoriteItemsQuery } from "@store/slices/productsApiSlice";
 import { ServiceRes } from "@pages/Profile/MainProfile";
+import { useTranslation } from "react-i18next";
 
 interface SingleCommentProps {
   comment: Comment;
@@ -68,6 +69,7 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment, onCommentUpdated
   const [editedText, setEditedText] = useState(comment.text);
   const [showOptions, setShowOptions] = useState(false);
   const optionsRef = React.useRef<HTMLDivElement>(null);
+     const { t, i18n } = useTranslation();
   
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
 
@@ -138,19 +140,15 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment, onCommentUpdated
       });
 
       if (response.data) {
-        toast.success("Comment liked successfully", { autoClose: 1000 });
+        toast.success(t("comment_like_success"), { autoClose: 1000 });
         reload_fav();
       }
       
     } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error(error.message || "Error while liking comment", {
-          autoClose: 1000,
-        });
+          toast.error(t("comment_like_error"), { autoClose: 1000 });
       } else {
-        toast.error("An unknown error occurred", {
-          autoClose: 3000,
-        });
+         toast.error(t("unknown_error_message"), { autoClose: 1000 });
       }
     }
   };
@@ -163,25 +161,21 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment, onCommentUpdated
       });
 
       if (response.data) {
-        toast.success("Comment disliked successfully", { autoClose: 1000 });
+        toast.success(t("comment_dislike_success"), { autoClose: 1000 });
         reload_fav();
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error(error.message || "Error while disliking comment", {
-          autoClose: 1000,
-        });
+           toast.error(t("comment_dislike_error"), { autoClose: 1000 });
       } else {
-        toast.error("An unknown error occurred", {
-          autoClose: 3000,
-        });
+         toast.error(t("unknown_error_message"), { autoClose: 1000 });
       }
     }
   };
 
   const handleReplySubmit = async () => {
     if (!replyText.trim()) {
-      toast.info("Please enter a reply first");
+      toast.info(t("reply_info"));
       return;
     }
 
@@ -192,20 +186,20 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment, onCommentUpdated
         token,
       });
       if (response.data) {
-        toast.success("Reply added successfully");
+        toast.success(t("reply_success_message"),{autoClose: 2000});
         refetch();
         setReplyText("");
       } else {
-        toast.error("Error occurred during the creation");
+        toast.error(t("reply_error_message"),  {autoClose: 2000});
       }
       setReplyText("");
       setShowReplyForm(false);
       setShowReplies(true);
     } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error(error.message || "Error while creating reply");
+    toast.error(t("reply_error_message"), {autoClose: 2000});
       } else {
-        toast.error("An unknown error occurred");
+         toast.error(t("unknown_error_message"), { autoClose: 1000 });
       }
     }
   };
@@ -225,27 +219,27 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment, onCommentUpdated
       });
 
       if (response.data) {
-        toast.success("Comment updated successfully");
+        toast.success(t("comment_update_success"),{autoClose: 2000});
         if (onCommentUpdated)
         {
           onCommentUpdated()
         }
         setIsEditing(false);
       } else {
-        toast.error("Error updating comment");
+        toast.error(t("comment_update_error"),{autoClose: 2000});
         setEditedText(comment.text); // Reset to original text
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error(error.message || "Error while updating comment");
+        toast.error(t("comment_update_error"),{autoClose: 2000});
       } else {
-        toast.error("An unknown error occurred");
+         toast.error(t("unknown_error_message"), { autoClose: 1000 });
       }
       setEditedText(comment.text); // Reset to original text
     }
   };
 const handleDeleteComment = async () => {
-  const confirmed = window.confirm("Are you sure you want to delete this comment?");
+  const confirmed = window.confirm(t("delete_confirmation_message"));
   if (!confirmed) return;
 
   try {
@@ -256,16 +250,16 @@ const handleDeleteComment = async () => {
     });
 
     if (response) {
-      toast.success("Comment deleted successfully");
+      toast.success(t("comment_delete_success"), {autoClose: 2000});
       onCommentUpdated?.(); // optional chaining, cleaner
     } else {
-      toast.error("Error deleting comment");
+      toast.error(t("comment_delete_error"), {autoClose: 2000});
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      toast.error(error.message || "Error while deleting comment");
+      toast.error(t("comment_delete_error"), {autoClose: 2000});
     } else {
-      toast.error("An unknown error occurred");
+         toast.error(t("unknown_error_message"), { autoClose: 1000 });
     }
   }
 };
@@ -324,7 +318,7 @@ const handleDeleteComment = async () => {
                     setShowOptions(false);
                   }}
                 >
-                  <FaEdit size={14} /> Edit
+                  <FaEdit size={14} /> {t("edit_label")}
                 </button>
                 <button
                   className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
@@ -333,7 +327,7 @@ const handleDeleteComment = async () => {
                     setShowOptions(false);
                   }}
                 >
-                  <FaTrash size={14} /> Delete
+                  <FaTrash size={14} /> {t("delete_label")}
                 </button>
               </div>
             )}
@@ -359,7 +353,7 @@ const handleDeleteComment = async () => {
                 setEditedText(comment.text); // Reset to original text
               }}
             >
-              Cancel
+              {t("cancel_btn_label")}
             </button>
             <button
               type="button"
@@ -367,7 +361,7 @@ const handleDeleteComment = async () => {
               onClick={handleEditComment}
               disabled={updateLoading || !editedText.trim() || editedText === comment.text}
             >
-              Save
+               {t("save_label")}
             </button>
           </div>
         </div>
@@ -382,7 +376,7 @@ const handleDeleteComment = async () => {
               onClick={handleDislikeComment}
               disabled={dislikeLoading}
             >
-              <FaThumbsUp /> Unlike
+              <FaThumbsUp /> 
             </button>
           ) : (
             <button
@@ -390,14 +384,14 @@ const handleDeleteComment = async () => {
               onClick={handleLikeComment}
               disabled={likeLoading}
             >
-              <FaRegThumbsUp /> Like
+              <FaRegThumbsUp /> 
             </button>
           )}
         <button
           className="flex items-center gap-1 text-gray-500 hover:text-blue-500 transition-colors"
           onClick={() => setShowReplyForm(!showReplyForm)}
         >
-          <FaReply /> <span>Reply</span>
+          <FaReply /> <span> {t("reply_label")}</span>
         </button>
 
         {replies.length > 0 && (
@@ -405,7 +399,7 @@ const handleDeleteComment = async () => {
             className="flex items-center gap-1 text-gray-500 hover:text-blue-500 transition-colors ml-auto"
             onClick={() => setShowReplies(!showReplies)}
           >
-            <span>{replies.length} replies</span>
+            <span>{replies.length}  {t("reply_title")}</span>
             {showReplies ? (
               <FaChevronUp size={12} />
             ) : (
@@ -420,7 +414,7 @@ const handleDeleteComment = async () => {
           <textarea
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
             rows={2}
-            placeholder="Write a reply..."
+            placeholder={t("reply_placeholder")}
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
             onKeyDown={(e) => {
@@ -436,14 +430,14 @@ const handleDeleteComment = async () => {
               className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
               onClick={() => setShowReplyForm(false)}
             >
-              Cancel
+              {t("cancel_btn_label")}
             </button>
             <button
               type="submit"
               className="px-4 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
               disabled={!replyText.trim() || create_loading}
             >
-              Reply
+             {t("reply_label")}
             </button>
           </div>
         </form>

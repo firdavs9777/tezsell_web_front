@@ -118,6 +118,26 @@
   "unknownError": "При создании услуги произошла неизвестная ошибка",
   "submit": "Отправить",
     "select_category": "Выберите категорию", 
-  "select_condition": "Выберите состояние (Новое/Б/У)"
+  "select_condition": "Выберите состояние (Новое/Б/У)",
+   "no_comments": "Комментариев пока нет. Будьте первым, кто оставит комментарий!",
+  "comment_like_success": "Комментарий успешно понравился",
+  "comment_like_error": "Ошибка при попытке поставить лайк комментарию",
+  "unknown_error_message": "Произошла неизвестная ошибка",
+  "comment_dislike_success": "Комментарий успешно дизлайкнут",
+  "comment_dislike_error": "Ошибка при дизлайке комментария",
+  "reply_info": "Сначала введите ответ",
+  "reply_success_message": "Ответ успешно добавлен",
+  "reply_error_message": "Произошла ошибка при создании ответа",
+  "comment_update_success": "Комментарий успешно обновлён",
+  "comment_update_error": "Ошибка при обновлении комментария",
+  "delete_confirmation_message": "Вы уверены, что хотите удалить этот комментарий?",
+  "comment_delete_success": "Комментарий успешно удалён",
+  "comment_delete_error": "Ошибка при удалении комментария",
+  "edit_label": "Редактировать",
+  "delete_label": "Удалить",
+  "save_label": "Сохранить",
+  "reply_label": "Ответить",
+  "reply_title": "ответы",
+      "reply_placeholder": "Напишите ответ..."
 
 }

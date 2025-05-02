@@ -118,8 +118,27 @@
   "unknownError": "Xizmatni yaratishda noma'lum xatolik yuz berdi",
   "submit": "Yuklash",
     "select_category": "Kategoriya tanlang",
-    "select_condition": "Holatini tanlang"
-
+    "select_condition": "Holatini tanlang",
+  "no_comments": "Hozircha izoh yo‘q. Birinchi bo‘lib izoh qoldiring!",
+  "comment_like_success": "Izoh muvaffaqiyatli yoqdi deb belgilandi",
+  "comment_like_error": "Izohni yoqish vaqtida xatolik yuz berdi",
+  "unknown_error_message": "Nomaʼlum xatolik yuz berdi",
+  "comment_dislike_success": "Izoh muvaffaqiyatli yoqmaydi deb belgilandi",
+  "comment_dislike_error": "Izohni yoqmaydi deb belgilashda xatolik yuz berdi",
+  "reply_info": "Iltimos, avval javobni kiriting",
+  "reply_success_message": "Javob muvaffaqiyatli qo‘shildi",
+  "reply_error_message": "Javobni yaratishda xatolik yuz berdi",
+  "comment_update_success": "Izoh muvaffaqiyatli yangilandi",
+  "comment_update_error": "Izohni yangilashda xatolik yuz berdi",
+  "delete_confirmation_message": "Ushbu izohni o‘chirib tashlamoqchimisiz?",
+  "comment_delete_success": "Izoh muvaffaqiyatli o‘chirildi",
+  "comment_delete_error": "Izohni o‘chirishda xatolik yuz berdi",
+  "edit_label": "Tahrirlash",
+  "delete_label": "O‘chirish",
+  "save_label": "Saqlash",
+  "reply_label": "Javob berish",
+  "reply_title": "javoblar",
+  "reply_placeholder": "Javob yozing..."
 
 
 }

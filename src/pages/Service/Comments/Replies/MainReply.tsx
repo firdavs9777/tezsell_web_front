@@ -4,10 +4,10 @@ import { Reply } from "../SingleComment";
 
 interface MainReplyProps {
   replies: Reply[];
-  showReplies: boolean;
+  showReplies?: boolean;
 }
 
-const MainReply: React.FC<MainReplyProps> = ({ replies, showReplies }) => {
+const MainReply: React.FC<MainReplyProps> = ({ replies }) => {
   return (
     <div className="mt-3 pl-6 border-l-2 border-gray-100">
       {replies?.map((reply) => (

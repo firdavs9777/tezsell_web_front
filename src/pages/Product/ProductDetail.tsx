@@ -318,9 +318,6 @@ const ProductDetail = () => {
             </button>
           </div>
 
-          <div className="flex items-center gap-2 mt-2 text-blue-600 font-semibold">
-            <FaThumbsUp /> {singleProduct.product.likeCount}
-          </div>
         </div>
       </div>
 
