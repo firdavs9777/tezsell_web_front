@@ -7,6 +7,9 @@ import {
   FaChevronUp,
   FaThumbsUp,
   FaRegThumbsUp,
+  FaEllipsisV,
+  FaEdit,
+  FaTrash,
 } from "react-icons/fa";
 import { BASE_URL } from "@store/constants";
 import MainReply from "./Replies/MainReply";
@@ -15,6 +18,8 @@ import {
   useGetRepliesQuery,
   useLikeCommentMutation,
   useUnlikeCommentMutation,
+  // useUpdateCommentMutation,
+  // useDeleteCommentMutation,
 } from "@store/slices/commentApiSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "@store/index";
@@ -24,11 +29,19 @@ import { ServiceRes } from "@pages/Profile/MainProfile";
 
 interface SingleCommentProps {
   comment: Comment;
+  onCommentDeleted?: () => void;
 }
+
 interface ReplyResponse {
   success: boolean;
   count: number;
   data: Reply[];
+}
+
+// Type for liked comments from API response
+interface LikedComment {
+  id: number;
+  // Add other properties as needed
 }
 
 // Fake reply type structure
@@ -47,11 +60,14 @@ export interface Reply {
   };
 }
 
-const SingleComment: React.FC<SingleCommentProps> = ({ comment }) => {
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 20));
+const SingleComment: React.FC<SingleCommentProps> = ({ comment, onCommentDeleted }) => {
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [replyText, setReplyText] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedText, setEditedText] = useState(comment.text);
+  const [showOptions, setShowOptions] = useState(false);
+  const optionsRef = React.useRef<HTMLDivElement>(null);
+  
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
 
   const token = userInfo?.token;
@@ -64,10 +80,14 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment }) => {
   const repliesResponse = data as ReplyResponse | undefined;
   const replies: Reply[] = repliesResponse?.data || [];
   const [createReply, { isLoading: create_loading }] = useCreateReplyMutation();
+  // const [updateComment, { isLoading: updateLoading }] = useUpdateCommentMutation();
+  // const [deleteComment, { isLoading: deleteLoading }] = useDeleteCommentMutation();
 
   const [showReplies, setShowReplies] = useState(false);
 
   const isLoggedIn = !!userInfo;
+  const isCommentOwner = userInfo?.user_info?.id === comment.user.id;
+  
   const {
     data: favorite_items,
     isLoading: favorite_loading,
@@ -80,20 +100,40 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment }) => {
     { skip: !isLoggedIn }
   ); // Skip query if user is not logged in
 
-  const [likeComment, { isLoading: create_loading_like }] =
-    useLikeCommentMutation();
-  const [dislikeComment, { isLoading: create_loading_dislike }] =
-    useUnlikeCommentMutation();
-  // Mock replies data
-  const liked_items: ServiceRes = favorite_items as ServiceRes;
-  console.log(liked_items)
+  const [likeComment, { isLoading: likeLoading }] = useLikeCommentMutation();
+  const [dislikeComment, { isLoading: dislikeLoading }] = useUnlikeCommentMutation();
+  
+  // Type assertion for favorite_items
+  const likedItemsData = favorite_items as ServiceRes | undefined;
+  
+  // Check if the current comment is liked by the user
+  const isCommentLiked = React.useMemo(() => {
+    if (!likedItemsData?.liked_comments) return false;
+    
+    // Use type assertion to ensure correct type
+    const likedComments = likedItemsData.liked_comments as unknown as LikedComment[];
+    return likedComments.some(item => item.id === comment.id);
+  }, [likedItemsData?.liked_comments, comment.id]);
+
+  // Handle clicking outside of the options menu to close it
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (optionsRef.current && !optionsRef.current.contains(event.target as Node)) {
+        setShowOptions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleLikeComment = async () => {
     try {
-      const token = userInfo?.token;
       const response = await likeComment({
         commentId: comment.id,
-        token: token,
+        token,
       });
 
       if (response.data) {
@@ -103,22 +143,22 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment }) => {
       
     } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error(error.message || "Error while creating product", {
+        toast.error(error.message || "Error while liking comment", {
           autoClose: 1000,
         });
       } else {
-        toast.error("An unknown error occurred while creating the product", {
+        toast.error("An unknown error occurred", {
           autoClose: 3000,
         });
       }
     }
   };
+  
   const handleDislikeComment = async () => {
     try {
-      const token = userInfo?.token;
       const response = await dislikeComment({
         commentId: comment.id,
-        token: token,
+        token,
       });
 
       if (response.data) {
@@ -127,11 +167,11 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment }) => {
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error(error.message || "Error while liking comment", {
+        toast.error(error.message || "Error while disliking comment", {
           autoClose: 1000,
         });
       } else {
-        toast.error("An unknown error occurred while creating the product", {
+        toast.error("An unknown error occurred", {
           autoClose: 3000,
         });
       }
@@ -151,7 +191,7 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment }) => {
         token,
       });
       if (response.data) {
-        toast.success("Comment created successfully");
+        toast.success("Reply added successfully");
         refetch();
         setReplyText("");
       } else {
@@ -162,12 +202,69 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment }) => {
       setShowReplies(true);
     } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error(error.message || "Error while creating comment");
+        toast.error(error.message || "Error while creating reply");
       } else {
         toast.error("An unknown error occurred");
       }
     }
   };
+  
+  // const handleEditComment = async () => {
+  //   if (!editedText.trim() || editedText === comment.text) {
+  //     setIsEditing(false);
+  //     return;
+  //   }
+
+  //   try {
+  //     const response = await updateComment({
+  //       commentId: comment.id,
+  //       text: editedText,
+  //       token,
+  //     });
+
+  //     if (response.data) {
+  //       toast.success("Comment updated successfully");
+  //       setIsEditing(false);
+  //     } else {
+  //       toast.error("Error updating comment");
+  //       setEditedText(comment.text); // Reset to original text
+  //     }
+  //   } catch (error: unknown) {
+  //     if (error instanceof Error) {
+  //       toast.error(error.message || "Error while updating comment");
+  //     } else {
+  //       toast.error("An unknown error occurred");
+  //     }
+  //     setEditedText(comment.text); // Reset to original text
+  //   }
+  // };
+
+  // const handleDeleteComment = async () => {
+  //   if (window.confirm("Are you sure you want to delete this comment?")) {
+  //     try {
+  //       const response = await deleteComment({
+  //         commentId: comment.id,
+  //         token,
+  //       });
+
+  //       if (response.data) {
+  //         toast.success("Comment deleted successfully");
+  //         if (onCommentDeleted) {
+  //           onCommentDeleted(); // Notify parent component to refresh comments list
+  //         }
+  //       } else {
+  //         toast.error("Error deleting comment");
+  //       }
+  //     } catch (error: unknown) {
+  //       if (error instanceof Error) {
+  //         toast.error(error.message || "Error while deleting comment");
+  //       } else {
+  //         toast.error("An unknown error occurred");
+  //       }
+  //     }
+  //   }
+  // };
+  
   const submitFormHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     handleReplySubmit();
@@ -202,30 +299,95 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment }) => {
         <div className="ml-auto text-xs text-gray-500">
           {new Date(comment.created_at).toLocaleString()}
         </div>
+        
+        {/* Comment options menu for edit/delete */}
+        {isCommentOwner && (
+          <div className="relative ml-2" ref={optionsRef}>
+            <button 
+              className="text-gray-500 hover:text-gray-700 ml-2"
+              onClick={() => setShowOptions(!showOptions)}
+            >
+              <FaEllipsisV size={16} />
+            </button>
+            
+            {showOptions && (
+              <div className="absolute right-0 top-6 bg-white shadow-lg rounded-md border border-gray-200 z-10 w-32">
+                <button
+                  className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
+                  onClick={() => {
+                    setIsEditing(true);
+                    setShowOptions(false);
+                  }}
+                >
+                  <FaEdit size={14} /> Edit
+                </button>
+                <button
+                  className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
+                  onClick={() => {
+                    // handleDeleteComment();
+                    setShowOptions(false);
+                  }}
+                >
+                  <FaTrash size={14} /> Delete
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      <p className="text-gray-700 mb-4">{comment.text}</p>
+      {/* Comment text or edit form */}
+      {isEditing ? (
+        <div className="mb-4">
+          <textarea
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
+            rows={3}
+            value={editedText}
+            onChange={(e) => setEditedText(e.target.value)}
+          />
+          <div className="flex justify-end gap-2 mt-2">
+            <button
+              type="button"
+              className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
+              onClick={() => {
+                setIsEditing(false);
+                setEditedText(comment.text); // Reset to original text
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="px-4 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
+              // onClick={handleEditComment}
+              // disabled={updateLoading || !editedText.trim() || editedText === comment.text}
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      ) : (
+        <p className="text-gray-700 mb-4">{comment.text}</p>
+      )}
 
       <div className="flex items-center gap-6 text-sm pb-3 border-b border-gray-100">
-  
-        {liked_items?.liked_comments?.some(
-  (item: Comment) => item.id === comment.id
-) ? (
-  <button
-    className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-    onClick={handleDislikeComment}
-  >
-    <FaThumbsUp /> 
-  </button>
-) : (
-  <button
-    className="flex items-center gap-2 bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
-    onClick={handleLikeComment}
-  >
-    <FaRegThumbsUp /> 
-  </button>
-)}
-        
+          {isCommentLiked ? (
+            <button
+              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              onClick={handleDislikeComment}
+              disabled={dislikeLoading}
+            >
+              <FaThumbsUp /> Unlike
+            </button>
+          ) : (
+            <button
+              className="flex items-center gap-2 bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
+              onClick={handleLikeComment}
+              disabled={likeLoading}
+            >
+              <FaRegThumbsUp /> Like
+            </button>
+          )}
         <button
           className="flex items-center gap-1 text-gray-500 hover:text-blue-500 transition-colors"
           onClick={() => setShowReplyForm(!showReplyForm)}
@@ -274,7 +436,7 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment }) => {
             <button
               type="submit"
               className="px-4 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
-              disabled={!replyText.trim()}
+              disabled={!replyText.trim() || create_loading}
             >
               Reply
             </button>
