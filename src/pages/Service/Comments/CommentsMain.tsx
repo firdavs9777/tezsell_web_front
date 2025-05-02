@@ -4,16 +4,17 @@ import SingleComment from './SingleComment';
 
 interface CommentsMainProps {
   comments: Comment[];
+   refetch: () => void; 
 }
 
-const CommentsMain: React.FC<CommentsMainProps> = ({ comments }) => {
+const CommentsMain: React.FC<CommentsMainProps> = ({ comments, refetch}) => {
   return (
     <div className="mb-6">
       <div className="max-h-96 overflow-y-auto pr-2 custom-scrollbar">
         {comments.length ? (
           <div className="space-y-4">
             {comments.map((comment, index) => (
-              <SingleComment key={index} comment={comment} />
+              <SingleComment key={index} comment={comment} onCommentUpdated={refetch} />
             ))}
           </div>
         ) : (

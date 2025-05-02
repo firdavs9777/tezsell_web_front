@@ -18,8 +18,8 @@ import {
   useGetRepliesQuery,
   useLikeCommentMutation,
   useUnlikeCommentMutation,
-  // useUpdateCommentMutation,
-  // useDeleteCommentMutation,
+  useUpdateCommentItemMutation,
+  useDeleteCommentItemMutation,
 } from "@store/slices/commentApiSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "@store/index";
@@ -29,6 +29,7 @@ import { ServiceRes } from "@pages/Profile/MainProfile";
 
 interface SingleCommentProps {
   comment: Comment;
+  onCommentUpdated?: () => void;
   onCommentDeleted?: () => void;
 }
 
@@ -60,7 +61,7 @@ export interface Reply {
   };
 }
 
-const SingleComment: React.FC<SingleCommentProps> = ({ comment, onCommentDeleted }) => {
+const SingleComment: React.FC<SingleCommentProps> = ({ comment, onCommentUpdated }) => {
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -80,8 +81,8 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment, onCommentDeleted
   const repliesResponse = data as ReplyResponse | undefined;
   const replies: Reply[] = repliesResponse?.data || [];
   const [createReply, { isLoading: create_loading }] = useCreateReplyMutation();
-  // const [updateComment, { isLoading: updateLoading }] = useUpdateCommentMutation();
-  // const [deleteComment, { isLoading: deleteLoading }] = useDeleteCommentMutation();
+  const [updateComment, { isLoading: updateLoading }] = useUpdateCommentItemMutation();
+  const [deleteComment, { isLoading: deleteLoading }] = useDeleteCommentItemMutation();
 
   const [showReplies, setShowReplies] = useState(false);
 
@@ -209,62 +210,66 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment, onCommentDeleted
     }
   };
   
-  // const handleEditComment = async () => {
-  //   if (!editedText.trim() || editedText === comment.text) {
-  //     setIsEditing(false);
-  //     return;
-  //   }
+  const handleEditComment = async () => {
+    if (!editedText.trim() || editedText === comment.text) {
+      setIsEditing(false);
+      return;
+    }
 
-  //   try {
-  //     const response = await updateComment({
-  //       commentId: comment.id,
-  //       text: editedText,
-  //       token,
-  //     });
+    try {
+      const response = await updateComment({
+        serviceId: comment.service_id,
+        commentId: comment.id,
+        text: editedText,
+        token,
+      });
 
-  //     if (response.data) {
-  //       toast.success("Comment updated successfully");
-  //       setIsEditing(false);
-  //     } else {
-  //       toast.error("Error updating comment");
-  //       setEditedText(comment.text); // Reset to original text
-  //     }
-  //   } catch (error: unknown) {
-  //     if (error instanceof Error) {
-  //       toast.error(error.message || "Error while updating comment");
-  //     } else {
-  //       toast.error("An unknown error occurred");
-  //     }
-  //     setEditedText(comment.text); // Reset to original text
-  //   }
-  // };
+      if (response.data) {
+        toast.success("Comment updated successfully");
+        if (onCommentUpdated)
+        {
+          onCommentUpdated()
+        }
+        setIsEditing(false);
+      } else {
+        toast.error("Error updating comment");
+        setEditedText(comment.text); // Reset to original text
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || "Error while updating comment");
+      } else {
+        toast.error("An unknown error occurred");
+      }
+      setEditedText(comment.text); // Reset to original text
+    }
+  };
+const handleDeleteComment = async () => {
+  const confirmed = window.confirm("Are you sure you want to delete this comment?");
+  if (!confirmed) return;
 
-  // const handleDeleteComment = async () => {
-  //   if (window.confirm("Are you sure you want to delete this comment?")) {
-  //     try {
-  //       const response = await deleteComment({
-  //         commentId: comment.id,
-  //         token,
-  //       });
+  try {
+    const response = await deleteComment({
+      serviceId: comment.service_id,
+      commentId: comment.id,
+      token,
+    });
 
-  //       if (response.data) {
-  //         toast.success("Comment deleted successfully");
-  //         if (onCommentDeleted) {
-  //           onCommentDeleted(); // Notify parent component to refresh comments list
-  //         }
-  //       } else {
-  //         toast.error("Error deleting comment");
-  //       }
-  //     } catch (error: unknown) {
-  //       if (error instanceof Error) {
-  //         toast.error(error.message || "Error while deleting comment");
-  //       } else {
-  //         toast.error("An unknown error occurred");
-  //       }
-  //     }
-  //   }
-  // };
-  
+    if (response) {
+      toast.success("Comment deleted successfully");
+      onCommentUpdated?.(); // optional chaining, cleaner
+    } else {
+      toast.error("Error deleting comment");
+    }
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      toast.error(error.message || "Error while deleting comment");
+    } else {
+      toast.error("An unknown error occurred");
+    }
+  }
+};
+
   const submitFormHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     handleReplySubmit();
@@ -324,7 +329,7 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment, onCommentDeleted
                 <button
                   className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
                   onClick={() => {
-                    // handleDeleteComment();
+                    handleDeleteComment();
                     setShowOptions(false);
                   }}
                 >
@@ -359,8 +364,8 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment, onCommentDeleted
             <button
               type="button"
               className="px-4 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
-              // onClick={handleEditComment}
-              // disabled={updateLoading || !editedText.trim() || editedText === comment.text}
+              onClick={handleEditComment}
+              disabled={updateLoading || !editedText.trim() || editedText === comment.text}
             >
               Save
             </button>

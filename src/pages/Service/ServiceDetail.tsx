@@ -401,7 +401,7 @@ const ServiceDetail = () => {
         {isLoggedIn ? (
           <>
             {/* Comments list - Shown only to logged in users */}
-            <CommentsMain comments={comments} />
+            <CommentsMain comments={comments} refetch={reload} />
 
             {/* Comment form */}
             <div className="bg-gray-50 rounded-lg p-4">
