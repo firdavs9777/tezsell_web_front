@@ -20,6 +20,7 @@ export interface Location {
 }
 
 export interface Comment {
+  service_id?: number;
   id: number;
   user: User;
   text: string;

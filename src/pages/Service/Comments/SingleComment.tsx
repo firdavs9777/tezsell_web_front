@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { Comment } from "@store/type";
 import {
   FaUser,
-  FaHeart,
   FaReply,
   FaChevronDown,
   FaChevronUp,
   FaThumbsUp,
+  FaRegThumbsUp,
 } from "react-icons/fa";
 import { BASE_URL } from "@store/constants";
 import MainReply from "./Replies/MainReply";
@@ -86,6 +86,7 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment }) => {
     useUnlikeCommentMutation();
   // Mock replies data
   const liked_items: ServiceRes = favorite_items as ServiceRes;
+  console.log(liked_items)
 
   const handleLikeComment = async () => {
     try {
@@ -97,9 +98,9 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment }) => {
 
       if (response.data) {
         toast.success("Comment liked successfully", { autoClose: 1000 });
-        // refetch();
-        // reload();
+        reload_fav();
       }
+      
     } catch (error: unknown) {
       if (error instanceof Error) {
         toast.error(error.message || "Error while creating product", {
@@ -112,13 +113,29 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment }) => {
       }
     }
   };
-  const handleLike = () => {
-    if (liked) {
-      setLikeCount(likeCount - 1);
-    } else {
-      setLikeCount(likeCount + 1);
+  const handleDislikeComment = async () => {
+    try {
+      const token = userInfo?.token;
+      const response = await dislikeComment({
+        commentId: comment.id,
+        token: token,
+      });
+
+      if (response.data) {
+        toast.success("Comment disliked successfully", { autoClose: 1000 });
+        reload_fav();
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || "Error while liking comment", {
+          autoClose: 1000,
+        });
+      } else {
+        toast.error("An unknown error occurred while creating the product", {
+          autoClose: 3000,
+        });
+      }
     }
-    setLiked(!liked);
   };
 
   const handleReplySubmit = async () => {
@@ -190,14 +207,25 @@ const SingleComment: React.FC<SingleCommentProps> = ({ comment }) => {
       <p className="text-gray-700 mb-4">{comment.text}</p>
 
       <div className="flex items-center gap-6 text-sm pb-3 border-b border-gray-100">
-        <button
-          className={`flex items-center gap-1 ${
-            liked ? " text-blue-700" : " text-gray-700"
-          }  transition-colors`}
-          onClick={handleLikeComment}
-        >
-          <FaThumbsUp /> <span>{likeCount}</span>
-        </button>
+  
+        {liked_items?.liked_comments?.some(
+  (item: Comment) => item.id === comment.id
+) ? (
+  <button
+    className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+    onClick={handleDislikeComment}
+  >
+    <FaThumbsUp /> 
+  </button>
+) : (
+  <button
+    className="flex items-center gap-2 bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
+    onClick={handleLikeComment}
+  >
+    <FaRegThumbsUp /> 
+  </button>
+)}
+        
         <button
           className="flex items-center gap-1 text-gray-500 hover:text-blue-500 transition-colors"
           onClick={() => setShowReplyForm(!showReplyForm)}
