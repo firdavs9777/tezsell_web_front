@@ -114,6 +114,7 @@
   "maxImagesError": "Вы можете загрузить максимум 10 изображений",
   "categoryNotFound": "Категория не найдена",
   "productCreatedSuccess": "Продукт успешно создан",
+  "errorCreatingProduct":  "Ошибка при создании продукта",
   "errorCreatingService": "Ошибка при создании услуги",
   "unknownError": "При создании услуги произошла неизвестная ошибка",
   "submit": "Отправить",
@@ -138,6 +139,7 @@
   "save_label": "Сохранить",
   "reply_label": "Ответить",
   "reply_title": "ответы",
-      "reply_placeholder": "Напишите ответ..."
+      "reply_placeholder": "Напишите ответ...",
+      "sum": "Cум"
 
 }

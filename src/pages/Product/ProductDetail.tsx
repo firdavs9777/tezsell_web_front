@@ -26,6 +26,7 @@ import { RootState } from "../../store";
 import { toast } from "react-toastify";
 import MyProductEdit from "../Profile/ProductEdit";
 import { Chat, useCreateChatRoomMutation } from "../../store/slices/chatSlice";
+import { useTranslation } from "react-i18next";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -54,6 +55,7 @@ const ProductDetail = () => {
   const singleProduct: SingleProduct = data as SingleProduct;
   const [selectedImage, setSelectedImage] = useState("");
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Handle back navigation
   const handleGoBack = () => {
@@ -72,11 +74,11 @@ const ProductDetail = () => {
   };
 
   if (isLoading) {
-    return <div className="loading">Loading...</div>;
+    return <div className="loading">{t("loading")}</div>;
   }
 
   if (error) {
-    return <div className="error">Error Occurred...</div>;
+    return <div className="error">{t("verification_error")}</div>;
   }
 
   const handleImageClick = (image: string) => {
@@ -86,7 +88,6 @@ const ProductDetail = () => {
   const redirectHandler = (id: number) => {
     navigate(`/product/${id}`);
   };
-
   const handleLikeProduct = async () => {
     try {
       const token = userInfo?.token;
@@ -96,23 +97,22 @@ const ProductDetail = () => {
       });
 
       if (response.data) {
-        toast.success("Product liked successfully", { autoClose: 1000 });
+        toast.success(t("productLikeSuccess"), { autoClose: 3000 });
         refetch();
         reload();
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error(error.message || "Error while creating product", {
+        toast.error(error.message || t("like_product_error"), {
           autoClose: 1000,
         });
       } else {
-        toast.error("An unknown error occurred while creating the product", {
+        toast.error(t("unknown_error_message"), {
           autoClose: 3000,
         });
       }
     }
   };
-
   const handleDislikeProduct = async () => {
     try {
       const token = userInfo?.token;
@@ -122,17 +122,17 @@ const ProductDetail = () => {
       });
 
       if (response.data) {
-        toast.success("Product disliked successfully", { autoClose: 1000 });
+        toast.success(t("productDislikeSuccess"), { autoClose: 1000 });
         refetch();
         reload();
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error(error.message || "Error while creating product", {
+        toast.error(t("dislike_product_error"), {
           autoClose: 3000,
         });
       } else {
-        toast.error("An unknown error occurred while creating the product", {
+        toast.error(t("unknownError"), {
           autoClose: 3000,
         });
       }
@@ -151,17 +151,14 @@ const ProductDetail = () => {
   };
   const handleChat = async () => {
     if (!userInfo?.token || !userInfo?.user_info?.id) {
-      toast.error("You must be logged in to start a chat");
+      toast.error(t("chat_login_message"), { autoClose: 2000 });
       return;
     }
-
     try {
       const productOwnerId = singleProduct.product.userName.id;
       const currentUserId = userInfo.user_info.id;
-
-      // Avoid chatting with yourself
       if (currentUserId === productOwnerId) {
-        toast.info("You can't chat with yourself.");
+        toast.info(t("chat_yourself_message"), { autoClose: 2000 });
         return;
       }
 
@@ -176,13 +173,13 @@ const ProductDetail = () => {
       if ("data" in result) {
         const res = result.data as Chat;
         const chatId = res.id;
-        toast.success("Chat room created!");
+        toast.success(t("chat_room_message"), { autoClose: 2000 });
         navigate(`/chat/${chatId}`); // Redirect to chat page
       } else {
-        throw new Error("Failed to create chat");
+        toast.error(t("chat_room_error"), { autoClose: 2000 });
       }
     } catch (error: any) {
-      toast.error(error.message || "Chat creation failed");
+      toast.error(t("chat_creation_error"));
     }
   };
 

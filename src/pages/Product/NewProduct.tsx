@@ -1,5 +1,8 @@
 import React, { useState } from "react";
-import { useCreateProductMutation, useGetCategoryListQuery } from "@store/slices/productsApiSlice";
+import {
+  useCreateProductMutation,
+  useGetCategoryListQuery,
+} from "@store/slices/productsApiSlice";
 import { Category } from "@store/type";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
@@ -11,7 +14,8 @@ const NewProduct = () => {
   const navigate = useNavigate();
   const { data, isLoading, error } = useGetCategoryListQuery({});
   const category_list = data as Category[];
-  const [createProduct, { isLoading: create_loading }] = useCreateProductMutation();
+  const [createProduct, { isLoading: create_loading }] =
+    useCreateProductMutation();
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -21,14 +25,14 @@ const NewProduct = () => {
   const [condition, setCondition] = useState<string>("");
   const [category, setCategory] = useState<string>("");
   const [imageLength, setImageLength] = useState<number>(0);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
     const totalImages = imagePreviews.length + files.length;
     if (totalImages > 10) {
-      toast.error("You can upload a maximum of 10 images");
+      toast.error(t("maxImagesError"), { autoClose: 2000 });
       return;
     }
     const previews: string[] = [];
@@ -79,11 +83,11 @@ const NewProduct = () => {
   };
 
   if (isLoading) {
-    return <div>Loading....</div>;
+    return <div>{t("loading")}</div>;
   }
 
   if (create_loading) {
-    return <div>Creating....</div>;
+    return <div>{t("loading")}</div>;
   }
 
   const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -101,7 +105,6 @@ const NewProduct = () => {
     imageFiles.forEach((file) => {
       formData.append("images", file);
     });
-    
 
     formData.append("location_id", userInfo.user_info.location.id);
     formData.append("userName_id", userInfo.user_info.id);
@@ -114,7 +117,7 @@ const NewProduct = () => {
       const selectedCategoryId = selectedCategory.id;
       formData.append("category_id", selectedCategoryId.toString());
     } else {
-      toast.error("Category not found, select the category first", {
+      toast.error(t("categoryNotFound"), {
         autoClose: 3000,
       });
     }
@@ -123,17 +126,17 @@ const NewProduct = () => {
       const token = userInfo?.token;
       const response = await createProduct({ productData: formData, token });
       if (response.data) {
-        toast.success("Product created successfully", { autoClose: 3000 });
+        toast.success(t("productCreatedSuccess"), { autoClose: 2000 });
         navigate("/");
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error(error.message || "Error while creating product", {
-          autoClose: 3000,
+        toast.error(t("errorCreatingProduct"), {
+          autoClose: 2000,
         });
       } else {
-        toast.error("An unknown error occurred while creating the product", {
-          autoClose: 3000,
+        toast.error(t("unknown_error_message"), {
+          autoClose: 2000,
         });
       }
     }
@@ -141,11 +144,16 @@ const NewProduct = () => {
 
   return (
     <div className="bg-gray-50 p-6 md:p-8 lg:p-12">
-      <h1 className="text-3xl font-semibold text-center mb-6">{t("add_new_product_btn")}</h1>
+      <h1 className="text-3xl font-semibold text-center mb-6">
+        {t("add_new_product_btn")}
+      </h1>
       <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-lg">
         <form className="space-y-6" onSubmit={submitFormHandler}>
           <div className="flex flex-col space-y-2">
-            <label htmlFor="product-title" className="font-medium">{t("new_product_title")} *</label>
+            <label htmlFor="product-title" className="font-medium">
+              {t("new_product_title")}{" "}
+              <span className="text-red-500 text-lg font-bold">*</span>
+            </label>
             <input
               id="product-title"
               type="text"
@@ -158,7 +166,10 @@ const NewProduct = () => {
           </div>
 
           <div className="flex flex-col space-y-2">
-            <label htmlFor="product-description" className="font-medium">{t("new_product_description")} *</label>
+            <label htmlFor="product-description" className="font-medium">
+              {t("new_product_description")}{" "}
+              <span className="text-red-500 text-lg font-bold">*</span>
+            </label>
             <textarea
               id="product-description"
               placeholder={t("new_product_description")}
@@ -170,7 +181,10 @@ const NewProduct = () => {
           </div>
 
           <div className="flex flex-col space-y-2">
-            <label htmlFor="product-price" className="font-medium">{t("new_product_price")} *</label>
+            <label htmlFor="product-price" className="font-medium">
+              {t("new_product_price")}{" "}
+              <span className="text-red-500 text-lg font-bold">*</span>
+            </label>
             <div className="flex items-center space-x-2">
               <input
                 id="product-price"
@@ -181,12 +195,15 @@ const NewProduct = () => {
                 onChange={handlePriceChange}
                 className="border p-2 rounded-md w-full"
               />
-              <span>So'm</span>
+              <span>{t("sum")}</span>
             </div>
           </div>
 
           <div className="flex flex-col space-y-2">
-            <label htmlFor="product-condition" className="font-medium">{t("new_product_condition")} *</label>
+            <label htmlFor="product-condition" className="font-medium">
+              {t("new_product_condition")}
+              <span className="text-red-500 text-lg font-bold p-1">*</span>
+            </label>
             <select
               id="product-condition"
               required
@@ -203,7 +220,9 @@ const NewProduct = () => {
           </div>
 
           <div className="flex flex-col space-y-2">
-            <label htmlFor="product-category" className="font-medium">{t("new_product_category")}</label>
+            <label htmlFor="product-category" className="font-medium">
+              {t("new_product_category")}
+            </label>
             <select
               id="product-category"
               className="border p-2 rounded-md"
@@ -229,12 +248,18 @@ const NewProduct = () => {
 
           <div className="flex flex-col space-y-2">
             <label className="font-medium">
-              {t("new_product_images")} {imageLength > 0 ? `${imagePreviews.length}/10` : "0/10"}
+              {t("new_product_images")}{" "}
+              {imageLength > 0 ? `${imagePreviews.length}/10` : "0/10"}
+              <span className="text-red-500 text-lg font-bold p-1">*</span>
             </label>
             <div className="flex space-x-4 flex-wrap">
               {imagePreviews.map((preview, index) => (
                 <div key={index} className="relative w-20 h-20">
-                  <img src={preview} alt={`Preview ${index}`} className="object-cover w-full h-full rounded-md" />
+                  <img
+                    src={preview}
+                    alt={`Preview ${index}`}
+                    className="object-cover w-full h-full rounded-md"
+                  />
                   <button
                     type="button"
                     className="absolute top-0 right-0 text-white bg-black opacity-50 rounded-full w-6 h-6 flex items-center justify-center"
@@ -276,7 +301,6 @@ const NewProduct = () => {
               {t("submit")}
             </button>
           </div>
-
         </form>
       </div>
     </div>

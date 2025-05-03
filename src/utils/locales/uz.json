@@ -113,6 +113,7 @@
   "imageUploadHelper": "Rasm qo'shish uchun + belgisini bosing (maksimum 10 ta)",
   "maxImagesError": "Siz maksimum 10 ta rasm yuklay olasiz",
   "categoryNotFound": "Kategoriya topilmadi",
+  "errorCreatingProduct":  "Mahsulot yaratishda xatolik yuz berdi",
   "productCreatedSuccess": "Mahsulot muvaffaqiyatli yaratildi",
   "errorCreatingService": "Xizmatni yaratishda xatolik yuz berdi",
   "unknownError": "Xizmatni yaratishda noma'lum xatolik yuz berdi",
@@ -138,7 +139,6 @@
   "save_label": "Saqlash",
   "reply_label": "Javob berish",
   "reply_title": "javoblar",
-  "reply_placeholder": "Javob yozing..."
-
-
+  "reply_placeholder": "Javob yozing...",
+  "sum": "So'm"
 }
