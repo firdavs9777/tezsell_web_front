@@ -53,7 +53,9 @@ export interface User {
 export interface Category {
   id: number;
   key: string;
-  name: string;
+  name_uz: string;
+  name_ru: string;
+  name_en: string;
   icon: string;
 }
 
@@ -86,7 +88,9 @@ interface ProductImage {
 export interface Category {
   id: number;
   key: string;
-  name: string;
+  name_uz: string;
+  name_en: string;
+  name_ru: string;
 }
 export interface UserLocation {
   id: number;

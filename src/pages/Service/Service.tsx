@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useGetAllLocationListQuery } from "@store/slices/productsApiSlice";
 import {
   AllLocationList,
@@ -31,7 +31,7 @@ const ServiceScreen = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedDistrict, setSelectedtDistrict] = useState("");
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const toggleModal = () => setShowModal((prev) => !prev);
   const toggleLocationModal = () => setLocationModal((prev) => !prev);
@@ -51,6 +51,7 @@ const ServiceScreen = () => {
     currentPage,
     page_size: pageSize,
     category_name: selectedCategory,
+    lang: i18n.language,
     region_name: selectedRegion,
     district_name: selectedDistrict,
     service_name: searchServiceQuery,
@@ -59,6 +60,39 @@ const ServiceScreen = () => {
   const services = data as ServiceResponse;
   const location_info = all_location as AllLocationList;
   const categories = data_category as Category[];
+
+  // Use the current language to determine which category field to display
+  const currentLang = i18n.language;
+
+  const getCategoryName = (category: Category) => {
+    if (!category) return "";
+
+    // Make sure we have a valid category object
+    if (typeof category !== "object") return "";
+
+    switch (currentLang) {
+      case "uz":
+        return category.name_uz;
+      case "ru":
+        return category.name_ru;
+      case "en":
+      default:
+        return category.name_en;
+    }
+  };
+
+  // Filter categories based on search query
+  const filteredCategories = useMemo(() => {
+    if (!categories?.length) return [];
+
+    return categories.filter((c) => {
+      const categoryName = getCategoryName(c);
+      // Make sure categoryName is a string before calling toLowerCase()
+      return categoryName && typeof categoryName === "string"
+        ? categoryName.toLowerCase().includes(searchCategoryQuery.toLowerCase())
+        : false;
+    });
+  }, [categories, searchCategoryQuery, currentLang]);
 
   if (isLoading || isLoading_location || isLoading_category)
     return (
@@ -76,37 +110,42 @@ const ServiceScreen = () => {
       </div>
     );
 
-  const handleCategorySelect = (categoryName) => {
+  const handleCategorySelect = (categoryName: string) => {
     setSelectedCategory(categoryName);
     toggleModal();
   };
-  const handleLocationSelect = (regionName, districtName) => {
+
+  const handleLocationSelect = (regionName: string, districtName: string) => {
     setSelectedRegion(regionName);
     setSelectedtDistrict(districtName);
     toggleLocationModal();
   };
+
   const reloadSearch = () => refetch();
 
   const handleCategoryRemove = () => setSelectedCategory("");
+
   const handleLocationRemoveFilter = () => {
     setSelectedRegion("");
     setSelectedtDistrict("");
   };
+
   const handleFilterRemove = () => {
     setSelectedCategory("");
     setSelectedRegion("");
     setSelectedtDistrict("");
   };
+
   const handleNewServiceRedirect = () => {
     navigate("/new-service");
   };
 
   return (
     <div className="px-4 sm:px-6 md:px-8 lg:px-10 py-6 max-w-6xl mx-auto">
-      {/* Search bar section, more like ProductScreen */}
+      {/* Search bar section */}
       <div className="flex flex-col md:flex-row gap-3 md:items-center mb-6">
         <button
-          className="flex items-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-md transition duration-200"
+          className="flex items-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-md transition duration-200 shadow-sm"
           onClick={toggleLocationModal}
         >
           <FaLocationDot size={20} className="text-blue-600" />
@@ -114,7 +153,7 @@ const ServiceScreen = () => {
         </button>
 
         <button
-          className="flex items-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-md transition duration-200"
+          className="flex items-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-md transition duration-200 shadow-sm"
           onClick={toggleModal}
         >
           <BiCategory size={20} className="text-green-600" />
@@ -125,14 +164,18 @@ const ServiceScreen = () => {
           <input
             type="text"
             placeholder={t("search_service_placeholder")}
-            className="w-full h-12 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200"
+            className="w-full h-12 px-4 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200 shadow-sm"
             value={searchServiceQuery}
             onChange={(e) => setSearchServiceQuery(e.target.value)}
+          />
+          <IoSearch
+            size={20}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
           />
         </div>
 
         <button
-          className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition duration-200"
+          className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition duration-200 shadow-md"
           onClick={reloadSearch}
         >
           <IoSearch size={20} />
@@ -143,43 +186,52 @@ const ServiceScreen = () => {
       {/* Active Filters */}
       {(selectedCategory || (selectedRegion && selectedDistrict)) && (
         <div className="mb-6 space-y-2">
-          {selectedCategory && (
-            <div className="flex items-center justify-between bg-yellow-100 px-4 py-2 rounded-md">
-              <span>
-                {t("selected_category")} <strong>{selectedCategory}</strong>
-              </span>
-              <button
-                onClick={handleCategoryRemove}
-                className="ml-4 text-red-500 font-bold hover:text-red-700 transition duration-200"
-              >
-                X
-              </button>
-            </div>
-          )}
+          <div className="p-3 bg-blue-50 rounded-lg border border-blue-100 shadow-sm">
+            <div className="flex flex-wrap gap-2">
+              {selectedCategory && (
+                <div className="flex items-center bg-yellow-100 px-4 py-2 rounded-md shadow-sm">
+                  <span className="mr-2">
+                    {t("selected_category")}:{" "}
+                    <strong>{selectedCategory}</strong>
+                  </span>
+                  <button
+                    onClick={handleCategoryRemove}
+                    className="ml-2 w-6 h-6 flex items-center justify-center bg-red-100 text-red-500 rounded-full hover:bg-red-200 transition duration-200"
+                    aria-label="Remove category filter"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
 
-          {selectedRegion && selectedDistrict && (
-            <div className="flex items-center justify-between bg-pink-100 px-4 py-2 rounded-md">
-              <span>
-                {t("selected_location")} <strong>{selectedRegion}</strong> -{" "}
-                <strong>{selectedDistrict}</strong>
-              </span>
-              <button
-                onClick={handleLocationRemoveFilter}
-                className="ml-4 text-red-500 font-bold hover:text-red-700 transition duration-200"
-              >
-                X
-              </button>
+              {selectedRegion && selectedDistrict && (
+                <div className="flex items-center bg-pink-100 px-4 py-2 rounded-md shadow-sm">
+                  <span className="mr-2">
+                    {t("selected_location")}: <strong>{selectedRegion}</strong>{" "}
+                    - <strong>{selectedDistrict}</strong>
+                  </span>
+                  <button
+                    onClick={handleLocationRemoveFilter}
+                    className="ml-2 w-6 h-6 flex items-center justify-center bg-red-100 text-red-500 rounded-full hover:bg-red-200 transition duration-200"
+                    aria-label="Remove location filter"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
             </div>
-          )}
 
-          {(selectedRegion || selectedDistrict || selectedCategory) && (
-            <button
-              onClick={handleFilterRemove}
-              className="bg-red-100 hover:bg-red-200 text-sm px-4 py-1 rounded-md transition duration-200"
-            >
-              {t("clear_filters")}
-            </button>
-          )}
+            {(selectedRegion || selectedDistrict || selectedCategory) && (
+              <div className="mt-2">
+                <button
+                  onClick={handleFilterRemove}
+                  className="bg-red-100 hover:bg-red-200 text-red-600 text-sm px-4 py-1 rounded-md transition duration-200 shadow-sm"
+                >
+                  {t("clear_filters")}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -190,8 +242,8 @@ const ServiceScreen = () => {
             <SingleService key={service.id} service={service} />
           ))
         ) : (
-          <div className="col-span-full bg-gray-50 py-10 px-6 rounded-lg text-center">
-            <p className="text-gray-500">{t("service_error")}</p>
+          <div className="col-span-full bg-gray-50 py-12 px-6 rounded-lg text-center shadow-sm border border-gray-200">
+            <p className="text-gray-500 text-lg">{t("service_error")}</p>
           </div>
         )}
       </div>
@@ -207,23 +259,34 @@ const ServiceScreen = () => {
           />
         </div>
       )}
-      <div className="add-new-service" onClick={handleNewServiceRedirect}>
-        <FaPlus style={{ fontSize: "30px", color: "#333" }} />
+
+      {/* Add new service button */}
+      <div
+        className="fixed bottom-8 right-8 w-14 h-14 bg-blue-600 hover:bg-blue-700 rounded-full shadow-lg flex items-center justify-center cursor-pointer transition-all duration-200 transform hover:scale-110"
+        onClick={handleNewServiceRedirect}
+      >
+        <FaPlus className="text-white text-xl" />
       </div>
 
       {/* Location Modal */}
       <Modal isOpen={showLocationModal} onClose={toggleLocationModal}>
-        <h1 className="text-xl font-bold mb-4 text-gray-800">
+        <h1 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">
           {t("location_header")}
         </h1>
-        <input
-          type="text"
-          placeholder={t("location_placeholder")}
-          value={searchLocationQuery}
-          onChange={(e) => setSearchLocationQuery(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4"
-        />
-        <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
+        <div className="relative mb-4">
+          <input
+            type="text"
+            placeholder={t("location_placeholder")}
+            value={searchLocationQuery}
+            onChange={(e) => setSearchLocationQuery(e.target.value)}
+            className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <IoSearch
+            size={20}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+        </div>
+        <div className="space-y-4 max-h-80 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           {location_info.regions.map((region) => {
             const filteredDistricts = region.districts.filter((d) =>
               d.toLowerCase().includes(searchLocationQuery.toLowerCase())
@@ -237,7 +300,7 @@ const ServiceScreen = () => {
                   <h2 className="font-bold mt-2 mb-2 text-gray-700">
                     {region.region}
                   </h2>
-                  <ul className="space-y-1">
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1">
                     {filteredDistricts.map((district, i) => (
                       <li
                         key={i}
@@ -263,35 +326,37 @@ const ServiceScreen = () => {
 
       {/* Category Modal */}
       <Modal isOpen={showModal} onClose={toggleModal}>
-        <h3 className="text-xl font-bold mb-4 text-gray-800">
+        <h3 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">
           {t("category_header")}
         </h3>
-        <input
-          type="text"
-          placeholder={t("category_placeholder")}
-          value={searchCategoryQuery}
-          onChange={(e) => setSearchCategoryQuery(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4"
-        />
-        <ul className="divide-y divide-gray-200 max-h-72 overflow-y-auto">
-          {categories?.length ? (
-            categories
-              .filter((c) =>
-                c.name.toLowerCase().includes(searchCategoryQuery.toLowerCase())
-              )
-              .map((c) => (
-                <li
-                  key={c.id}
-                  onClick={() => handleCategorySelect(c.name)}
-                  className={`p-3 cursor-pointer hover:bg-blue-200 transition duration-200 ${
-                    selectedCategory === c.name
-                      ? "bg-blue-500 text-white"
-                      : "bg-white"
-                  }`}
-                >
-                  {c.name}
-                </li>
-              ))
+        <div className="relative mb-4">
+          <input
+            type="text"
+            placeholder={t("category_placeholder")}
+            value={searchCategoryQuery}
+            onChange={(e) => setSearchCategoryQuery(e.target.value)}
+            className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <IoSearch
+            size={20}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+        </div>
+        <ul className="divide-y divide-gray-200 max-h-72 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+          {filteredCategories?.length ? (
+            filteredCategories.map((c) => (
+              <li
+                key={c.id}
+                onClick={() => handleCategorySelect(getCategoryName(c))}
+                className={`p-3 cursor-pointer rounded-md transition duration-200 ${
+                  selectedCategory === getCategoryName(c)
+                    ? "bg-blue-500 text-white"
+                    : "bg-white hover:bg-blue-100"
+                }`}
+              >
+                {getCategoryName(c)}
+              </li>
+            ))
           ) : (
             <li className="p-3 text-gray-500 text-center">
               {t("category_error")}

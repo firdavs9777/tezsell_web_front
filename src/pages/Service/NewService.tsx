@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Category } from "@store/type";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
@@ -24,6 +24,37 @@ const NewService = () => {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [category, setCategory] = useState<string>("");
   const [imageLength, setImageLength] = useState<number>(0);
+
+  // Get current language
+  const currentLang = i18n.language;
+
+  // Function to get the correct category name based on current language
+  const getCategoryName = (category: Category) => {
+    if (!category) return "";
+
+    // Make sure we have a valid category object
+    if (typeof category !== "object") return "";
+
+    switch (currentLang) {
+      case "uz":
+        return category.name_uz;
+      case "ru":
+        return category.name_ru;
+      case "en":
+      default:
+        return category.name_en;
+    }
+  };
+
+  // Transform categories for display with appropriate language
+  const translatedCategories = useMemo(() => {
+    if (!category_list?.length) return [];
+
+    return category_list.map((cat) => ({
+      ...cat,
+      displayName: getCategoryName(cat),
+    }));
+  }, [category_list, currentLang]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -64,15 +95,14 @@ const NewService = () => {
     setCategory(e.target.value);
   };
 
-  // Language switcher function
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
-  };
-
+  // Loading states
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        {t("loading")}
+        <div className="text-center">
+          <div className="animate-spin inline-block w-6 h-6 border-4 border-current border-t-transparent text-blue-600 rounded-full mb-2"></div>
+          <p>{t("loading")}</p>
+        </div>
       </div>
     );
   }
@@ -80,13 +110,33 @@ const NewService = () => {
   if (create_loading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        {t("creating")}
+        <div className="text-center">
+          <div className="animate-spin inline-block w-6 h-6 border-4 border-current border-t-transparent text-green-600 rounded-full mb-2"></div>
+          <p>{t("creating")}</p>
+        </div>
       </div>
     );
   }
 
   const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // Form validation
+    if (!name.trim()) {
+      toast.error(t("nameRequired"));
+      return;
+    }
+
+    if (!description.trim()) {
+      toast.error(t("descriptionRequired"));
+      return;
+    }
+
+    if (!category) {
+      toast.error(t("categoryRequired"));
+      return;
+    }
+
     const formData = new FormData();
     formData.append("name", name);
     formData.append("description", description);
@@ -95,20 +145,46 @@ const NewService = () => {
     imageFiles.forEach((file) => {
       formData.append("images", file);
     });
-    formData.append("location_id", userInfo.user_info.location.id);
-    formData.append("userName_id", userInfo.user_info.id);
-    formData.append("userAddress_id", userInfo?.user_info.location.id);
-    const selectedCategory = category_list.find(
-      (item: Category) => item.name === category
-    );
-    if (selectedCategory) {
-      const selectedCategoryId = selectedCategory.id;
-      formData.append("category_id", selectedCategoryId.toString());
+
+    // Add user info
+    if (userInfo?.user_info?.location?.id) {
+      formData.append("location_id", userInfo.user_info.location.id);
+      formData.append("userAddress_id", userInfo.user_info.location.id);
     } else {
-      console.log(t("categoryNotFound"));
+      toast.error(t("locationMissing"));
+      return;
     }
+
+    if (userInfo?.user_info?.id) {
+      formData.append("userName_id", userInfo.user_info.id);
+    } else {
+      toast.error(t("userInfoMissing"));
+      return;
+    }
+
+    // Find category by name (using any language version)
+    const selectedCategory = category_list.find((item: Category) => {
+      return (
+        item.name_uz === category ||
+        item.name_ru === category ||
+        item.name_en === category
+      );
+    });
+
+    if (selectedCategory) {
+      formData.append("category_id", selectedCategory.id.toString());
+    } else {
+      toast.error(t("categoryNotFound"));
+      return;
+    }
+
     try {
       const token = userInfo?.token;
+      if (!token) {
+        toast.error(t("authRequired"));
+        return;
+      }
+
       const response = await createProduct({ productData: formData, token });
 
       if (response?.data) {
@@ -126,12 +202,11 @@ const NewService = () => {
 
   return (
     <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      {/* Language selector */}
-
       <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
         {t("addNewService")}
       </h1>
-      <div className="bg-white rounded-lg shadow-md p-6">
+
+      <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-100">
         <form className="space-y-6" onSubmit={submitFormHandler}>
           {/* Service Name */}
           <div className="space-y-2">
@@ -139,14 +214,14 @@ const NewService = () => {
               htmlFor="service-title"
               className="block text-sm font-medium text-gray-700"
             >
-              {t("serviceName")}
+              {t("serviceName")} <span className="text-red-500">*</span>
             </label>
             <input
               id="service-title"
               type="text"
               placeholder={t("serviceNamePlaceholder")}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
@@ -158,13 +233,13 @@ const NewService = () => {
               htmlFor="service-description"
               className="block text-sm font-medium text-gray-700"
             >
-              {t("serviceDescription")}
+              {t("serviceDescription")} <span className="text-red-500">*</span>
             </label>
             <textarea
               id="service-description"
               placeholder={t("serviceDescriptionPlaceholder")}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-32"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors h-32 resize-y"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
@@ -176,11 +251,11 @@ const NewService = () => {
               htmlFor="service-category"
               className="block text-sm font-medium text-gray-700"
             >
-              {t("serviceCategory")}
+              {t("serviceCategory")} <span className="text-red-500">*</span>
             </label>
             <select
               id="service-category"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               value={category}
               onChange={handleCategoryChange}
               required
@@ -193,9 +268,12 @@ const NewService = () => {
               ) : error ? (
                 <option>{t("errorLoadingCategories")}</option>
               ) : (
-                category_list.map((categoryItem) => (
-                  <option key={categoryItem.id} value={categoryItem.name}>
-                    {categoryItem.name}
+                translatedCategories.map((categoryItem) => (
+                  <option
+                    key={categoryItem.id}
+                    value={categoryItem.displayName}
+                  >
+                    {categoryItem.displayName}
                   </option>
                 ))
               )}
@@ -206,38 +284,46 @@ const NewService = () => {
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
               {t("serviceImages")}{" "}
-              {imagePreviews.length > 0
-                ? `(${imagePreviews.length}/10)`
-                : "(0/10)"}
+              <span
+                className={
+                  imagePreviews.length === 10 ? "text-red-500" : "text-gray-500"
+                }
+              >
+                ({imagePreviews.length}/10)
+              </span>
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {imagePreviews.map((preview, index) => (
                 <div
                   key={index}
-                  className="relative h-24 bg-gray-100 rounded-md overflow-hidden"
+                  className="relative h-28 bg-gray-100 rounded-lg overflow-hidden shadow-sm border border-gray-200"
                 >
                   <img
                     src={preview}
-                    alt={`Preview ${index}`}
+                    alt={`Preview ${index + 1}`}
                     className="w-full h-full object-cover"
                   />
                   <button
                     type="button"
-                    className="absolute top-1 right-1 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs hover:bg-red-600 focus:outline-none"
+                    className="absolute top-1 right-1 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs hover:bg-red-600 focus:outline-none shadow-md transition-colors"
                     onClick={() => handleRemoveImage(index)}
+                    aria-label={t("removeImage")}
                   >
-                    X
+                    ×
                   </button>
                 </div>
               ))}
               {imagePreviews.length < 10 && (
                 <div
-                  className="flex items-center justify-center h-24 bg-gray-100 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:bg-gray-50"
+                  className="flex flex-col items-center justify-center h-28 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
                   onClick={() =>
                     document.getElementById("image-upload")?.click()
                   }
                 >
-                  <span className="text-2xl text-gray-500">+</span>
+                  <span className="text-3xl text-gray-400">+</span>
+                  <span className="text-xs text-gray-500 mt-1">
+                    {t("addImage")}
+                  </span>
                 </div>
               )}
             </div>
@@ -249,18 +335,19 @@ const NewService = () => {
               onChange={handleImageChange}
               multiple
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 mt-2">
               {t("imageUploadHelper")}
             </p>
           </div>
 
           {/* Submit Button */}
-          <div className="pt-4">
+          <div className="pt-6">
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors shadow-md font-medium"
+              disabled={create_loading}
             >
-              {t("submit")}
+              {create_loading ? t("submitting") : t("submit")}
             </button>
           </div>
         </form>

@@ -23,6 +23,7 @@ export const productsApiSlice = apiSlice.injectEndpoints({
         region_name = "",
         district_name = "",
         product_title = "",
+        lang = "",
       }) => ({
         url: PRODUCTS_URL,
         params: {
@@ -32,22 +33,23 @@ export const productsApiSlice = apiSlice.injectEndpoints({
           region_name: region_name,
           district_name: district_name,
           product_title: product_title,
+          lang: lang,
         }, // Ensure page and page_size are strings
       }),
       keepUnusedDataFor: 5,
       provideTags: ["Product"],
     }),
     getFavoriteItems: builder.query({
-         query: ({ token }: { token: string }) => {
-              return {
-                        url: USER_FAV_PRODS,
-                headers: {
-                  Authorization: `Token ${token}`, // Pass token in headers
-                },
-                credentials: "include",
-              };
-            },
-            invalidatesTags: ["Product"],
+      query: ({ token }: { token: string }) => {
+        return {
+          url: USER_FAV_PRODS,
+          headers: {
+            Authorization: `Token ${token}`, // Pass token in headers
+          },
+          credentials: "include",
+        };
+      },
+      invalidatesTags: ["Product"],
     }),
     getSingleProduct: builder.query({
       query: (productId: string) => ({
@@ -106,13 +108,7 @@ export const productsApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ["Product"],
     }),
     likeProduct: builder.mutation({
-      query: ({
-        productId,
-        token,
-      }: {
-        productId: string,
-        token: string;
-      }) => {
+      query: ({ productId, token }: { productId: string; token: string }) => {
         return {
           url: `${LIKE_PRODUCT}${productId}/`,
           method: "POST",
@@ -124,14 +120,8 @@ export const productsApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: ["Product"],
     }),
-     unlikeProduct: builder.mutation({
-      query: ({
-        productId,
-        token,
-      }: {
-        productId: string,
-        token: string;
-      }) => {
+    unlikeProduct: builder.mutation({
+      query: ({ productId, token }: { productId: string; token: string }) => {
         return {
           url: `${DISLIKE_PRODUCT}${productId}/`,
           method: "POST",
@@ -154,6 +144,7 @@ export const {
   useGetDistrictsListQuery,
   useCreateProductMutation,
   useGetFavoriteItemsQuery,
-  useLikeProductMutation, useUnlikeProductMutation
+  useLikeProductMutation,
+  useUnlikeProductMutation,
 } = productsApiSlice;
 export default productsApiSlice.reducer;

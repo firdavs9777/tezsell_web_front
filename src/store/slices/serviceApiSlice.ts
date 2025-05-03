@@ -20,12 +20,14 @@ export const servicessApiSlice = apiSlice.injectEndpoints({
         region_name = "",
         district_name = "",
         service_name = "",
+        lang = "",
       }) => ({
         url: SERVICES_URL,
         params: {
           page: currentPage.toString(),
           page_size: page_size.toString(),
           category_name: category_name,
+          lang: lang,
           region_name: region_name,
           district_name: district_name,
           service_name: service_name,
