@@ -114,13 +114,13 @@
   "maxImagesError": "Вы можете загрузить максимум 10 изображений",
   "categoryNotFound": "Категория не найдена",
   "productCreatedSuccess": "Продукт успешно создан",
-  "errorCreatingProduct":  "Ошибка при создании продукта",
+  "errorCreatingProduct": "Ошибка при создании продукта",
   "errorCreatingService": "Ошибка при создании услуги",
   "unknownError": "При создании услуги произошла неизвестная ошибка",
   "submit": "Отправить",
-    "select_category": "Выберите категорию", 
+  "select_category": "Выберите категорию",
   "select_condition": "Выберите состояние (Новое/Б/У)",
-   "no_comments": "Комментариев пока нет. Будьте первым, кто оставит комментарий!",
+  "no_comments": "Комментариев пока нет. Будьте первым, кто оставит комментарий!",
   "comment_like_success": "Комментарий успешно понравился",
   "comment_like_error": "Ошибка при попытке поставить лайк комментарию",
   "unknown_error_message": "Произошла неизвестная ошибка",
@@ -139,7 +139,13 @@
   "save_label": "Сохранить",
   "reply_label": "Ответить",
   "reply_title": "ответы",
-      "reply_placeholder": "Напишите ответ...",
-      "sum": "Cум"
-
+  "reply_placeholder": "Напишите ответ...",
+  "sum": "Cум",
+  "productLikeSuccess": "Продукт успешно понравился",
+  "like_product_error": "Ошибка при попытке поставить лайк продукту",
+  "dislike_product_error": "Ошибка при попытке убрать лайк с продукта",
+  "chat_login_message": "Вы должны войти в систему, чтобы начать чат",
+  "chat_yourself_message": "Вы не можете начать чат с самим собой.",
+  "chat_room_message": "Чат-комната создана!",
+  "chat_room_error": "Не удалось создать чат!"
 }
