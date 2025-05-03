@@ -62,9 +62,7 @@ const ProductDetail = () => {
 
   useEffect(() => {
     if (singleProduct?.product.images.length > 0) {
-      setSelectedImage(
-        `${BASE_URL}${singleProduct.product.images[0].image}`
-      );
+      setSelectedImage(`${BASE_URL}${singleProduct.product.images[0].image}`);
     }
   }, [singleProduct]);
 
@@ -82,7 +80,7 @@ const ProductDetail = () => {
   }
 
   const handleImageClick = (image: string) => {
-    setSelectedImage(`${BASE_URL}/products${image}`);
+    setSelectedImage(`${BASE_URL}${image}`);
   };
 
   const redirectHandler = (id: number) => {
@@ -146,9 +144,7 @@ const ProductDetail = () => {
   const onCloseHandler = () => {
     refetch();
     if (singleProduct.product.images) {
-      setSelectedImage(
-        `${BASE_URL}/products${singleProduct.product.images[0].image}`
-      );
+      setSelectedImage(`${BASE_URL}${singleProduct.product.images[0].image}`);
     } else {
       setSelectedImage("");
     }
@@ -317,7 +313,6 @@ const ProductDetail = () => {
               <FaCommentAlt /> Chat
             </button>
           </div>
-
         </div>
       </div>
 
