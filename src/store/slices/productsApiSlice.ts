@@ -11,7 +11,6 @@ import {
 
 import { apiSlice } from "./apiSlice";
 // import ProductType  from "../type";
-import { Product } from "../type";
 
 export const productsApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder: any) => ({

@@ -149,5 +149,7 @@
   "chat_room_message": "Chat xonasi yaratildi!",
   "chat_room_error": "Chat yaratishda xatolik yuz berdi!",
   "products_total": "Mahsulotlar soni",
-  "per_page": "ta"
+  "per_page": "ta",
+  "clear_all_filters": "Barcha filtrlarni tozalash"
+
 }

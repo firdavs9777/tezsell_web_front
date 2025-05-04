@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {  useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "../../store";
 import { useTranslation } from "react-i18next";
@@ -40,83 +40,30 @@ const MainProfile = () => {
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
   const navigate = useNavigate();
-
-  // API queries
-  const {
-    data: productsData,
-    isLoading: productsLoading,
-    error: productsError,
-    refetch: refetchProducts,
-  } = useGetUserProductsQuery({ token });
-
-  const {
-    data: servicesData,
-    isLoading: servicesLoading,
-    error: servicesError,
-    refetch: refetchServices,
-  } = useGetUserServicesQuery({ token });
-
-  const {
-    data: likedItemsData,
-    isLoading: likedItemsLoading,
-    error: likedItemsError,
-    refetch: refetchLikedItems,
-  } = useGetFavoriteItemsQuery({ token });
-
-  const {
-    data: loggedUserInfo,
-    isLoading: userInfoLoading,
-    error: userInfoError,
-    refetch: refetchUserInfo,
-  } = useGetLoggedinUserInfoQuery({ token });
-
-  const {
-    data: regions,
-    isLoading: regionsLoading,
-  } = useGetRegionsListQuery({});
-
-  const [currentRegion, setCurrentRegion] = useState('');
-
-  const {
-    data: districts,
-    isLoading: districtsLoading,
-  } = useGetDistrictsListQuery(currentRegion);
+  const { t } = useTranslation();
 
   // State
-  const [currentDistrict, setCurrentDistrict] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [newImage, setNewImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [newUsername, setNewUsername] = useState("");
+  const [currentRegion, setCurrentRegion] = useState("");
+  const [currentDistrict, setCurrentDistrict] = useState("");
 
-  const { t, i18n } = useTranslation();
-  const [updateProfile] = useUpdateLoggedUserInfoMutation();
+  // API queries with optimized options
+  const {
+    data: loggedUserInfo,
+    isLoading: userInfoLoading,
+    error: userInfoError,
+  } = useGetLoggedinUserInfoQuery(
+    { token },
+    { skip: !token, refetchOnMountOrArgChange: true }
+  );
 
-  // Type assertions
-  const products = productsData as ProductResponse;
-  const services = servicesData as ServiceResponse;
-  const likedItems = likedItemsData as ServiceRes;
+  // Only fetch these once user info is available and we're not loading
   const profileInfo = loggedUserInfo as UserInfo;
-  const regionsList = regions as RegionsList;
-  const districtsList = districts as DistrictsList;
 
-  // Data fetching
-  useEffect(() => {
-    if (token) {
-      refetchProducts();
-      refetchServices();
-      refetchLikedItems();
-      refetchUserInfo();
-    }
-  }, [
-    token,
-    refetchProducts,
-    refetchServices,
-    refetchLikedItems,
-    refetchUserInfo,
-  ]);
-
-  // Initialize form values when profile data is loaded
+  // Initialize dependent requests based on user data
   useEffect(() => {
     if (profileInfo?.data) {
       setCurrentRegion(profileInfo.data.location.region);
@@ -124,6 +71,73 @@ const MainProfile = () => {
       setNewUsername(profileInfo.data.username || "");
     }
   }, [profileInfo]);
+
+  // Optimize regions fetch with caching
+  const { data: regions, isLoading: regionsLoading } = useGetRegionsListQuery(
+    {},
+    {
+      skip: !token,
+      // Cache regions for 24 hours since they rarely change
+      refetchOnMountOrArgChange: 86400,
+    }
+  );
+
+  // Only fetch districts when region is selected and modal is open
+  const { data: districts, isLoading: districtsLoading } =
+    useGetDistrictsListQuery(currentRegion, {
+      skip: !currentRegion || !modalOpen,
+      // Cache districts for 24 hours since they rarely change
+      refetchOnMountOrArgChange: 86400,
+    });
+
+  // Use a single dependency for products, services, and liked items
+  const shouldFetchItems = !!(token && !userInfoLoading && profileInfo?.data);
+
+  const {
+    data: productsData,
+    isLoading: productsLoading,
+    error: productsError,
+  } = useGetUserProductsQuery(
+    { token },
+    {
+      skip: !shouldFetchItems,
+      // This reduces refetches when navigating back to this page
+      refetchOnMountOrArgChange: true,
+    }
+  );
+
+  const {
+    data: servicesData,
+    isLoading: servicesLoading,
+    error: servicesError,
+  } = useGetUserServicesQuery(
+    { token },
+    {
+      skip: !shouldFetchItems,
+      refetchOnMountOrArgChange: true,
+    }
+  );
+
+  const {
+    data: likedItemsData,
+    isLoading: likedItemsLoading,
+    error: likedItemsError,
+  } = useGetFavoriteItemsQuery(
+    { token },
+    {
+      skip: !shouldFetchItems,
+      refetchOnMountOrArgChange: true,
+    }
+  );
+
+  const [updateProfile] = useUpdateLoggedUserInfoMutation();
+
+  // Type assertions
+  const products = productsData as ProductResponse;
+  const services = servicesData as ServiceResponse;
+  const likedItems = likedItemsData as ServiceRes;
+  const regionsList = regions as RegionsList;
+  const districtsList = districts as DistrictsList;
 
   // Handle image preview
   useEffect(() => {
@@ -137,13 +151,18 @@ const MainProfile = () => {
   }, [newImage]);
 
   // Loading and error handling
-  if (!token) return <div className="auth-message">Please log in to view your profile</div>;
+  if (!token)
+    return (
+      <div className="auth-message">Please log in to view your profile</div>
+    );
 
-  const isLoading = productsLoading || servicesLoading || likedItemsLoading || userInfoLoading || regionsLoading || districtsLoading;
-  if (isLoading) return <div className="loading">Loading...</div>;
+  // Optimize loading states to show partial UI when possible
+  const isInitialLoading = userInfoLoading;
+  if (isInitialLoading) return <div className="loading">Loading...</div>;
 
-  const hasError = productsError || servicesError || likedItemsError || userInfoError;
-  if (hasError) return <div className="error-message">Error loading profile data</div>;
+  const hasError = userInfoError;
+  if (hasError)
+    return <div className="error-message">Error loading profile data</div>;
 
   // Modal handlers
   const handleOpenModal = () => {
@@ -165,14 +184,15 @@ const MainProfile = () => {
 
     if (newUsername) {
       formData.append("username", newUsername);
+    }
 
-    }
-    const matchedDistrict = districtsList.districts.find(d => d.district === currentDistrict);
+    const matchedDistrict = districtsList?.districts?.find(
+      (d) => d.district === currentDistrict
+    );
     if (matchedDistrict) {
-      const locationId = matchedDistrict.id; // Get the id of the matched district
-      console.log("Location ID:", locationId);
-      formData.append("location_id", locationId.toString());
+      formData.append("location_id", matchedDistrict.id.toString());
     }
+
     if (newImage) {
       formData.append("profile_image", newImage);
     }
@@ -182,9 +202,9 @@ const MainProfile = () => {
         userData: formData,
         token,
       }).unwrap();
+
       if (response) {
         toast.success(t("profile_update_success_message"), { autoClose: 3000 });
-        refetchUserInfo();
         handleClose();
       } else {
         toast.error(t("profile_update_fail_message"), { autoClose: 3000 });
@@ -201,12 +221,14 @@ const MainProfile = () => {
       }
     }
   };
+
   const redirectHandler = (id: number) => {
     navigate(`/product/${id}`);
   };
+
   const redirectServiceHandler = (id: number) => {
     navigate(`/service/${id}`);
-  }
+  };
 
   // Render helpers
   const renderItemList = (items: any[], nameKey: string, limit = 3) => {
@@ -215,18 +237,23 @@ const MainProfile = () => {
     return (
       <>
         <ul className="item-list">
-          {items.slice(0, limit).map((item, index) => (
+          {items.slice(0, limit).map((item, index) =>
             item.comments ? (
-                      <li key={item.id || index} onClick={() => redirectServiceHandler(item.id)}>
+              <li
+                key={item.id || index}
+                onClick={() => redirectServiceHandler(item.id)}
+              >
                 {item[nameKey]}
               </li>
-              
             ) : (
-              <li key={item.id || index} onClick={() => redirectHandler(item.id)}>
+              <li
+                key={item.id || index}
+                onClick={() => redirectHandler(item.id)}
+              >
                 {item[nameKey]}
               </li>
             )
-          ))}
+          )}
         </ul>
 
         {items.length > limit && (
@@ -239,6 +266,7 @@ const MainProfile = () => {
       </>
     );
   };
+
   const renderServiceList = (items: any[], nameKey: string, limit = 3) => {
     if (!items || !items.length) return <p>No items available</p>;
 
@@ -267,9 +295,8 @@ const MainProfile = () => {
 
   return (
     <Card>
-   
       <div className="profile-header">
-        <h1>{t('profile_page_title')}</h1>
+        <h1>{t("profile_page_title")}</h1>
       </div>
 
       <div className="profile-content">
@@ -305,7 +332,7 @@ const MainProfile = () => {
 
         <Modal onClose={handleClose} isOpen={modalOpen}>
           <div className="edit-profile-form">
-            <h2> {t("edit_profile_modal_title")}</h2>
+            <h2>{t("edit_profile_modal_title")}</h2>
             <form onSubmit={handleProfileUpdate}>
               <div className="form-group">
                 <label htmlFor="username">{t("username_label")}</label>
@@ -325,29 +352,37 @@ const MainProfile = () => {
                     value={currentRegion}
                     onChange={(e) => setCurrentRegion(e.target.value)}
                   >
-                    {regionsList?.regions?.map((region, index) => (
-                      <option key={index} value={region.region}>
-                        {region.region}
-                      </option>
-                    ))}
+                    {regionsLoading ? (
+                      <option>Loading regions...</option>
+                    ) : (
+                      regionsList?.regions?.map((region, index) => (
+                        <option key={index} value={region.region}>
+                          {region.region}
+                        </option>
+                      ))
+                    )}
                   </select>
                   <select
                     id="district"
                     value={currentDistrict}
                     onChange={(e) => setCurrentDistrict(e.target.value)}
+                    disabled={districtsLoading || !currentRegion}
                   >
-                    {districtsList?.districts?.map((district, index) => (
-                      <option key={index} value={district.district}>
-                        {district.district}
-                      </option>
-                    ))}
+                    {districtsLoading ? (
+                      <option>Loading districts...</option>
+                    ) : (
+                      districtsList?.districts?.map((district, index) => (
+                        <option key={index} value={district.district}>
+                          {district.district}
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
               </div>
 
               <div className="form-group">
                 <label htmlFor="profile-image">
-                  {" "}
                   {t("profile_image_label")}
                 </label>
                 <div className="image-preview">
@@ -388,48 +423,89 @@ const MainProfile = () => {
 
               <div className="form-actions">
                 <button type="submit" className="upload-btn">
-                  {t('upload_btn_label')}
+                  {t("upload_btn_label")}
                 </button>
-                <button type="button" className="close-btn" onClick={handleClose}>
-                  {t('cancel_btn_label')}
+                <button
+                  type="button"
+                  className="close-btn"
+                  onClick={handleClose}
+                >
+                  {t("cancel_btn_label")}
                 </button>
               </div>
             </form>
           </div>
         </Modal>
 
+        {/* Products section with loading indicator */}
         <section className="my-products">
-          <h3> {t('my_products_title')} ({products?.results?.length || 0})</h3>
-          {renderItemList(products?.results || [], 'title')}
-          <Button label={t("add_new_product_btn")} onClick={() => navigate("/new-product")} variant="add"/>
-            
+          <h3>
+            {t("my_products_title")} ({products?.results?.length || 0})
+          </h3>
+          {productsLoading ? (
+            <p>Loading products...</p>
+          ) : productsError ? (
+            <p>Error loading products</p>
+          ) : (
+            renderItemList(products?.results || [], "title")
+          )}
+          <Button
+            label={t("add_new_product_btn")}
+            onClick={() => navigate("/new-product")}
+            variant="add"
+          />
         </section>
 
+        {/* Services section with loading indicator */}
         <section className="my-services">
-          <h3>{t('my_services_title')} ({services?.results?.length || 0})</h3>
-          {renderServiceList(services?.results || [], 'name')}
- 
-                    <Button label={t('add_new_service_btn')} onClick={() => navigate("/new-service")} variant="add"/>
+          <h3>
+            {t("my_services_title")} ({services?.results?.length || 0})
+          </h3>
+          {servicesLoading ? (
+            <p>Loading services...</p>
+          ) : servicesError ? (
+            <p>Error loading services</p>
+          ) : (
+            renderServiceList(services?.results || [], "name")
+          )}
+          <Button
+            label={t("add_new_service_btn")}
+            onClick={() => navigate("/new-service")}
+            variant="add"
+          />
         </section>
 
+        {/* Liked products section with loading indicator */}
         <section className="recent-activity">
           <h3>
             {t("favorite_products_title")} (
             {likedItems?.liked_products?.length || 0})
           </h3>
-          {renderItemList(likedItems?.liked_products || [], "title")}
+          {likedItemsLoading ? (
+            <p>Loading favorite products...</p>
+          ) : likedItemsError ? (
+            <p>Error loading favorite products</p>
+          ) : (
+            renderItemList(likedItems?.liked_products || [], "title")
+          )}
         </section>
 
+        {/* Liked services section with loading indicator */}
         <section className="recent-activity">
           <h3>
             {t("favorite_services_title")} (
             {likedItems?.liked_services?.length || 0})
           </h3>
-          {renderItemList(likedItems?.liked_services || [], "name")}
+          {likedItemsLoading ? (
+            <p>Loading favorite services...</p>
+          ) : likedItemsError ? (
+            <p>Error loading favorite services</p>
+          ) : (
+            renderItemList(likedItems?.liked_services || [], "name")
+          )}
         </section>
       </div>
-  
-      </Card>
+    </Card>
   );
 };
 

@@ -1,7 +1,17 @@
 // src/store/index.ts
 import { configureStore } from "@reduxjs/toolkit";
 import { apiSlice } from "./slices/apiSlice";
-import { persistStore, persistReducer } from "redux-persist";
+import {
+  persistStore,
+  persistReducer,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from "redux-persist";
+
 import productsSliceReducer from "./slices/productsApiSlice";
 import servicesSliceReducer from "./slices/serviceApiSlice";
 import authSliceReducer from "./slices/authSlice";
@@ -11,7 +21,7 @@ import messagesApiSlice from "./slices/chatSlice";
 const persistConfig = {
   key: "root", // You can name this as per your app's needs
   storage, // Use localStorage as the storage
-  whitelist: ["product", "auth", "service", "comment"], // Define which slices to persist (e.g., 'product' and 'auth')
+  whitelist: ["auth"], // Define which slices to persist (e.g., 'product' and 'auth')
 };
 
 const persistedProductReducer = persistReducer(
@@ -38,7 +48,12 @@ const rootReducer = configureStore({
     messsage: persistedMessageReducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(apiSlice.middleware),
+    getDefaultMiddleware({
+      // This is important to prevent serialization issues with RTK Query
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }).concat(apiSlice.middleware),
   devTools: true,
 });
 const persistor = persistStore(rootReducer);

@@ -152,6 +152,6 @@
   "chat_room_error":"Failed to create chat!",
   "chat_creation_error":"Chat creation failed!",
   "products_total": "Products total",
-  "per_page":  "items"
-  
+  "per_page":  "items",
+  "clear_all_filters": "Clear all filters"
 }

@@ -149,6 +149,7 @@
   "chat_room_message": "Чат-комната создана!",
   "chat_room_error": "Не удалось создать чат!",
   "products_total": "Всего товаров",
-  "per_page": "элементов"
-  
+  "per_page": "элементов",
+  "clear_all_filters": "Очистить все фильтры"
+
 }
