@@ -150,6 +150,6 @@
   "chat_room_error": "Chat yaratishda xatolik yuz berdi!",
   "products_total": "Mahsulotlar soni",
   "per_page": "ta",
-  "clear_all_filters": "Barcha filtrlarni tozalash"
-
+  "clear_all_filters": "Barcha filtrlarni tozalash",
+  "click_to_upload":  "Yuklash uchun bosing"  
 }

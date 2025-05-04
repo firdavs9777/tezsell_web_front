@@ -153,5 +153,6 @@
   "chat_creation_error":"Chat creation failed!",
   "products_total": "Products total",
   "per_page":  "items",
-  "clear_all_filters": "Clear all filters"
+  "clear_all_filters": "Clear all filters",
+  "click_to_upload":"Click to upload"
 }

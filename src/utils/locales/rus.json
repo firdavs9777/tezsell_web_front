@@ -150,6 +150,8 @@
   "chat_room_error": "Не удалось создать чат!",
   "products_total": "Всего товаров",
   "per_page": "элементов",
-  "clear_all_filters": "Очистить все фильтры"
+  "clear_all_filters": "Очистить все фильтры",
+  "click_to_upload":  "Нажмите для загрузки"
+  
 
 }
