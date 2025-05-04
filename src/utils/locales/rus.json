@@ -147,5 +147,8 @@
   "chat_login_message": "Вы должны войти в систему, чтобы начать чат",
   "chat_yourself_message": "Вы не можете начать чат с самим собой.",
   "chat_room_message": "Чат-комната создана!",
-  "chat_room_error": "Не удалось создать чат!"
+  "chat_room_error": "Не удалось создать чат!",
+  "products_total": "Всего товаров",
+  "per_page": "элементов"
+  
 }

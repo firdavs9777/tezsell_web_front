@@ -145,7 +145,7 @@ const ProductScreen = () => {
     return category[langKey] || category.name_en;
   };
 
-  const totalCount = products?.count || 0;
+  const totalCount = products?.count;
   const hasResults = products?.results?.length > 0;
   const hasActiveFilters =
     selectedCategory ||
@@ -253,9 +253,9 @@ const ProductScreen = () => {
       <div className="mb-4 flex justify-between items-center">
         <h2 className="text-xl font-medium">
           {totalCount > 0 ? (
-            <>{t("products_found", { count: totalCount })}</>
+            <>{t("products_total", { count: totalCount })}</>
           ) : (
-            <>{t("no_products_found")}</>
+            <>{t("product_error")}</>
           )}
         </h2>
 

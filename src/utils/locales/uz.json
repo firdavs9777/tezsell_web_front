@@ -147,5 +147,7 @@
   "chat_login_message": "Chatni boshlash uchun tizimga kirishingiz kerak",
   "chat_yourself_message": "O'zingiz bilan chat boshlay olmaysiz.",
   "chat_room_message": "Chat xonasi yaratildi!",
-  "chat_room_error": "Chat yaratishda xatolik yuz berdi!"
+  "chat_room_error": "Chat yaratishda xatolik yuz berdi!",
+  "products_total": "Mahsulotlar soni",
+  "per_page": "ta"
 }

@@ -150,5 +150,8 @@
   "chat_yourself_message":"You can't chat with yourself.",
   "chat_room_message":"Chat room created!",
   "chat_room_error":"Failed to create chat!",
-  "chat_creation_error":"Chat creation failed!"
+  "chat_creation_error":"Chat creation failed!",
+  "products_total": "Products total",
+  "per_page":  "items"
+  
 }
