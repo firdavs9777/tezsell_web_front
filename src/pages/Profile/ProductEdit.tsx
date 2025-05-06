@@ -58,7 +58,6 @@ const MyProductEdit: React.FC<SingleProductType> = ({
   const [isOpen, setIsOpen] = useState<boolean>(closeModelStatus);
   const [imageUploading, setImageUploading] = useState<boolean>(false);
 
-
   // Populate the form with existing product data
   useEffect(() => {
     if (singleProduct?.product) {
@@ -73,7 +72,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
           (item: Category) => item.id === singleProduct.product.category.id
         );
         if (productCategory) {
-          setCategory(productCategory.name);
+          setCategory(productCategory.name_en);
         }
       }
       if (
@@ -211,7 +210,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
   const closeHandler = () => {
     setIsOpen(false);
     onClose();
-    reload();
+
     setExistingImages([]);
     setNewImagePreviews([]);
     setNewImageFiles([]);
@@ -278,7 +277,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
       .map((img) => img.id);
 
     imagesToKeep.forEach((id) => {
-      formData.append("existing_images", id);
+      formData.append("existing_images", id.toString());
     });
 
     // Add new images
@@ -301,7 +300,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
 
     // Add category
     const selectedCategory = category_list.find(
-      (item: Category) => item.name === category
+      (item: Category) => item.name_en === category
     );
     if (selectedCategory) {
       const selectedCategoryId = selectedCategory.id;
@@ -352,11 +351,8 @@ const MyProductEdit: React.FC<SingleProductType> = ({
         closeHandler();
       } else if ("error" in response) {
         // Handle specific error responses
-        if (response.error?.data?.message) {
-          toast.error(response.error.data.message, { autoClose: 3000 });
-        } else {
-          toast.error("Failed to update product", { autoClose: 3000 });
-        }
+
+        toast.error("Failed to update product", { autoClose: 3000 });
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -464,8 +460,8 @@ const MyProductEdit: React.FC<SingleProductType> = ({
                   <option>Error loading categories</option>
                 ) : (
                   category_list.map((categoryItem) => (
-                    <option key={categoryItem.id} value={categoryItem.name}>
-                      {categoryItem.name}
+                    <option key={categoryItem.id} value={categoryItem.name_en}>
+                      {categoryItem.name_ru}
                     </option>
                   ))
                 )}

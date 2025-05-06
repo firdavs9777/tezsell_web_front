@@ -50,7 +50,9 @@ const Login = () => {
         phone_number: phoneNumber,
         password,
       }).unwrap();
-      dispatch(setCredentials({ ...userInfo }));
+      if (userInfo && typeof userInfo === "object") {
+        dispatch(setCredentials({ ...userInfo }));
+      }
       toast.success(t("success_login"), { autoClose: 2000 });
       navigate(redirect);
     } catch (error: any) {

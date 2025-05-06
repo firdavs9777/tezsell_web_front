@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useGetAllLocationListQuery } from "@store/slices/productsApiSlice";
 import {
   AllLocationList,
@@ -35,7 +35,7 @@ const ServiceScreen = () => {
 
   const toggleModal = () => setShowModal((prev) => !prev);
   const toggleLocationModal = () => setLocationModal((prev) => !prev);
-  const nextPagehandler = (page) => setCurrentPage(page);
+  const nextPagehandler = (page: number) => setCurrentPage(page);
   const navigate = useNavigate();
   const {
     data: data_category,
@@ -142,43 +142,39 @@ const ServiceScreen = () => {
 
   return (
     <div className="px-4 sm:px-6 md:px-8 lg:px-10 py-6 max-w-6xl mx-auto">
-      {/* Search bar section */}
-      <div className="flex flex-col md:flex-row gap-3 md:items-center mb-6">
+      <div className="flex flex-col md:flex-row flex-wrap gap-3 md:items-center mb-8">
         <button
-          className="flex items-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-md transition duration-200 shadow-sm"
           onClick={toggleLocationModal}
+          className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-blue-50 border border-gray-300 rounded-full shadow-sm text-sm transition"
         >
-          <FaLocationDot size={20} className="text-blue-600" />
+          <FaLocationDot size={18} className="text-blue-600" />
           {t("search_location")}
         </button>
 
         <button
-          className="flex items-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-md transition duration-200 shadow-sm"
           onClick={toggleModal}
+          className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-green-50 border border-gray-300 rounded-full shadow-sm text-sm transition"
         >
-          <BiCategory size={20} className="text-green-600" />
+          <BiCategory size={18} className="text-green-600" />
           {t("search_category")}
         </button>
 
+        {/* Search Input */}
         <div className="relative flex-1 w-full">
           <input
             type="text"
             placeholder={t("search_service_placeholder")}
-            className="w-full h-12 px-4 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200 shadow-sm"
             value={searchServiceQuery}
             onChange={(e) => setSearchServiceQuery(e.target.value)}
-          />
-          <IoSearch
-            size={20}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            className="w-full h-12 pl-14 pr-4 rounded-full border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-400 transition"
           />
         </div>
 
         <button
-          className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition duration-200 shadow-md"
           onClick={reloadSearch}
+          className="flex items-center gap-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-sm shadow-md transition"
         >
-          <IoSearch size={20} />
+          <IoSearch size={18} />
           <span className="hidden sm:inline">{t("search_text")}</span>
         </button>
       </div>
@@ -268,7 +264,6 @@ const ServiceScreen = () => {
         <FaPlus className="text-white text-xl" />
       </div>
 
-      {/* Location Modal */}
       <Modal isOpen={showLocationModal} onClose={toggleLocationModal}>
         <h1 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">
           {t("location_header")}
@@ -280,10 +275,6 @@ const ServiceScreen = () => {
             value={searchLocationQuery}
             onChange={(e) => setSearchLocationQuery(e.target.value)}
             className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-          <IoSearch
-            size={20}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
           />
         </div>
         <div className="space-y-4 max-h-80 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
@@ -336,10 +327,6 @@ const ServiceScreen = () => {
             value={searchCategoryQuery}
             onChange={(e) => setSearchCategoryQuery(e.target.value)}
             className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-          <IoSearch
-            size={20}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
           />
         </div>
         <ul className="divide-y divide-gray-200 max-h-72 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">

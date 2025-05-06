@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import MainChatRoom from "./ChatRoom";
 import MainChatWindow from "./ChatWindow";
@@ -32,14 +32,14 @@ const MainChat = () => {
     error: singleRoomError,
     refetch: reload_chat,
   } = useGetSingleChatMessagesQuery(
-    { chatId: selectedChatId?.toString(), token },
+    { chatId: selectedChatId?.toString() || "", token },
     { skip: selectedChatId === null }
   );
 
   const [deleteChat] = useDeleteSingleChatRoomMutation();
   const [sendMessage] = useCreateChatRoomMessageMutation();
   const chats: Chat[] = (data?.results as Chat[]) || [];
-  const selectedChat = chats.find((chat) => chat.id === selectedChatId);
+
   // Handle chat selection with URL navigation
   const handleSelectChat = (chatId: number) => {
     setSelectedChatId(chatId);

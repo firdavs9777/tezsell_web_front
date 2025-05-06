@@ -1,4 +1,3 @@
-import React from "react";
 import MyProduct from "./MyProduct";
 import { Product, ProductResponse } from "@store/type";
 import { useTranslation } from "react-i18next";
@@ -16,22 +15,26 @@ const MyProducts = () => {
     error,
     refetch,
   } = useGetUserProductsQuery({ token });
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const refetchHandler = async () => {
     refetch();
-  }
+  };
   if (isLoading) {
-    return <div>Loading...</div>
+    return <div>Loading...</div>;
   }
   if (error) {
-    return <div>Error occured ...</div>
+    return <div>Error occured ...</div>;
   }
   const products: ProductResponse | undefined = productsData as ProductResponse;
   return (
     <div className="product-list">
       {products?.results?.length ? (
         products.results.map((product: Product) => (
-          <MyProduct product={product} key={product.id} refresh={refetchHandler} />
+          <MyProduct
+            product={product}
+            key={product.id}
+            refresh={refetchHandler}
+          />
         ))
       ) : (
         <p>{t("product_error")}</p>

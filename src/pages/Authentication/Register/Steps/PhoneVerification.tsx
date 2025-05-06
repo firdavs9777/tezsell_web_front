@@ -33,9 +33,8 @@ const PhoneNumberVerification: React.FC<PhoneNumberVerificationProps> = ({
   const { t } = useTranslation();
   const [verificationCode, setVerificationCode] = useState("");
   const [otpSent, setOtpSent] = useState(false);
-  const [sendCodeToUser, { isLoading }] = useSendSmsUserMutation();
-  const [verifyUser, { isLoading: isLoading_two }] =
-    useVerifyCodeUserMutation();
+  const [sendCodeToUser] = useSendSmsUserMutation();
+  const [verifyUser] = useVerifyCodeUserMutation();
 
   const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

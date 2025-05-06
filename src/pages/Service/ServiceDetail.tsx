@@ -35,30 +35,23 @@ const ServiceDetail = () => {
   const [createComment, { isLoading: create_loading }] =
     useCreateCommentMutation();
 
-  const [likeService, { isLoading: create_loading_like }] =
-    useLikeServiceMutation();
-  const [dislikeService, { isLoading: create_loading_unlike }] =
-    useUnlikeServiceMutation();
+  const [likeService] = useLikeServiceMutation();
+  const [dislikeService] = useUnlikeServiceMutation();
 
   const [text, setText] = useState<string>("");
   const navigate = useNavigate();
-  const [createChatRoom, { isLoading: chatLoading }] =
-    useCreateChatRoomMutation();
+  const [createChatRoom] = useCreateChatRoomMutation();
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
   const isLoggedIn = !!userInfo; // Boolean check if user is logged in
 
-  const {
-    data: favorite_items,
-    isLoading: favorite_loading,
-    error: favorite_error,
-    refetch: reload_fav,
-  } = useGetFavoriteItemsQuery(
-    {
-      token: token,
-    },
-    { skip: !isLoggedIn }
-  ); // Skip query if user is not logged in
+  const { data: favorite_items, refetch: reload_fav } =
+    useGetFavoriteItemsQuery(
+      {
+        token: token,
+      },
+      { skip: !isLoggedIn }
+    ); // Skip query if user is not logged in
 
   // Ensure serviceItem is available and defined
   const serviceItem: SingleService | null = data as SingleService;
@@ -66,8 +59,7 @@ const ServiceDetail = () => {
 
   const {
     data: comments_data,
-    isLoading: fav_loading,
-    error: fav_error,
+
     refetch: reload,
   } = useGetCommentsQuery(
     {
@@ -306,7 +298,7 @@ const ServiceDetail = () => {
         <div className="lg:w-1/2">
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm mb-4">
-              {service.category.name}
+              {service.category.name_en}
             </div>
 
             <h1 className="text-2xl md:text-3xl font-bold mb-4">

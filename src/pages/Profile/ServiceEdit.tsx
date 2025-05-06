@@ -60,7 +60,6 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
   const [isOpen, setIsOpen] = useState<boolean>(closeModelStatus);
   const [imageUploading, setImageUploading] = useState<boolean>(false);
 
-
   // Populate the form with existing product data
   useEffect(() => {
     if (singleService?.service) {
@@ -73,7 +72,7 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
           (item: Category) => item.id === singleService.service.category.id
         );
         if (productCategory) {
-          setCategory(productCategory.name);
+          setCategory(productCategory.name_en);
         }
       }
 
@@ -223,7 +222,6 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
     //   return false;
     // }
 
-
     const hasExistingImages = existingImages.some((img) => !img.isDeleted);
     const hasNewImages = newImageFiles.length > 0;
     if (!hasExistingImages && !hasNewImages) {
@@ -243,7 +241,7 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
     const formData = new FormData();
     formData.append("name", name);
     formData.append("description", description);
-  
+
     // formData.append("currency", "Sum");
     // formData.append("in_stock", "true");
 
@@ -256,13 +254,13 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
       .filter((img) => !img.isDeleted)
       .map((img) => img.id);
 
-    console.log(imagesToKeep)
-  if (imagesToKeep.length > 0) {
-    imagesToKeep.forEach((id) => {
-      // Ensure we're sending a string representation of a number
-      formData.append("existing_images", String(id));
-    });
-  }
+    console.log(imagesToKeep);
+    if (imagesToKeep.length > 0) {
+      imagesToKeep.forEach((id) => {
+        // Ensure we're sending a string representation of a number
+        formData.append("existing_images", String(id));
+      });
+    }
 
     // Add new images
     if (newImageFiles.length > 0) {
@@ -284,7 +282,7 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
 
     // Add category
     const selectedCategory = category_list.find(
-      (item: Category) => item.name === category
+      (item: Category) => item.name_en === category
     );
     if (selectedCategory) {
       const selectedCategoryId = selectedCategory.id;
@@ -329,14 +327,17 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
         token,
       });
 
+      // Ensure that the response type is either a success (with `data`) or an error (with `error`)
       if ("data" in response) {
         toast.success("Product updated successfully", { autoClose: 3000 });
         refetch_single_product();
         closeHandler();
       } else if ("error" in response) {
-        // Handle specific error responses
-        if (response.error?.data?.message) {
-          toast.error(response.error.data.message, { autoClose: 3000 });
+        const errorResponse = response.error as { data?: { message: string } };
+
+        // Handle error responses
+        if (errorResponse.data?.message) {
+          toast.error(errorResponse.data.message, { autoClose: 3000 });
         } else {
           toast.error("Failed to update product", { autoClose: 3000 });
         }
@@ -412,8 +413,6 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
               <span>So'm</span>
             </div> */}
 
-        
-
             <div className="product-form-group">
               <label htmlFor="product-category">Service Category *</label>
               <select
@@ -432,8 +431,8 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
                   <option>Error loading categories</option>
                 ) : (
                   category_list.map((categoryItem) => (
-                    <option key={categoryItem.id} value={categoryItem.name}>
-                      {categoryItem.name}
+                    <option key={categoryItem.id} value={categoryItem.name_en}>
+                      {categoryItem.name_ru}
                     </option>
                   ))
                 )}

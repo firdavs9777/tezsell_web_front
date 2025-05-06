@@ -3,14 +3,18 @@ import { BASE_URL } from "../constants";
 
 const baseQuery = fetchBaseQuery({
   baseUrl: BASE_URL,
-  timeout: 30000,
-  prepareHeaders: (headers, { getState, endpoint, body }) => {
-    // Example: Add token from state if needed
-    // const token = getState().auth?.token;
+  prepareHeaders: (headers, api) => {
+    // Optional: const token = (api.getState() as RootState)?.auth?.token;
     // if (token) headers.set("Authorization", `Bearer ${token}`);
 
+    const body = (api as any).body; // 👈 This is a workaround, see below
+
     // If not FormData, set Content-Type to JSON
-    if (!(body instanceof FormData)) {
+    if (
+      body &&
+      typeof body === "object" &&
+      body.constructor.name !== "FormData"
+    ) {
       headers.set("Content-Type", "application/json");
     }
 

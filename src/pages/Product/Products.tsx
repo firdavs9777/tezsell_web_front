@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   useGetAllLocationListQuery,
   useGetCategoryListQuery,
@@ -21,7 +21,6 @@ import { FaPlus, FaTimes } from "react-icons/fa";
 import Pagination from "@components/Pagination";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "@store/index";
-import { debounce } from "lodash";
 
 const ProductScreen = () => {
   // States
@@ -48,7 +47,7 @@ const ProductScreen = () => {
   const { data: all_location, isLoading: isLoading_location } =
     useGetAllLocationListQuery({});
 
-  const { data, isLoading, error, refetch } = useGetProductsQuery({
+  const { data, isLoading, error } = useGetProductsQuery({
     currentPage,
     page_size: pageSize,
     lang: i18n.language,
@@ -57,16 +56,6 @@ const ProductScreen = () => {
     district_name: selectedDistrict,
     product_title: debouncedSearchQuery,
   });
-
-  // Implement debounced search
-  useEffect(() => {
-    const handler = debounce(() => {
-      setDebouncedSearchQuery(searchProductQuery);
-    }, 500);
-
-    handler();
-    return () => handler.cancel();
-  }, [searchProductQuery]);
 
   // Reset to first page when filters change
   useEffect(() => {
@@ -142,7 +131,7 @@ const ProductScreen = () => {
   // Get proper category name based on current language
   const getCategoryName = (category: Category) => {
     const langKey = `name_${i18n.language}` as keyof Category;
-    return category[langKey] || category.name_en;
+    return category[langKey] as string;
   };
 
   const totalCount = products?.count;

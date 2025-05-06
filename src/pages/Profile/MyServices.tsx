@@ -3,6 +3,7 @@ import { useGetUserServicesQuery } from "@store/slices/users";
 import { useTranslation } from "react-i18next";
 import { Service, ServiceResponse } from "@store/type";
 import MyService from "./MyService";
+import { RootState } from "@store/index";
 
 const MyServices = () => {
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
@@ -14,7 +15,7 @@ const MyServices = () => {
     error,
     refetch,
   } = useGetUserServicesQuery({ token });
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const refetchHandler = async () => {
     refetch();
   };

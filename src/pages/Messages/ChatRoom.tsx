@@ -2,7 +2,7 @@ import { SerializedError } from "@reduxjs/toolkit";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import React, { useState } from "react";
 import { BiLoader, BiMessageSquareDetail } from "react-icons/bi";
-import { FiTrash, FiSearch } from "react-icons/fi";
+import { FiTrash } from "react-icons/fi";
 
 export interface Chat {
   id: number;

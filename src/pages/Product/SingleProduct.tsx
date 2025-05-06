@@ -3,7 +3,7 @@ import { Product } from "@store/type";
 import { BASE_URL } from "@store/constants";
 import "./SingleProduct.css";
 import { useNavigate } from "react-router-dom";
-import { FaPlus, FaRegThumbsUp, FaThumbsUp } from "react-icons/fa";
+import { FaRegThumbsUp, FaThumbsUp } from "react-icons/fa";
 
 import { IoLocationOutline } from "react-icons/io5";
 import { MdDescription } from "react-icons/md";
@@ -26,22 +26,14 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
 
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
-  const {
-    data: favorite_items,
-    isLoading: fav_loading,
-    error: fav_error,
-    refetch: reload,
-  } = useGetFavoriteItemsQuery({
+  const { data: favorite_items, refetch: reload } = useGetFavoriteItemsQuery({
     token: token,
   });
-  const [likeProduct, { isLoading: create_loading_like }] =
-    useLikeProductMutation();
-  const [dislikeProduct, { isLoading: create_loading_unlike }] =
-    useUnlikeProductMutation();
+  const [likeProduct] = useLikeProductMutation();
+  const [dislikeProduct] = useUnlikeProductMutation();
 
   const liked_items: ServiceRes = favorite_items as ServiceRes;
 
-  const [likeCount, setLikeCount] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
 
   const redirectHandler = (id: number) => {
@@ -60,10 +52,6 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
   const formattedDate = new Date(product.created_at).toLocaleDateString();
 
   useEffect(() => {
-    if (product && product.likeCount !== undefined) {
-      setLikeCount(product.likeCount);
-    }
-
     // Check if this product is liked by the user
     if (liked_items && liked_items.liked_products) {
       const isProductLiked = liked_items.liked_products.some(
@@ -83,7 +71,7 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
 
     try {
       // Optimistic update
-      setLikeCount((prevCount) => prevCount + 1);
+
       setIsLiked(true);
 
       const response = await likeProduct({
@@ -94,15 +82,11 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
       if (response.data) {
         toast.success("Product liked successfully", { autoClose: 1000 });
         // If server returns a different count, sync with it
-        if (response.data !== undefined) {
-          const liked_product = response.data as Product;
-          setLikeCount(liked_product.likeCount);
-        }
+
         reload();
       }
     } catch (error: unknown) {
       // Revert optimistic update on error
-      setLikeCount((prevCount) => prevCount - 1);
       setIsLiked(false);
 
       if (error instanceof Error) {
@@ -136,15 +120,11 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
       if (response.data) {
         toast.success("Product disliked successfully", { autoClose: 1000 });
         // If server returns a different count, sync with it
-        const liked_product = response.data as Product;
-        if (response.data !== undefined) {
-          setLikeCount(liked_product.likeCount);
-        }
+
         reload();
       }
     } catch (error: unknown) {
       // Revert optimistic update on error
-      setLikeCount((prevCount) => prevCount + 1);
       setIsLiked(true);
 
       if (error instanceof Error) {

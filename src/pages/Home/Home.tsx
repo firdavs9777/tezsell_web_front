@@ -1,5 +1,4 @@
-import React from 'react';
-import ProductScreen from '@pages/Product/Products';
+import ProductScreen from "@pages/Product/Products";
 // import { useTranslation } from 'react-i18next';
 
 const Home = () => {
@@ -7,7 +6,7 @@ const Home = () => {
 
   return (
     <div className="home-container">
-      <ProductScreen/>
+      <ProductScreen />
     </div>
   );
 };

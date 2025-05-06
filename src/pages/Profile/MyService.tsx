@@ -1,9 +1,8 @@
-import { RootState } from "@reduxjs/toolkit/query";
 import { Service } from "../../store/type";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { BASE_URL } from "../../store/constants";
+
 import {
   FaComment,
   FaEdit,
@@ -21,6 +20,7 @@ import {
   useUnlikeServiceMutation,
 } from "../../store/slices/serviceApiSlice";
 import MyServiceEdit from "./ServiceEdit";
+import { RootState } from "@store/index";
 
 interface SingleServiceProps {
   service: Service;
@@ -35,21 +35,17 @@ const MyService: React.FC<SingleServiceProps> = ({ service, refresh }) => {
   const token = userInfo?.token;
   const {
     data: favorite_items,
-    isLoading: fav_loading,
-    error: fav_error,
+
     refetch: reload_item,
   } = useGetFavoriteItemsQuery({
     token: token,
   });
-  const [likeService, { isLoading: create_loading_like }] =
-    useLikeServiceMutation();
-  const [dislikeService, { isLoading: create_loading_unlike }] =
-    useUnlikeServiceMutation();
+  const [likeService] = useLikeServiceMutation();
+  const [dislikeService] = useUnlikeServiceMutation();
   const redirectHandler = (id: number) => {
     navigate(`/service/${id}`);
   };
   const liked_items: ServiceRes = favorite_items as ServiceRes;
-  const [likeCount, setLikeCount] = useState(service.likeCount);
 
   const handleLikeService = async () => {
     try {
@@ -60,7 +56,6 @@ const MyService: React.FC<SingleServiceProps> = ({ service, refresh }) => {
       });
 
       if (response.data) {
-        setLikeCount((prev) => prev + 1);
         toast.success("Service liked successfully", { autoClose: 1000 });
         reload_item();
       }
@@ -86,7 +81,6 @@ const MyService: React.FC<SingleServiceProps> = ({ service, refresh }) => {
       });
 
       if (response.data) {
-        setLikeCount((prev) => prev - 1);
         toast.success("Service disliked successfully", { autoClose: 1000 });
         reload_item();
       }
@@ -110,7 +104,6 @@ const MyService: React.FC<SingleServiceProps> = ({ service, refresh }) => {
     setIsEdit(!isEdit);
   };
   const closeHandler = async () => {
-    reload();
     refresh();
   };
   return (
@@ -134,7 +127,7 @@ const MyService: React.FC<SingleServiceProps> = ({ service, refresh }) => {
           className="service-category"
           onClick={() => redirectHandler(service.id)}
         >
-          {service.category.name}
+          {service.category.name_en}
         </p>
         <h2
           className="service-title"

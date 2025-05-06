@@ -23,7 +23,6 @@ const NewService = () => {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [category, setCategory] = useState<string>("");
-  const [imageLength, setImageLength] = useState<number>(0);
 
   // Get current language
   const currentLang = i18n.language;
@@ -67,7 +66,7 @@ const NewService = () => {
     const previews: string[] = [];
     const fileArray: File[] = [];
     const readers: FileReader[] = [];
-    setImageLength(files.length);
+
     Array.from(files).forEach((file) => {
       const reader = new FileReader();
       readers.push(reader);

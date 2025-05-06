@@ -35,19 +35,14 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
 
-  const {
-    data: loggedUserInfo,
-    refetch: refresh,
-    isLoading,
-    isError,
-    error,
-  } = useGetLoggedinUserInfoQuery(
-    { token: userInfo?.token || "" },
-    {
-      skip: !userInfo?.token,
-      refetchOnMountOrArgChange: true,
-    }
-  );
+  const { data: loggedUserInfo, refetch: refresh } =
+    useGetLoggedinUserInfoQuery(
+      { token: userInfo?.token || "" },
+      {
+        skip: !userInfo?.token,
+        refetchOnMountOrArgChange: true,
+      }
+    );
 
   // Add console logs to track what's happening
   useEffect(() => {

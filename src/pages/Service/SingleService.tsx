@@ -1,17 +1,16 @@
-import React, { useState } from "react";
+import React from "react";
 import { Service } from "@store/type";
 import { BASE_URL } from "@store/constants";
 import "./SingleService.css";
 import {
   FaComment,
   FaMapMarkerAlt,
-  FaPlus,
   FaRegThumbsUp,
   FaThumbsUp,
 
   // FaComment,
 } from "react-icons/fa";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "@store/index";
 import { useGetFavoriteItemsQuery } from "@store/slices/productsApiSlice";
@@ -28,7 +27,7 @@ interface SingleServiceProps {
 
 const SingleService: React.FC<SingleServiceProps> = ({ service }) => {
   const navigate = useNavigate();
-  const { search } = useLocation();
+
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
   const {
@@ -49,7 +48,12 @@ const SingleService: React.FC<SingleServiceProps> = ({ service }) => {
   const redirectHandler = (id: number) => {
     navigate(`/service/${id}`);
   };
-  const [likeCount, setLikeCount] = useState(service.likeCount);
+  if (fav_loading) return <div>Loading</div>;
+
+  if (fav_error) return <div>Error</div>;
+  if (create_loading_like) return <div>Loading</div>;
+
+  if (create_loading_unlike) return <div>Loading</div>;
   const handleLikeService = async () => {
     try {
       const token = userInfo?.token;
@@ -59,7 +63,6 @@ const SingleService: React.FC<SingleServiceProps> = ({ service }) => {
       });
 
       if (response.data) {
-        setLikeCount((prev) => prev + 1);
         toast.success("Service liked successfully", { autoClose: 1000 });
         reload_item();
       }
@@ -85,7 +88,6 @@ const SingleService: React.FC<SingleServiceProps> = ({ service }) => {
       });
 
       if (response.data) {
-        setLikeCount((prev) => prev - 1);
         toast.success("Service disliked successfully", { autoClose: 1000 });
         reload_item();
       }
@@ -122,7 +124,7 @@ const SingleService: React.FC<SingleServiceProps> = ({ service }) => {
           className="service-category"
           onClick={() => redirectHandler(service.id)}
         >
-          {service.category.name}
+          {service.category.name_en}
         </p>
         <h2
           className="service-title"

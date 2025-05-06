@@ -35,17 +35,14 @@ const MyProduct: React.FC<SingleProductProps> = ({ product, refresh }) => {
   const token = userInfo?.token;
   const {
     data: favorite_items,
-    isLoading: fav_loading,
-    error: fav_error,
+
     refetch: reload,
   } = useGetFavoriteItemsQuery({
     token: token,
   });
-  const [likeProduct, { isLoading: create_loading_like }] =
-    useLikeProductMutation();
+  const [likeProduct] = useLikeProductMutation();
   const [deleteProduct] = useDeleteUserProductMutation();
-  const [dislikeProduct, { isLoading: create_loading_unlike }] =
-    useUnlikeProductMutation();
+  const [dislikeProduct] = useUnlikeProductMutation();
 
   const liked_items: ServiceRes = favorite_items as ServiceRes;
 
@@ -125,42 +122,34 @@ const MyProduct: React.FC<SingleProductProps> = ({ product, refresh }) => {
   const deleteProductHandler = async () => {
     // Create a custom toast with "Yes" and "No" buttons
     const confirmToast = toast.info(
-      "Are you sure you want to delete this product?",
+      <div>
+        <p>Are you sure you want to delete this product?</p>
+        <div>
+          <button
+            onClick={async () => {
+              const token = userInfo?.token;
+              try {
+                await deleteProduct({
+                  productId: product.id,
+                  token: token,
+                });
+                toast.success("Product deleted successfully");
+              } catch {
+                toast.error("Error occurred while deleting the product");
+              }
+              toast.dismiss(confirmToast);
+            }}
+          >
+            Yes
+          </button>
+          <button onClick={() => toast.dismiss(confirmToast)}>No</button>
+        </div>
+      </div>,
       {
         position: "top-center",
-        autoClose: false, // Prevent auto-close, waiting for user action
+        autoClose: false,
         closeOnClick: false,
         draggable: false,
-        onClose: () => {
-          // Optional: You can handle cleanup or any other tasks when toast is closed
-        },
-        render: () => (
-          <div>
-            <p>Are you sure you want to delete this product?</p>
-            <button
-              onClick={async () => {
-                const token = userInfo?.token;
-                try {
-                  const response = await deleteProduct({
-                    productId: product.id,
-                    token: token,
-                  });
-                  toast.success("Product deleted successfully");
-                } catch {
-                  toast.error("Error occurred while deleting the product");
-                }
-                toast.dismiss(confirmToast); // Dismiss the confirmation toast
-              }}
-            >
-              Yes
-            </button>
-            <button
-              onClick={() => toast.dismiss(confirmToast)} // Dismiss the confirmation toast without action
-            >
-              No
-            </button>
-          </div>
-        ),
       }
     );
   };

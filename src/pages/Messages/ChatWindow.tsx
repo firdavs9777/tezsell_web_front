@@ -29,10 +29,9 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
 
-
   // WebSocket Connection
   useEffect(() => {
-    console.log(chatId)
+    console.log(chatId);
     if (!chatId) return;
 
     const socket = new WebSocket(`ws://localhost:8000/ws/chat/${chatId}/`);
@@ -71,10 +70,9 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
     setNewMessage("");
   };
 
-  const allMessages = [
-    ...(messages?.messages || []),
-    ...socketMessages,
-  ].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+  const allMessages = [...(messages?.messages || []), ...socketMessages].sort(
+    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+  );
 
   return (
     <div className="flex flex-col h-full p-4 border-l border-gray-300">
@@ -87,11 +85,17 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
           return (
             <div
               key={msg.id || Math.random()} // WebSocket messages may not have an ID
-              className={`flex ${isMyMessage ? "justify-start" : "justify-end"}`}
+              className={`flex ${
+                isMyMessage ? "justify-start" : "justify-end"
+              }`}
             >
               <div
                 className={`max-w-[300px] sm:max-w-md px-4 py-2 rounded-lg text-sm shadow 
-                ${isMyMessage ? "bg-green-200 text-left" : "bg-blue-100 text-right"}`}
+                ${
+                  isMyMessage
+                    ? "bg-green-200 text-left"
+                    : "bg-blue-100 text-right"
+                }`}
               >
                 <div className="mb-1">{msg.content}</div>
                 <div className="text-xs text-gray-600 flex justify-between gap-2">

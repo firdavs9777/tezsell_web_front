@@ -20,7 +20,7 @@ const Register = () => {
   const [userName, setUserName] = useState("");
   const [userPassword, setUserPassword] = useState("");
   const [registerUser, { isLoading }] = useRegisterUserMutation();
-  const [locationId, setLocationId] = useState<number>(0)
+  const [locationId, setLocationId] = useState<number>(0);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { search } = useLocation();
@@ -52,7 +52,7 @@ const Register = () => {
         autoClose: 3000,
       });
     }
-    
+
     setCurrentStep((prev) => prev + 1);
   };
 
@@ -80,7 +80,7 @@ const Register = () => {
       password: userPassword,
       phone_number: phoneNumber,
       user_type: "regular",
-      location_id: locationId
+      location_id: locationId,
     };
     try {
       const registerInfo = await registerUser(registerInput).unwrap();
@@ -93,9 +93,12 @@ const Register = () => {
       });
     }
   };
-
+  if (isLoading) return <div>Loading</div>;
   return (
-    <form onSubmit={submitRegister} className="min-h-screen bg-gray-50 py-10 px-4">
+    <form
+      onSubmit={submitRegister}
+      className="min-h-screen bg-gray-50 py-10 px-4"
+    >
       <div className="max-w-xl mx-auto bg-white shadow-lg rounded-lg p-6">
         <h1 className="text-2xl font-bold text-center text-gray-800 mb-4">
           {t("register_title")}

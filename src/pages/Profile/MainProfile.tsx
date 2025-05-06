@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "../../store";
@@ -72,7 +72,7 @@ const MainProfile = () => {
     }
   }, [profileInfo]);
 
-  // Optimize regions fetch with caching
+  // Prefetch regions immediately on page load, regardless of modal state
   const { data: regions, isLoading: regionsLoading } = useGetRegionsListQuery(
     {},
     {
@@ -82,13 +82,18 @@ const MainProfile = () => {
     }
   );
 
-  // Only fetch districts when region is selected and modal is open
+  // Always fetch districts for the current region as soon as region is set
+  // This way they're already loaded when the modal opens
   const { data: districts, isLoading: districtsLoading } =
     useGetDistrictsListQuery(currentRegion, {
-      skip: !currentRegion || !modalOpen,
+      skip: !currentRegion || !token,
       // Cache districts for 24 hours since they rarely change
       refetchOnMountOrArgChange: 86400,
     });
+
+  // Memoize the formatted data to prevent unnecessary re-renders
+  const regionsList = useMemo(() => regions as RegionsList, [regions]);
+  const districtsList = useMemo(() => districts as DistrictsList, [districts]);
 
   // Use a single dependency for products, services, and liked items
   const shouldFetchItems = !!(token && !userInfoLoading && profileInfo?.data);
@@ -136,8 +141,6 @@ const MainProfile = () => {
   const products = productsData as ProductResponse;
   const services = servicesData as ServiceResponse;
   const likedItems = likedItemsData as ServiceRes;
-  const regionsList = regions as RegionsList;
-  const districtsList = districts as DistrictsList;
 
   // Handle image preview
   useEffect(() => {
@@ -173,9 +176,19 @@ const MainProfile = () => {
     setModalOpen(false);
     setImagePreview(null);
     setNewImage(null);
-    setNewUsername(profileInfo?.data.username);
-    setCurrentRegion(profileInfo?.data.location.region);
-    setCurrentDistrict(profileInfo?.data.location.district);
+    // Reset form values to match profile data
+    if (profileInfo?.data) {
+      setNewUsername(profileInfo.data.username || "");
+      setCurrentRegion(profileInfo.data.location.region || "");
+      setCurrentDistrict(profileInfo.data.location.district || "");
+    }
+  };
+
+  // Optimize region change to immediately reset district
+  const handleRegionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newRegion = e.target.value;
+    setCurrentRegion(newRegion);
+    setCurrentDistrict(""); // Reset district when region changes
   };
 
   const handleProfileUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -240,14 +253,14 @@ const MainProfile = () => {
           {items.slice(0, limit).map((item, index) =>
             item.comments ? (
               <li
-                key={item.id || index}
+                key={item.id || `service-${index}`}
                 onClick={() => redirectServiceHandler(item.id)}
               >
                 {item[nameKey]}
               </li>
             ) : (
               <li
-                key={item.id || index}
+                key={item.id || `product-${index}`}
                 onClick={() => redirectHandler(item.id)}
               >
                 {item[nameKey]}
@@ -275,7 +288,7 @@ const MainProfile = () => {
         <ul className="item-list">
           {items.slice(0, limit).map((item, index) => (
             <li
-              key={item.id || index}
+              key={item.id || `service-${index}`}
               onClick={() => redirectServiceHandler(item.id)}
             >
               {item[nameKey]}
@@ -293,6 +306,11 @@ const MainProfile = () => {
     );
   };
 
+  // Prepare profile image URL
+  const profileImageUrl = profileInfo.data.profile_image
+    ? `${BASE_URL}${profileInfo.data.profile_image.image}`
+    : "/default-profile.png";
+
   return (
     <Card>
       <div className="profile-header">
@@ -304,7 +322,7 @@ const MainProfile = () => {
           <div className="profile-overview">
             {profileInfo.data.profile_image?.image ? (
               <img
-                src={`${BASE_URL}${profileInfo.data?.profile_image.image}`}
+                src={profileImageUrl}
                 alt="User profile"
                 className="profile-image"
               />
@@ -330,112 +348,117 @@ const MainProfile = () => {
           />
         </div>
 
-        <Modal onClose={handleClose} isOpen={modalOpen}>
-          <div className="edit-profile-form">
-            <h2>{t("edit_profile_modal_title")}</h2>
-            <form onSubmit={handleProfileUpdate}>
-              <div className="form-group">
-                <label htmlFor="username">{t("username_label")}</label>
-                <input
-                  id="username"
-                  type="text"
-                  value={newUsername}
-                  onChange={(e) => setNewUsername(e.target.value)}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="location">{t("location_label")}</label>
-                <div className="location-selects">
-                  <select
-                    id="region"
-                    value={currentRegion}
-                    onChange={(e) => setCurrentRegion(e.target.value)}
-                  >
-                    {regionsLoading ? (
-                      <option>Loading regions...</option>
-                    ) : (
-                      regionsList?.regions?.map((region, index) => (
-                        <option key={index} value={region.region}>
-                          {region.region}
-                        </option>
-                      ))
-                    )}
-                  </select>
-                  <select
-                    id="district"
-                    value={currentDistrict}
-                    onChange={(e) => setCurrentDistrict(e.target.value)}
-                    disabled={districtsLoading || !currentRegion}
-                  >
-                    {districtsLoading ? (
-                      <option>Loading districts...</option>
-                    ) : (
-                      districtsList?.districts?.map((district, index) => (
-                        <option key={index} value={district.district}>
-                          {district.district}
-                        </option>
-                      ))
-                    )}
-                  </select>
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="profile-image">
-                  {t("profile_image_label")}
-                </label>
-                <div className="image-preview">
-                  {imagePreview ? (
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="image-preview-img"
-                    />
-                  ) : (
-                    <img
-                      src={
-                        profileInfo.data.profile_image
-                          ? `${BASE_URL}${profileInfo.data.profile_image.image}`
-                          : "/default-profile.png"
-                      }
-                      alt="Existing profile"
-                      className="image-preview-img"
-                    />
-                  )}
-                </div>
-
-                <div className="upload-container">
-                  <label htmlFor="file-upload" className="custom-upload-btn">
-                    {t("choose_file_label")}
-                  </label>
+        {modalOpen && (
+          <Modal onClose={handleClose} isOpen={modalOpen}>
+            <div className="edit-profile-form">
+              <h2>{t("edit_profile_modal_title")}</h2>
+              <form onSubmit={handleProfileUpdate}>
+                <div className="form-group">
+                  <label htmlFor="username">{t("username_label")}</label>
                   <input
-                    type="file"
-                    id="file-upload"
-                    className="file-input"
-                    onChange={(e) =>
-                      setNewImage(e.target.files ? e.target.files[0] : null)
-                    }
-                    accept="image/*"
+                    id="username"
+                    type="text"
+                    value={newUsername}
+                    onChange={(e) => setNewUsername(e.target.value)}
                   />
                 </div>
-              </div>
 
-              <div className="form-actions">
-                <button type="submit" className="upload-btn">
-                  {t("upload_btn_label")}
-                </button>
-                <button
-                  type="button"
-                  className="close-btn"
-                  onClick={handleClose}
-                >
-                  {t("cancel_btn_label")}
-                </button>
-              </div>
-            </form>
-          </div>
-        </Modal>
+                <div className="form-group">
+                  <label htmlFor="location">{t("location_label")}</label>
+                  <div className="location-selects">
+                    <select
+                      id="region"
+                      value={currentRegion}
+                      onChange={handleRegionChange}
+                      disabled={regionsLoading}
+                    >
+                      <option value="">Select Region</option>
+                      {regionsLoading ? (
+                        <option disabled>Loading regions...</option>
+                      ) : (
+                        regionsList?.regions?.map((region, index) => (
+                          <option key={`region-${index}`} value={region.region}>
+                            {region.region}
+                          </option>
+                        ))
+                      )}
+                    </select>
+
+                    <select
+                      id="district"
+                      value={currentDistrict}
+                      onChange={(e) => setCurrentDistrict(e.target.value)}
+                      disabled={districtsLoading || !currentRegion}
+                    >
+                      <option value="">Select District</option>
+                      {districtsLoading ? (
+                        <option disabled>Loading districts...</option>
+                      ) : (
+                        districtsList?.districts?.map((district, index) => (
+                          <option
+                            key={`district-${index}`}
+                            value={district.district}
+                          >
+                            {district.district}
+                          </option>
+                        ))
+                      )}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="profile-image">
+                    {t("profile_image_label")}
+                  </label>
+                  <div className="image-preview">
+                    {imagePreview ? (
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="image-preview-img"
+                      />
+                    ) : (
+                      <img
+                        src={profileImageUrl}
+                        alt="Existing profile"
+                        className="image-preview-img"
+                      />
+                    )}
+                  </div>
+
+                  <div className="upload-container">
+                    <label htmlFor="file-upload" className="custom-upload-btn">
+                      {t("choose_file_label")}
+                    </label>
+                    <input
+                      type="file"
+                      id="file-upload"
+                      className="file-input"
+                      onChange={(e) =>
+                        setNewImage(e.target.files ? e.target.files[0] : null)
+                      }
+                      accept="image/*"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-actions">
+                  <button type="submit" className="upload-btn">
+                    {t("upload_btn_label")}
+                  </button>
+                  <button
+                    type="button"
+                    className="close-btn"
+                    onClick={handleClose}
+                  >
+                    {t("cancel_btn_label")}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </Modal>
+        )}
 
         {/* Products section with loading indicator */}
         <section className="my-products">

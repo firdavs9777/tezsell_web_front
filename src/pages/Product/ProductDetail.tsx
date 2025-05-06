@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   useGetFavoriteItemsQuery,
@@ -32,23 +32,15 @@ const ProductDetail = () => {
   const { id } = useParams();
   const [isEdit, setIsEdit] = useState(false);
   const { data, isLoading, error, refetch } = useGetSingleProductQuery(id);
-  const [likeProduct, { isLoading: create_loading_like }] =
-    useLikeProductMutation();
-  const [dislikeProduct, { isLoading: create_loading_unlike }] =
-    useUnlikeProductMutation();
+  const [likeProduct] = useLikeProductMutation();
+  const [dislikeProduct] = useUnlikeProductMutation();
 
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
-  const {
-    data: favorite_items,
-    isLoading: fav_loading,
-    error: fav_error,
-    refetch: reload,
-  } = useGetFavoriteItemsQuery({
+  const { data: favorite_items, refetch: reload } = useGetFavoriteItemsQuery({
     token: token,
   });
-  const [createChatRoom, { isLoading: chatLoading }] =
-    useCreateChatRoomMutation();
+  const [createChatRoom] = useCreateChatRoomMutation();
 
   const liked_items: ServiceRes = favorite_items as ServiceRes;
 
