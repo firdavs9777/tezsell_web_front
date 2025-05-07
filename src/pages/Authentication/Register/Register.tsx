@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 
 const Register = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [phoneNumber, setPhoneNumber] = useState("+821082773725");
+  const [phoneNumber, setPhoneNumber] = useState("+998");
   const [isPhoneVerified, setIsPhoneVerified] = useState(false);
   const [regionName, setRegionName] = useState("");
   const [districtName, setDistrictName] = useState("");
