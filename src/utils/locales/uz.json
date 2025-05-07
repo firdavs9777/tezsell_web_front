@@ -169,8 +169,13 @@
 "title_required_message": "Sarlavha majburiy",
 "desc_required_message": "Tavsif majburiy",
 "price_required_message": "Narx majburiy",
-"condition_required_message": "Holati majburiy"
-
-
+"condition_required_message": "Holati majburiy",
+  "please_fill_all_required": "Iltimos, barcha majburiy maydonlarni to‘ldiring",
+  "one_image_confirm_message": "Hech bo‘lmaganda bitta mahsulot rasmi kerak",
+  "category_required_message": "Kategoriya majburiy",
+  "location_info_error": "Foydalanuvchining joylashuvi ma'lum emas",
+  "edit_product_title": "Mahsulotni tahrirlash",
+    "image_upload_requirements": "Hech bo‘lmaganda bitta rasm talab qilinadi. Siz 10 tagacha rasm yuklashingiz mumkin (JPG, PNG, GIF, WebP, har biri 5MB gacha).",
+    "uploading_btn_label": "Yangilanmoqda ..."
 
 }
