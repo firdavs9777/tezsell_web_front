@@ -27,8 +27,7 @@ import {
 
 import Modal from "../../components/Modal";
 import { toast } from "react-toastify";
-import Button from "../../components/Button";
-import Card from "../../components/Card";
+import { FaUser, FaPen, FaPlus, FaCamera, FaMapMarkerAlt, FaAngleRight, FaHeart, FaToolbox, FaShoppingBag } from "react-icons/fa";
 
 export interface ServiceRes {
   liked_services: Service[];
@@ -89,7 +88,8 @@ const MainProfile = () => {
       skip: !currentRegion || !token,
       // Cache districts for 24 hours since they rarely change
       refetchOnMountOrArgChange: 86400,
-    });
+    }
+  );
 
   // Memoize the formatted data to prevent unnecessary re-renders
   const regionsList = useMemo(() => regions as RegionsList, [regions]);
@@ -101,7 +101,6 @@ const MainProfile = () => {
   const {
     data: productsData,
     isLoading: productsLoading,
-    error: productsError,
   } = useGetUserProductsQuery(
     { token },
     {
@@ -114,7 +113,6 @@ const MainProfile = () => {
   const {
     data: servicesData,
     isLoading: servicesLoading,
-    error: servicesError,
   } = useGetUserServicesQuery(
     { token },
     {
@@ -126,7 +124,6 @@ const MainProfile = () => {
   const {
     data: likedItemsData,
     isLoading: likedItemsLoading,
-    error: likedItemsError,
   } = useGetFavoriteItemsQuery(
     { token },
     {
@@ -156,16 +153,26 @@ const MainProfile = () => {
   // Loading and error handling
   if (!token)
     return (
-      <div className="auth-message">Please log in to view your profile</div>
+      <div className="flex items-center justify-center h-64 bg-gray-50 rounded-lg text-gray-600">
+        {t("please_login")}
+      </div>
     );
 
   // Optimize loading states to show partial UI when possible
   const isInitialLoading = userInfoLoading;
-  if (isInitialLoading) return <div className="loading">Loading...</div>;
+  if (isInitialLoading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
+  );
 
   const hasError = userInfoError;
   if (hasError)
-    return <div className="error-message">Error loading profile data</div>;
+    return (
+      <div className="p-4 bg-red-50 text-red-600 rounded-lg">
+        {t("error_loading_profile")}
+      </div>
+    );
 
   // Modal handlers
   const handleOpenModal = () => {
@@ -243,198 +250,257 @@ const MainProfile = () => {
     navigate(`/service/${id}`);
   };
 
-  // Render helpers
-  const renderItemList = (items: any[], nameKey: string, limit = 3) => {
-    if (!items || !items.length) return <p>No items available</p>;
-
-    return (
-      <>
-        <ul className="item-list">
-          {items.slice(0, limit).map((item, index) =>
-            item.comments ? (
-              <li
-                key={item.id || `service-${index}`}
-                onClick={() => redirectServiceHandler(item.id)}
-              >
-                {item[nameKey]}
-              </li>
-            ) : (
-              <li
-                key={item.id || `product-${index}`}
-                onClick={() => redirectHandler(item.id)}
-              >
-                {item[nameKey]}
-              </li>
-            )
-          )}
-        </ul>
-
-        {items.length > limit && (
-          <Button
-            onClick={() => navigate("/my-products")}
-            label={t("see_more_btn")}
-            variant="see-more"
-          />
-        )}
-      </>
-    );
-  };
-
-  const renderServiceList = (items: any[], nameKey: string, limit = 3) => {
-    if (!items || !items.length) return <p>No items available</p>;
-
-    return (
-      <>
-        <ul className="item-list">
-          {items.slice(0, limit).map((item, index) => (
-            <li
-              key={item.id || `service-${index}`}
-              onClick={() => redirectServiceHandler(item.id)}
-            >
-              {item[nameKey]}
-            </li>
-          ))}
-        </ul>
-        {items.length > limit && (
-          <Button
-            onClick={() => navigate("/my-services")}
-            label={t("see_more_btn")}
-            variant="see-more"
-          />
-        )}
-      </>
-    );
-  };
-
   // Prepare profile image URL
   const profileImageUrl = profileInfo.data.profile_image
     ? `${BASE_URL}${profileInfo.data.profile_image.image}`
     : "/default-profile.png";
 
-  return (
-    <Card>
-      <div className="profile-header">
-        <h1>{t("profile_page_title")}</h1>
-      </div>
-
-      <div className="profile-content">
-        <div className="profile-top">
-          <div className="profile-overview">
-            {profileInfo.data.profile_image?.image ? (
-              <img
-                src={profileImageUrl}
-                alt="User profile"
-                className="profile-image"
-              />
-            ) : (
-              <svg
-                className="comment-author-icon"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                width="40"
-                height="40"
-                fill="gray"
-              >
-                <circle cx="12" cy="8" r="4" />
-                <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
-              </svg>
-            )}
-            <p className="profile-username">{profileInfo.data.username}</p>
-          </div>
-          <Button
-            variant="edit"
-            onClick={handleOpenModal}
-            label={t("edit_profile_modal_title")}
+  // Render item card
+  const renderItemCard = (item: any, isService = false) => {
+    const imageUrl = item.images && item.images.length > 0 
+      ? `${BASE_URL}${item.images[0].image}`
+      : isService 
+        ? "/service-placeholder.png" 
+        : "/product-placeholder.png";
+    
+    return (
+      <div 
+        className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+        onClick={() => isService ? redirectServiceHandler(item.id) : redirectHandler(item.id)}
+      >
+        <div className="aspect-video overflow-hidden bg-gray-100">
+          <img 
+            src={imageUrl} 
+            alt={isService ? item.name : item.title}
+            className="w-full h-full object-cover"
+            loading="lazy"
           />
         </div>
+        <div className="p-3">
+          <h4 className="font-medium text-gray-800 truncate">
+            {isService ? item.name : item.title}
+          </h4>
+          <p className="text-sm text-gray-500 mt-1 line-clamp-1">
+            {item.description || t("no_description")}
+          </p>
+          {!isService && item.price && (
+            <p className="text-blue-600 font-semibold mt-1">
+              {item.price} {item.currency || ''}
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  };
 
-        {modalOpen && (
-          <Modal onClose={handleClose} isOpen={modalOpen}>
-            <div className="edit-profile-form">
-              <h2>{t("edit_profile_modal_title")}</h2>
-              <form onSubmit={handleProfileUpdate}>
-                <div className="form-group">
-                  <label htmlFor="username">{t("username_label")}</label>
-                  <input
-                    id="username"
-                    type="text"
-                    value={newUsername}
-                    onChange={(e) => setNewUsername(e.target.value)}
+  // Render item section
+  const renderItemSection = (
+    title: string, 
+    items: any[], 
+    isLoading: boolean, 
+    isService = false,
+    seeMoreLink: string,
+    addNewLink?: string
+  ) => {
+    const itemCount = items?.length || 0;
+    
+    return (
+      <section className="bg-white rounded-lg shadow-sm p-4 mb-6">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold flex items-center">
+            {isService ? <FaToolbox className="mr-2 text-blue-500" /> : <FaShoppingBag className="mr-2 text-blue-500" />}
+            {title} ({itemCount})
+          </h3>
+          {addNewLink && (
+            <button 
+              onClick={() => navigate(addNewLink)} 
+              className="text-sm flex items-center gap-1 text-blue-600 hover:text-blue-800 transition-colors"
+            >
+              <FaPlus size={12} /> {t("add_new")}
+            </button>
+          )}
+        </div>
+        
+        {isLoading ? (
+          <div className="flex justify-center py-6">
+            <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        ) : itemCount === 0 ? (
+          <div className="text-center py-6 text-gray-500">
+            {isService ? t("no_services") : t("no_products")}
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {items.slice(0, 3).map((item) => renderItemCard(item, isService))}
+            </div>
+            
+            {itemCount > 3 && (
+              <div className="text-center mt-4">
+                <button 
+                  className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+                  onClick={() => navigate(seeMoreLink)}
+                >
+                  {t("see_all")} <FaAngleRight size={14} className="ml-1" />
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </section>
+    );
+  };
+
+  // Render favorite section
+  const renderFavoriteSection = (
+    title: string, 
+    items: any[], 
+    isLoading: boolean, 
+    isService = false
+  ) => {
+    const itemCount = items?.length || 0;
+    
+    return (
+      <section className="bg-white rounded-lg shadow-sm p-4 mb-6">
+        <div className="flex items-center mb-4">
+          <FaHeart className="mr-2 text-rose-500" />
+          <h3 className="text-lg font-semibold">{title} ({itemCount})</h3>
+        </div>
+        
+        {isLoading ? (
+          <div className="flex justify-center py-6">
+            <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        ) : itemCount === 0 ? (
+          <div className="text-center py-6 text-gray-500">
+            {t("no_favorites")}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {items.slice(0, 3).map((item) => renderItemCard(item, isService))}
+          </div>
+        )}
+      </section>
+    );
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 py-6">
+      {/* Profile Header */}
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 h-32"></div>
+        <div className="px-6 pb-6 relative">
+          <div className="flex flex-col sm:flex-row sm:items-end -mt-16 sm:-mt-12 mb-6">
+            <div className="relative">
+              <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white overflow-hidden bg-white">
+                {profileInfo.data.profile_image?.image ? (
+                  <img
+                    src={profileImageUrl}
+                    alt={profileInfo.data.username}
+                    className="w-full h-full object-cover"
                   />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="location">{t("location_label")}</label>
-                  <div className="location-selects">
-                    <select
-                      id="region"
-                      value={currentRegion}
-                      onChange={handleRegionChange}
-                      disabled={regionsLoading}
-                    >
-                      <option value="">Select Region</option>
-                      {regionsLoading ? (
-                        <option disabled>Loading regions...</option>
-                      ) : (
-                        regionsList?.regions?.map((region, index) => (
-                          <option key={`region-${index}`} value={region.region}>
-                            {region.region}
-                          </option>
-                        ))
-                      )}
-                    </select>
-
-                    <select
-                      id="district"
-                      value={currentDistrict}
-                      onChange={(e) => setCurrentDistrict(e.target.value)}
-                      disabled={districtsLoading || !currentRegion}
-                    >
-                      <option value="">Select District</option>
-                      {districtsLoading ? (
-                        <option disabled>Loading districts...</option>
-                      ) : (
-                        districtsList?.districts?.map((district, index) => (
-                          <option
-                            key={`district-${index}`}
-                            value={district.district}
-                          >
-                            {district.district}
-                          </option>
-                        ))
-                      )}
-                    </select>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                    <FaUser size={48} className="text-gray-400" />
                   </div>
-                </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex-grow mt-4 sm:mt-0 sm:ml-4 sm:pb-2">
+              <h1 className="text-2xl font-bold text-gray-800">{profileInfo.data.username}</h1>
+              {profileInfo.data.location?.district && (
+                <p className="text-gray-600 flex items-center mt-1">
+                  <FaMapMarkerAlt className="mr-1" />
+                  {profileInfo.data.location.district}, {profileInfo.data.location.region}
+                </p>
+              )}
+            </div>
+            
+            <div className="mt-4 sm:mt-0 sm:ml-auto sm:pb-2">
+              <button
+                onClick={handleOpenModal}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                <FaPen size={14} /> {t("edit_profile")}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-                <div className="form-group">
-                  <label htmlFor="profile-image">
-                    {t("profile_image_label")}
-                  </label>
-                  <div className="image-preview">
-                    {imagePreview ? (
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        className="image-preview-img"
-                      />
-                    ) : (
-                      <img
-                        src={profileImageUrl}
-                        alt="Existing profile"
-                        className="image-preview-img"
-                      />
-                    )}
-                  </div>
+      {/* Content Grid */}
+      <div className="grid grid-cols-1 gap-6">
+        {/* Products Section */}
+        {renderItemSection(
+          t("my_products_title"),
+          products?.results || [],
+          productsLoading,
+          false,
+          "/my-products",
+          "/new-product"
+        )}
+        
+        {/* Services Section */}
+        {renderItemSection(
+          t("my_services_title"),
+          services?.results || [],
+          servicesLoading,
+          true,
+          "/my-services",
+          "/new-service"
+        )}
+        
+        {/* Favorites Sections */}
+        {renderFavoriteSection(
+          t("favorite_products_title"),
+          likedItems?.liked_products || [],
+          likedItemsLoading,
+          false
+        )}
+        
+        {renderFavoriteSection(
+          t("favorite_services_title"),
+          likedItems?.liked_services || [],
+          likedItemsLoading,
+          true
+        )}
+      </div>
 
-                  <div className="upload-container">
-                    <label htmlFor="file-upload" className="custom-upload-btn">
-                      {t("choose_file_label")}
+      {/* Edit Profile Modal */}
+      {modalOpen && (
+        <Modal onClose={handleClose} isOpen={modalOpen}>
+          <div className="p-6">
+            <h2 className="text-xl font-bold mb-6 text-center">{t("edit_profile_modal_title")}</h2>
+            <form onSubmit={handleProfileUpdate}>
+              <div className="mb-6">
+                <div className="flex justify-center mb-4">
+                  <div className="relative">
+                    <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100">
+                      {imagePreview ? (
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <img
+                          src={profileImageUrl}
+                          alt="Existing profile"
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                    </div>
+                    <label 
+                      htmlFor="file-upload" 
+                      className="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 cursor-pointer shadow-md"
+                    >
+                      <FaCamera size={14} />
                     </label>
                     <input
                       type="file"
                       id="file-upload"
-                      className="file-input"
+                      className="hidden"
                       onChange={(e) =>
                         setNewImage(e.target.files ? e.target.files[0] : null)
                       }
@@ -442,93 +508,89 @@ const MainProfile = () => {
                     />
                   </div>
                 </div>
+              </div>
+              
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-semibold mb-2" htmlFor="username">
+                  {t("username_label")}
+                </label>
+                <input
+                  id="username"
+                  type="text"
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
 
-                <div className="form-actions">
-                  <button type="submit" className="upload-btn">
-                    {t("upload_btn_label")}
-                  </button>
-                  <button
-                    type="button"
-                    className="close-btn"
-                    onClick={handleClose}
+              <div className="mb-6">
+                <label className="block text-gray-700 text-sm font-semibold mb-2">
+                  {t("location_label")}
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <select
+                    id="region"
+                    value={currentRegion}
+                    onChange={handleRegionChange}
+                    disabled={regionsLoading}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    {t("cancel_btn_label")}
-                  </button>
+                    <option value="">{t("select_region")}</option>
+                    {regionsLoading ? (
+                      <option disabled>{t("loading_regions")}</option>
+                    ) : (
+                      regionsList?.regions?.map((region, index) => (
+                        <option key={`region-${index}`} value={region.region}>
+                          {region.region}
+                        </option>
+                      ))
+                    )}
+                  </select>
+
+                  <select
+                    id="district"
+                    value={currentDistrict}
+                    onChange={(e) => setCurrentDistrict(e.target.value)}
+                    disabled={districtsLoading || !currentRegion}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">{t("select_district")}</option>
+                    {districtsLoading ? (
+                      <option disabled>{t("loading_districts")}</option>
+                    ) : (
+                      districtsList?.districts?.map((district, index) => (
+                        <option
+                          key={`district-${index}`}
+                          value={district.district}
+                        >
+                          {district.district}
+                        </option>
+                      ))
+                    )}
+                  </select>
                 </div>
-              </form>
-            </div>
-          </Modal>
-        )}
+              </div>
 
-        {/* Products section with loading indicator */}
-        <section className="my-products">
-          <h3>
-            {t("my_products_title")} ({products?.results?.length || 0})
-          </h3>
-          {productsLoading ? (
-            <p>Loading products...</p>
-          ) : productsError ? (
-            <p>Error loading products</p>
-          ) : (
-            renderItemList(products?.results || [], "title")
-          )}
-          <Button
-            label={t("add_new_product_btn")}
-            onClick={() => navigate("/new-product")}
-            variant="add"
-          />
-        </section>
-
-        {/* Services section with loading indicator */}
-        <section className="my-services">
-          <h3>
-            {t("my_services_title")} ({services?.results?.length || 0})
-          </h3>
-          {servicesLoading ? (
-            <p>Loading services...</p>
-          ) : servicesError ? (
-            <p>Error loading services</p>
-          ) : (
-            renderServiceList(services?.results || [], "name")
-          )}
-          <Button
-            label={t("add_new_service_btn")}
-            onClick={() => navigate("/new-service")}
-            variant="add"
-          />
-        </section>
-
-        {/* Liked products section with loading indicator */}
-        <section className="recent-activity">
-          <h3>
-            {t("favorite_products_title")} (
-            {likedItems?.liked_products?.length || 0})
-          </h3>
-          {likedItemsLoading ? (
-            <p>Loading favorite products...</p>
-          ) : likedItemsError ? (
-            <p>Error loading favorite products</p>
-          ) : (
-            renderItemList(likedItems?.liked_products || [], "title")
-          )}
-        </section>
-
-        {/* Liked services section with loading indicator */}
-        <section className="recent-activity">
-          <h3>
-            {t("favorite_services_title")} (
-            {likedItems?.liked_services?.length || 0})
-          </h3>
-          {likedItemsLoading ? (
-            <p>Loading favorite services...</p>
-          ) : likedItemsError ? (
-            <p>Error loading favorite services</p>
-          ) : (
-            renderItemList(likedItems?.liked_services || [], "name")
-          )}
-        </section>
-      </div>
-    </Card>
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                  onClick={handleClose}
+                >
+                  {t("cancel_btn_label")}
+                </button>
+                <button 
+                  type="submit" 
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  {t("save_label")}
+                </button>
+              </div>
+            </form>
+          </div>
+        </Modal>
+      )}
+    </div>
   );
 };
 

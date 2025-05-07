@@ -14,7 +14,7 @@ import {
 import { useTranslation } from "react-i18next";
 import SingleProduct from "./SingleProduct";
 import Modal from "@components/Modal";
-import { IoSearch } from "react-icons/io5";
+
 import { BiCategory } from "react-icons/bi";
 import { FaLocationDot } from "react-icons/fa6";
 import { FaPlus, FaTimes } from "react-icons/fa";

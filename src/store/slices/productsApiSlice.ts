@@ -106,6 +106,22 @@ export const productsApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: ["Product"],
     }),
+    deleteProductItem: builder.mutation({
+      query: ({
+        productId,
+        token }: {
+          productId: string;
+          token: string;
+        }) => ({
+          url: `${PRODUCTS_URL}/${productId}`,
+          method: "DELETE",
+          headers: {
+            Authorization: `Token ${token}`, // Add token to the Authorization header
+          },
+        }),
+      keepUnusedDataFor: 5,
+      provideTags: ["Product"],
+    }),
     likeProduct: builder.mutation({
       query: ({ productId, token }: { productId: string; token: string }) => {
         return {
@@ -145,5 +161,6 @@ export const {
   useGetFavoriteItemsQuery,
   useLikeProductMutation,
   useUnlikeProductMutation,
+  useDeleteProductItemMutation
 } = productsApiSlice;
 export default productsApiSlice.reducer;

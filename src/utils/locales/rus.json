@@ -158,5 +158,10 @@
 "product_out_stock": "Нет в наличии",
 "product_back": "Назад к товарам",
 "message_seller": "Чат",
-"recommended_products": "Рекомендуемые товары"
+"recommended_products": "Рекомендуемые товары",
+"add_new": "Новый",
+"delete_confirmation_product": "Вы уверены, что хотите удалить этот продукт?",
+"product_delete_success": "Продукт успешно удалён",
+"product_delete_error": "Ошибка при удалении продукта"
+
 }

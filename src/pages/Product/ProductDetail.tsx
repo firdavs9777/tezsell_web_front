@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
+  useDeleteProductItemMutation,
   useGetFavoriteItemsQuery,
   useGetSingleProductQuery,
   useLikeProductMutation,
@@ -34,6 +35,7 @@ const ProductDetail = () => {
   const { data, isLoading, error, refetch } = useGetSingleProductQuery(id);
   const [likeProduct] = useLikeProductMutation();
   const [dislikeProduct] = useUnlikeProductMutation();
+  const [deleteProduct] = useDeleteProductItemMutation();
 
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
@@ -46,7 +48,7 @@ const ProductDetail = () => {
 
   const singleProduct: SingleProduct = data as SingleProduct;
   const [selectedImage, setSelectedImage] = useState("");
-  const [imageLoading, setImageLoading] = useState(true);
+
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -58,7 +60,7 @@ const ProductDetail = () => {
   useEffect(() => {
     if (singleProduct?.product.images.length > 0) {
       setSelectedImage(`${BASE_URL}${singleProduct.product.images[0].image}`);
-      setImageLoading(true);
+      
     }
   }, [singleProduct]);
 
@@ -85,7 +87,6 @@ const ProductDetail = () => {
 
   const handleImageClick = (image: string) => {
     setSelectedImage(`${BASE_URL}${image}`);
-    setImageLoading(true);
   };
 
   const redirectHandler = (id: number) => {
@@ -102,7 +103,6 @@ const ProductDetail = () => {
 
       if (response.data) {
         toast.success(t("productLikeSuccess"), { autoClose: 3000 });
-      
         reload();
       }
     } catch (error: unknown) {
@@ -152,7 +152,7 @@ const ProductDetail = () => {
     refetch();
     if (singleProduct.product.images) {
       setSelectedImage(`${BASE_URL}${singleProduct.product.images[0].image}`);
-      setImageLoading(true);
+
     } else {
       setSelectedImage("");
     }
@@ -191,6 +191,32 @@ const ProductDetail = () => {
       toast.error(t("chat_creation_error"));
     }
   };
+    const handleProductRedirect = () => navigate("/");
+  const handleProductDelete = async () => {
+      const confirmed = window.confirm(t("delete_confirmation_product"));
+        if (!confirmed) return;
+    
+        try {
+          const response = await deleteProduct({
+            productId: id,
+            token,
+          });
+    
+        if (response.status === 204 && response.data?.success) {
+  toast.success(t("product_delete_success"), { autoClose: 2000 });
+  handleProductRedirect();
+} else {
+  toast.error(t("product_delete_error"), { autoClose: 2000 });
+}
+
+        } catch (error: unknown) {
+          if (error instanceof Error) {
+            toast.error(t("product_delete_error"), { autoClose: 2000 });
+          } else {
+            toast.error(t("unknown_error_message"), { autoClose: 1000 });
+          }
+        }
+  }
 
   const isLiked = liked_items?.liked_products?.some(
     (item: Product) => item.id === singleProduct.product.id
@@ -209,17 +235,11 @@ const ProductDetail = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-7">
           <div className="relative bg-white rounded-xl shadow-sm overflow-hidden aspect-[4/3]">
-            {imageLoading && (
-              <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
-              </div>
-            )}
+            
             <img
               className="w-full h-full object-contain"
               src={selectedImage}
-              alt={singleProduct.product.title}
-              onLoad={() => setImageLoading(false)}
-              style={{ display: imageLoading ? "none" : "block" }}
+              alt={singleProduct.product.title}         
             />
           </div>
 
@@ -323,6 +343,9 @@ const ProductDetail = () => {
                   <FaEdit size={16} /> {t("edit_label")}
                 </button>
                 <button 
+                      onClick={() => {
+                    handleProductDelete();
+                  }}
                   className="flex-1 flex items-center justify-center gap-2 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors font-medium"
                 >
                   <FaTrash size={16} /> {t("delete_label")}
