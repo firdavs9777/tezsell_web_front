@@ -180,7 +180,14 @@
     "uploading_btn_label": "Обновление ...",
   "product_updated_success": "Продукт успешно обновлен",
   "product_update_failed": "Не удалось обновить продукт",
-  "error_updating_product": "Произошла ошибка при обновлении продукта"
+  "error_updating_product": "Произошла ошибка при обновлении продукта",
+  "service_back": "Назад к услугам",
+  "like_label": "Нравится",
+    "comments_label": "Комментарии",
+      "write_comment": "Напишите комментарий ...",
+        "posting_label": "Публикация...",
+  "post_comment_label": "Оставить комментарий"
+
 
     
 }

@@ -7,7 +7,7 @@ import {
 } from "@store/slices/serviceApiSlice";
 import { useEffect, useState } from "react";
 import { BASE_URL } from "@store/constants";
-import { Comment, Service, SingleService } from "@store/type";
+import { Category, Comment, Service, SingleService } from "@store/type";
 import {
   FaCommentAlt,
   FaMapMarkerAlt,
@@ -28,13 +28,14 @@ import { toast } from "react-toastify";
 import { ServiceRes } from "./MainProfile";
 import { Chat, useCreateChatRoomMutation } from "@store/slices/chatSlice";
 import CommentsMain from "./Comments/CommentsMain";
+import { useTranslation } from "react-i18next";
 
 const ServiceDetail = () => {
   const { id } = useParams();
   const { data, isLoading, error, refetch } = useGetSingleServiceQuery(id);
   const [createComment, { isLoading: create_loading }] =
     useCreateCommentMutation();
-
+  const { t, i18n } = useTranslation();
   const [likeService] = useLikeServiceMutation();
   const [dislikeService] = useUnlikeServiceMutation();
 
@@ -133,6 +134,10 @@ const ServiceDetail = () => {
       }
     }
   };
+  const getCategoryName = (categoryItem: Category) => {
+      const langKey = `name_${i18n.language}` as keyof Category;
+      return categoryItem[langKey] || categoryItem.name_en || "";
+    };
 
   const handleDislikeService = async () => {
     if (!isLoggedIn) {
@@ -251,7 +256,7 @@ const ServiceDetail = () => {
           className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors font-medium"
         >
           <FaArrowLeft className="text-sm" />
-          <span>Back to Services</span>
+          <span>{ t('service_back')}</span>
         </Link>
       </div>
 
@@ -298,7 +303,7 @@ const ServiceDetail = () => {
         <div className="lg:w-1/2">
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm mb-4">
-              {service.category.name_en}
+              {getCategoryName(service.category)}
             </div>
 
             <h1 className="text-2xl md:text-3xl font-bold mb-4">
@@ -369,7 +374,7 @@ const ServiceDetail = () => {
                 ) : (
                   <FaRegThumbsUp size={18} />
                 )}
-                <span>Like</span>
+                <span>{ t('like_label')}</span>
               </button>
 
               <button
@@ -377,7 +382,7 @@ const ServiceDetail = () => {
                 onClick={handleChat}
               >
                 <FaCommentAlt size={18} />
-                <span>Chat</span>
+                <span>{t('chat') }</span>
               </button>
             </div>
           </div>
@@ -387,7 +392,7 @@ const ServiceDetail = () => {
       {/* Comments section */}
       <section className="mt-10 bg-white rounded-lg shadow-md p-6">
         <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
-          Comments {isLoggedIn && `(${comments.length})`}
+          {t('comments_label')} {isLoggedIn && `(${comments.length})`}
         </h2>
 
         {isLoggedIn ? (
@@ -399,7 +404,7 @@ const ServiceDetail = () => {
             <div className="bg-gray-50 rounded-lg p-4">
               <form onSubmit={submitFormHandler}>
                 <textarea
-                  placeholder="Write a comment..."
+                  placeholder={t("write_comment")}
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                   onKeyDown={(e) => {
@@ -416,7 +421,7 @@ const ServiceDetail = () => {
                     disabled={create_loading}
                     className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-300"
                   >
-                    {create_loading ? "Posting..." : "Post Comment"}
+                    {create_loading ? t("post_label") : t("post_comment_label")}
                   </button>
                 </div>
               </form>
@@ -439,7 +444,7 @@ const ServiceDetail = () => {
                 className="inline-flex items-center px-5 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
               >
                 <FaSignInAlt className="mr-2" />
-                Log In
+               {t('login')}
               </Link>
             </div>
           </div>

@@ -181,6 +181,12 @@
   "image_upload_requirements": "At least one image is required. You can upload up to 10 images (JPG, PNG, GIF, WebP under 5MB each).",
   "product_updated_success":"Product updated successfully",
   "product_update_failed":"Prouct update failed",
-  "error_updating_product":"Error occured while updating the product"
-
+  "error_updating_product":"Error occured while updating the product",
+  "service_back": "Back to services",
+  "like_label": "Like", 
+  "comments_label":"Comments", 
+  "write_comment": "Write a comment ...",
+    "posting_label": "Posting...",
+  "post_comment_label": "Post Comment"
+  
 }

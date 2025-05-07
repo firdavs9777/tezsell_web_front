@@ -179,6 +179,14 @@
     "uploading_btn_label": "Yangilanmoqda ...",
       "product_updated_success": "Mahsulot muvaffaqiyatli yangilandi",
   "product_update_failed": "Mahsulotni yangilash muvaffaqiyatsiz tugadi",
-  "error_updating_product": "Mahsulotni yangilashda xatolik yuz berdi"
+  "error_updating_product": "Mahsulotni yangilashda xatolik yuz berdi",
+    "service_back": "Xizmatlarga qaytish",
+  "like_label": "Yoqtirish",
+    "comments_label": "Izohlar",
+      "write_comment": "Izoh yozing ...",
+        "posting_label": "Yuborilmoqda...",
+  "post_comment_label": "Izoh qoldirish"
+      
+
 
 }
