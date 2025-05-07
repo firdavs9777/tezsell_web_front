@@ -18,9 +18,9 @@ import {
   useLikeProductMutation,
   useUnlikeProductMutation,
 } from "../../store/slices/productsApiSlice";
-import { ServiceRes } from "../Profile/MainProfile";
+import { ServiceRes } from "../Service/MainProfile";
 import { toast } from "react-toastify";
-import MyProductEdit from "./ProductEdit";
+import MyProductEdit from "../Product/ProductEdit";
 import { useDeleteUserProductMutation } from "@store/slices/users";
 interface SingleProductProps {
   product: Product;

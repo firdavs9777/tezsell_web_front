@@ -24,7 +24,7 @@ import {
   RegionsList,
   DistrictsList,
 } from "@store/type";
-import "./MainProfile.css";
+
 import Modal from "../../components/Modal";
 import { toast } from "react-toastify";
 import Button from "../../components/Button";

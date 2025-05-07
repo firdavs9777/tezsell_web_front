@@ -21,10 +21,10 @@ import {
 } from "react-icons/fa";
 
 import { useSelector } from "react-redux";
-import { ServiceRes } from "../Profile/MainProfile";
+import { ServiceRes } from "../Service/MainProfile";
 import { RootState } from "../../store";
 import { toast } from "react-toastify";
-import MyProductEdit from "../Profile/ProductEdit";
+import MyProductEdit from "./ProductEdit";
 import { Chat, useCreateChatRoomMutation } from "../../store/slices/chatSlice";
 import { useTranslation } from "react-i18next";
 
@@ -187,7 +187,7 @@ const ProductDetail = () => {
       } else {
         toast.error(t("chat_room_error"), { autoClose: 2000 });
       }
-    } catch (error: any) {
+    } catch  {
       toast.error(t("chat_creation_error"));
     }
   };

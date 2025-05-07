@@ -14,7 +14,7 @@ import {
   useLikeProductMutation,
   useUnlikeProductMutation,
 } from "@store/slices/productsApiSlice";
-import { ServiceRes } from "../Profile/MainProfile";
+import { ServiceRes } from "../Service/MainProfile";
 import { toast } from "react-toastify";
 
 interface SingleProductProps {

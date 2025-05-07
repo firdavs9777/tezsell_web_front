@@ -17,7 +17,7 @@ import {
   FaArrowLeft,
   FaSignInAlt,
 } from "react-icons/fa";
-import "./ServiceDetail.css";
+
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import {
@@ -25,7 +25,7 @@ import {
   useGetCommentsQuery,
 } from "@store/slices/commentApiSlice";
 import { toast } from "react-toastify";
-import { ServiceRes } from "../Profile/MainProfile";
+import { ServiceRes } from "./MainProfile";
 import { Chat, useCreateChatRoomMutation } from "@store/slices/chatSlice";
 import CommentsMain from "./Comments/CommentsMain";
 

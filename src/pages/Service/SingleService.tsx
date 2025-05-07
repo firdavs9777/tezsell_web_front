@@ -1,7 +1,7 @@
 import React from "react";
 import { Service } from "@store/type";
 import { BASE_URL } from "@store/constants";
-import "./SingleService.css";
+
 import {
   FaComment,
   FaMapMarkerAlt,
@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "@store/index";
 import { useGetFavoriteItemsQuery } from "@store/slices/productsApiSlice";
-import { ServiceRes } from "../Profile/MainProfile";
+import { ServiceRes } from "./MainProfile";
 import {
   useLikeServiceMutation,
   useUnlikeServiceMutation,

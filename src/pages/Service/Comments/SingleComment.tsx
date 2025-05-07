@@ -25,7 +25,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@store/index";
 import { toast } from "react-toastify";
 import { useGetFavoriteItemsQuery } from "@store/slices/productsApiSlice";
-import { ServiceRes } from "@pages/Profile/MainProfile";
+import { ServiceRes } from "@pages/Service/MainProfile";
 import { useTranslation } from "react-i18next";
 
 interface SingleCommentProps {

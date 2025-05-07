@@ -8,9 +8,9 @@ import ProductDetail from "../pages/Product/ProductDetail";
 import NewProduct from "../pages/Product/NewProduct";
 import ServiceDetail from "../pages/Service/ServiceDetail";
 import NewService from "../pages/Service/NewService";
-import MainProfile from "../pages/Profile/MainProfile";
-import MyProducts from "../pages/Profile/MyProducts";
-import MyServices from "../pages/Profile/MyServices";
+import MainProfile from "../pages/Service/MainProfile";
+import MyProducts from "../pages/Product/MyProducts";
+import MyServices from "../pages/Service/MyServices";
 import MainChat from "../pages/Messages/MainChat";
 
 const Router = () => {
