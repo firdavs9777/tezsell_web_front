@@ -151,5 +151,12 @@
   "products_total": "Mahsulotlar soni",
   "per_page": "ta",
   "clear_all_filters": "Barcha filtrlarni tozalash",
-  "click_to_upload":  "Yuklash uchun bosing"  
+  "click_to_upload":  "Yuklash uchun bosing",
+"productDislikeSuccess": "Mahsulot yoqmadi qilib belginandi",
+"product_in_stock": "Mavjud",
+"product_out_stock": "Sotuvda yoʻq",
+"product_back": "Mahsulotlarga qaytish",
+"message_seller": "Chat",
+"recommended_products": "Tavsiya etilgan mahsulotlar"
+
 }

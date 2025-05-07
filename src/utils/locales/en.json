@@ -154,5 +154,10 @@
   "products_total": "Products total",
   "per_page":  "items",
   "clear_all_filters": "Clear all filters",
-  "click_to_upload":"Click to upload"
+  "click_to_upload":"Click to upload",
+  "product_in_stock": "In Stock",
+  "product_out_stock": "Out of stock",
+  "product_back": "Back to products",
+  "message_seller": "Chat",
+  "recommended_products":"Recommended Products"
 }

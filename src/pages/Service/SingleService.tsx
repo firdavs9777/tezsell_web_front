@@ -32,15 +32,13 @@ const SingleService: React.FC<SingleServiceProps> = ({ service }) => {
   const token = userInfo?.token;
   const {
     data: favorite_items,
-    isLoading: fav_loading,
-    error: fav_error,
     refetch: reload_item,
   } = useGetFavoriteItemsQuery({
     token: token,
   });
-  const [likeService, { isLoading: create_loading_like }] =
+  const [likeService] =
     useLikeServiceMutation();
-  const [dislikeService, { isLoading: create_loading_unlike }] =
+  const [dislikeService] =
     useUnlikeServiceMutation();
 
   const liked_items: ServiceRes = favorite_items as ServiceRes;
@@ -48,12 +46,7 @@ const SingleService: React.FC<SingleServiceProps> = ({ service }) => {
   const redirectHandler = (id: number) => {
     navigate(`/service/${id}`);
   };
-  if (fav_loading) return <div>Loading</div>;
 
-  if (fav_error) return <div>Error</div>;
-  if (create_loading_like) return <div>Loading</div>;
-
-  if (create_loading_unlike) return <div>Loading</div>;
   const handleLikeService = async () => {
     try {
       const token = userInfo?.token;

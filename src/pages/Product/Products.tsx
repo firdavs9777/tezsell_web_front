@@ -304,10 +304,7 @@ const ProductScreen = () => {
             placeholder={t("location_placeholder")}
             className="w-full p-3 pl-10 border border-gray-300 rounded-lg"
           />
-          <IoSearch
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            size={20}
-          />
+       
         </div>
 
         <div className="max-h-96 overflow-y-auto">
@@ -364,10 +361,7 @@ const ProductScreen = () => {
             onChange={(e) => setSearchCategoryQuery(e.target.value)}
             className="w-full p-3 pl-10 border border-gray-300 rounded-lg"
           />
-          <IoSearch
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            size={20}
-          />
+          
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-96 overflow-y-auto">

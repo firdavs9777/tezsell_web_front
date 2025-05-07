@@ -113,7 +113,9 @@
   "imageUploadHelper": "Нажмите на значок + для добавления изображений (максимум 10)",
   "maxImagesError": "Вы можете загрузить максимум 10 изображений",
   "categoryNotFound": "Категория не найдена",
-  "productCreatedSuccess": "Продукт успешно создан",
+  "productCreatedSuccess": "Товар успешно создан",
+"productDislikeSuccess": "Отметка \"понравилось\" с товара успешно удалена",
+
   "errorCreatingProduct": "Ошибка при создании продукта",
   "errorCreatingService": "Ошибка при создании услуги",
   "unknownError": "При создании услуги произошла неизвестная ошибка",
@@ -151,7 +153,10 @@
   "products_total": "Всего товаров",
   "per_page": "элементов",
   "clear_all_filters": "Очистить все фильтры",
-  "click_to_upload":  "Нажмите для загрузки"
-  
-
+  "click_to_upload":  "Нажмите для загрузки",
+  "product_in_stock": "В наличии",
+"product_out_stock": "Нет в наличии",
+"product_back": "Назад к товарам",
+"message_seller": "Чат",
+"recommended_products": "Рекомендуемые товары"
 }

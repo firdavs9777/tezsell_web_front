@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Product } from "@store/type";
 import { BASE_URL } from "@store/constants";
-import "./SingleProduct.css";
+
 import { useNavigate } from "react-router-dom";
 import { FaRegThumbsUp, FaThumbsUp } from "react-icons/fa";
 

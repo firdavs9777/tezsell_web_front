@@ -58,6 +58,7 @@ const ServiceScreen = () => {
   });
 
   const services = data as ServiceResponse;
+  console.log(services);
   const location_info = all_location as AllLocationList;
   const categories = data_category as Category[];
 
