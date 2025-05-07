@@ -176,6 +176,9 @@
   "location_info_error": "Foydalanuvchining joylashuvi ma'lum emas",
   "edit_product_title": "Mahsulotni tahrirlash",
     "image_upload_requirements": "Hech bo‘lmaganda bitta rasm talab qilinadi. Siz 10 tagacha rasm yuklashingiz mumkin (JPG, PNG, GIF, WebP, har biri 5MB gacha).",
-    "uploading_btn_label": "Yangilanmoqda ..."
+    "uploading_btn_label": "Yangilanmoqda ...",
+      "product_updated_success": "Mahsulot muvaffaqiyatli yangilandi",
+  "product_update_failed": "Mahsulotni yangilash muvaffaqiyatsiz tugadi",
+  "error_updating_product": "Mahsulotni yangilashda xatolik yuz berdi"
 
 }

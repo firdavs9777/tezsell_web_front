@@ -177,6 +177,10 @@
   "location_info_error": "Информация о местоположении пользователя отсутствует",
   "edit_product_title": "Редактировать товар",
     "image_upload_requirements": "Требуется хотя бы одно изображение. Вы можете загрузить до 10 изображений (JPG, PNG, GIF, WebP размером до 5MB каждое).",
-    "uploading_btn_label": "Обновление ..."
+    "uploading_btn_label": "Обновление ...",
+  "product_updated_success": "Продукт успешно обновлен",
+  "product_update_failed": "Не удалось обновить продукт",
+  "error_updating_product": "Произошла ошибка при обновлении продукта"
+
     
 }

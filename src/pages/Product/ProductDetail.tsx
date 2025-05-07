@@ -145,6 +145,7 @@ const ProductDetail = () => {
   };
 
   const handleEditModal = () => {
+        refetch();
     setIsEdit(!isEdit);
   };
 

@@ -79,7 +79,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
           (item: Category) => item.id === singleProduct.product.category.id
         );
         if (productCategory) {
-          setCategory(productCategory.name_en);
+          setCategory(getCategoryName(productCategory));
         }
       }
       
@@ -290,12 +290,14 @@ const MyProductEdit: React.FC<SingleProductType> = ({
     formData.append("userAddress_id", userInfo.user_info.location.id);
 
     // Add category
-    const selectedCategory = categoryList?.find(
-      (item: Category) => item.name_en === category
-    );
+       const selectedCategory = categoryList.find(
+            (item: Category) => getCategoryName(item) === category
+          );
+    
     
     if (selectedCategory) {
-      formData.append("category_id", selectedCategory.id.toString());
+    const selectedCategoryId = selectedCategory.id;
+        formData.append("category_id", selectedCategoryId.toString());
     } else {
       toast.error(t("category_required_message"), { autoClose: 3000 });
       return null;
@@ -346,7 +348,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
   // Helper function to get localized category name
   const getCategoryName = (categoryItem: Category) => {
     const langKey = `name_${i18n.language}` as keyof Category;
-    return categoryItem[langKey] || categoryItem.name_en || "";
+    return categoryItem[langKey]  as string;
   };
 
   // Loading and error states

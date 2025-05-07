@@ -178,5 +178,9 @@
   "category_required_message": "Category is required",
   "location_info_error": "User location information is missing",
   "edit_product_title": "Edit Product",
-  "image_upload_requirements": "At least one image is required. You can upload up to 10 images (JPG, PNG, GIF, WebP under 5MB each)."
+  "image_upload_requirements": "At least one image is required. You can upload up to 10 images (JPG, PNG, GIF, WebP under 5MB each).",
+  "product_updated_success":"Product updated successfully",
+  "product_update_failed":"Prouct update failed",
+  "error_updating_product":"Error occured while updating the product"
+
 }
