@@ -282,7 +282,9 @@ const ProductDetail = () => {
             </div>
             <span className="text-gray-400">•</span>
             <span className="text-gray-500">
-              {singleProduct.product.condition}
+              <p>{singleProduct.product.condition ? t(singleProduct.product.condition) : ""}</p>
+
+
             </span>
             <span className="text-gray-400">•</span>
             <span className="text-gray-500">

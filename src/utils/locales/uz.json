@@ -161,8 +161,9 @@
 "add_new": "Yangi",
 "delete_confirmation_product": "Bu mahsulotni o‘chirishni xohlaysizmi?",
 "product_delete_success": "Mahsulot muvaffaqiyatli o‘chirildi",
-"product_delete_error": "Mahsulotni o‘chirishda xatolik yuz berdi"
-
+"product_delete_error": "Mahsulotni o‘chirishda xatolik yuz berdi",
+"new": "Yangi",
+"used": "Ishlatilgan"
 
 
 }

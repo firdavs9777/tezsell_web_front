@@ -162,6 +162,8 @@
 "add_new": "Новый",
 "delete_confirmation_product": "Вы уверены, что хотите удалить этот продукт?",
 "product_delete_success": "Продукт успешно удалён",
-"product_delete_error": "Ошибка при удалении продукта"
+"product_delete_error": "Ошибка при удалении продукта",
+"new": "Новый",
+"used": "Б/у"
 
 }
