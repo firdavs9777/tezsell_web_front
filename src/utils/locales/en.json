@@ -165,5 +165,11 @@
   "product_delete_success": "Product deleted successfully",
   "product_delete_error": "Error deleting product",
   "new": "New",
-  "used": "Used"
+  "used": "Used",
+  "image_valid_type":"Some files were not added. Please use JPG, PNG, GIF or WebP files under 5MB.",
+  "image_confirm_message": "Are you sure you want to remove this image?",
+  "title_required_message":"Title is required",
+  "desc_required_message":"Description is required",
+  "price_required_message":"Price is required",
+  "condition_required_message":"Condition is required"
 }

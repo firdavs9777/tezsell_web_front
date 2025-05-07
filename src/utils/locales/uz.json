@@ -163,7 +163,14 @@
 "product_delete_success": "Mahsulot muvaffaqiyatli o‘chirildi",
 "product_delete_error": "Mahsulotni o‘chirishda xatolik yuz berdi",
 "new": "Yangi",
-"used": "Ishlatilgan"
+"used": "Ishlatilgan",
+"image_valid_type": "Ba'zi fayllar qo‘shilmadi. Iltimos, hajmi 5MB dan kichik bo‘lgan JPG, PNG, GIF yoki WebP fayllardan foydalaning.",
+"image_confirm_message": "Bu rasmni o‘chirishni xohlaysizmi?",
+"title_required_message": "Sarlavha majburiy",
+"desc_required_message": "Tavsif majburiy",
+"price_required_message": "Narx majburiy",
+"condition_required_message": "Holati majburiy"
+
 
 
 }

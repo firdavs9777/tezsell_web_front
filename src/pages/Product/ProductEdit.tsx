@@ -11,6 +11,8 @@ import { RootState } from "@store/index";
 import { useUpdateUserProductMutation } from "@store/slices/users";
 import { BASE_URL } from "@store/constants";
 import "./ProductEdit.css";
+import { useTranslation } from "react-i18next";
+
 interface SingleProductType {
   productId: string;
   closeModelStatus: boolean;
@@ -57,6 +59,8 @@ const MyProductEdit: React.FC<SingleProductType> = ({
   const [category, setCategory] = useState<string>("");
   const [isOpen, setIsOpen] = useState<boolean>(closeModelStatus);
   const [imageUploading, setImageUploading] = useState<boolean>(false);
+    const { t } = useTranslation();
+  
 
   // Populate the form with existing product data
   useEffect(() => {
@@ -103,7 +107,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
       files.length;
 
     if (totalImages > 10) {
-      toast.error("You can upload a maximum of 10 images");
+      toast.error(t("maxImagesError"), {autoClose: 2000});
       return;
     }
     setImageUploading(true);
@@ -125,7 +129,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
 
     if (invalidFiles.length > 0) {
       toast.error(
-        "Some files were not added. Please use JPG, PNG, GIF or WebP files under 5MB."
+        t("image_valid_type"),{autoClose: 2000}
       );
       // Filter out invalid files
       const validFiles = fileArray.filter(
@@ -164,14 +168,14 @@ const MyProductEdit: React.FC<SingleProductType> = ({
       })
       .catch(() => {
         setImageUploading(false);
-        toast.error("Error processing image files");
+        toast.error(t("error_message"));
       });
   };
 
   // Confirm before removing existing image
   const handleRemoveExistingImage = (index: number) => {
     const confirmRemove = window.confirm(
-      "Are you sure you want to remove this image?"
+      t("image_confirm_message")
     );
     if (confirmRemove) {
       setExistingImages((prev) => {
@@ -219,22 +223,22 @@ const MyProductEdit: React.FC<SingleProductType> = ({
   // Validate all required fields
   const validateForm = (): boolean => {
     if (!title.trim()) {
-      toast.error("Title is required", { autoClose: 3000 });
+      toast.error(t("title_required_message"), { autoClose: 3000 });
       return false;
     }
 
     if (!description.trim()) {
-      toast.error("Description is required", { autoClose: 3000 });
+      toast.error(t("desc_required_message"), { autoClose: 3000 });
       return false;
     }
 
     if (!price.trim()) {
-      toast.error("Price is required", { autoClose: 3000 });
+      toast.error(t("price_required_message"),{ autoClose: 3000 });
       return false;
     }
 
     if (!condition) {
-      toast.error("Condition is required", { autoClose: 3000 });
+      toast.error(t("condition_required_message"), { autoClose: 3000 });
       return false;
     }
 

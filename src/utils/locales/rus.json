@@ -164,6 +164,13 @@
 "product_delete_success": "Продукт успешно удалён",
 "product_delete_error": "Ошибка при удалении продукта",
 "new": "Новый",
-"used": "Б/у"
+"used": "Б/у",
+"image_valid_type": "Некоторые файлы не были добавлены. Пожалуйста, используйте файлы JPG, PNG, GIF или WebP размером до 5 МБ.",
+"image_confirm_message": "Вы уверены, что хотите удалить это изображение?",
+"title_required_message": "Название обязательно для заполнения",
+"desc_required_message": "Описание обязательно для заполнения",
+"price_required_message": "Цена обязательна для заполнения",
+"condition_required_message": "Состояние обязательно для заполнения"
+
 
 }
