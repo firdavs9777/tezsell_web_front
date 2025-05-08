@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 
 const Login = () => {
   const { t } = useTranslation();
-  const [phoneNumber, setPhoneNumber] = useState("+998");
+  const [phoneNumber, setPhoneNumber] = useState("+82");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const { userInfo } = useSelector((state: any) => state.auth);
@@ -30,12 +30,12 @@ const Login = () => {
 
   const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    if (value.length <= 13 && value.startsWith("+998")) {
+    if (value.length <= 13 && value.startsWith("+82")) {
       setPhoneNumber(value);
     } else if (value === "") {
       setPhoneNumber("");
     } else {
-      setPhoneNumber("+998");
+      setPhoneNumber("+82");
     }
   };
 

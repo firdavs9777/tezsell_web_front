@@ -185,8 +185,9 @@
     "comments_label": "Izohlar",
       "write_comment": "Izoh yozing ...",
         "posting_label": "Yuborilmoqda...",
-  "post_comment_label": "Izoh qoldirish"
-      
-
-
+  "post_comment_label": "Izoh qoldirish",
+    "login_prompt": "Izohlarni ko'rish va yozish uchun tizimga kiring.",
+  "recommended_services": "Tavsiya etilgan xizmatlar",
+  "coming_soon": "Tez kunda",
+    "comments_visibility_notice": "Izohlar faqat tizimga kirgan foydalanuvchilarga ko'rinadi."
 }

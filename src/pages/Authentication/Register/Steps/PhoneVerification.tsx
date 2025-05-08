@@ -38,7 +38,7 @@ const PhoneNumberVerification: React.FC<PhoneNumberVerificationProps> = ({
 
   const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    if (value.startsWith("+998") && value.length <= 13) {
+    if (value.startsWith("+82") && value.length <= 13) {
       setPhoneNumber(value);
     } else if (value === "") {
       setPhoneNumber("");

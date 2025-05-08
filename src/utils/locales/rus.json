@@ -115,7 +115,6 @@
   "categoryNotFound": "Категория не найдена",
   "productCreatedSuccess": "Товар успешно создан",
 "productDislikeSuccess": "Отметка \"понравилось\" с товара успешно удалена",
-
   "errorCreatingProduct": "Ошибка при создании продукта",
   "errorCreatingService": "Ошибка при создании услуги",
   "unknownError": "При создании услуги произошла неизвестная ошибка",
@@ -186,8 +185,9 @@
     "comments_label": "Комментарии",
       "write_comment": "Напишите комментарий ...",
         "posting_label": "Публикация...",
-  "post_comment_label": "Оставить комментарий"
-
-
-    
+  "post_comment_label": "Оставить комментарий",
+    "login_prompt": "Пожалуйста, войдите, чтобы просматривать и оставлять комментарии.",
+  "recommended_services": "Рекомендуемые сервисы",
+  "coming_soon": "Скоро будет",
+    "comments_visibility_notice": "Комментарии видны только авторизованным пользователям."    
 }

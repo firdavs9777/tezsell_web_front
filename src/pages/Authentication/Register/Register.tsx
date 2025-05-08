@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 
 const Register = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [phoneNumber, setPhoneNumber] = useState("+998");
+  const [phoneNumber, setPhoneNumber] = useState("+82");
   const [isPhoneVerified, setIsPhoneVerified] = useState(false);
   const [regionName, setRegionName] = useState("");
   const [districtName, setDistrictName] = useState("");
@@ -93,7 +93,7 @@ const Register = () => {
       });
     }
   };
-  if (isLoading) return <div>Loading</div>;
+  if (isLoading) return <div>{t("loading")}</div>;
   return (
     <form
       onSubmit={submitRegister}

@@ -16,6 +16,8 @@ import {
   FaRegThumbsUp,
   FaArrowLeft,
   FaSignInAlt,
+  FaTrash,
+  FaEdit,
 } from "react-icons/fa";
 
 import { useSelector } from "react-redux";
@@ -135,9 +137,9 @@ const ServiceDetail = () => {
     }
   };
   const getCategoryName = (categoryItem: Category) => {
-      const langKey = `name_${i18n.language}` as keyof Category;
-      return categoryItem[langKey] || categoryItem.name_en || "";
-    };
+    const langKey = `name_${i18n.language}` as keyof Category;
+    return categoryItem[langKey] || categoryItem.name_en || "";
+  };
 
   const handleDislikeService = async () => {
     if (!isLoggedIn) {
@@ -256,7 +258,7 @@ const ServiceDetail = () => {
           className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors font-medium"
         >
           <FaArrowLeft className="text-sm" />
-          <span>{ t('service_back')}</span>
+          <span>{t('service_back')}</span>
         </Link>
       </div>
 
@@ -287,11 +289,10 @@ const ServiceDetail = () => {
                     onClick={() =>
                       setSelectedImage(`${BASE_URL}${image.image}`)
                     }
-                    className={`h-full w-full object-cover cursor-pointer border-2 ${
-                      selectedImage === `${BASE_URL}/services${image.image}`
+                    className={`h-full w-full object-cover cursor-pointer border-2 ${selectedImage === `${BASE_URL}/services${image.image}`
                         ? "border-blue-500"
                         : "border-transparent"
-                    }`}
+                      }`}
                   />
                 </div>
               ))}
@@ -346,45 +347,64 @@ const ServiceDetail = () => {
               </div>
             </div>
 
-            {/* Action buttons */}
-            <div className="flex flex-wrap gap-4">
+            {isLoggedIn && <div className="flex flex-wrap gap-2 mb-2">
+              {/* Like/Unlike Button */}
               <button
                 onClick={
                   isLoggedIn &&
-                  liked_items?.liked_services?.some(
-                    (item: Service) => item.id === serviceItem.service.id
-                  )
+                    liked_items?.liked_services?.some(
+                      (item: Service) => item.id === serviceItem.service.id
+                    )
                     ? handleDislikeService
                     : handleLikeService
                 }
-                className={`flex items-center justify-center gap-2 px-6 py-3 rounded-md flex-1 min-w-[120px] transition-colors ${
-                  isLoggedIn &&
-                  liked_items?.liked_services?.some(
-                    (item: Service) => item.id === serviceItem.service.id
-                  )
+                className={`flex items-center justify-center gap-2 px-6 py-3 rounded-md flex-1 min-w-[120px] transition-colors ${isLoggedIn &&
+                    liked_items?.liked_services?.some(
+                      (item: Service) => item.id === serviceItem.service.id
+                    )
                     ? "bg-blue-100 text-blue-700"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 {isLoggedIn &&
-                liked_items?.liked_services?.some(
-                  (item: Service) => item.id === serviceItem.service.id
-                ) ? (
+                  liked_items?.liked_services?.some(
+                    (item: Service) => item.id === serviceItem.service.id
+                  ) ? (
                   <FaThumbsUp size={18} />
                 ) : (
                   <FaRegThumbsUp size={18} />
                 )}
-                <span>{ t('like_label')}</span>
+                <span>{t('like_label')}</span>
               </button>
+
 
               <button
                 className="flex items-center justify-center gap-2 px-6 py-3 bg-green-100 text-green-700 rounded-md flex-1 min-w-[120px] hover:bg-green-200 transition-colors"
                 onClick={handleChat}
               >
                 <FaCommentAlt size={18} />
-                <span>{t('chat') }</span>
+                <span>{t('chat')}</span>
               </button>
-            </div>
+            </div>}
+
+
+            {isLoggedIn && <div className="flex flex-wrap gap-2">
+              {/* Edit Button */}
+              <button
+                className="flex-1 flex items-center justify-center gap-2 bg-amber-500 text-white py-3 rounded-lg hover:bg-amber-600 transition-colors font-medium"
+              >
+                <FaEdit size={16} /> {t("edit_label")}
+              </button>
+
+              {/* Delete Button */}
+              <button
+                onClick={() => { }}
+                className="flex-1 flex items-center justify-center gap-2 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors font-medium"
+              >
+                <FaTrash size={16} /> {t("delete_label")}
+              </button>
+            </div>}
+
           </div>
         </div>
       </div>
@@ -434,17 +454,17 @@ const ServiceDetail = () => {
                 <FaSignInAlt size={24} />
               </div>
               <h3 className="text-lg font-medium text-blue-800">
-                Comments are only visible to logged-in users
+               {t('comments_visibility_notice')}
               </h3>
               <p className="text-blue-600 mb-2">
-                Sign in to view and post comments for this service
+                {t('login_prompt')}
               </p>
               <Link
                 to="/login"
                 className="inline-flex items-center px-5 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
               >
                 <FaSignInAlt className="mr-2" />
-               {t('login')}
+                {t('login')}
               </Link>
             </div>
           </div>
@@ -453,9 +473,9 @@ const ServiceDetail = () => {
 
       {/* Recommended services section */}
       <section className="mt-10 bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-xl font-bold mb-4">Recommended Services</h3>
+        <h3 className="text-xl font-bold mb-4">{ t('recommended_services')}</h3>
         <div className="bg-gray-50 p-4 rounded-lg text-center text-gray-500">
-          Coming soon
+          {t('coming_soon')}
         </div>
       </section>
     </div>
