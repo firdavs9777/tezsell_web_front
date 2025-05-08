@@ -24,37 +24,14 @@ const NewService = () => {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [category, setCategory] = useState<string>("");
 
-  // Get current language
-  const currentLang = i18n.language;
 
-  // Function to get the correct category name based on current language
-  const getCategoryName = (category: Category) => {
-    if (!category) return "";
 
-    // Make sure we have a valid category object
-    if (typeof category !== "object") return "";
 
-    switch (currentLang) {
-      case "uz":
-        return category.name_uz;
-      case "ru":
-        return category.name_ru;
-      case "en":
-      default:
-        return category.name_en;
-    }
-  };
-
-  // Transform categories for display with appropriate language
-  const translatedCategories = useMemo(() => {
-    if (!category_list?.length) return [];
-
-    return category_list.map((cat) => ({
-      ...cat,
-      displayName: getCategoryName(cat),
-    }));
-  }, [category_list, currentLang]);
-
+  const getCategoryName = (categoryItem: Category) => {
+      const langKey = `name_${i18n.language}` as keyof Category;
+      return categoryItem[langKey] || categoryItem.name_en || "";
+    };
+  
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
@@ -161,19 +138,15 @@ const NewService = () => {
       return;
     }
 
-    // Find category by name (using any language version)
-    const selectedCategory = category_list.find((item: Category) => {
-      return (
-        item.name_uz === category ||
-        item.name_ru === category ||
-        item.name_en === category
-      );
-    });
+    const selectedCategory = category_list.find(
+            (item: Category) => getCategoryName(item) === category
+          );
 
     if (selectedCategory) {
-      formData.append("category_id", selectedCategory.id.toString());
+              const selectedCategoryId = selectedCategory.id;
+        formData.append("category_id", selectedCategoryId.toString());
     } else {
-      toast.error(t("categoryNotFound"));
+      toast.error(t("categoryNotFound"), {autoClose: 2000});
       return;
     }
 
@@ -267,14 +240,14 @@ const NewService = () => {
               ) : error ? (
                 <option>{t("errorLoadingCategories")}</option>
               ) : (
-                translatedCategories.map((categoryItem) => (
-                  <option
-                    key={categoryItem.id}
-                    value={categoryItem.displayName}
-                  >
-                    {categoryItem.displayName}
-                  </option>
-                ))
+                 category_list.map((categoryItem) => (
+                    <option
+                      key={categoryItem.id}
+                      value={getCategoryName(categoryItem)}
+                    >
+                      {getCategoryName(categoryItem)}
+                    </option>
+                  ))
               )}
             </select>
           </div>

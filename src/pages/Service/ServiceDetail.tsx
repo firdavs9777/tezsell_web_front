@@ -441,7 +441,7 @@ const ServiceDetail = () => {
                     disabled={create_loading}
                     className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-300"
                   >
-                    {create_loading ? t("post_label") : t("post_comment_label")}
+                    {create_loading ? t("posting_label") : t("post_comment_label")}
                   </button>
                 </div>
               </form>
