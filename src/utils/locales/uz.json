@@ -101,11 +101,11 @@
   "new_product_images": "Rasmlar",
   "addNewService": "Yangi xizmat qo'shish",
   "creating": "Yaratilmoqda...",
-  "serviceName": "Xizmat nomi *",
+  "serviceName": "Xizmat nomi ",
   "serviceNamePlaceholder": "Xizmat nomini kiriting",
-  "serviceDescription": "Xizmat tavsifi *",
+  "serviceDescription": "Xizmat tavsifi ",
   "serviceDescriptionPlaceholder": "Xizmat tavsifini kiriting",
-  "serviceCategory": "Xizmat kategoriyasi *",
+  "serviceCategory": "Xizmat kategoriyasi ",
   "selectCategory": "Kategoriyani tanlang",
   "loadingCategories": "Yuklanmoqda...",
   "errorLoadingCategories": "Kategoriyalarni yuklashda xatolik",
@@ -189,5 +189,7 @@
     "login_prompt": "Izohlarni ko'rish va yozish uchun tizimga kiring.",
   "recommended_services": "Tavsiya etilgan xizmatlar",
   "coming_soon": "Tez kunda",
-    "comments_visibility_notice": "Izohlar faqat tizimga kirgan foydalanuvchilarga ko'rinadi."
+    "comments_visibility_notice": "Izohlar faqat tizimga kirgan foydalanuvchilarga ko'rinadi.",
+    "service_update_success": "Xizmat muvaffaqiyatli yangilandi",
+"service_update_error": "Xizmatni yangilashda xatolik yuz berdi"
 }

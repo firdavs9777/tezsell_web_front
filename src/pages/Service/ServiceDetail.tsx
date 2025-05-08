@@ -31,6 +31,7 @@ import { ServiceRes } from "./MainProfile";
 import { Chat, useCreateChatRoomMutation } from "@store/slices/chatSlice";
 import CommentsMain from "./Comments/CommentsMain";
 import { useTranslation } from "react-i18next";
+import MyServiceEdit from "./ServiceEdit";
 
 const ServiceDetail = () => {
   const { id } = useParams();
@@ -40,7 +41,7 @@ const ServiceDetail = () => {
   const { t, i18n } = useTranslation();
   const [likeService] = useLikeServiceMutation();
   const [dislikeService] = useUnlikeServiceMutation();
-
+  const [isEdit, setIsEdit] = useState(false);
   const [text, setText] = useState<string>("");
   const navigate = useNavigate();
   const [createChatRoom] = useCreateChatRoomMutation();
@@ -91,7 +92,7 @@ const ServiceDetail = () => {
       <div className="flex justify-center items-center h-64">
         <div className="text-center">
           <div className="animate-spin inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mb-2"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600">{ t("loading")}</p>
         </div>
       </div>
     );
@@ -100,10 +101,19 @@ const ServiceDetail = () => {
   if (error || !serviceItem) {
     return (
       <div className="bg-red-100 p-4 rounded-lg text-red-700 text-center my-8 mx-4">
-        Error Occurred. Please try again later.
+        {t('error_message')}
       </div>
     );
   }
+  const onCloseHandler = () => {
+    refetch();
+    if (service.images) {
+      setSelectedImage(`${BASE_URL}${service.images[0].image}`);
+
+    } else {
+      setSelectedImage("");
+    }
+  };
 
   const handleLikeService = async () => {
     if (!isLoggedIn) {
@@ -248,6 +258,10 @@ const ServiceDetail = () => {
       toast.error(error.message || "Chat creation failed");
     }
   };
+  const handleEditModal = () => {
+        refetch();
+    setIsEdit(!isEdit);
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 md:px-6 lg:px-8">
@@ -391,6 +405,7 @@ const ServiceDetail = () => {
             {isLoggedIn && <div className="flex flex-wrap gap-2">
               {/* Edit Button */}
               <button
+                 onClick={handleEditModal}
                 className="flex-1 flex items-center justify-center gap-2 bg-amber-500 text-white py-3 rounded-lg hover:bg-amber-600 transition-colors font-medium"
               >
                 <FaEdit size={16} /> {t("edit_label")}
@@ -404,7 +419,14 @@ const ServiceDetail = () => {
                 <FaTrash size={16} /> {t("delete_label")}
               </button>
             </div>}
-
+            
+            {isEdit && (
+              <MyServiceEdit
+                onClose={onCloseHandler}
+                serviceId={service.id.toString()}
+                closeModelStatus={isEdit}
+              />
+            )}
           </div>
         </div>
       </div>

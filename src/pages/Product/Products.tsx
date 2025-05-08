@@ -308,7 +308,7 @@ const ProductScreen = () => {
         </div>
 
         <div className="max-h-96 overflow-y-auto">
-          {location_info.regions.map((region) => {
+          {location_info?.regions.map((region) => {
             const filteredDistricts = region.districts.filter(
               (district) =>
                 district
@@ -365,7 +365,7 @@ const ProductScreen = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-96 overflow-y-auto">
-          {categories
+          {Array.isArray(categories) && categories
             .filter((category) => {
               const categoryName = getCategoryName(category);
               return categoryName

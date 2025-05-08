@@ -106,11 +106,11 @@
   "addNewService": "Add New Service",
   "loading": "Loading...",
   "creating": "Creating...",
-  "serviceName": "Service Name *",
+  "serviceName": "Service Name ",
   "serviceNamePlaceholder": "Enter service title",
-  "serviceDescription": "Service Description *",
+  "serviceDescription": "Service Description ",
   "serviceDescriptionPlaceholder": "Enter service description",
-  "serviceCategory": "Service Category *",
+  "serviceCategory": "Service Category ",
   "selectCategory": "Select category",
   "loadingCategories": "Loading...",
   "errorLoadingCategories": "Error loading categories",
@@ -187,11 +187,12 @@
   "comments_label":"Comments", 
   "write_comment": "Write a comment ...",
     "posting_label": "Posting...",
-    
   "post_comment_label": "Post Comment",
   "login_prompt": "Please log in to view and post comments.",
   "recommended_services": "Recommended Services",
     "comments_visibility_notice": "Comments are only visible to logged-in users.",
-  "coming_soon": "Coming soon"
-  
+  "coming_soon": "Coming soon",
+    "service_update_success": "Service updated successfully",
+  "service_update_error": "Error updating service item",
+   "edit_service_modal_title": "Edit Service"
 }

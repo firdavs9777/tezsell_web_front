@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
 import Modal from "../../components/Modal";
-
 import { Category, SingleService } from "@store/type";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { RootState } from "@store/index";
-
 import { BASE_URL } from "@store/constants";
-
 import {
   useGetServiceCategoryListQuery,
   useGetSingleServiceQuery,
   useUpdateUserServiceMutation,
 } from "@store/slices/serviceApiSlice";
+import { FaTrash, FaPlus, FaSpinner, FaTimes, FaEdit, FaImage } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
+
 interface SingleServiceType {
   serviceId: string;
   closeModelStatus: boolean;
@@ -26,87 +26,114 @@ interface ExistingImage {
   isDeleted?: boolean;
 }
 
+interface FormState {
+  name: string;
+  description: string;
+  category: string;
+  existingImages: ExistingImage[];
+  newImagePreviews: string[];
+  newImageFiles: File[];
+}
+
 const MyServiceEdit: React.FC<SingleServiceType> = ({
   serviceId,
   closeModelStatus,
   onClose,
 }) => {
+  const { t, i18n } = useTranslation();
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+
+  // API Hooks
   const {
     data,
     isLoading: productLoading,
     error: productError,
-    refetch: refetch_single_product,
+    refetch: refetchSingleProduct,
   } = useGetSingleServiceQuery(serviceId);
-  console.log(data);
+
   const {
     data: categoryData,
     isLoading: categoryLoading,
     error: categoryError,
   } = useGetServiceCategoryListQuery({});
+
   const [updateService, { isLoading: updateLoading }] =
     useUpdateUserServiceMutation();
-  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
 
-  const singleService: SingleService = data as SingleService;
-  const category_list = categoryData as Category[];
-
-  const [name, setName] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
-  const [existingImages, setExistingImages] = useState<ExistingImage[]>([]);
-  const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
-  const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
-
-  const [category, setCategory] = useState<string>("");
+  // Component States
+  const [form, setForm] = useState<FormState>({
+    name: "",
+    description: "",
+    category: "",
+    existingImages: [],
+    newImagePreviews: [],
+    newImageFiles: [],
+  });
   const [isOpen, setIsOpen] = useState<boolean>(closeModelStatus);
   const [imageUploading, setImageUploading] = useState<boolean>(false);
 
-  // Populate the form with existing product data
+  // Processed data
+  const singleService: SingleService = data as SingleService;
+  const categoryList = categoryData as Category[];
+
+  // Populate the form with existing service data
   useEffect(() => {
     if (singleService?.service) {
-      setName(singleService.service.name || "");
-      setDescription(singleService.service.description || "");
-
       // Find and set the category
-      if (category_list && singleService.service.category) {
-        const productCategory = category_list.find(
+      let categoryName = "";
+      if (categoryList && singleService.service.category) {
+        const productCategory = categoryList.find(
           (item: Category) => item.id === singleService.service.category.id
         );
         if (productCategory) {
-          setCategory(productCategory.name_en);
+          categoryName = getCategoryName(productCategory);
         }
       }
 
       // Set existing images if available
-      if (
-        singleService.service.images &&
-        singleService.service.images.length > 0
-      ) {
-        const images = singleService.service.images.map((image) => ({
-          id: image.id || 0,
-          image: image.image,
-          fullUrl: `${BASE_URL}${image.image}`, // Fixed URL construction
-          isDeleted: false,
-        }));
-        console.log("Loaded existing images:", images);
-        setExistingImages(images);
-      } else {
-        // Clear existing images if there are none in the API response
-        setExistingImages([]);
-      }
+      const images = singleService.service.images?.map((image) => ({
+        id: image.id || 0,
+        image: image.image,
+        fullUrl: `${BASE_URL}${image.image}`,
+        isDeleted: false,
+      })) || [];
+
+      setForm({
+        name: singleService.service.name || "",
+        description: singleService.service.description || "",
+        category: categoryName,
+        existingImages: images,
+        newImagePreviews: [],
+        newImageFiles: [],
+      });
     }
-  }, [singleService, category_list]);
+  }, [singleService, categoryList]);
+
+  // Helper function to get category name based on language
+  const getCategoryName = (categoryItem: Category) => {
+    const langKey = `name_${i18n.language}` as keyof Category;
+    return (categoryItem[langKey] as string) || categoryItem.name_en;
+  };
+
+  // Input handlers
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleNewImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
 
     const totalImages =
-      existingImages.filter((img) => !img.isDeleted).length +
-      newImagePreviews.length +
+      form.existingImages.filter((img) => !img.isDeleted).length +
+      form.newImagePreviews.length +
       files.length;
 
     if (totalImages > 10) {
-      toast.error("You can upload a maximum of 10 images");
+      toast.error(t("maxImagesError"));
       return;
     }
 
@@ -129,9 +156,7 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
     );
 
     if (invalidFiles.length > 0) {
-      toast.error(
-        "Some files were not added. Please use JPG, PNG, GIF or WebP files under 5MB."
-      );
+      toast.error(t("image_valid_type"));
       // Filter out invalid files
       const validFiles = fileArray.filter(
         (file) => validFileTypes.includes(file.type) && file.size <= maxFileSize
@@ -158,121 +183,98 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
     // Once all files are read, update the state for previews and actual files
     Promise.all(fileReaderPromises)
       .then(() => {
-        // Combine existing and new images
-        const updatedNewImagePreviews = [...newImagePreviews, ...previews];
-        const updatedNewImageFiles = [...newImageFiles, ...fileArray];
-
-        // Set the new previews and new image files to the state
-        setNewImagePreviews(updatedNewImagePreviews);
-        setNewImageFiles(updatedNewImageFiles);
+        setForm(prev => ({
+          ...prev,
+          newImagePreviews: [...prev.newImagePreviews, ...previews],
+          newImageFiles: [...prev.newImageFiles, ...fileArray]
+        }));
         setImageUploading(false);
       })
       .catch(() => {
         setImageUploading(false);
-        toast.error("Error processing image files");
+        toast.error(t("error_message"));
       });
   };
 
-  // Confirm before removing existing image
+  // Handle image operations
   const handleRemoveExistingImage = (index: number) => {
-    const confirmRemove = window.confirm(
-      "Are you sure you want to remove this image?"
-    );
+    const confirmRemove = window.confirm(t("image_confirm_message"));
     if (confirmRemove) {
-      setExistingImages((prev) => {
-        const updated = [...prev];
-        updated[index] = { ...updated[index], isDeleted: true };
-        return updated;
+      setForm(prev => {
+        const updatedImages = [...prev.existingImages];
+        updatedImages[index] = { ...updatedImages[index], isDeleted: true };
+        return { ...prev, existingImages: updatedImages };
       });
     }
   };
 
-  // Remove new image
   const handleRemoveNewImage = (index: number) => {
-    setNewImagePreviews((prev) => prev.filter((_, i) => i !== index));
-    setNewImageFiles((prev) => prev.filter((_, i) => i !== index));
+    setForm(prev => ({
+      ...prev,
+      newImagePreviews: prev.newImagePreviews.filter((_, i) => i !== index),
+      newImageFiles: prev.newImageFiles.filter((_, i) => i !== index)
+    }));
   };
 
-  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setCategory(e.target.value);
-  };
-
+  // Modal handling
   const closeHandler = () => {
     setIsOpen(false);
     onClose();
-    setExistingImages([]);
-    setNewImagePreviews([]);
-    setNewImageFiles([]);
   };
 
-  // Validate all required fields
+  // Form validation and submission
   const validateForm = (): boolean => {
-    if (!name.trim()) {
-      toast.error("Title is required", { autoClose: 3000 });
+    if (!form.name.trim()) {
+      toast.error(t("title_required_message"), { autoClose: 3000 });
       return false;
     }
 
-    if (!description.trim()) {
-      toast.error("Description is required", { autoClose: 3000 });
+    if (!form.description.trim()) {
+      toast.error(t("desc_required_message"), { autoClose: 3000 });
       return false;
     }
 
-    // if (!price.trim()) {
-    //   toast.error("Price is required", { autoClose: 3000 });
-    //   return false;
-    // }
-
-    const hasExistingImages = existingImages.some((img) => !img.isDeleted);
-    const hasNewImages = newImageFiles.length > 0;
+    const hasExistingImages = form.existingImages.some((img) => !img.isDeleted);
+    const hasNewImages = form.newImageFiles.length > 0;
     if (!hasExistingImages && !hasNewImages) {
-      toast.error("At least one product image is required", {
-        autoClose: 3000,
-      });
+      toast.error(t("one_image_confirm_message"), { autoClose: 3000 });
       return false;
     }
-    if (!category) {
-      toast.error("Category is required", { autoClose: 3000 });
+    
+    if (!form.category) {
+      toast.error(t("category_required_message"), { autoClose: 3000 });
       return false;
     }
+    
     return true;
   };
 
   const prepareFormData = (): FormData | null => {
     const formData = new FormData();
-    formData.append("name", name);
-    formData.append("description", description);
-
-    // formData.append("currency", "Sum");
-    // formData.append("in_stock", "true");
-
-    // Price handling
-    // const cleanedPrice = price.replace(/\./g, "");
-    // formData.append("price", cleanedPrice);
+    formData.append("name", form.name);
+    formData.append("description", form.description);
 
     // Handle existing images - add IDs of images to keep
-    const imagesToKeep = existingImages
+    const imagesToKeep = form.existingImages
       .filter((img) => !img.isDeleted)
       .map((img) => img.id);
 
-    console.log(imagesToKeep);
     if (imagesToKeep.length > 0) {
       imagesToKeep.forEach((id) => {
-        // Ensure we're sending a string representation of a number
         formData.append("existing_images", String(id));
       });
     }
 
     // Add new images
-    if (newImageFiles.length > 0) {
-      console.log("Adding new images:", newImageFiles.length);
-      newImageFiles.forEach((file) => {
+    if (form.newImageFiles.length > 0) {
+      form.newImageFiles.forEach((file) => {
         formData.append("new_images", file);
       });
     }
 
     // Add location and user info
     if (!userInfo?.user_info?.location?.id) {
-      toast.error("User location information is missing", { autoClose: 3000 });
+      toast.error(t("location_missing"), { autoClose: 3000 });
       return null;
     }
 
@@ -281,16 +283,14 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
     formData.append("userAddress_id", userInfo.user_info.location.id);
 
     // Add category
-    const selectedCategory = category_list.find(
-      (item: Category) => item.name_en === category
+    const selectedCategory = categoryList?.find(
+      (item: Category) => getCategoryName(item) === form.category
     );
+    
     if (selectedCategory) {
-      const selectedCategoryId = selectedCategory.id;
-      formData.append("category_id", selectedCategoryId.toString());
+      formData.append("category_id", selectedCategory.id.toString());
     } else {
-      toast.error("Category not found, select the category first", {
-        autoClose: 3000,
-      });
+      toast.error(t("categoryNotFound"), { autoClose: 3000 });
       return null;
     }
 
@@ -311,14 +311,6 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
       return;
     }
 
-    // Debug the form data being sent
-    console.log("Form data being sent:");
-    for (let pair of formData.entries()) {
-      console.log(
-        pair[0] + ": " + (typeof pair[1] === "string" ? pair[1] : "File")
-      );
-    }
-
     try {
       const token = userInfo?.token;
       const response = await updateService({
@@ -327,10 +319,10 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
         token,
       });
 
-      // Ensure that the response type is either a success (with `data`) or an error (with `error`)
+      // Check response type
       if ("data" in response) {
-        toast.success("Product updated successfully", { autoClose: 3000 });
-        refetch_single_product();
+        toast.success(t("service_update_succes"), { autoClose: 3000 });
+        refetchSingleProduct();
         closeHandler();
       } else if ("error" in response) {
         const errorResponse = response.error as { data?: { message: string } };
@@ -339,194 +331,240 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
         if (errorResponse.data?.message) {
           toast.error(errorResponse.data.message, { autoClose: 3000 });
         } else {
-          toast.error("Failed to update product", { autoClose: 3000 });
+          toast.error(t("service_update_error"), { autoClose: 3000 });
         }
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error(error.message || "Error while updating product", {
-          autoClose: 3000,
-        });
-      } else {
-        toast.error("An unknown error occurred while updating the product", {
-          autoClose: 3000,
-        });
-      }
+    } catch  {
+      toast.error(t("service_update_error"), { autoClose: 3000 });
     }
   };
 
+  // Loading and error states
   if (productLoading || categoryLoading) {
-    return <div className="loading">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-center">
+          <div className="animate-spin inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mb-2"></div>
+          <p className="text-gray-600">{t("loading")}</p>
+        </div>
+      </div>
+    );
   }
 
   if (productError || categoryError) {
-    return <div className="error">Error loading data...</div>;
+    return (
+      <div className="bg-red-100 p-4 rounded-lg text-red-700 text-center">
+        {t("error_message")}
+      </div>
+    );
   }
 
   // Calculate total visible images for display
   const totalVisibleImages =
-    existingImages.filter((img) => !img.isDeleted).length +
-    newImagePreviews.length;
+    form.existingImages.filter((img) => !img.isDeleted).length +
+    form.newImagePreviews.length;
 
   return (
     <Modal onClose={closeHandler} isOpen={isOpen}>
-      <div className="new-product">
-        <h1 className="new-product-title">Edit Service</h1>
-        <div className="new-product-container">
-          <form className="new-product-form" onSubmit={submitFormHandler}>
-            <div className="product-form-group">
-              <label htmlFor="product-title">Service Title *</label>
+      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-600 to-purple-700 py-4 px-6">
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold text-white flex items-center">
+              <FaEdit className="mr-2" /> {t("edit_service_modal_title")}
+            </h1>
+            <button
+              onClick={closeHandler}
+              className="text-white hover:text-gray-200 transition-colors p-2 rounded-full hover:bg-white/10"
+              aria-label="Close"
+            >
+              <FaTimes size={20} />
+            </button>
+          </div>
+        </div>
+
+        <div className="p-6">
+          <form onSubmit={submitFormHandler} className="space-y-6">
+            {/* Service Title */}
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                {t("serviceName")} <span className="text-red-500 text-lg">*</span>
+              </label>
               <input
-                id="product-title"
+                id="name"
+                name="name"
                 type="text"
-                placeholder="Enter product title"
+                placeholder={t("serviceNamePlaceholder")}
                 required
-                className="product-form-input"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                value={form.name}
+                onChange={handleInputChange}
               />
             </div>
 
-            <div className="product-form-group">
-              <label htmlFor="product-description">Service Description *</label>
+            {/* Service Description */}
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                {t("serviceDescription")} <span className="text-red-500 text-lg">*</span>
+              </label>
               <textarea
-                id="product-description"
-                placeholder="Enter product description"
+                id="description"
+                name="description"
+                placeholder={t("serviceDescriptionPlaceholder")}
                 required
-                className="product-form-textarea"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors min-h-32 resize-y"
+                value={form.description}
+                onChange={handleInputChange}
               ></textarea>
+              <div className="text-xs text-gray-500 mt-1 flex justify-end">
+                {form.description.length}/500
+              </div>
             </div>
 
-            {/* <div className="product-form-group">
-              <label htmlFor="product-price">Product Price *</label>
-              <input
-                id="product-price"
-                type="text"
-                placeholder="Enter product price"
-                required
-                value={price}
-                onChange={handlePriceChange}
-                className="product-form-input"
-              />
-              <span>So'm</span>
-            </div> */}
-
-            <div className="product-form-group">
-              <label htmlFor="product-category">Service Category *</label>
+            {/* Service Category */}
+            <div>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+                {t("serviceCategory")} <span className="text-red-500 text-lg">*</span>
+              </label>
               <select
-                id="product-category"
+                id="category"
+                name="category"
                 required
-                className="product-form-select"
-                value={category}
-                onChange={handleCategoryChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
+                value={form.category}
+                onChange={handleInputChange}
               >
                 <option value="" disabled>
-                  Select category
+                  {t("serviceCategory")}
                 </option>
                 {categoryLoading ? (
-                  <option>Loading...</option>
+                  <option>{t("loading")}</option>
                 ) : categoryError ? (
-                  <option>Error loading categories</option>
+                  <option>{t("errorLoadingCategories")}</option>
                 ) : (
-                  category_list.map((categoryItem) => (
-                    <option key={categoryItem.id} value={categoryItem.name_en}>
-                      {categoryItem.name_ru}
+                  categoryList?.map((categoryItem) => (
+                    <option key={categoryItem.id} value={getCategoryName(categoryItem)}>
+                      {getCategoryName(categoryItem)}
                     </option>
                   ))
                 )}
               </select>
             </div>
 
-            <div className="product-form-group">
-              <label>Service Images * ({totalVisibleImages}/10)</label>
-              <div className="image-preview-container">
+            {/* Service Images */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t("serviceImages")} <span className="text-red-500">*</span>
+                <span className="ml-2 text-sm font-normal text-gray-500">
+                  ({totalVisibleImages}/10)
+                </span>
+              </label>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-2">
                 {/* Existing Images */}
-                {existingImages.map(
+                {form.existingImages.map(
                   (image, index) =>
                     !image.isDeleted && (
-                      <div key={`existing-${index}`} className="image-wrapper">
+                      <div
+                        key={`existing-${index}`}
+                        className="relative group h-24 rounded-lg overflow-hidden border border-gray-200 shadow-sm"
+                      >
                         <img
                           src={image.fullUrl}
                           alt={`Existing ${index}`}
-                          className="image-preview"
+                          className="w-full h-full object-cover"
                         />
-                        <button
-                          type="button"
-                          className="remove-image-button"
-                          onClick={() => handleRemoveExistingImage(index)}
-                        >
-                          X
-                        </button>
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
+                          <button
+                            type="button"
+                            className="opacity-0 group-hover:opacity-100 p-2 bg-red-500 text-white rounded-full transition-opacity duration-300 hover:bg-red-600"
+                            onClick={() => handleRemoveExistingImage(index)}
+                            aria-label="Remove image"
+                          >
+                            <FaTrash size={14} />
+                          </button>
+                        </div>
                       </div>
                     )
                 )}
-
+                
                 {/* New Images */}
-                {newImagePreviews.map((preview, index) => (
-                  <div key={`new-${index}`} className="image-wrapper">
+                {form.newImagePreviews.map((preview, index) => (
+                  <div
+                    key={`new-${index}`}
+                    className="relative group h-24 rounded-lg overflow-hidden border border-gray-200 shadow-sm"
+                  >
                     <img
                       src={preview}
                       alt={`New ${index}`}
-                      className="image-preview"
+                      className="w-full h-full object-cover"
                     />
-                    <button
-                      type="button"
-                      className="remove-image-button"
-                      onClick={() => handleRemoveNewImage(index)}
-                    >
-                      X
-                    </button>
+                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
+                      <button
+                        type="button"
+                        className="opacity-0 group-hover:opacity-100 p-2 bg-red-500 text-white rounded-full transition-opacity duration-300 hover:bg-red-600"
+                        onClick={() => handleRemoveNewImage(index)}
+                        aria-label="Remove image"
+                      >
+                        <FaTrash size={14} />
+                      </button>
+                    </div>
                   </div>
                 ))}
 
                 {/* Add more button */}
                 {totalVisibleImages < 10 && (
                   <div
-                    className="upload-more-wrapper"
-                    onClick={() =>
-                      document.getElementById("image-upload")?.click()
-                    }
+                    className="h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-blue-500 transition-colors hover:bg-blue-50"
+                    onClick={() => document.getElementById("image-upload")?.click()}
                   >
-                    <span className="plus-icon">+</span>
-                  </div>
-                )}
-                {imageUploading && (
-                  <div className="image-loading-indicator">
-                    <span>Uploading...</span>
+                    {imageUploading ? (
+                      <FaSpinner className="animate-spin text-blue-500" size={20} />
+                    ) : (
+                      <div className="flex flex-col items-center text-gray-500 hover:text-blue-500">
+                        <FaImage size={20} />
+                        <span className="text-xs mt-1">{t("new_product_images")}</span>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
+
               <input
                 id="image-upload"
                 type="file"
                 accept="image/jpeg,image/png,image/gif,image/webp"
-                className="product-form-file"
                 onChange={handleNewImageChange}
                 multiple
-                style={{ display: "none" }}
+                className="hidden"
               />
-              <small className="image-requirements">
-                * At least one image is required. You can upload up to 10 images
-                (JPG, PNG, GIF, WebP under 5MB each).
-              </small>
+
+              <p className="text-xs text-gray-500 mt-1">
+                {t("image_upload_requirements")}
+              </p>
             </div>
 
-            <div className="product-form-group">
+            {/* Form Actions */}
+            <div className="flex gap-4 pt-4">
               <button
                 type="submit"
-                className="product-form-submit-button"
                 disabled={updateLoading || imageUploading}
+                className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-lg font-medium flex items-center justify-center disabled:opacity-50 hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-md"
               >
-                {updateLoading ? "Updating..." : "Update Service"}
+                {updateLoading ? (
+                  <>
+                    <FaSpinner className="animate-spin mr-2" /> {t("updating")}
+                  </>
+                ) : (
+                  t("upload_btn_label")
+                )}
               </button>
+
               <button
                 type="button"
-                className="product-form-cancel-button"
                 onClick={closeHandler}
+                className="flex-1 bg-gray-100 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors border border-gray-300"
               >
-                Cancel
+                {t("cancel_btn_label")}
               </button>
             </div>
           </form>

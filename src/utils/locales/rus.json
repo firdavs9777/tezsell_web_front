@@ -101,11 +101,11 @@
   "new_product_images": "Изображения",
   "addNewService": "Добавить новую услугу",
   "creating": "Создание...",
-  "serviceName": "Название услуги *",
+  "serviceName": "Название услуги ",
   "serviceNamePlaceholder": "Введите название услуги",
-  "serviceDescription": "Описание услуги *",
+  "serviceDescription": "Описание услуги ",
   "serviceDescriptionPlaceholder": "Введите описание услуги",
-  "serviceCategory": "Категория услуги *",
+  "serviceCategory": "Категория услуги ",
   "selectCategory": "Выберите категорию",
   "loadingCategories": "Загрузка...",
   "errorLoadingCategories": "Ошибка загрузки категорий",
@@ -189,5 +189,7 @@
     "login_prompt": "Пожалуйста, войдите, чтобы просматривать и оставлять комментарии.",
   "recommended_services": "Рекомендуемые сервисы",
   "coming_soon": "Скоро будет",
-    "comments_visibility_notice": "Комментарии видны только авторизованным пользователям."    
+    "comments_visibility_notice": "Комментарии видны только авторизованным пользователям.",
+    "service_update_success": "Услуга успешно обновлена",
+"service_update_error": "Ошибка при обновлении услуги"    
 }
