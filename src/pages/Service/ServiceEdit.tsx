@@ -261,7 +261,7 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
 
     if (imagesToKeep.length > 0) {
       imagesToKeep.forEach((id) => {
-        formData.append("existing_images", String(id));
+        formData.append("existing_images", id.toString());
       });
     }
 
@@ -510,8 +510,6 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
                     </div>
                   </div>
                 ))}
-
-                {/* Add more button */}
                 {totalVisibleImages < 10 && (
                   <div
                     className="h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-blue-500 transition-colors hover:bg-blue-50"
@@ -542,8 +540,6 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
                 {t("image_upload_requirements")}
               </p>
             </div>
-
-            {/* Form Actions */}
             <div className="flex gap-4 pt-4">
               <button
                 type="submit"
@@ -573,5 +569,4 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
     </Modal>
   );
 };
-
 export default MyServiceEdit;

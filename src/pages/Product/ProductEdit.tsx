@@ -290,7 +290,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
     formData.append("userAddress_id", userInfo.user_info.location.id);
 
     // Add category
-       const selectedCategory = categoryList.find(
+       const selectedCategory = categoryList?.find(
             (item: Category) => getCategoryName(item) === category
           );
     
