@@ -32,12 +32,15 @@ import { Chat, useCreateChatRoomMutation } from "@store/slices/chatSlice";
 import CommentsMain from "./Comments/CommentsMain";
 import { useTranslation } from "react-i18next";
 import MyServiceEdit from "./ServiceEdit";
+import { useDeleteUserServiceMutation } from "@store/slices/users";
 
 const ServiceDetail = () => {
   const { id } = useParams();
   const { data, isLoading, error, refetch } = useGetSingleServiceQuery(id);
   const [createComment, { isLoading: create_loading }] =
     useCreateCommentMutation();
+    const [deleteService] = useDeleteUserServiceMutation();
+  
   const { t, i18n } = useTranslation();
   const [likeService] = useLikeServiceMutation();
   const [dislikeService] = useUnlikeServiceMutation();
@@ -80,6 +83,33 @@ const ServiceDetail = () => {
 
   const [selectedImage, setSelectedImage] = useState<string>("");
 
+    const handleServiceRedirect = () => navigate("/service");
+
+    const handleServiceDelete = async () => {
+        const confirmed = window.confirm(t("delete_confirmation_product"));
+          if (!confirmed) return;
+      
+          try {
+            const response = await deleteService({
+              serviceId: id,
+              token,
+            });
+      
+          if (response.status === 204 ) {
+    toast.success(t("product_delete_success"), { autoClose: 2000 });
+    handleServiceRedirect();
+  } else {
+    toast.error(t("product_delete_error"), { autoClose: 2000 });
+  }
+  
+          } catch (error: unknown) {
+            if (error instanceof Error) {
+              toast.error(t("product_delete_error"), { autoClose: 2000 });
+            } else {
+              toast.error(t("unknown_error_message"), { autoClose: 1000 });
+            }
+          }
+    }
   // Update selectedImage when serviceItem or serviceItem images are available
   useEffect(() => {
     if (serviceItem?.service.images?.length) {
@@ -413,7 +443,9 @@ const ServiceDetail = () => {
 
               {/* Delete Button */}
               <button
-                onClick={() => { }}
+                 onClick={() => {
+                    handleServiceDelete();
+                  }}
                 className="flex-1 flex items-center justify-center gap-2 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors font-medium"
               >
                 <FaTrash size={16} /> {t("delete_label")}

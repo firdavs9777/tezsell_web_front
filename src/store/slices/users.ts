@@ -7,6 +7,7 @@ import {
   USER_PRODUCT,
   USER_SERVICE,
   LOGGED_USER,
+  SERVICES_URL,
 } from "../constants";
 import { LoginInfo, RegisterInfo } from "../type";
 import { apiSlice } from "./apiSlice";
@@ -151,6 +152,20 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: ["Auth"],
     }),
+       deleteUserService: builder.mutation({
+      query: ({ token, serviceId }: { token: string; serviceId: string }) => {
+        return {
+          url: `${SERVICES_URL}/${serviceId}`,
+          method: "DELETE",
+          headers: {
+            Authorization: `Token ${token}`, // Add token to the Authorization header
+          },
+          credentials: "include",
+        };
+      },
+      invalidatesTags: ["Auth"],
+    }),
+   
   }),
 });
 export const {
@@ -166,4 +181,5 @@ export const {
   useGetUserServicesQuery,
   useGetLoggedinUserInfoQuery,
   useUpdateLoggedUserInfoMutation,
+  useDeleteUserServiceMutation
 } = usersApiSlice;
