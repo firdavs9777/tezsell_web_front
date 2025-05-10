@@ -27,7 +27,17 @@ import {
 
 import Modal from "../../components/Modal";
 import { toast } from "react-toastify";
-import { FaUser, FaPen, FaPlus, FaCamera, FaMapMarkerAlt, FaAngleRight, FaHeart, FaToolbox, FaShoppingBag } from "react-icons/fa";
+import {
+  FaUser,
+  FaPen,
+  FaPlus,
+  FaCamera,
+  FaMapMarkerAlt,
+  FaAngleRight,
+  FaHeart,
+  FaToolbox,
+  FaShoppingBag,
+} from "react-icons/fa";
 
 export interface ServiceRes {
   liked_services: Service[];
@@ -88,8 +98,7 @@ const MainProfile = () => {
       skip: !currentRegion || !token,
       // Cache districts for 24 hours since they rarely change
       refetchOnMountOrArgChange: 86400,
-    }
-  );
+    });
 
   // Memoize the formatted data to prevent unnecessary re-renders
   const regionsList = useMemo(() => regions as RegionsList, [regions]);
@@ -98,39 +107,33 @@ const MainProfile = () => {
   // Use a single dependency for products, services, and liked items
   const shouldFetchItems = !!(token && !userInfoLoading && profileInfo?.data);
 
-  const {
-    data: productsData,
-    isLoading: productsLoading,
-  } = useGetUserProductsQuery(
-    { token },
-    {
-      skip: !shouldFetchItems,
-      // This reduces refetches when navigating back to this page
-      refetchOnMountOrArgChange: true,
-    }
-  );
+  const { data: productsData, isLoading: productsLoading } =
+    useGetUserProductsQuery(
+      { token },
+      {
+        skip: !shouldFetchItems,
+        // This reduces refetches when navigating back to this page
+        refetchOnMountOrArgChange: true,
+      }
+    );
 
-  const {
-    data: servicesData,
-    isLoading: servicesLoading,
-  } = useGetUserServicesQuery(
-    { token },
-    {
-      skip: !shouldFetchItems,
-      refetchOnMountOrArgChange: true,
-    }
-  );
+  const { data: servicesData, isLoading: servicesLoading } =
+    useGetUserServicesQuery(
+      { token },
+      {
+        skip: !shouldFetchItems,
+        refetchOnMountOrArgChange: true,
+      }
+    );
 
-  const {
-    data: likedItemsData,
-    isLoading: likedItemsLoading,
-  } = useGetFavoriteItemsQuery(
-    { token },
-    {
-      skip: !shouldFetchItems,
-      refetchOnMountOrArgChange: true,
-    }
-  );
+  const { data: likedItemsData, isLoading: likedItemsLoading } =
+    useGetFavoriteItemsQuery(
+      { token },
+      {
+        skip: !shouldFetchItems,
+        refetchOnMountOrArgChange: true,
+      }
+    );
 
   const [updateProfile] = useUpdateLoggedUserInfoMutation();
 
@@ -160,11 +163,12 @@ const MainProfile = () => {
 
   // Optimize loading states to show partial UI when possible
   const isInitialLoading = userInfoLoading;
-  if (isInitialLoading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
-    </div>
-  );
+  if (isInitialLoading)
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
 
   const hasError = userInfoError;
   if (hasError)
@@ -256,21 +260,25 @@ const MainProfile = () => {
     : "/default-profile.png";
 
   // Render item card
-  const renderItemCard = (item: any, isService = false) => {
-    const imageUrl = item.images && item.images.length > 0 
-      ? `${BASE_URL}${item.images[0].image}`
-      : isService 
-        ? "/service-placeholder.png" 
+  const renderItemCard = (item: Product | Service, isService = false) => {
+    console.log(item);
+    const imageUrl =
+      item?.images && item?.images.length > 0
+        ? `${item?.images[0].image}`
+        : isService
+        ? "/service-placeholder.png"
         : "/product-placeholder.png";
-    
+
     return (
-      <div 
+      <div
         className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-        onClick={() => isService ? redirectServiceHandler(item.id) : redirectHandler(item.id)}
+        onClick={() =>
+          isService ? redirectServiceHandler(item.id) : redirectHandler(item.id)
+        }
       >
         <div className="aspect-video overflow-hidden bg-gray-100">
-          <img 
-            src={imageUrl} 
+          <img
+            src={imageUrl}
             alt={isService ? item.name : item.title}
             className="w-full h-full object-cover"
             loading="lazy"
@@ -285,7 +293,7 @@ const MainProfile = () => {
           </p>
           {!isService && item.price && (
             <p className="text-blue-600 font-semibold mt-1">
-              {item.price} {item.currency || ''}
+              {item.price} {item.currency || ""}
             </p>
           )}
         </div>
@@ -295,53 +303,58 @@ const MainProfile = () => {
 
   // Render item section
   const renderItemSection = (
-    title: string, 
-    items: any[], 
-    isLoading: boolean, 
+    title: string,
+    items: any[],
+    isLoading: boolean,
     isService = false,
     seeMoreLink: string,
     addNewLink?: string
   ) => {
     const itemCount = items?.length || 0;
-    
+
     return (
       <section className="bg-white rounded-lg shadow-sm p-4 mb-6">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold flex items-center">
-            {isService ? <FaToolbox className="mr-2 text-blue-500" /> : <FaShoppingBag className="mr-2 text-blue-500" />}
+            {isService ? (
+              <FaToolbox className="mr-2 text-blue-500" />
+            ) : (
+              <FaShoppingBag className="mr-2 text-blue-500" />
+            )}
             {title} ({itemCount})
           </h3>
           {addNewLink && (
-            <button 
-              onClick={() => navigate(addNewLink)} 
+            <button
+              onClick={() => navigate(addNewLink)}
               className="text-sm flex items-center gap-1 text-blue-600 hover:text-blue-800 transition-colors"
             >
               <FaPlus size={12} /> {t("add_new")}
             </button>
           )}
         </div>
-        
+
         {isLoading ? (
           <div className="flex justify-center py-6">
             <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
           </div>
         ) : itemCount === 0 ? (
           <div className="text-center py-6 text-gray-500">
-            {isService ? t("no_services") : t("no_products")}
+            {isService ? t("service_error") : t("product_error")}
           </div>
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {items.slice(0, 3).map((item) => renderItemCard(item, isService))}
             </div>
-            
+
             {itemCount > 3 && (
               <div className="text-center mt-4">
-                <button 
+                <button
                   className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors"
                   onClick={() => navigate(seeMoreLink)}
                 >
-                  {t("see_all")} <FaAngleRight size={14} className="ml-1" />
+                  {t("see_more_btn")}{" "}
+                  <FaAngleRight size={14} className="ml-1" />
                 </button>
               </div>
             )}
@@ -353,20 +366,22 @@ const MainProfile = () => {
 
   // Render favorite section
   const renderFavoriteSection = (
-    title: string, 
-    items: any[], 
-    isLoading: boolean, 
+    title: string,
+    items: any[],
+    isLoading: boolean,
     isService = false
   ) => {
     const itemCount = items?.length || 0;
-    
+
     return (
       <section className="bg-white rounded-lg shadow-sm p-4 mb-6">
         <div className="flex items-center mb-4">
           <FaHeart className="mr-2 text-rose-500" />
-          <h3 className="text-lg font-semibold">{title} ({itemCount})</h3>
+          <h3 className="text-lg font-semibold">
+            {title} ({itemCount})
+          </h3>
         </div>
-        
+
         {isLoading ? (
           <div className="flex justify-center py-6">
             <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
@@ -406,23 +421,26 @@ const MainProfile = () => {
                 )}
               </div>
             </div>
-            
+
             <div className="flex-grow mt-4 sm:mt-0 sm:ml-4 sm:pb-2">
-              <h1 className="text-2xl font-bold text-gray-800">{profileInfo.data.username}</h1>
+              <h1 className="text-2xl font-bold text-gray-800">
+                {profileInfo.data.username}
+              </h1>
               {profileInfo.data.location?.district && (
                 <p className="text-gray-600 flex items-center mt-1">
                   <FaMapMarkerAlt className="mr-1" />
-                  {profileInfo.data.location.district}, {profileInfo.data.location.region}
+                  {profileInfo.data.location.district},{" "}
+                  {profileInfo.data.location.region}
                 </p>
               )}
             </div>
-            
+
             <div className="mt-4 sm:mt-0 sm:ml-auto sm:pb-2">
               <button
                 onClick={handleOpenModal}
                 className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
               >
-                <FaPen size={14} /> {t("edit_profile")}
+                <FaPen size={14} /> {t("edit_profile_modal_title")}
               </button>
             </div>
           </div>
@@ -440,7 +458,7 @@ const MainProfile = () => {
           "/my-products",
           "/new-product"
         )}
-        
+
         {/* Services Section */}
         {renderItemSection(
           t("my_services_title"),
@@ -450,7 +468,7 @@ const MainProfile = () => {
           "/my-services",
           "/new-service"
         )}
-        
+
         {/* Favorites Sections */}
         {renderFavoriteSection(
           t("favorite_products_title"),
@@ -458,7 +476,7 @@ const MainProfile = () => {
           likedItemsLoading,
           false
         )}
-        
+
         {renderFavoriteSection(
           t("favorite_services_title"),
           likedItems?.liked_services || [],
@@ -471,7 +489,9 @@ const MainProfile = () => {
       {modalOpen && (
         <Modal onClose={handleClose} isOpen={modalOpen}>
           <div className="p-6">
-            <h2 className="text-xl font-bold mb-6 text-center">{t("edit_profile_modal_title")}</h2>
+            <h2 className="text-xl font-bold mb-6 text-center">
+              {t("edit_profile_modal_title")}
+            </h2>
             <form onSubmit={handleProfileUpdate}>
               <div className="mb-6">
                 <div className="flex justify-center mb-4">
@@ -491,8 +511,8 @@ const MainProfile = () => {
                         />
                       )}
                     </div>
-                    <label 
-                      htmlFor="file-upload" 
+                    <label
+                      htmlFor="file-upload"
                       className="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 cursor-pointer shadow-md"
                     >
                       <FaCamera size={14} />
@@ -509,9 +529,12 @@ const MainProfile = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-semibold mb-2" htmlFor="username">
+                <label
+                  className="block text-gray-700 text-sm font-semibold mb-2"
+                  htmlFor="username"
+                >
                   {t("username_label")}
                 </label>
                 <input
@@ -579,8 +602,8 @@ const MainProfile = () => {
                 >
                   {t("cancel_btn_label")}
                 </button>
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                 >
                   {t("save_label")}

@@ -31,7 +31,7 @@ const ProductScreen = () => {
   const [searchLocationQuery, setSearchLocationQuery] = useState("");
   const [searchProductQuery, setSearchProductQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
-  const [pageSize, setPageSize] = useState(12);
+  const [pageSize, setPageSize] = useState(10);
   const [selectedCategory, setSelectedCategory] = useState<string | null>("");
   const [selectedRegion, setSelectedRegion] = useState<string | null>("");
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>("");
@@ -250,9 +250,9 @@ const ProductScreen = () => {
             onChange={(e) => setPageSize(Number(e.target.value))}
             className="border border-gray-300 rounded p-2 text-sm"
           >
-            <option value="12">12 {t("per_page")}</option>
-            <option value="24">24 {t("per_page")}</option>
-            <option value="48">48 {t("per_page")}</option>
+            <option value="12">10 {t("per_page")}</option>
+            <option value="24">20 {t("per_page")}</option>
+            <option value="48">50 {t("per_page")}</option>
           </select>
         </div>
       </div>
@@ -304,7 +304,6 @@ const ProductScreen = () => {
             placeholder={t("location_placeholder")}
             className="w-full p-3 pl-10 border border-gray-300 rounded-lg"
           />
-       
         </div>
 
         <div className="max-h-96 overflow-y-auto">
@@ -361,30 +360,32 @@ const ProductScreen = () => {
             onChange={(e) => setSearchCategoryQuery(e.target.value)}
             className="w-full p-3 pl-10 border border-gray-300 rounded-lg"
           />
-          
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-96 overflow-y-auto">
-          {Array.isArray(categories) && categories
-            .filter((category) => {
-              const categoryName = getCategoryName(category);
-              return categoryName
-                .toLowerCase()
-                .includes(searchCategoryQuery.toLowerCase());
-            })
-            .map((category) => (
-              <div
-                key={category.id}
-                onClick={() => handleCategorySelect(getCategoryName(category))}
-                className={`cursor-pointer px-3 py-2 rounded-md transition-colors ${
-                  selectedCategory === getCategoryName(category)
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-100 hover:bg-blue-100"
-                }`}
-              >
-                {getCategoryName(category)}
-              </div>
-            ))}
+          {Array.isArray(categories) &&
+            categories
+              .filter((category) => {
+                const categoryName = getCategoryName(category);
+                return categoryName
+                  .toLowerCase()
+                  .includes(searchCategoryQuery.toLowerCase());
+              })
+              .map((category) => (
+                <div
+                  key={category.id}
+                  onClick={() =>
+                    handleCategorySelect(getCategoryName(category))
+                  }
+                  className={`cursor-pointer px-3 py-2 rounded-md transition-colors ${
+                    selectedCategory === getCategoryName(category)
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-100 hover:bg-blue-100"
+                  }`}
+                >
+                  {getCategoryName(category)}
+                </div>
+              ))}
         </div>
       </Modal>
     </div>

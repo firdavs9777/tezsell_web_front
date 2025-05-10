@@ -2,7 +2,6 @@ import { Service } from "../../store/type";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-
 import {
   FaComment,
   FaEdit,
@@ -31,25 +30,20 @@ const MyService: React.FC<SingleServiceProps> = ({ service, refresh }) => {
   const navigate = useNavigate();
   const [isEdit, setIsEdit] = useState(false);
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
-
   const token = userInfo?.token;
-  const {
-    data: favorite_items,
 
-    refetch: reload_item,
-  } = useGetFavoriteItemsQuery({
-    token: token,
-  });
+  const { data: favorite_items, refetch: reload_item } =
+    useGetFavoriteItemsQuery({
+      token: token,
+    });
   const [likeService] = useLikeServiceMutation();
   const [dislikeService] = useUnlikeServiceMutation();
-  const redirectHandler = (id: number) => {
-    navigate(`/service/${id}`);
-  };
+
+  const redirectHandler = (id: number) => navigate(`/service/${id}`);
   const liked_items: ServiceRes = favorite_items as ServiceRes;
 
   const handleLikeService = async () => {
     try {
-      const token = userInfo?.token;
       const response = await likeService({
         serviceId: service.id,
         token: token,
@@ -74,7 +68,6 @@ const MyService: React.FC<SingleServiceProps> = ({ service, refresh }) => {
 
   const handleDislikeService = async () => {
     try {
-      const token = userInfo?.token;
       const response = await dislikeService({
         serviceId: service.id,
         token: token,
@@ -97,124 +90,126 @@ const MyService: React.FC<SingleServiceProps> = ({ service, refresh }) => {
     }
   };
 
-  const handleNewServiceRedirect = () => {
-    navigate("/new-service");
-  };
-  const handleEditModal = () => {
-    setIsEdit(!isEdit);
-  };
-  const closeHandler = async () => {
-    refresh();
-  };
+  const handleNewServiceRedirect = () => navigate("/new-service");
+  const handleEditModal = () => setIsEdit(!isEdit);
+  const closeHandler = async () => refresh();
+
+  const isLiked = liked_items?.liked_services?.some(
+    (item) => item.id === service.id
+  );
+
   return (
-    <section className="service-card">
+    <div className="flex flex-col md:flex-row border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 mb-6 bg-white">
+      {/* Image Section */}
       <div
-        className="image-container"
+        className="w-full md:w-1/3 h-48 md:h-auto cursor-pointer relative"
         onClick={() => redirectHandler(service.id)}
       >
         {service.images.length > 0 ? (
           <img
             src={`${service.images[0].image}`}
             alt={service.name}
-            className="service-image"
+            className="w-full h-full object-cover"
           />
         ) : (
-          <div className="no-image-placeholder">No Image</div>
+          <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500">
+            No Image
+          </div>
         )}
       </div>
-      <div className="service-details">
-        <p
-          className="service-category"
-          onClick={() => redirectHandler(service.id)}
-        >
-          {service.category.name_en}
-        </p>
-        <h2
-          className="service-title"
-          onClick={() => redirectHandler(service.id)}
-        >
-          {service.name.length > 20
-            ? `${service.name.substring(0, 26)}`
-            : service.name}
-        </h2>
-        <p
-          className="service-description"
-          onClick={() => redirectHandler(service.id)}
-        >
-          <strong>
-            {service.description.length > 34
-              ? `${service.description.substring(0, 34)}...`
-              : service.description}
-          </strong>
-        </p>
 
-        <div className="service-meta">
-          <span
-            className="service-likes"
+      {/* Details Section */}
+      <div className="w-full md:w-2/3 p-4 flex flex-col justify-between">
+        <div>
+          <div
+            className="cursor-pointer"
             onClick={() => redirectHandler(service.id)}
           >
-            <FaMapMarkerAlt size={18} className="service-map-icon" />
-            {service.location ? service.location.region : ""} -{" "}
-            {service.location ? service.location.district : ""}
-          </span>
-          <br />
-        </div>
-        {isEdit && (
-          <MyServiceEdit
-            onClose={closeHandler}
-            serviceId={service.id.toString()}
-            closeModelStatus={isEdit}
-          />
-        )}
-        <div className="product-modification">
-          <p className="product-edit">
-            <span onClick={handleEditModal}>
-              <FaEdit onClick={handleEditModal} /> Edit
+            <span className="text-sm text-blue-600 font-medium">
+              {service.category.name_en}
             </span>
-          </p>
-          <p className="product-delete">
-            <FaTrash />
-            <span>Delete</span>
-          </p>
+            <h2 className="text-xl font-bold mt-1 mb-2 line-clamp-1">
+              {service.name}
+            </h2>
+            <p className="text-gray-700 line-clamp-2 mb-3">
+              {service.description}
+            </p>
+          </div>
+
+          <div className="flex items-center text-gray-600 mb-4">
+            <FaMapMarkerAlt className="mr-1" />
+            <span className="text-sm">
+              {service.location
+                ? `${service.location.region} - ${service.location.district}`
+                : ""}
+            </span>
+          </div>
         </div>
-        {liked_items &&
-        liked_items.liked_services &&
-        liked_items.liked_services.some((item) => item.id === service.id) ? (
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <FaThumbsUp
-              size={24}
-              style={{ color: "blue" }}
-              onClick={handleDislikeService}
-            />
-            <FaComment
-              size={24}
-              style={{
-                color: service.comments.length === 0 ? "#999" : "inherit",
-              }}
-            />{" "}
-            {service.comments.length}
+
+        {/* Edit/Delete Buttons */}
+        <div className="flex justify-between items-center border-t pt-3">
+          <div className="flex space-x-4">
+            <button
+              onClick={handleEditModal}
+              className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+            >
+              <FaEdit className="mr-1" />
+              <span>Edit</span>
+            </button>
+            <button className="flex items-center text-red-600 hover:text-red-800 transition-colors">
+              <FaTrash className="mr-1" />
+              <span>Delete</span>
+            </button>
           </div>
-        ) : (
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <FaRegThumbsUp size={24} onClick={handleLikeService} />
-            <FaComment
-              size={24}
-              style={{
-                color: service.comments.length === 0 ? "#999" : "inherit",
-              }}
-            />{" "}
-            {service.comments.length}
+
+          {/* Like/Comment Section */}
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-1">
+              {isLiked ? (
+                <FaThumbsUp
+                  className="text-blue-600 cursor-pointer hover:text-blue-800 transition-colors"
+                  onClick={handleDislikeService}
+                />
+              ) : (
+                <FaRegThumbsUp
+                  className="cursor-pointer hover:text-blue-600 transition-colors"
+                  onClick={handleLikeService}
+                />
+              )}
+            </div>
+            <div className="flex items-center space-x-1">
+              <FaComment
+                className={
+                  service.comments.length === 0
+                    ? "text-gray-400"
+                    : "text-gray-700"
+                }
+              />
+              <span>{service.comments.length}</span>
+            </div>
           </div>
-        )}
+        </div>
       </div>
-      {userInfo ? (
-        <div className="add-new-service" onClick={handleNewServiceRedirect}>
-          <FaPlus style={{ fontSize: "30px", color: "#333" }} />
-        </div>
-      ) : (
-        <p></p>
+
+      {/* Add New Service Button (only for authenticated users) */}
+      {userInfo && (
+        <button
+          onClick={handleNewServiceRedirect}
+          className="absolute bottom-4 right-4 md:relative md:bottom-auto md:right-auto md:ml-4 p-2 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors"
+        >
+          <FaPlus className="text-blue-600" />
+        </button>
       )}
-    </section>
+
+      {/* Edit Modal */}
+      {isEdit && (
+        <MyServiceEdit
+          onClose={closeHandler}
+          serviceId={service.id.toString()}
+          closeModelStatus={isEdit}
+        />
+      )}
+    </div>
   );
 };
 

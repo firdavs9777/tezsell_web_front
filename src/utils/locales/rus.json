@@ -191,5 +191,7 @@
   "coming_soon": "Скоро будет",
     "comments_visibility_notice": "Комментарии видны только авторизованным пользователям.",
     "service_update_success": "Услуга успешно обновлена",
-"service_update_error": "Ошибка при обновлении услуги"    
+"service_update_error": "Ошибка при обновлении услуги",
+"edit_service_modal_title": "Редактировать услугу"
+
 }

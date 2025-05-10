@@ -10,7 +10,7 @@ import {
   useGetSingleServiceQuery,
   useUpdateUserServiceMutation,
 } from "@store/slices/serviceApiSlice";
-import { FaTrash, FaPlus, FaSpinner, FaTimes, FaEdit, FaImage } from "react-icons/fa";
+import { FaTrash, FaSpinner, FaTimes, FaEdit, FaImage } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 
 interface SingleServiceType {
@@ -91,12 +91,13 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
       }
 
       // Set existing images if available
-      const images = singleService.service.images?.map((image) => ({
-        id: image.id || 0,
-        image: image.image,
-        fullUrl: `${BASE_URL}${image.image}`,
-        isDeleted: false,
-      })) || [];
+      const images =
+        singleService.service.images?.map((image) => ({
+          id: image.id || 0,
+          image: image.image,
+          fullUrl: `${BASE_URL}${image.image}`,
+          isDeleted: false,
+        })) || [];
 
       setForm({
         name: singleService.service.name || "",
@@ -117,7 +118,9 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
 
   // Input handlers
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -183,10 +186,10 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
     // Once all files are read, update the state for previews and actual files
     Promise.all(fileReaderPromises)
       .then(() => {
-        setForm(prev => ({
+        setForm((prev) => ({
           ...prev,
           newImagePreviews: [...prev.newImagePreviews, ...previews],
-          newImageFiles: [...prev.newImageFiles, ...fileArray]
+          newImageFiles: [...prev.newImageFiles, ...fileArray],
         }));
         setImageUploading(false);
       })
@@ -200,7 +203,7 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
   const handleRemoveExistingImage = (index: number) => {
     const confirmRemove = window.confirm(t("image_confirm_message"));
     if (confirmRemove) {
-      setForm(prev => {
+      setForm((prev) => {
         const updatedImages = [...prev.existingImages];
         updatedImages[index] = { ...updatedImages[index], isDeleted: true };
         return { ...prev, existingImages: updatedImages };
@@ -209,10 +212,10 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
   };
 
   const handleRemoveNewImage = (index: number) => {
-    setForm(prev => ({
+    setForm((prev) => ({
       ...prev,
       newImagePreviews: prev.newImagePreviews.filter((_, i) => i !== index),
-      newImageFiles: prev.newImageFiles.filter((_, i) => i !== index)
+      newImageFiles: prev.newImageFiles.filter((_, i) => i !== index),
     }));
   };
 
@@ -240,12 +243,12 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
       toast.error(t("one_image_confirm_message"), { autoClose: 3000 });
       return false;
     }
-    
+
     if (!form.category) {
       toast.error(t("category_required_message"), { autoClose: 3000 });
       return false;
     }
-    
+
     return true;
   };
 
@@ -286,7 +289,7 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
     const selectedCategory = categoryList?.find(
       (item: Category) => getCategoryName(item) === form.category
     );
-    
+
     if (selectedCategory) {
       formData.append("category_id", selectedCategory.id.toString());
     } else {
@@ -334,7 +337,7 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
           toast.error(t("service_update_error"), { autoClose: 3000 });
         }
       }
-    } catch  {
+    } catch {
       toast.error(t("service_update_error"), { autoClose: 3000 });
     }
   };
@@ -386,8 +389,12 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
           <form onSubmit={submitFormHandler} className="space-y-6">
             {/* Service Title */}
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                {t("serviceName")} <span className="text-red-500 text-lg">*</span>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                {t("serviceName")}{" "}
+                <span className="text-red-500 text-lg">*</span>
               </label>
               <input
                 id="name"
@@ -403,8 +410,12 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
 
             {/* Service Description */}
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                {t("serviceDescription")} <span className="text-red-500 text-lg">*</span>
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                {t("serviceDescription")}{" "}
+                <span className="text-red-500 text-lg">*</span>
               </label>
               <textarea
                 id="description"
@@ -422,8 +433,12 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
 
             {/* Service Category */}
             <div>
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-                {t("serviceCategory")} <span className="text-red-500 text-lg">*</span>
+              <label
+                htmlFor="category"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                {t("serviceCategory")}{" "}
+                <span className="text-red-500 text-lg">*</span>
               </label>
               <select
                 id="category"
@@ -442,7 +457,10 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
                   <option>{t("errorLoadingCategories")}</option>
                 ) : (
                   categoryList?.map((categoryItem) => (
-                    <option key={categoryItem.id} value={getCategoryName(categoryItem)}>
+                    <option
+                      key={categoryItem.id}
+                      value={getCategoryName(categoryItem)}
+                    >
                       {getCategoryName(categoryItem)}
                     </option>
                   ))
@@ -486,7 +504,7 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
                       </div>
                     )
                 )}
-                
+
                 {/* New Images */}
                 {form.newImagePreviews.map((preview, index) => (
                   <div
@@ -513,14 +531,21 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
                 {totalVisibleImages < 10 && (
                   <div
                     className="h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-blue-500 transition-colors hover:bg-blue-50"
-                    onClick={() => document.getElementById("image-upload")?.click()}
+                    onClick={() =>
+                      document.getElementById("image-upload")?.click()
+                    }
                   >
                     {imageUploading ? (
-                      <FaSpinner className="animate-spin text-blue-500" size={20} />
+                      <FaSpinner
+                        className="animate-spin text-blue-500"
+                        size={20}
+                      />
                     ) : (
                       <div className="flex flex-col items-center text-gray-500 hover:text-blue-500">
                         <FaImage size={20} />
-                        <span className="text-xs mt-1">{t("new_product_images")}</span>
+                        <span className="text-xs mt-1">
+                          {t("new_product_images")}
+                        </span>
                       </div>
                     )}
                   </div>

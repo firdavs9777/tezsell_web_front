@@ -50,6 +50,7 @@
   "my_services_title": "Mening xizmatlarim",
   "favorite_products_title": "Sevimli mahsulotlar",
   "favorite_services_title": "Sevimli xizmatlar",
+  "no_favorites": "Saralanganlar yo'q",
   "add_new_product_btn": "Yangi mahsulot qo'shish",
   "add_new_service_btn": "Yangi xizmat qo'shish",
   "services_title": "Xizmatlar",
@@ -191,5 +192,6 @@
   "coming_soon": "Tez kunda",
     "comments_visibility_notice": "Izohlar faqat tizimga kirgan foydalanuvchilarga ko'rinadi.",
     "service_update_success": "Xizmat muvaffaqiyatli yangilandi",
-"service_update_error": "Xizmatni yangilashda xatolik yuz berdi"
+"service_update_error": "Xizmatni yangilashda xatolik yuz berdi",
+   "edit_service_modal_title": "Xizmatni tahrirlash"
 }
