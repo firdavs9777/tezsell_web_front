@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { Category } from "@store/type";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
@@ -24,14 +24,11 @@ const NewService = () => {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [category, setCategory] = useState<string>("");
 
-
-
-
   const getCategoryName = (categoryItem: Category) => {
-      const langKey = `name_${i18n.language}` as keyof Category;
-      return categoryItem[langKey] || categoryItem.name_en || "";
-    };
-  
+    const langKey = `name_${i18n.language}` as keyof Category;
+    return categoryItem[langKey] || categoryItem.name_en || "";
+  };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
@@ -139,14 +136,14 @@ const NewService = () => {
     }
 
     const selectedCategory = category_list.find(
-            (item: Category) => getCategoryName(item) === category
-          );
+      (item: Category) => getCategoryName(item) === category
+    );
 
     if (selectedCategory) {
-              const selectedCategoryId = selectedCategory.id;
-        formData.append("category_id", selectedCategoryId.toString());
+      const selectedCategoryId = selectedCategory.id;
+      formData.append("category_id", selectedCategoryId.toString());
     } else {
-      toast.error(t("categoryNotFound"), {autoClose: 2000});
+      toast.error(t("categoryNotFound"), { autoClose: 2000 });
       return;
     }
 
@@ -240,14 +237,14 @@ const NewService = () => {
               ) : error ? (
                 <option>{t("errorLoadingCategories")}</option>
               ) : (
-                 category_list.map((categoryItem) => (
-                    <option
-                      key={categoryItem.id}
-                      value={getCategoryName(categoryItem)}
-                    >
-                      {getCategoryName(categoryItem)}
-                    </option>
-                  ))
+                category_list.map((categoryItem) => (
+                  <option
+                    key={categoryItem.id}
+                    value={getCategoryName(categoryItem)}
+                  >
+                    {getCategoryName(categoryItem)}
+                  </option>
+                ))
               )}
             </select>
           </div>

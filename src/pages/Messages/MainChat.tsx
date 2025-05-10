@@ -4,6 +4,7 @@ import MainChatRoom from "./ChatRoom";
 import MainChatWindow from "./ChatWindow";
 import {
   Chat,
+  SingleChat,
   useCreateChatRoomMessageMutation,
   useDeleteSingleChatRoomMutation,
   useGetAllChatMessagesQuery,
@@ -133,7 +134,7 @@ const MainChat = () => {
         {selectedChatId ? (
           <MainChatWindow
             chatId={selectedChatId}
-            messages={single_room}
+            messages={single_room as unknown as SingleChat}
             isLoading={load_room}
             error={singleRoomError}
             onSendMessage={handleSendMessage}

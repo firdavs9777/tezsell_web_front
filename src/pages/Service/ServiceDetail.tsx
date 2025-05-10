@@ -39,8 +39,8 @@ const ServiceDetail = () => {
   const { data, isLoading, error, refetch } = useGetSingleServiceQuery(id);
   const [createComment, { isLoading: create_loading }] =
     useCreateCommentMutation();
-    const [deleteService] = useDeleteUserServiceMutation();
-  
+  const [deleteService] = useDeleteUserServiceMutation();
+
   const { t, i18n } = useTranslation();
   const [likeService] = useLikeServiceMutation();
   const [dislikeService] = useUnlikeServiceMutation();
@@ -83,33 +83,36 @@ const ServiceDetail = () => {
 
   const [selectedImage, setSelectedImage] = useState<string>("");
 
-    const handleServiceRedirect = () => navigate("/service");
+  const handleServiceRedirect = () => navigate("/service");
 
-    const handleServiceDelete = async () => {
-        const confirmed = window.confirm(t("delete_confirmation_product"));
-          if (!confirmed) return;
-      
-          try {
-            const response = await deleteService({
-              serviceId: id,
-              token,
-            });
-      
-          if (response.status === 204 ) {
-    toast.success(t("product_delete_success"), { autoClose: 2000 });
-    handleServiceRedirect();
-  } else {
-    toast.error(t("product_delete_error"), { autoClose: 2000 });
-  }
-  
-          } catch (error: unknown) {
-            if (error instanceof Error) {
-              toast.error(t("product_delete_error"), { autoClose: 2000 });
-            } else {
-              toast.error(t("unknown_error_message"), { autoClose: 1000 });
-            }
-          }
+  const handleServiceDelete = async () => {
+    const confirmed = window.confirm(t("delete_confirmation_product"));
+    if (!confirmed) return;
+
+    try {
+      const response = await deleteService({
+        serviceId: id,
+        token,
+      });
+      interface DeleteResponse {
+        status: number;
+        data?: unknown;
+        error?: unknown;
+      }
+      if (response && (response as DeleteResponse).status === 204) {
+        toast.success(t("product_delete_success"), { autoClose: 2000 });
+        handleServiceRedirect();
+      } else {
+        toast.error(t("product_delete_error"), { autoClose: 2000 });
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(t("product_delete_error"), { autoClose: 2000 });
+      } else {
+        toast.error(t("unknown_error_message"), { autoClose: 1000 });
+      }
     }
+  };
   // Update selectedImage when serviceItem or serviceItem images are available
   useEffect(() => {
     if (serviceItem?.service.images?.length) {
@@ -122,7 +125,7 @@ const ServiceDetail = () => {
       <div className="flex justify-center items-center h-64">
         <div className="text-center">
           <div className="animate-spin inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mb-2"></div>
-          <p className="text-gray-600">{ t("loading")}</p>
+          <p className="text-gray-600">{t("loading")}</p>
         </div>
       </div>
     );
@@ -131,7 +134,7 @@ const ServiceDetail = () => {
   if (error || !serviceItem) {
     return (
       <div className="bg-red-100 p-4 rounded-lg text-red-700 text-center my-8 mx-4">
-        {t('error_message')}
+        {t("error_message")}
       </div>
     );
   }
@@ -139,7 +142,6 @@ const ServiceDetail = () => {
     refetch();
     if (service.images) {
       setSelectedImage(`${BASE_URL}${service.images[0].image}`);
-
     } else {
       setSelectedImage("");
     }
@@ -289,7 +291,7 @@ const ServiceDetail = () => {
     }
   };
   const handleEditModal = () => {
-        refetch();
+    refetch();
     setIsEdit(!isEdit);
   };
 
@@ -302,7 +304,7 @@ const ServiceDetail = () => {
           className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors font-medium"
         >
           <FaArrowLeft className="text-sm" />
-          <span>{t('service_back')}</span>
+          <span>{t("service_back")}</span>
         </Link>
       </div>
 
@@ -333,10 +335,11 @@ const ServiceDetail = () => {
                     onClick={() =>
                       setSelectedImage(`${BASE_URL}${image.image}`)
                     }
-                    className={`h-full w-full object-cover cursor-pointer border-2 ${selectedImage === `${BASE_URL}/services${image.image}`
+                    className={`h-full w-full object-cover cursor-pointer border-2 ${
+                      selectedImage === `${BASE_URL}/services${image.image}`
                         ? "border-blue-500"
                         : "border-transparent"
-                      }`}
+                    }`}
                   />
                 </div>
               ))}
@@ -391,67 +394,70 @@ const ServiceDetail = () => {
               </div>
             </div>
 
-            {isLoggedIn && <div className="flex flex-wrap gap-2 mb-2">
-              {/* Like/Unlike Button */}
-              <button
-                onClick={
-                  isLoggedIn &&
+            {isLoggedIn && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {/* Like/Unlike Button */}
+                <button
+                  onClick={
+                    isLoggedIn &&
                     liked_items?.liked_services?.some(
                       (item: Service) => item.id === serviceItem.service.id
                     )
-                    ? handleDislikeService
-                    : handleLikeService
-                }
-                className={`flex items-center justify-center gap-2 px-6 py-3 rounded-md flex-1 min-w-[120px] transition-colors ${isLoggedIn &&
+                      ? handleDislikeService
+                      : handleLikeService
+                  }
+                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-md flex-1 min-w-[120px] transition-colors ${
+                    isLoggedIn &&
                     liked_items?.liked_services?.some(
                       (item: Service) => item.id === serviceItem.service.id
                     )
-                    ? "bg-blue-100 text-blue-700"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      ? "bg-blue-100 text-blue-700"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
-              >
-                {isLoggedIn &&
+                >
+                  {isLoggedIn &&
                   liked_items?.liked_services?.some(
                     (item: Service) => item.id === serviceItem.service.id
                   ) ? (
-                  <FaThumbsUp size={18} />
-                ) : (
-                  <FaRegThumbsUp size={18} />
-                )}
-                <span>{t('like_label')}</span>
-              </button>
+                    <FaThumbsUp size={18} />
+                  ) : (
+                    <FaRegThumbsUp size={18} />
+                  )}
+                  <span>{t("like_label")}</span>
+                </button>
 
+                <button
+                  className="flex items-center justify-center gap-2 px-6 py-3 bg-green-100 text-green-700 rounded-md flex-1 min-w-[120px] hover:bg-green-200 transition-colors"
+                  onClick={handleChat}
+                >
+                  <FaCommentAlt size={18} />
+                  <span>{t("chat")}</span>
+                </button>
+              </div>
+            )}
 
-              <button
-                className="flex items-center justify-center gap-2 px-6 py-3 bg-green-100 text-green-700 rounded-md flex-1 min-w-[120px] hover:bg-green-200 transition-colors"
-                onClick={handleChat}
-              >
-                <FaCommentAlt size={18} />
-                <span>{t('chat')}</span>
-              </button>
-            </div>}
+            {isLoggedIn && (
+              <div className="flex flex-wrap gap-2">
+                {/* Edit Button */}
+                <button
+                  onClick={handleEditModal}
+                  className="flex-1 flex items-center justify-center gap-2 bg-amber-500 text-white py-3 rounded-lg hover:bg-amber-600 transition-colors font-medium"
+                >
+                  <FaEdit size={16} /> {t("edit_label")}
+                </button>
 
-
-            {isLoggedIn && <div className="flex flex-wrap gap-2">
-              {/* Edit Button */}
-              <button
-                 onClick={handleEditModal}
-                className="flex-1 flex items-center justify-center gap-2 bg-amber-500 text-white py-3 rounded-lg hover:bg-amber-600 transition-colors font-medium"
-              >
-                <FaEdit size={16} /> {t("edit_label")}
-              </button>
-
-              {/* Delete Button */}
-              <button
-                 onClick={() => {
+                {/* Delete Button */}
+                <button
+                  onClick={() => {
                     handleServiceDelete();
                   }}
-                className="flex-1 flex items-center justify-center gap-2 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors font-medium"
-              >
-                <FaTrash size={16} /> {t("delete_label")}
-              </button>
-            </div>}
-            
+                  className="flex-1 flex items-center justify-center gap-2 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors font-medium"
+                >
+                  <FaTrash size={16} /> {t("delete_label")}
+                </button>
+              </div>
+            )}
+
             {isEdit && (
               <MyServiceEdit
                 onClose={onCloseHandler}
@@ -466,7 +472,7 @@ const ServiceDetail = () => {
       {/* Comments section */}
       <section className="mt-10 bg-white rounded-lg shadow-md p-6">
         <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
-          {t('comments_label')} {isLoggedIn && `(${comments.length})`}
+          {t("comments_label")} {isLoggedIn && `(${comments.length})`}
         </h2>
 
         {isLoggedIn ? (
@@ -495,7 +501,9 @@ const ServiceDetail = () => {
                     disabled={create_loading}
                     className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-300"
                   >
-                    {create_loading ? t("posting_label") : t("post_comment_label")}
+                    {create_loading
+                      ? t("posting_label")
+                      : t("post_comment_label")}
                   </button>
                 </div>
               </form>
@@ -508,17 +516,15 @@ const ServiceDetail = () => {
                 <FaSignInAlt size={24} />
               </div>
               <h3 className="text-lg font-medium text-blue-800">
-               {t('comments_visibility_notice')}
+                {t("comments_visibility_notice")}
               </h3>
-              <p className="text-blue-600 mb-2">
-                {t('login_prompt')}
-              </p>
+              <p className="text-blue-600 mb-2">{t("login_prompt")}</p>
               <Link
                 to="/login"
                 className="inline-flex items-center px-5 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
               >
                 <FaSignInAlt className="mr-2" />
-                {t('login')}
+                {t("login")}
               </Link>
             </div>
           </div>
@@ -527,9 +533,9 @@ const ServiceDetail = () => {
 
       {/* Recommended services section */}
       <section className="mt-10 bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-xl font-bold mb-4">{ t('recommended_services')}</h3>
+        <h3 className="text-xl font-bold mb-4">{t("recommended_services")}</h3>
         <div className="bg-gray-50 p-4 rounded-lg text-center text-gray-500">
-          {t('coming_soon')}
+          {t("coming_soon")}
         </div>
       </section>
     </div>

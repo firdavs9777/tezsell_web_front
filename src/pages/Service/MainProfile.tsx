@@ -260,7 +260,7 @@ const MainProfile = () => {
     : "/default-profile.png";
 
   // Render item card
-  const renderItemCard = (item: Product | Service, isService = false) => {
+  const renderItemCard = (item: any, isService = false) => {
     console.log(item);
     const imageUrl =
       item?.images && item?.images.length > 0

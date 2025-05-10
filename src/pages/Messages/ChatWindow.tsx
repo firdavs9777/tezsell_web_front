@@ -6,7 +6,7 @@ import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { SerializedError } from "@reduxjs/toolkit";
 
 interface MainChatWindowProps {
-  messages: SingleChat | undefined;
+  messages: SingleChat;
   isLoading: boolean;
   chatId: number;
   error?: FetchBaseQueryError | SerializedError | undefined;

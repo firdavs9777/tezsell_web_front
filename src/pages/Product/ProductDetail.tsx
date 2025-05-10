@@ -60,7 +60,6 @@ const ProductDetail = () => {
   useEffect(() => {
     if (singleProduct?.product.images.length > 0) {
       setSelectedImage(`${BASE_URL}${singleProduct.product.images[0].image}`);
-      
     }
   }, [singleProduct]);
 
@@ -128,7 +127,7 @@ const ProductDetail = () => {
 
       if (response.data) {
         toast.success(t("productDislikeSuccess"), { autoClose: 1000 });
-      
+
         reload();
       }
     } catch (error: unknown) {
@@ -145,7 +144,7 @@ const ProductDetail = () => {
   };
 
   const handleEditModal = () => {
-        refetch();
+    refetch();
     setIsEdit(!isEdit);
   };
 
@@ -153,7 +152,6 @@ const ProductDetail = () => {
     refetch();
     if (singleProduct.product.images) {
       setSelectedImage(`${BASE_URL}${singleProduct.product.images[0].image}`);
-
     } else {
       setSelectedImage("");
     }
@@ -188,36 +186,41 @@ const ProductDetail = () => {
       } else {
         toast.error(t("chat_room_error"), { autoClose: 2000 });
       }
-    } catch  {
+    } catch {
       toast.error(t("chat_creation_error"));
     }
   };
-    const handleProductRedirect = () => navigate("/");
-  const handleProductDelete = async () => {
-      const confirmed = window.confirm(t("delete_confirmation_product"));
-        if (!confirmed) return;
-    
-        try {
-          const response = await deleteProduct({
-            productId: id,
-            token,
-          });
-    
-        if (response.status === 204 && response.data?.success) {
-  toast.success(t("product_delete_success"), { autoClose: 2000 });
-  handleProductRedirect();
-} else {
-  toast.error(t("product_delete_error"), { autoClose: 2000 });
-}
+  const handleProductRedirect = () => navigate("/");
+  // Add these types to your API slice or types file
 
-        } catch (error: unknown) {
-          if (error instanceof Error) {
-            toast.error(t("product_delete_error"), { autoClose: 2000 });
-          } else {
-            toast.error(t("unknown_error_message"), { autoClose: 1000 });
-          }
-        }
-  }
+  const handleProductDelete = async () => {
+    const confirmed = window.confirm(t("delete_confirmation_product"));
+    if (!confirmed) return;
+
+    try {
+      const response = await deleteProduct({
+        productId: id,
+        token,
+      });
+
+      // RTK Query mutation returns either:
+      // { data: YourSuccessResponse } or { error: YourErrorResponse }
+      if ("data" in response && response.data) {
+        // Success case
+        toast.success(t("product_delete_success"), { autoClose: 2000 });
+        handleProductRedirect();
+      } else if ("error" in response) {
+        // Error case
+        toast.error(t("product_delete_error"), { autoClose: 2000 });
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(t("product_delete_error"), { autoClose: 2000 });
+      } else {
+        toast.error(t("unknown_error_message"), { autoClose: 1000 });
+      }
+    }
+  };
 
   const isLiked = liked_items?.liked_products?.some(
     (item: Product) => item.id === singleProduct.product.id
@@ -236,20 +239,23 @@ const ProductDetail = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-7">
           <div className="relative bg-white rounded-xl shadow-sm overflow-hidden aspect-[4/3]">
-            
             <img
               className="w-full h-full object-contain"
               src={selectedImage}
-              alt={singleProduct.product.title}         
+              alt={singleProduct.product.title}
             />
           </div>
 
           <div className="mt-4 grid grid-cols-5 gap-2">
             {singleProduct.product.images.map((image, index) => (
-              <div 
+              <div
                 key={index}
                 className={`relative aspect-square rounded-md overflow-hidden cursor-pointer 
-                  ${selectedImage === `${BASE_URL}${image.image}` ? 'ring-2 ring-blue-500' : 'ring-1 ring-gray-200'}`}
+                  ${
+                    selectedImage === `${BASE_URL}${image.image}`
+                      ? "ring-2 ring-blue-500"
+                      : "ring-1 ring-gray-200"
+                  }`}
                 onClick={() => handleImageClick(image.image)}
               >
                 <img
@@ -270,7 +276,9 @@ const ProductDetail = () => {
             <button
               onClick={isLiked ? handleDislikeProduct : handleLikeProduct}
               className="text-rose-500 hover:scale-110 transition-transform"
-              title={isLiked ? t("remove_from_favorites") : t("add_to_favorites")}
+              title={
+                isLiked ? t("remove_from_favorites") : t("add_to_favorites")
+              }
             >
               {isLiked ? <FaHeart size={24} /> : <FaRegHeart size={24} />}
             </button>
@@ -283,13 +291,17 @@ const ProductDetail = () => {
             </div>
             <span className="text-gray-400">•</span>
             <span className="text-gray-500">
-              <p>{singleProduct.product.condition ? t(singleProduct.product.condition) : ""}</p>
-
-
+              <p>
+                {singleProduct.product.condition
+                  ? t(singleProduct.product.condition)
+                  : ""}
+              </p>
             </span>
             <span className="text-gray-400">•</span>
             <span className="text-gray-500">
-              {singleProduct.product.in_stock ? t("product_in_stock") : t("product_out_stock")}
+              {singleProduct.product.in_stock
+                ? t("product_in_stock")
+                : t("product_out_stock")}
             </span>
           </div>
 
@@ -299,7 +311,9 @@ const ProductDetail = () => {
           </div>
 
           <div className="bg-white p-4 rounded-lg shadow-sm">
-            <h3 className="font-medium text-gray-800 mb-2">{t("description")}</h3>
+            <h3 className="font-medium text-gray-800 mb-2">
+              {t("description")}
+            </h3>
             <p className="text-gray-600">{singleProduct.product.description}</p>
           </div>
 
@@ -321,7 +335,8 @@ const ProductDetail = () => {
               </p>
               <p className="text-sm text-gray-500 flex items-center">
                 <FaMapMarkerAlt className="mr-1" size={14} />
-                {singleProduct.product?.userName?.location?.district || t("no_location")}
+                {singleProduct.product?.userName?.location?.district ||
+                  t("no_location")}
               </p>
             </div>
           </div>
@@ -345,8 +360,8 @@ const ProductDetail = () => {
                 >
                   <FaEdit size={16} /> {t("edit_label")}
                 </button>
-                <button 
-                      onClick={() => {
+                <button
+                  onClick={() => {
                     handleProductDelete();
                   }}
                   className="flex-1 flex items-center justify-center gap-2 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors font-medium"
@@ -367,7 +382,9 @@ const ProductDetail = () => {
         </div>
       </div>
       <section className="mt-16">
-        <h2 className="text-xl font-bold mb-6 text-gray-800">{t("recommended_products")}</h2>
+        <h2 className="text-xl font-bold mb-6 text-gray-800">
+          {t("recommended_products")}
+        </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {singleProduct.recommended_products.map((item: Product) => (
             <div
@@ -390,7 +407,9 @@ const ProductDetail = () => {
                   {item.description}
                 </p>
                 <div className="flex justify-between items-center mt-2">
-                  <span className="text-blue-600 font-bold">{formatPrice(item.price)} {item.currency}</span>
+                  <span className="text-blue-600 font-bold">
+                    {formatPrice(item.price)} {item.currency}
+                  </span>
                   <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-500">
                     {item.condition}
                   </span>
