@@ -260,6 +260,47 @@ const MainProfile = () => {
     : "/default-profile.png";
 
   // Render item card
+  const renderFavoriteCard = (item: any, isService = false) => {
+    console.log(item);
+    const imageUrl =
+      item?.images && item?.images.length > 0
+        ? `${BASE_URL}${item?.images[0].image}`
+        : isService
+        ? "/service-placeholder.png"
+        : "/product-placeholder.png";
+
+    return (
+      <div
+        className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+        onClick={() =>
+          isService ? redirectServiceHandler(item.id) : redirectHandler(item.id)
+        }
+      >
+        <div className="aspect-video overflow-hidden bg-gray-100">
+          <img
+            src={imageUrl}
+            alt={isService ? item.name : item.title}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        </div>
+        <div className="p-3">
+          <h4 className="font-medium text-gray-800 truncate">
+            {isService ? item.name : item.title}
+          </h4>
+          <p className="text-sm text-gray-500 mt-1 line-clamp-1">
+            {item.description || t("no_description")}
+          </p>
+          {!isService && item.price && (
+            <p className="text-blue-600 font-semibold mt-1">
+              {item.price} {item.currency || ""}
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const renderItemCard = (item: any, isService = false) => {
     console.log(item);
     const imageUrl =
@@ -392,7 +433,9 @@ const MainProfile = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {items.slice(0, 3).map((item) => renderItemCard(item, isService))}
+            {items
+              .slice(0, 3)
+              .map((item) => renderFavoriteCard(item, isService))}
           </div>
         )}
       </section>
@@ -401,7 +444,6 @@ const MainProfile = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
-      {/* Profile Header */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
         <div className="bg-gradient-to-r from-blue-500 to-blue-600 h-32"></div>
         <div className="px-6 pb-6 relative">
