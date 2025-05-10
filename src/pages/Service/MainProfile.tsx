@@ -64,10 +64,8 @@ const MainProfile = () => {
     data: loggedUserInfo,
     isLoading: userInfoLoading,
     error: userInfoError,
-  } = useGetLoggedinUserInfoQuery(
-    { token },
-    { skip: !token, refetchOnMountOrArgChange: true }
-  );
+    refetch,
+  } = useGetLoggedinUserInfoQuery({ token }, { skip: !token });
 
   // Only fetch these once user info is available and we're not loading
   const profileInfo = loggedUserInfo as UserInfo;
@@ -230,6 +228,7 @@ const MainProfile = () => {
       if (response) {
         toast.success(t("profile_update_success_message"), { autoClose: 3000 });
         handleClose();
+        refetch();
       } else {
         toast.error(t("profile_update_fail_message"), { autoClose: 3000 });
       }
