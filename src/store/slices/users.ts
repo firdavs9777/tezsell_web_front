@@ -46,7 +46,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     getLoggedinUserInfo: builder.query({
       query: ({ token }: { token: string }) => {
         return {
-          url: `${LOGGED_USER}`,
+          url: `${LOGGED_USER}/`,
           headers: {
             Authorization: `Token ${token}`, // Pass token in headers
           },
@@ -89,7 +89,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     getUserProducts: builder.query({
       query: ({ token }: { token: string }) => {
         return {
-          url: `${USER_PRODUCT}`,
+          url: `${USER_PRODUCT}/`,
           headers: {
             Authorization: `Token ${token}`, // Pass token in headers
           },
@@ -143,7 +143,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     getUserServices: builder.query({
       query: ({ token }: { token: string }) => {
         return {
-          url: `${USER_SERVICE}`,
+          url: `${USER_SERVICE}/`,
           headers: {
             Authorization: `Token ${token}`, // Pass token in headers
           },
@@ -152,7 +152,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: ["Auth"],
     }),
-       deleteUserService: builder.mutation({
+    deleteUserService: builder.mutation({
       query: ({ token, serviceId }: { token: string; serviceId: string }) => {
         return {
           url: `${SERVICES_URL}/${serviceId}`,
@@ -165,7 +165,6 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: ["Auth"],
     }),
-   
   }),
 });
 export const {
@@ -181,5 +180,5 @@ export const {
   useGetUserServicesQuery,
   useGetLoggedinUserInfoQuery,
   useUpdateLoggedUserInfoMutation,
-  useDeleteUserServiceMutation
+  useDeleteUserServiceMutation,
 } = usersApiSlice;

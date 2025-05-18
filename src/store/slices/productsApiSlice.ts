@@ -24,7 +24,7 @@ export const productsApiSlice = apiSlice.injectEndpoints({
         product_title = "",
         lang = "",
       }) => ({
-        url: PRODUCTS_URL,
+        url: `${PRODUCTS_URL}/`,
         params: {
           page: currentPage.toString(),
           page_size: page_size.toString(),
@@ -107,18 +107,13 @@ export const productsApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ["Product"],
     }),
     deleteProductItem: builder.mutation({
-      query: ({
-        productId,
-        token }: {
-          productId: string;
-          token: string;
-        }) => ({
-          url: `${PRODUCTS_URL}/${productId}`,
-          method: "DELETE",
-          headers: {
-            Authorization: `Token ${token}`, // Add token to the Authorization header
-          },
-        }),
+      query: ({ productId, token }: { productId: string; token: string }) => ({
+        url: `${PRODUCTS_URL}/${productId}`,
+        method: "DELETE",
+        headers: {
+          Authorization: `Token ${token}`, // Add token to the Authorization header
+        },
+      }),
       keepUnusedDataFor: 5,
       provideTags: ["Product"],
     }),
@@ -161,6 +156,6 @@ export const {
   useGetFavoriteItemsQuery,
   useLikeProductMutation,
   useUnlikeProductMutation,
-  useDeleteProductItemMutation
+  useDeleteProductItemMutation,
 } = productsApiSlice;
 export default productsApiSlice.reducer;

@@ -21,7 +21,7 @@ export const servicessApiSlice = apiSlice.injectEndpoints({
         service_name = "",
         lang = "",
       }) => ({
-        url: SERVICES_URL,
+        url: `${SERVICES_URL}/`,
         params: {
           page: currentPage.toString(),
           page_size: page_size.toString(),
@@ -44,7 +44,7 @@ export const servicessApiSlice = apiSlice.injectEndpoints({
     }),
     getServiceCategoryList: builder.query({
       query: () => ({
-        url: SERVICES_CATEGORY,
+        url: `${SERVICES_CATEGORY}/`,
       }),
       keepUnusedDataFor: 5,
       provideTags: ["Service"],
