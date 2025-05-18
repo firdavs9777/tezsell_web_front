@@ -61,25 +61,37 @@ const PhoneNumberVerification: React.FC<PhoneNumberVerificationProps> = ({
     (c) => c.code === selectedCountryCode
   );
 
-  // Handle when country code changes
   const handleCountryCodeChange = (code: string) => {
     setSelectedCountryCode(code);
     setShowCountryDropdown(false);
 
-    // Update phone number with new country code
-    const numberWithoutCode = phoneNumber.replace(/^\+\d+/, "");
-    setPhoneNumber(code + numberWithoutCode);
+    // If there's already a phone number, update it with the new country code
+    if (phoneNumber) {
+      const numberWithoutCode = phoneNumber.replace(/^\+\d+/, "");
+      setPhoneNumber(code + numberWithoutCode);
+    }
   };
 
   const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
 
-    // Extract the number part without country code
-    const numberPart = value.replace(/^\+\d+/, "");
+    // Only allow digits and + at the start
+    if (/^\+?\d*$/.test(value)) {
+      // If the value starts with a country code from our list, auto-select that country
+      const matchedCountry = countryCodes.find((country) =>
+        value.startsWith(country.code)
+      );
 
-    // Only allow digits after country code
-    if (/^\d*$/.test(numberPart)) {
-      setPhoneNumber(selectedCountryCode + numberPart);
+      if (matchedCountry) {
+        setSelectedCountryCode(matchedCountry.code);
+        setPhoneNumber(value);
+      } else if (value === "" || value.startsWith("+")) {
+        // Allow empty or new country code input
+        setPhoneNumber(value);
+      } else {
+        // Otherwise prepend the selected country code
+        setPhoneNumber(selectedCountryCode + value);
+      }
     }
   };
 
@@ -134,8 +146,12 @@ const PhoneNumberVerification: React.FC<PhoneNumberVerificationProps> = ({
     }
   };
 
-  // Extract the phone number without country code for display in input
-  const phoneNumberWithoutCode = phoneNumber.replace(/^\+\d+/, "");
+  // Display value for the input field
+  const displayPhoneNumber = phoneNumber.startsWith(selectedCountryCode)
+    ? phoneNumber.slice(selectedCountryCode.length)
+    : phoneNumber.startsWith("+")
+    ? phoneNumber
+    : phoneNumber;
 
   return (
     <div className="w-full max-w-md mx-auto p-5 space-y-4">
@@ -188,7 +204,7 @@ const PhoneNumberVerification: React.FC<PhoneNumberVerificationProps> = ({
           type="tel"
           id="phoneNumber"
           className="flex-1 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-          value={phoneNumberWithoutCode}
+          value={displayPhoneNumber}
           onChange={handlePhoneNumberChange}
           placeholder={
             selectedCountryCode === "+998" ? "941234567" : "1082773725"
