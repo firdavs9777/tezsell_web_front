@@ -62,6 +62,7 @@ const ServiceDetail = () => {
 
   // Ensure serviceItem is available and defined
   const serviceItem: SingleService | null = data as SingleService;
+  console.log(data);
   const serviceId = serviceItem?.service.id;
 
   const {

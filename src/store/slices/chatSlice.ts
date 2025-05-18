@@ -44,7 +44,7 @@ export const messagesApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getAllChatMessages: builder.query<ChatResponse, { token: string }>({
       query: ({ token }) => ({
-        url: `${CHAT_MAIN}`,
+        url: `${CHAT_MAIN}/`,
         headers: {
           Authorization: `Token ${token}`,
         },
@@ -72,7 +72,7 @@ export const messagesApiSlice = apiSlice.injectEndpoints({
       { chatId: string; token: string }
     >({
       query: ({ chatId, token }) => ({
-        url: `${CHAT_MAIN}/${chatId}`,
+        url: `${CHAT_MAIN}/${chatId}/`,
         headers: {
           Authorization: `Token ${token}`,
         },

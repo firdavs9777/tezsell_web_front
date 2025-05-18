@@ -37,7 +37,7 @@ export const servicessApiSlice = apiSlice.injectEndpoints({
     }),
     getSingleService: builder.query({
       query: (serviceId: string) => ({
-        url: `${SERVICES_URL}/${serviceId}`,
+        url: `${SERVICES_URL}/${serviceId}/`,
       }),
       keepUnusedDataFor: 5,
       provideTags: ["Service"],

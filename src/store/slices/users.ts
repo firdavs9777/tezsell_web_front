@@ -130,7 +130,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     deleteUserProduct: builder.mutation({
       query: ({ token, id }: { token: string; id: string }) => {
         return {
-          url: `${USER_PRODUCT}/${id}`,
+          url: `${USER_PRODUCT}/${id}/`,
           method: "DELETE",
           headers: {
             Authorization: `Token ${token}`, // Add token to the Authorization header
@@ -155,7 +155,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     deleteUserService: builder.mutation({
       query: ({ token, serviceId }: { token: string; serviceId: string }) => {
         return {
-          url: `${SERVICES_URL}/${serviceId}`,
+          url: `${SERVICES_URL}/${serviceId}/`,
           method: "DELETE",
           headers: {
             Authorization: `Token ${token}`, // Add token to the Authorization header

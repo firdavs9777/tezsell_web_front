@@ -80,7 +80,7 @@ export const productsApiSlice = apiSlice.injectEndpoints({
     }),
     getDistrictsList: builder.query({
       query: (region: string) => ({
-        url: `${DISTRICTS_URL}${region}`,
+        url: `${DISTRICTS_URL}${region}/`,
       }),
       keepUnusedDataFor: 5,
       provideTags: ["Product"],
@@ -108,7 +108,7 @@ export const productsApiSlice = apiSlice.injectEndpoints({
     }),
     deleteProductItem: builder.mutation({
       query: ({ productId, token }: { productId: string; token: string }) => ({
-        url: `${PRODUCTS_URL}/${productId}`,
+        url: `${PRODUCTS_URL}/${productId}/`,
         method: "DELETE",
         headers: {
           Authorization: `Token ${token}`, // Add token to the Authorization header

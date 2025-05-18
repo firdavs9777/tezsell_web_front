@@ -10,7 +10,7 @@ export const commentsApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder: any) => ({
     getComments: builder.query({
       query: ({ serviceId, token }: { serviceId: string; token: string }) => ({
-        url: `${SERVICES_URL}/${serviceId}/comments`,
+        url: `${SERVICES_URL}/${serviceId}/comments/`,
         headers: {
           Authorization: `Token ${token}`, // Pass token in headers
         },
@@ -41,38 +41,43 @@ export const commentsApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ["Comment"],
     }),
     updateCommentItem: builder.mutation({
-      query: ({ text,
+      query: ({
+        text,
         serviceId,
-        token, commentId }: {
-          text: string;
-          serviceId: string;
-          token: string;
-          commentId: string
-        }) => ({
-          url: `${SERVICES_URL}/${serviceId}/comments/${commentId}/`,
-          method: "PUT",
-          headers: {
-            Authorization: `Token ${token}`, // Add token to the Authorization header
-          },
-          body: {text}
-        }),
+        token,
+        commentId,
+      }: {
+        text: string;
+        serviceId: string;
+        token: string;
+        commentId: string;
+      }) => ({
+        url: `${SERVICES_URL}/${serviceId}/comments/${commentId}/`,
+        method: "PUT",
+        headers: {
+          Authorization: `Token ${token}`, // Add token to the Authorization header
+        },
+        body: { text },
+      }),
       keepUnusedDataFor: 5,
       provideTags: ["Comment"],
     }),
     deleteCommentItem: builder.mutation({
       query: ({
         serviceId,
-        token, commentId }: {
-          serviceId: string;
-          token: string;
-          commentId: string
-        }) => ({
-          url: `${SERVICES_URL}/${serviceId}/comments/${commentId}/`,
-          method: "DELETE",
-          headers: {
-            Authorization: `Token ${token}`, // Add token to the Authorization header
-          },
-        }),
+        token,
+        commentId,
+      }: {
+        serviceId: string;
+        token: string;
+        commentId: string;
+      }) => ({
+        url: `${SERVICES_URL}/${serviceId}/comments/${commentId}/`,
+        method: "DELETE",
+        headers: {
+          Authorization: `Token ${token}`, // Add token to the Authorization header
+        },
+      }),
       keepUnusedDataFor: 5,
       provideTags: ["Comment"],
     }),
@@ -140,7 +145,7 @@ export const commentsApiSlice = apiSlice.injectEndpoints({
 export const {
   useGetCommentsQuery,
   useCreateCommentMutation,
-  useUpdateCommentItemMutation, 
+  useUpdateCommentItemMutation,
   useDeleteCommentItemMutation,
   useLikeCommentMutation,
   useUnlikeCommentMutation,
