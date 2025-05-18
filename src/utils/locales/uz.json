@@ -193,5 +193,7 @@
     "comments_visibility_notice": "Izohlar faqat tizimga kirgan foydalanuvchilarga ko'rinadi.",
     "service_update_success": "Xizmat muvaffaqiyatli yangilandi",
 "service_update_error": "Xizmatni yangilashda xatolik yuz berdi",
-   "edit_service_modal_title": "Xizmatni tahrirlash"
+   "edit_service_modal_title": "Xizmatni tahrirlash",
+   "enter_phone_number_without_code": "Kodsiz telefon raqamini kiriting"
+
 }

@@ -195,5 +195,7 @@
   "coming_soon": "Coming soon",
     "service_update_success": "Service updated successfully",
   "service_update_error": "Error updating service item",
-   "edit_service_modal_title": "Edit Service"
+   "edit_service_modal_title": "Edit Service",
+   "enter_phone_number_without_code": "Enter phone number without code" 
+  
 }
