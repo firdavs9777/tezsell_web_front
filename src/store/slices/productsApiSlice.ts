@@ -59,21 +59,21 @@ export const productsApiSlice = apiSlice.injectEndpoints({
     }),
     getCategoryList: builder.query({
       query: () => ({
-        url: CATEGORY_URL,
+        url: `${CATEGORY_URL}/`,
       }),
       keepUnusedDataFor: 5,
       provideTags: ["Product"],
     }),
     getAllLocationList: builder.query({
       query: () => ({
-        url: ALL_LOCATION,
+        url: `${ALL_LOCATION}/`,
       }),
       keepUnusedDataFor: 5,
       provideTags: ["Product"],
     }),
     getRegionsList: builder.query({
       query: () => ({
-        url: REGIONS_URL,
+        url: `${REGIONS_URL}/`,
       }),
       keepUnusedDataFor: 5,
       provideTags: ["Product"],
