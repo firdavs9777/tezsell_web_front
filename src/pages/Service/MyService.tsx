@@ -1,7 +1,9 @@
-import { Service } from "../../store/type";
+import { Category, Service } from "../../store/type";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
 import {
   FaComment,
   FaEdit,
@@ -20,6 +22,7 @@ import {
 } from "../../store/slices/serviceApiSlice";
 import MyServiceEdit from "./ServiceEdit";
 import { RootState } from "@store/index";
+import { useDeleteUserServiceMutation } from "@store/slices/users";
 
 interface SingleServiceProps {
   service: Service;
@@ -28,9 +31,12 @@ interface SingleServiceProps {
 
 const MyService: React.FC<SingleServiceProps> = ({ service, refresh }) => {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+
   const [isEdit, setIsEdit] = useState(false);
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
+  const [deleteService] = useDeleteUserServiceMutation();
 
   const { data: favorite_items, refetch: reload_item } =
     useGetFavoriteItemsQuery({
@@ -65,6 +71,10 @@ const MyService: React.FC<SingleServiceProps> = ({ service, refresh }) => {
       }
     }
   };
+  const getCategoryName = (categoryItem: Category) => {
+    const langKey = `name_${i18n.language}` as keyof Category;
+    return categoryItem[langKey] || categoryItem.name_en || "";
+  };
 
   const handleDislikeService = async () => {
     try {
@@ -89,7 +99,34 @@ const MyService: React.FC<SingleServiceProps> = ({ service, refresh }) => {
       }
     }
   };
+  const handleServiceDelete = async () => {
+    const confirmed = window.confirm(t("delete_confirmation_product"));
+    if (!confirmed) return;
 
+    try {
+      const response = await deleteService({
+        serviceId: service.id,
+        token,
+      });
+      interface DeleteResponse {
+        status: number;
+        data?: unknown;
+        error?: unknown;
+      }
+      if (response && (response as DeleteResponse).status === 204) {
+        toast.success(t("product_delete_success"), { autoClose: 2000 });
+        refresh();
+      } else {
+        toast.error(t("product_delete_error"), { autoClose: 2000 });
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(t("product_delete_error"), { autoClose: 2000 });
+      } else {
+        toast.error(t("unknown_error_message"), { autoClose: 1000 });
+      }
+    }
+  };
   const handleNewServiceRedirect = () => navigate("/new-service");
   const handleEditModal = () => setIsEdit(!isEdit);
   const closeHandler = async () => refresh();
@@ -126,7 +163,7 @@ const MyService: React.FC<SingleServiceProps> = ({ service, refresh }) => {
             onClick={() => redirectHandler(service.id)}
           >
             <span className="text-sm text-blue-600 font-medium">
-              {service.category.name_en}
+              {getCategoryName(service.category)}
             </span>
             <h2 className="text-xl font-bold mt-1 mb-2 line-clamp-1">
               {service.name}
@@ -154,11 +191,16 @@ const MyService: React.FC<SingleServiceProps> = ({ service, refresh }) => {
               className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
             >
               <FaEdit className="mr-1" />
-              <span>Edit</span>
+              <span>{t("edit_label")}</span>
             </button>
-            <button className="flex items-center text-red-600 hover:text-red-800 transition-colors">
+            <button
+              onClick={() => {
+                handleServiceDelete();
+              }}
+              className="flex items-center text-red-600 hover:text-red-800 transition-colors"
+            >
               <FaTrash className="mr-1" />
-              <span>Delete</span>
+              <span>{t("delete_label")}</span>
             </button>
           </div>
 
