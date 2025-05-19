@@ -332,12 +332,11 @@ const ProductScreen = () => {
                       onClick={() =>
                         handleLocationSelect(region.region, district)
                       }
-                      className={`cursor-pointer px-3 py-2 rounded-md transition-colors ${
-                        selectedRegion === region.region &&
-                        selectedDistrict === district
+                      className={`cursor-pointer px-3 py-2 rounded-md transition-colors ${selectedRegion === region.region &&
+                          selectedDistrict === district
                           ? "bg-blue-500 text-white"
                           : "bg-gray-100 hover:bg-blue-100"
-                      }`}
+                        }`}
                     >
                       {district}
                     </div>
@@ -366,22 +365,21 @@ const ProductScreen = () => {
           {Array.isArray(categories) &&
             categories
               .filter((category) => {
-                const categoryName = getCategoryName(category);
-                return categoryName
-                  .toLowerCase()
-                  .includes(searchCategoryQuery.toLowerCase());
+                const categoryName = getCategoryName(category)?.toLowerCase() || '';
+                const query = searchCategoryQuery?.toLowerCase() || '';
+                return categoryName.includes(query);
               })
+
               .map((category) => (
                 <div
                   key={category.id}
                   onClick={() =>
                     handleCategorySelect(getCategoryName(category))
                   }
-                  className={`cursor-pointer px-3 py-2 rounded-md transition-colors ${
-                    selectedCategory === getCategoryName(category)
+                  className={`cursor-pointer px-3 py-2 rounded-md transition-colors ${selectedCategory === getCategoryName(category)
                       ? "bg-blue-500 text-white"
                       : "bg-gray-100 hover:bg-blue-100"
-                  }`}
+                    }`}
                 >
                   {getCategoryName(category)}
                 </div>
