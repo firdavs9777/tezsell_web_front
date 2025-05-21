@@ -39,7 +39,9 @@ const ProductScreen = () => {
   const { t, i18n } = useTranslation();
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const navigate = useNavigate();
-
+    useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   // API Queries
   const { data: data_category, isLoading: isLoading_category } =
     useGetCategoryListQuery({});

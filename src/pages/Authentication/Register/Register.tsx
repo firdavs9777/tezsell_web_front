@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PhoneNumberVerification from "@pages/Authentication/Register/Steps/PhoneVerification";
 import RegionSelect from "@pages/Authentication/Register/Steps/RegionSelect";
 import DistrictSelect from "@pages/Authentication/Register/Steps/DistrictSelect";
@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 
 const Register = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [phoneNumber, setPhoneNumber] = useState("+82");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [isPhoneVerified, setIsPhoneVerified] = useState(false);
   const [regionName, setRegionName] = useState("");
   const [districtName, setDistrictName] = useState("");
@@ -27,7 +27,9 @@ const Register = () => {
   const sp = new URLSearchParams(search);
   const { t } = useTranslation();
   const redirect = sp.get("redirect") || "/";
-
+    useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const handlePhoneVerification = (status: boolean) => {
     setIsPhoneVerified(status);
     if (status) toast.success(t("register_phone_number_success"));

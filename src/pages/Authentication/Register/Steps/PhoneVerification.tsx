@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   useSendSmsUserMutation,
   useVerifyCodeUserMutation,
@@ -42,6 +42,7 @@ const PhoneNumberVerification: React.FC<PhoneNumberVerificationProps> = ({
   const [verifyUser, { isLoading: isLoading_two }] =
     useVerifyCodeUserMutation();
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [isFirstVisit, setIsFirstVisit] = useState(true);
 
   // Country code options
   const countryCodes: CountryCode[] = [
@@ -60,7 +61,15 @@ const PhoneNumberVerification: React.FC<PhoneNumberVerificationProps> = ({
   const selectedCountry = countryCodes.find(
     (c) => c.code === selectedCountryCode
   );
-
+  useEffect(() => {
+    if (isFirstVisit) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      setIsFirstVisit(false);
+      
+      // Store in localStorage that user has visited
+      localStorage.setItem("hasVisitedPhoneVerification", "true");
+    }
+  }, [isFirstVisit]);
   const handleCountryCodeChange = (code: string) => {
     setSelectedCountryCode(code);
     setShowCountryDropdown(false);

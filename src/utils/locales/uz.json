@@ -194,6 +194,48 @@
     "service_update_success": "Xizmat muvaffaqiyatli yangilandi",
 "service_update_error": "Xizmatni yangilashda xatolik yuz berdi",
    "edit_service_modal_title": "Xizmatni tahrirlash",
-   "enter_phone_number_without_code": "Kodsiz telefon raqamini kiriting"
+   "enter_phone_number_without_code": "Kodsiz telefon raqamini kiriting",
+
+  "hero": {
+    "title": "TezSell",
+    "subtitle": "O'zbekiston uchun tezkor va qulay bozor",
+    "startSelling": "Sotishni boshlash",
+    "browseProducts": "Mahsulotlarni ko'rish"
+  },
+  "features": {
+    "title": "Nega TezSell?",
+    "listing": {
+      "title": "Oddiy mahsulot ro'yxati",
+      "description": "Bir necha bosish bilan tovarlaringizni qo'shing. Rasmlarni qo'shing, narxingizni belgilang va xaridorlar bilan darhol bog'laning."
+    },
+    "location": {
+      "title": "Joylashuvga asoslangan ko'rish",
+      "description": "Yaqiningizda kelishuvlarni toping. Bizning joylashuvga asoslangan tizimimiz mahallangizda narsalarni topishga yordam beradi."
+    },
+    "category": {
+      "title": "Kategoriya filtrlash",
+      "description": "Siz izlayotgan narsani aniq topish uchun turli toifalar bo'ylab osongina harakatlaning."
+    }
+  },
+  "inspiration": {
+    "title": "Korea Carrot Market'dan ilhomlangan",
+    "description1": "Biz TezSell'ni Koreaning muvaffaqiyatli Carrot Market (당근마켓) inspiratsiyasi bilan yaratdik, lekin uni O'zbekiston mahalliy jamoalarining o'ziga xos ehtiyojlariga moslashtirilgan.",
+    "description2": "Bizning missiyamiz qo'shnilar osonlik bilan sotib olish, sotish va bir-biri bilan bog'lanishi mumkin bo'lgan ishonchli platforma yaratishdir."
+  },
+  "comingSoon": {
+    "title": "TezSell'ga Tez Kunda Qo'shiladi",
+    "chat": "Ilovada Chat",
+    "transactions": "Xavfsiz Tranzaksiyalar",
+    "realEstate": "Ko'chmas Mulk Ro'yxatlari",
+    "stayUpdated": "Yangilanishlarni Kuzatib Boring",
+    "badge": "Tez Kunda"
+  },
+  "cta": {
+    "title": "Bugun TezSell jamoasiga qo'shiling!",
+    "description": "O'zbekiston uchun yanada yaxshiroq bozor tajribasini yaratishda ishtirok eting. Fikr-mulohazalaringizni baham ko'ring va o'sishimizga yordam bering!",
+    "createAccount": "Hisob yaratish",
+    "learnMore": "Ko'proq ma'lumot"
+  }
+
 
 }

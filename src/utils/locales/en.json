@@ -196,6 +196,46 @@
     "service_update_success": "Service updated successfully",
   "service_update_error": "Error updating service item",
    "edit_service_modal_title": "Edit Service",
-   "enter_phone_number_without_code": "Enter phone number without code" 
+   "enter_phone_number_without_code": "Enter phone number without code" ,   
+  "hero": {
+    "title": "TezSell",
+    "subtitle": "Your Fast & Easy Marketplace for Uzbekistan",
+    "startSelling": "Start Selling",
+    "browseProducts": "Browse Products"
+  },
+  "features": {
+    "title": "Why Choose TezSell?",
+    "listing": {
+      "title": "Simple Product Listing",
+      "description": "List your items with just a few clicks. Add photos, set your price, and connect with buyers instantly."
+    },
+    "location": {
+      "title": "Location-Based Browsing",
+      "description": "Find deals near you. Our location-based system helps you discover items in your neighborhood."
+    },
+    "category": {
+      "title": "Category Filtering",
+      "description": "Easily navigate through different categories to find exactly what you're looking for."
+    }
+  },
+  "inspiration": {
+    "title": "Inspired by Korea's Carrot Market",
+    "description1": "We've built TezSell with inspiration from Korea's successful Carrot Market (당근마켓), but tailored it specifically to meet the unique needs of Uzbekistan's local communities.",
+    "description2": "Our mission is to create a trustworthy platform where neighbors can buy, sell, and connect with each other easily."
+  },
+  "comingSoon": {
+    "title": "Coming Soon to TezSell",
+    "chat": "In-App Chat",
+    "transactions": "Secure Transactions",
+    "realEstate": "Real Estate Listings",
+    "stayUpdated": "Stay Updated",
+    "badge": "Coming Soon"
+  },
+  "cta": {
+    "title": "Join the TezSell Community Today!",
+    "description": "Be part of building a better marketplace experience for Uzbekistan. Share your feedback and help us grow!",
+    "createAccount": "Create Account",
+    "learnMore": "Learn More"
+  }
   
 }

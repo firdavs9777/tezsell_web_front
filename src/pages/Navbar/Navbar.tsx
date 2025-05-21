@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
   FaGlobe,
@@ -12,6 +12,7 @@ import {
   FaUser,
   FaThList,
   FaBoxOpen,
+  FaProductHunt,
 } from "react-icons/fa";
 import { FaUserPlus } from "react-icons/fa6";
 import {
@@ -27,6 +28,7 @@ import { toast } from "react-toastify";
 const Navbar = () => {
   const [activeLink, setActiveLink] = useState("/login");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation(); 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isProfileDropDownOpen, setIsProfileDropDownOpen] = useState(false);
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
@@ -134,12 +136,25 @@ const Navbar = () => {
   function renderNavItems() {
     return (
       <>
+           <li>
+          <Link
+            to="/products"
+            onClick={() => handleNavLinkClick("/products")}
+            className={`flex items-center gap-1 font-medium text-lg ${
+                    location.pathname === "/products"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-800 hover:text-blue-400"
+            }`}
+          >
+            <FaProductHunt /> {t("products_title")}
+          </Link>
+        </li>
         <li>
           <Link
             to="/service"
             onClick={() => handleNavLinkClick("/service")}
             className={`flex items-center gap-1 font-medium text-lg ${
-              activeLink === "/service"
+              location.pathname === "/service"
                 ? "text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-800 hover:text-blue-400"
             }`}
@@ -152,7 +167,7 @@ const Navbar = () => {
             to="/about"
             onClick={() => handleNavLinkClick("/about")}
             className={`flex items-center gap-1 font-medium text-lg ${
-              activeLink === "/about"
+              location.pathname === "/about"
                 ? "text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-800 hover:text-blue-400"
             }`}
@@ -166,7 +181,7 @@ const Navbar = () => {
               to="/chat"
               onClick={() => handleNavLinkClick("/chat")}
               className={`flex items-center gap-1 font-medium text-lg ${
-                activeLink === "/chat"
+                location.pathname === "/chat"
                   ? "text-blue-600 border-b-2 border-blue-600"
                   : "text-gray-800 hover:text-blue-400"
               }`}
@@ -204,9 +219,9 @@ const Navbar = () => {
               />
               <span
                 className={`text-gray-800 ${
-                  activeLink === "/myprofile" ||
-                  activeLink === "/my-services" ||
-                  activeLink === "/my-products"
+                  location.pathname === "/myprofile" ||
+                  location.pathname === "/my-services" ||
+                  location.pathname === "/my-products"
                     ? "text-[blue] border-b-2 border-blue-600 text-[16px]"
                     : "text-gray-700 hover:text-blue-600 "
                 }`}
@@ -229,7 +244,7 @@ const Navbar = () => {
                     }}
                     className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200
                       ${
-                        activeLink === "/myprofile"
+                        location.pathname === "/myprofile"
                           ? "bg-blue-100 text-blue-700 font-semibold"
                           : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
                       }`}
@@ -248,7 +263,7 @@ const Navbar = () => {
                     }}
                     className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200
                       ${
-                        activeLink === "/my-services"
+                        location.pathname === "/my-services"
                           ? "bg-blue-100 text-blue-700 font-semibold"
                           : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
                       }`}
@@ -266,7 +281,7 @@ const Navbar = () => {
                     }}
                     className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200
                       ${
-                        activeLink === "/my-products"
+                        location.pathname === "/my-products"
                           ? "bg-blue-100 text-blue-700 font-semibold"
                           : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
                       }`}

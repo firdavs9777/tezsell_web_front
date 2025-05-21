@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   useCreateProductMutation,
   useGetCategoryListQuery,
@@ -30,6 +30,9 @@ const NewProduct = () => {
   const [category, setCategory] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
+      useEffect(() => {
+      window.scrollTo(0, 0);
+    }, []);
   // Helper function to get the correct category name based on current language
   const getCategoryName = (categoryItem: Category) => {
     const langKey = `name_${i18n.language}` as keyof Category;
