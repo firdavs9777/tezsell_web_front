@@ -23,50 +23,63 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
   const userId = useSelector(
     (state: RootState) => state.auth.userInfo?.user_info.id
   );
+  const token = useSelector((state: RootState) => state.auth.token); // Add token from auth if needed
 
   const [newMessage, setNewMessage] = useState("");
   const [socketMessages, setSocketMessages] = useState<any[]>([]);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
 
-  // WebSocket Connection
+  // WebSocket connection setup
   useEffect(() => {
-    console.log(chatId);
-    if (!chatId) return;
+    if (!chatId || !token) return;
 
-    const socket = new WebSocket(`ws://localhost:8000/ws/chat/${chatId}/`);
+    const socket = new WebSocket(`wss://api.tezsell.com/ws/chat/${chatId}/?token=${token}`);
     socketRef.current = socket;
 
     socket.onopen = () => {
-      console.log("WebSocket connected");
+      console.log("✅ WebSocket connected");
     };
 
     socket.onmessage = (e) => {
-      const data = JSON.parse(e.data);
-      setSocketMessages((prev) => [...prev, data]);
-    };
-
-    socket.onclose = () => {
-      console.log("WebSocket disconnected");
+      try {
+        const data = JSON.parse(e.data);
+        setSocketMessages((prev) => [...prev, data]);
+      } catch (err) {
+        console.error("❌ Failed to parse WebSocket message", err);
+      }
     };
 
     socket.onerror = (e) => {
-      console.error("WebSocket error", e);
+      console.error("❌ WebSocket error", e);
+    };
+
+    socket.onclose = () => {
+      console.log("🛑 WebSocket disconnected");
     };
 
     return () => {
       socket.close();
     };
-  }, [chatId]);
+  }, [chatId, token]);
 
-  // Scroll to latest message
+  // Scroll to the bottom when messages update
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, socketMessages]);
 
+  const sendWebSocketMessage = (content: string) => {
+    if (socketRef.current?.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify({ message: content }));
+    } else {
+      console.warn("Socket is not open. Message not sent.");
+    }
+  };
+
   const handleSendMessage = (content: string) => {
     if (!content.trim()) return;
     onSendMessage(content);
+    sendWebSocketMessage(content);
     setNewMessage("");
   };
 
@@ -80,26 +93,21 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
         {isLoading && <p className="text-gray-400">Loading messages...</p>}
         {error && <p className="text-red-500">Error loading chat</p>}
 
-        {allMessages.map((msg) => {
-          const isMyMessage = msg.sender.id === userId;
+        {allMessages.map((msg, index) => {
+          const isMyMessage = msg?.sender?.id === userId;
           return (
             <div
-              key={msg.id || Math.random()} // WebSocket messages may not have an ID
-              className={`flex ${
-                isMyMessage ? "justify-start" : "justify-end"
-              }`}
+              key={msg.id || `msg-${index}`}
+              className={`flex ${isMyMessage ? "justify-start" : "justify-end"}`}
             >
               <div
-                className={`max-w-[300px] sm:max-w-md px-4 py-2 rounded-lg text-sm shadow 
-                ${
-                  isMyMessage
-                    ? "bg-green-200 text-left"
-                    : "bg-blue-100 text-right"
+                className={`max-w-[300px] sm:max-w-md px-4 py-2 rounded-lg text-sm shadow ${
+                  isMyMessage ? "bg-green-200 text-left" : "bg-blue-100 text-right"
                 }`}
               >
                 <div className="mb-1">{msg.content}</div>
                 <div className="text-xs text-gray-600 flex justify-between gap-2">
-                  <span>{msg.sender.username}</span>
+                  <span>{msg?.sender?.username || "Unknown"}</span>
                   <span>{new Date(msg.timestamp).toLocaleTimeString()}</span>
                 </div>
               </div>

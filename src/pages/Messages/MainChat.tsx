@@ -13,10 +13,11 @@ import {
 import { useSelector } from "react-redux";
 import { RootState } from "@store/index";
 import { toast } from "react-toastify";
+import { useChatSocket } from "../../hooks/useChatSocket"; // Adjust the import path
 
 const MainChat = () => {
   const navigate = useNavigate();
-  const { chatId } = useParams(); // Get chatId from URL if present
+  const { chatId } = useParams();
   const [selectedChatId, setSelectedChatId] = useState<number | null>(
     chatId ? parseInt(chatId) : null
   );
@@ -38,13 +39,21 @@ const MainChat = () => {
   );
 
   const [deleteChat] = useDeleteSingleChatRoomMutation();
-  const [sendMessage] = useCreateChatRoomMessageMutation();
   const chats: Chat[] = (data?.results as Chat[]) || [];
 
-  // Handle chat selection with URL navigation
+  const [realTimeMessages, setRealTimeMessages] = useState<any[]>([]);
+
+  const { sendMessage: sendSocketMessage } = useChatSocket(
+    selectedChatId,
+    (data) => {
+      setRealTimeMessages((prev) => [...prev, data]);
+    }
+  );
+
   const handleSelectChat = (chatId: number) => {
     setSelectedChatId(chatId);
-    navigate(`/chat/${chatId}`); // Update URL when chat is selected
+    setRealTimeMessages([]);
+    navigate(`/chat/${chatId}`);
   };
 
   const handleDelete = (chatId: number) => {
@@ -64,7 +73,7 @@ const MainChat = () => {
               } catch {
                 toast.error("Error occurred while deleting the chat");
               }
-              toast.dismiss(); // Close the confirmation toast
+              toast.dismiss();
             }}
             className="bg-[#333] text-[#fff] px-3 py-1 rounded"
           >
@@ -96,28 +105,25 @@ const MainChat = () => {
     }
 
     try {
-      await sendMessage({
-        chatId: selectedChatId.toString(),
-        token,
-        content,
-      });
-      toast.success("Message sent successfully");
-      reload_chat();
+      sendSocketMessage(content); // Real-time via WebSocket
     } catch {
       toast.error("Error occurred while sending the message");
     }
   };
 
-  // Update selected chat if URL changes
   useEffect(() => {
     if (chatId) {
       setSelectedChatId(parseInt(chatId));
     }
   }, [chatId]);
 
+  const combinedMessages = [
+    ...(single_room?.messages || []),
+    ...realTimeMessages,
+  ];
+
   return (
     <div className="flex flex-row h-screen">
-      {/* Sidebar Chat List - 30% */}
       <div className="w-[30%] border-r border-gray-300 overflow-y-auto">
         <MainChatRoom
           chats={chats}
@@ -129,12 +135,11 @@ const MainChat = () => {
         />
       </div>
 
-      {/* Chat Window - 70% */}
       <div className="w-[70%] overflow-y-auto">
         {selectedChatId ? (
           <MainChatWindow
             chatId={selectedChatId}
-            messages={single_room as unknown as SingleChat}
+            messages={{ ...single_room, messages: combinedMessages } as SingleChat}
             isLoading={load_room}
             error={singleRoomError}
             onSendMessage={handleSendMessage}
