@@ -15,7 +15,7 @@ interface ComingSoonCardProps {
 }
 
 interface HomeProps {
-  t: (key: string) => string;
+  t?: (key: string) => string;
 }
 
 const Home: React.FC<HomeProps> = () => {

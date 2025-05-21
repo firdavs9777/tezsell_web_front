@@ -13,6 +13,7 @@ import MyProducts from "../pages/Product/MyProducts";
 import MyServices from "../pages/Service/MyServices";
 import MainChat from "../pages/Messages/MainChat";
 import ProductScreen from "@pages/Product/Products";
+import ProtectedRoute from "./ProtectRoute";
 
 const Router = () => {
   return (
@@ -21,18 +22,20 @@ const Router = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/" element={<Home />} />
-      <Route path="/products" element={ <ProductScreen/>} />
+      <Route path="/products" element={<ProductScreen />} />
       <Route path="/product/:id" element={<ProductDetail />} />
-      <Route path="/new-product" element={<NewProduct />} />
       <Route path="/service" element={<Service />} />
       <Route path="/service/:id" element={<ServiceDetail />} />
-      <Route path="/new-service" element={<NewService />} />
-      <Route path="/myprofile" element={<MainProfile />} />
-      <Route path="/my-products" element={<MyProducts />} />
-      <Route path="/my-services" element={<MyServices />} />
-      <Route path="/my-services" element={<MyServices />} />
-      <Route path="/chat" element={<MainChat />} />
-      <Route path="/chat/:chatId" element={<MainChat />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/new-product" element={<NewProduct />} />
+        <Route path="/new-service" element={<NewService />} />
+        <Route path="/myprofile" element={<MainProfile />} />
+        <Route path="/my-products" element={<MyProducts />} />
+        <Route path="/my-services" element={<MyServices />} />
+        <Route path="/my-services" element={<MyServices />} />
+        <Route path="/chat" element={<MainChat />} />
+        <Route path="/chat/:chatId" element={<MainChat />} />
+      </Route>
     </Routes>
   );
 };
