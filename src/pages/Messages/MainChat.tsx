@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import MainChatRoom from "./ChatRoom";
 import MainChatWindow from "./ChatWindow";
 import {
   Chat,
   SingleChat,
-  useCreateChatRoomMessageMutation,
   useDeleteSingleChatRoomMutation,
   useGetAllChatMessagesQuery,
   useGetSingleChatMessagesQuery,
@@ -13,7 +12,18 @@ import {
 import { useSelector } from "react-redux";
 import { RootState } from "@store/index";
 import { toast } from "react-toastify";
-import { useChatSocket } from "../../hooks/useChatSocket"; // Adjust the import path
+import { useChatSocket } from "../../hooks/useChatSocket";
+
+interface MessageData {
+  id: number;
+  content: string;
+  sender: {
+    id: number;
+    username: string;
+  };
+  timestamp: string;
+  room_id: number;
+}
 
 const MainChat = () => {
   const navigate = useNavigate();
@@ -23,6 +33,7 @@ const MainChat = () => {
   );
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
+  const userId = userInfo?.user_info.id;
 
   const { data, isLoading, error, refetch } = useGetAllChatMessagesQuery({
     token,
@@ -41,61 +52,44 @@ const MainChat = () => {
   const [deleteChat] = useDeleteSingleChatRoomMutation();
   const chats: Chat[] = (data?.results as Chat[]) || [];
 
-  const [realTimeMessages, setRealTimeMessages] = useState<any[]>([]);
+  const [realTimeMessages, setRealTimeMessages] = useState<MessageData[]>([]);
 
-  const { sendMessage: sendSocketMessage } = useChatSocket(
-    selectedChatId,
-    (data) => {
-      setRealTimeMessages((prev) => [...prev, data]);
-    }
-  );
+  const handleNewMessage = useCallback((data: MessageData) => {
+    setRealTimeMessages((prev) => [...prev, data]);
+  }, []);
+
+  const { sendMessage: sendSocketMessage, isConnected } = useChatSocket({
+    chatId: selectedChatId,
+    token: token || null,
+    onMessage: handleNewMessage,
+  });
 
   const handleSelectChat = (chatId: number) => {
     setSelectedChatId(chatId);
     setRealTimeMessages([]);
     navigate(`/chat/${chatId}`);
+    reload_chat();
+    refetch();
   };
 
-  const handleDelete = (chatId: number) => {
-    const ConfirmToast = () => (
-      <div className="h-[70px] m-2">
-        <p className="mb-2">Are you sure you want to delete this chat?</p>
-        <div className="flex justify-center gap-2">
-          <button
-            onClick={async () => {
-              try {
-                await deleteChat({
-                  chatId: chatId.toString(),
-                  token,
-                });
-                toast.success("Chat deleted successfully");
-                refetch();
-              } catch {
-                toast.error("Error occurred while deleting the chat");
-              }
-              toast.dismiss();
-            }}
-            className="bg-[#333] text-[#fff] px-3 py-1 rounded"
-          >
-            Yes
-          </button>
-          <button
-            onClick={() => toast.dismiss()}
-            className="bg-gray-300 text-[red] px-3 py-1 rounded"
-          >
-            No
-          </button>
-        </div>
-      </div>
-    );
+  const handleDelete = async (chatId: number) => {
+    const confirm = window.confirm("Are you sure you want to delete this chat?");
+    if (!confirm) return;
 
-    toast.info(<ConfirmToast />, {
-      position: "top-center",
-      autoClose: false,
-      closeOnClick: false,
-      draggable: false,
-      closeButton: false,
-    });
+    try {
+      await deleteChat({
+        chatId: chatId.toString(),
+        token,
+      });
+      toast.success("Chat deleted successfully");
+      refetch();
+      if (selectedChatId === chatId) {
+        setSelectedChatId(null);
+        navigate('/chat');
+      }
+    } catch (err) {
+      toast.error("Error occurred while deleting the chat");
+    }
   };
 
   const handleSendMessage = async (content: string) => {
@@ -103,10 +97,13 @@ const MainChat = () => {
       toast.error("No chat selected.");
       return;
     }
-
     try {
-      sendSocketMessage(content); // Real-time via WebSocket
-    } catch {
+      const success = sendSocketMessage(content);
+      refetch();
+      if (!success) {
+        toast.warning("Message is queued and will be sent when connected");
+      }
+    } catch (err:any) {
       toast.error("Error occurred while sending the message");
     }
   };
@@ -114,13 +111,26 @@ const MainChat = () => {
   useEffect(() => {
     if (chatId) {
       setSelectedChatId(parseInt(chatId));
+    } else {
+      setSelectedChatId(null);
     }
   }, [chatId]);
 
+  // Combine messages from API and WebSocket
   const combinedMessages = [
     ...(single_room?.messages || []),
     ...realTimeMessages,
-  ];
+  ].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+
+  // Filter out duplicates (in case API and WebSocket send the same message)
+  const uniqueMessages = combinedMessages.reduce((acc: MessageData[], current) => {
+    const x = acc.find(item => item.id === current.id);
+    if (!x) {
+      return acc.concat([current]);
+    } else {
+      return acc;
+    }
+  }, []);
 
   return (
     <div className="flex flex-row h-screen">
@@ -139,7 +149,11 @@ const MainChat = () => {
         {selectedChatId ? (
           <MainChatWindow
             chatId={selectedChatId}
-            messages={{ ...single_room, messages: combinedMessages } as SingleChat}
+            messages={{ 
+              ...single_room, 
+              messages: uniqueMessages,
+              participants: single_room?.participants || []
+            } as SingleChat}
             isLoading={load_room}
             error={singleRoomError}
             onSendMessage={handleSendMessage}

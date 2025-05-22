@@ -389,8 +389,8 @@ const ServiceDetail = () => {
                 </p>
                 <p className="flex items-center text-gray-600 text-sm mt-1">
                   <FaMapMarkerAlt className="mr-2 text-gray-500" />
-                  {service?.userName?.location.region} -{" "}
-                  {service?.userName?.location.district}
+                  {service?.userName?.location?.region} -{" "}
+                  {service?.userName?.location?.district}
                 </p>
               </div>
             </div>

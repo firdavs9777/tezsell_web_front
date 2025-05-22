@@ -14,6 +14,7 @@ export interface Chat {
       username: string;
     };
   } | null;
+  unread_count: number;
 }
 export interface ChatResponse {
   count?: number;
