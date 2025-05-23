@@ -1,5 +1,5 @@
-// export const BASE_URL = "https://api.tezsell.com";
-export const BASE_URL = "http://127.0.0.1:8000";
+export const BASE_URL = "https://api.tezsell.com";
+// export const BASE_URL = "http://127.0.0.1:8000";
 export const PRODUCTS_URL = "/products/api/products";
 export const SERVICES_URL = "/services/api/services";
 export const COMMENTS_URL = "/services/api/comments";

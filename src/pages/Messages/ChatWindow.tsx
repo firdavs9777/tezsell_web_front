@@ -78,7 +78,7 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
     }
 
     const socket = new WebSocket(
-      `ws://127.0.0.1:8000/ws/chat/${chatId}/?token=${token}`
+      `wss://api.tezsell.com/ws/chat/${chatId}/?token=${token}`
     );
     socketRef.current = socket;
 
