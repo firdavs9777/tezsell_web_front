@@ -111,6 +111,7 @@ const MainChat = () => {
   useEffect(() => {
     if (chatId) {
       setSelectedChatId(parseInt(chatId));
+      refetch();
     } else {
       setSelectedChatId(null);
     }

@@ -73,8 +73,8 @@ const MainProfile = () => {
   // Initialize dependent requests based on user data
   useEffect(() => {
     if (profileInfo?.data) {
-      setCurrentRegion(profileInfo.data.location.region);
-      setCurrentDistrict(profileInfo.data.location.district);
+      setCurrentRegion(profileInfo.data?.location?.region);
+      setCurrentDistrict(profileInfo.data?.location?.district);
       setNewUsername(profileInfo.data.username || "");
     }
   }, [profileInfo]);

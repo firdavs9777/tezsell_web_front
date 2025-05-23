@@ -4,6 +4,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "@store/index";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { SerializedError } from "@reduxjs/toolkit";
+import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
+import { FiPaperclip, FiMic, FiSend, FiSmile } from "react-icons/fi";
 
 interface MainChatWindowProps {
   messages: SingleChat;
@@ -20,6 +22,10 @@ interface WebSocketMessage {
   timestamp: string;
   room_id?: number;
   type?: string;
+  file?: {
+    url: string;
+    type: 'image' | 'audio' | 'video' | 'file';
+  };
 }
 
 const MainChatWindow: React.FC<MainChatWindowProps> = ({
@@ -40,8 +46,16 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
   const [newMessage, setNewMessage] = useState("");
   const [socketMessages, setSocketMessages] = useState<WebSocketMessage[]>([]);
   const [isSocketConnected, setIsSocketConnected] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [filePreview, setFilePreview] = useState<{
+    url: string;
+    type: 'image' | 'audio' | 'video' | 'file';
+    file: File;
+  } | null>(null);
+  
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const reconnectAttempt = useRef(0);
   const maxReconnectAttempts = 5;
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -52,7 +66,6 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
       return;
     }
 
-    // Clear any pending reconnection attempts
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
       reconnectTimeoutRef.current = null;
@@ -60,12 +73,10 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
 
     console.log("🔄 Connecting to WebSocket...", { chatId });
 
-    // Close existing connection if any
     if (socketRef.current) {
       socketRef.current.close();
     }
 
-    // Create new WebSocket connection with token in query params
     const socket = new WebSocket(
       `ws://127.0.0.1:8000/ws/chat/${chatId}/?token=${token}`
     );
@@ -82,12 +93,10 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
         const data = JSON.parse(e.data);
         console.log("📨 Received WebSocket message:", data);
 
-        // Handle different message types from your Django consumer
         if (data.type === "message") {
-          // Check if this message is from the current user
           const isMyMessage = data.sender === currentUsername;
           
-          const messageData = {
+          const messageData: WebSocketMessage = {
             content: data.message,
             sender: isMyMessage ? {
               id: userId,
@@ -96,8 +105,12 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
               username: data.sender
             },
             timestamp: data.timestamp,
-            id: Date.now() + Math.random() // Generate unique temporary ID
+            id: Date.now() + Math.random()
           };
+          
+          if (data.file) {
+            messageData.file = data.file;
+          }
           
           console.log("Processing message:", { isMyMessage, messageData });
           setSocketMessages((prev) => [...prev, messageData]);
@@ -124,7 +137,6 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
       });
       setIsSocketConnected(false);
 
-      // Attempt reconnection if not a normal closure and we haven't exceeded max attempts
       if (event.code !== 1000 && reconnectAttempt.current < maxReconnectAttempts) {
         const delay = Math.min(3000, 1000 * Math.pow(2, reconnectAttempt.current));
         reconnectAttempt.current += 1;
@@ -137,7 +149,6 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
     };
   }, [chatId, token, currentUsername, userId]);
 
-  // Initialize WebSocket connection
   useEffect(() => {
     connectWebSocket();
 
@@ -152,22 +163,31 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
     };
   }, [connectWebSocket]);
 
-  // Scroll to the bottom when messages update
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, socketMessages]);
 
-  const sendWebSocketMessage = useCallback((content: string) => {
+  const sendWebSocketMessage = useCallback((content: string, file?: File) => {
     if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
       console.warn("WebSocket is not open");
       return false;
     }
 
     try {
-      // This is the correct format that your Django consumer expects
-      const message = {
-        message: content.trim()  // Django consumer expects { "message": "content" }
+      const message: any = {
+        message: content.trim()
       };
+      
+      if (file) {
+        // In a real app, you would upload the file first and then send the URL
+        // For now, we'll just simulate it
+        message.file = {
+          url: URL.createObjectURL(file),
+          type: file.type.startsWith('image/') ? 'image' : 
+                file.type.startsWith('audio/') ? 'audio' : 
+                file.type.startsWith('video/') ? 'video' : 'file'
+        };
+      }
       
       console.log("📤 Sending WebSocket message:", message);
       socketRef.current.send(JSON.stringify(message));
@@ -179,7 +199,7 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
   }, []);
 
   const handleSendMessage = async (content: string) => {
-    if (!content.trim()) {
+    if (!content.trim() && !filePreview) {
       console.warn("❌ Cannot send empty message");
       return;
     }
@@ -188,7 +208,7 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
 
     try {
       // Send via WebSocket first (real-time)
-      const socketSent = sendWebSocketMessage(content);
+      const socketSent = sendWebSocketMessage(content, filePreview?.file);
       if (socketSent) {
         console.log("✅ Message sent via WebSocket");
       } else {
@@ -204,13 +224,51 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
     }
 
     setNewMessage("");
+    setFilePreview(null);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (e.g., 5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size should be less than 5MB");
+      return;
+    }
+
+    const fileType = file.type.startsWith('image/') ? 'image' : 
+                    file.type.startsWith('audio/') ? 'audio' : 
+                    file.type.startsWith('video/') ? 'video' : 'file';
+
+    setFilePreview({
+      url: URL.createObjectURL(file),
+      type: fileType,
+      file: file
+    });
+
+    // Clear the input to allow selecting the same file again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const onEmojiClick = (emojiData: EmojiClickData) => {
+    setNewMessage(prev => prev + emojiData.emoji);
+    setShowEmojiPicker(false);
+  };
+
+  const removeFilePreview = () => {
+    if (filePreview) {
+      URL.revokeObjectURL(filePreview.url);
+      setFilePreview(null);
+    }
   };
 
   // Remove duplicates and sort messages
   const allMessages = [...(messages?.messages || []), ...socketMessages]
     .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
     .filter((msg, index, arr) => {
-      // Remove duplicates based on content and timestamp (for messages that come from both API and WebSocket)
       const isDuplicate = arr.findIndex(m => 
         m.content === msg.content && 
         Math.abs(new Date(m.timestamp).getTime() - new Date(msg.timestamp).getTime()) < 5000
@@ -236,23 +294,15 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
         {error && <p className="text-red-500">Error loading chat</p>}
 
         {allMessages.map((msg, index) => {
-          console.log("Rendering message:", msg);
-          
-          // Better sender identification logic
           let isMyMessage = false;
           
           if (typeof msg.sender === 'object' && msg.sender?.id) {
-            // If sender is an object with id, compare the id
             isMyMessage = msg.sender.id === userId;
           } else if (typeof msg.sender === 'number') {
-            // If sender is just a number (user id), compare directly
             isMyMessage = msg.sender === userId;
           } else if (typeof msg.sender === 'object' && msg.sender?.username) {
-            // If we only have username, check if it matches current user's username
             isMyMessage = msg.sender.username === currentUsername;
           }
-          
-          console.log("Message alignment:", { isMyMessage, userId, currentUsername, msgSender: msg.sender });
           
           return (
             <div
@@ -264,6 +314,33 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
                   isMyMessage ? "bg-blue-100 text-right" : "bg-green-200 text-left"
                 }`}
               >
+                {msg.file && (
+                  <div className="mb-2">
+                    {msg.file.type === 'image' ? (
+                      <img 
+                        src={msg.file.url} 
+                        alt="Uploaded content" 
+                        className="max-w-full h-auto rounded"
+                      />
+                    ) : msg.file.type === 'audio' ? (
+                      <div className="bg-gray-100 p-2 rounded">
+                        <audio controls className="w-full">
+                          <source src={msg.file.url} type="audio/*" />
+                          Your browser does not support the audio element.
+                        </audio>
+                      </div>
+                    ) : (
+                      <a 
+                        href={msg.file.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-500 underline"
+                      >
+                        Download file
+                      </a>
+                    )}
+                  </div>
+                )}
                 <div className="mb-1">{msg.content}</div>
                 <div className="text-xs text-gray-600 flex justify-between gap-2">
                   <span>
@@ -282,13 +359,71 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="mt-4 flex gap-2 border-t pt-4">
+      {/* File preview */}
+      {filePreview && (
+        <div className="relative mb-2 p-2 bg-gray-100 rounded-lg">
+          {filePreview.type === 'image' ? (
+            <img 
+              src={filePreview.url} 
+              alt="Preview" 
+              className="max-w-[200px] h-auto rounded"
+            />
+          ) : filePreview.type === 'audio' ? (
+            <audio controls className="w-full">
+              <source src={filePreview.url} type="audio/*" />
+              Your browser does not support the audio element.
+            </audio>
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="truncate max-w-[200px]">{filePreview.file.name}</span>
+            </div>
+          )}
+          <button 
+            onClick={removeFilePreview}
+            className="absolute top-1 right-1 bg-white rounded-full p-1 shadow"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      )}
+
+      <div className="mt-4 flex gap-2 border-t pt-4 relative">
+        <button 
+          onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+          className="p-2 text-gray-600 hover:text-blue-500"
+        >
+          <FiSmile size={20} />
+        </button>
+
+        {showEmojiPicker && (
+          <div className="absolute bottom-12 left-0 z-10">
+            <EmojiPicker onEmojiClick={onEmojiClick} width={300} height={350} />
+          </div>
+        )}
+
+        <button 
+          onClick={() => fileInputRef.current?.click()}
+          className="p-2 text-gray-600 hover:text-blue-500"
+        >
+          <FiPaperclip size={20} />
+        </button>
+
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          accept="image/*,audio/*,video/*"
+          className="hidden"
+        />
+
         <input
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && newMessage.trim()) {
+            if (e.key === "Enter" && (newMessage.trim() || filePreview)) {
               e.preventDefault();
               handleSendMessage(newMessage);
             }
@@ -297,16 +432,17 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
           className="flex-1 px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300"
           disabled={isLoading}
         />
+
         <button
           onClick={() => handleSendMessage(newMessage)}
-          className={`px-4 py-2 text-white rounded transition-colors ${
-            newMessage.trim()
+          className={`p-2 text-white rounded transition-colors ${
+            (newMessage.trim() || filePreview)
               ? 'bg-blue-500 hover:bg-blue-600' 
               : 'bg-gray-400 cursor-not-allowed'
           }`}
-          disabled={!newMessage.trim() || isLoading}
+          disabled={(!newMessage.trim() && !filePreview) || isLoading}
         >
-          Send
+          <FiSend size={20} />
         </button>
       </div>
     </div>
