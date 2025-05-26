@@ -1,3 +1,4 @@
+import { User } from "@store/type";
 import { CHAT_MAIN } from "../constants";
 import { apiSlice } from "./apiSlice";
 
@@ -35,11 +36,16 @@ export interface SingleMessage {
     id: number;
     username: string;
   };
+  file?: {
+    url: string;
+    type: "image" | "audio" | "video" | "file";
+  };
 }
 export interface SingleChat {
   success: boolean;
   chat: Chat;
   messages: SingleMessage[];
+  participants: User[];
 }
 export const messagesApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({

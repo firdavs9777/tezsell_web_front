@@ -33,7 +33,6 @@ const MainChat = () => {
   );
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
-  const userId = userInfo?.user_info.id;
 
   const { data, isLoading, error, refetch } = useGetAllChatMessagesQuery({
     token,
@@ -58,7 +57,7 @@ const MainChat = () => {
     setRealTimeMessages((prev) => [...prev, data]);
   }, []);
 
-  const { sendMessage: sendSocketMessage, isConnected } = useChatSocket({
+  const { sendMessage: sendSocketMessage } = useChatSocket({
     chatId: selectedChatId,
     token: token || null,
     onMessage: handleNewMessage,
@@ -73,7 +72,9 @@ const MainChat = () => {
   };
 
   const handleDelete = async (chatId: number) => {
-    const confirm = window.confirm("Are you sure you want to delete this chat?");
+    const confirm = window.confirm(
+      "Are you sure you want to delete this chat?"
+    );
     if (!confirm) return;
 
     try {
@@ -85,7 +86,7 @@ const MainChat = () => {
       refetch();
       if (selectedChatId === chatId) {
         setSelectedChatId(null);
-        navigate('/chat');
+        navigate("/chat");
       }
     } catch (err) {
       toast.error("Error occurred while deleting the chat");
@@ -98,13 +99,10 @@ const MainChat = () => {
       return;
     }
     try {
-      const success = sendSocketMessage(content);
+      sendSocketMessage(content);
       refetch();
-      if (!success) {
-        toast.warning("Message is queued and will be sent when connected");
-      }
-    } catch (err:any) {
-      toast.error("Error occurred while sending the message");
+    } catch (err: unknown) {
+      toast.error(`Error occurred while sending the message: ${err}`);
     }
   };
 
@@ -115,23 +113,44 @@ const MainChat = () => {
     } else {
       setSelectedChatId(null);
     }
-  }, [chatId]);
+  }, [chatId, refetch]);
+
+  // Safely extract messages from the API response
+  const apiMessages =
+    (single_room as any)?.messages || (single_room as any)?.results || [];
 
   // Combine messages from API and WebSocket
-  const combinedMessages = [
-    ...(single_room?.messages || []),
-    ...realTimeMessages,
-  ].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+  const combinedMessages = [...apiMessages, ...realTimeMessages].sort(
+    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+  );
 
   // Filter out duplicates (in case API and WebSocket send the same message)
-  const uniqueMessages = combinedMessages.reduce((acc: MessageData[], current) => {
-    const x = acc.find(item => item.id === current.id);
-    if (!x) {
-      return acc.concat([current]);
-    } else {
-      return acc;
-    }
-  }, []);
+  const uniqueMessages = combinedMessages.reduce(
+    (acc: MessageData[], current) => {
+      const x = acc.find((item) => item.id === current.id);
+      if (!x) {
+        return acc.concat([current]);
+      } else {
+        return acc;
+      }
+    },
+    []
+  );
+
+  // Create a properly typed SingleChat object for the ChatWindow
+  const createChatData = (): SingleChat => {
+    return {
+      success: (single_room as any)?.success ?? true,
+      chat: (single_room as any)?.chat ?? {
+        id: selectedChatId || 0,
+        participants: (single_room as any)?.participants || [],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+      messages: uniqueMessages,
+      participants: (single_room as any)?.participants || [],
+    };
+  };
 
   return (
     <div className="flex flex-row h-screen">
@@ -150,11 +169,7 @@ const MainChat = () => {
         {selectedChatId ? (
           <MainChatWindow
             chatId={selectedChatId}
-            messages={{ 
-              ...single_room, 
-              messages: uniqueMessages,
-              participants: single_room?.participants || []
-            } as SingleChat}
+            messages={createChatData()}
             isLoading={load_room}
             error={singleRoomError}
             onSendMessage={handleSendMessage}
