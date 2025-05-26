@@ -1,542 +1,573 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { useEffect, useState, useCallback, useMemo } from "react";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
+import {
+  FaCommentAlt, FaMapMarkerAlt, FaUser, FaThumbsUp, FaRegThumbsUp,
+  FaArrowLeft, FaSignInAlt, FaTrash, FaEdit, FaHeart, FaRegHeart
+} from "react-icons/fa";
+
+// API hooks
 import {
   useGetFavoriteItemsQuery,
   useGetSingleServiceQuery,
   useLikeServiceMutation,
   useUnlikeServiceMutation,
 } from "@store/slices/serviceApiSlice";
-import { useEffect, useState } from "react";
-import { BASE_URL } from "@store/constants";
-import { Category, Comment, Service, SingleService } from "@store/type";
-import {
-  FaCommentAlt,
-  FaMapMarkerAlt,
-  FaUser,
-  FaThumbsUp,
-  FaRegThumbsUp,
-  FaArrowLeft,
-  FaSignInAlt,
-  FaTrash,
-  FaEdit,
-} from "react-icons/fa";
-
-import { useSelector } from "react-redux";
-import { RootState } from "../../store";
 import {
   useCreateCommentMutation,
   useGetCommentsQuery,
 } from "@store/slices/commentApiSlice";
-import { toast } from "react-toastify";
-import { ServiceRes } from "./MainProfile";
-import { Chat, useCreateChatRoomMutation } from "@store/slices/chatSlice";
-import CommentsMain from "./Comments/CommentsMain";
-import { useTranslation } from "react-i18next";
-import MyServiceEdit from "./ServiceEdit";
+import { useCreateChatRoomMutation } from "@store/slices/chatSlice";
 import { useDeleteUserServiceMutation } from "@store/slices/users";
 
-const ServiceDetail = () => {
-  const { id } = useParams();
-  const { data, isLoading, error, refetch } = useGetSingleServiceQuery(id);
-  const [createComment, { isLoading: create_loading }] =
-    useCreateCommentMutation();
-  const [deleteService] = useDeleteUserServiceMutation();
+// Components
+import CommentsMain from "./Comments/CommentsMain";
+import MyServiceEdit from "./ServiceEdit";
 
+// Types and constants
+import { BASE_URL } from "@store/constants";
+import { Category, Comment, Service, SingleService } from "@store/type";
+import { RootState } from "../../store";
+import { ServiceRes } from "./MainProfile";
+
+// Custom hooks
+const useAuth = () => {
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+  return {
+    userInfo,
+    token: userInfo?.token,
+    isLoggedIn: !!userInfo,
+    userId: userInfo?.user_info?.id
+  };
+};
+
+const useServiceData = (id: string | undefined, token: string | undefined, isLoggedIn: boolean) => {
+  const serviceQuery = useGetSingleServiceQuery(id);
+  const favoriteQuery = useGetFavoriteItemsQuery(
+    { token },
+    { skip: !isLoggedIn || !token }
+  );
+  
+  const serviceId = serviceQuery.data?.service?.id;
+  const commentsQuery = useGetCommentsQuery(
+    { serviceId, token },
+    { skip: !isLoggedIn || !serviceId || !token }
+  );
+
+  return {
+    service: serviceQuery.data as SingleService | null,
+    isServiceLoading: serviceQuery.isLoading,
+    serviceError: serviceQuery.error,
+    refetchService: serviceQuery.refetch,
+    favoriteItems: favoriteQuery.data as ServiceRes,
+    refetchFavorites: favoriteQuery.refetch,
+    comments: (commentsQuery.data as Comment[]) || [],
+    refetchComments: commentsQuery.refetch,
+  };
+};
+
+// Utility functions
+const getCategoryName = (category: Category, language: string): string => {
+  const langKey = `name_${language}` as keyof Category;
+  return category[langKey] || category.name_en || "";
+};
+
+const isServiceLiked = (favoriteItems: ServiceRes | undefined, serviceId: number): boolean => {
+  return favoriteItems?.liked_services?.some((item: Service) => item.id === serviceId) || false;
+};
+
+// Components
+const LoadingSpinner = ({ message }: { message: string }) => (
+  <div className="flex justify-center items-center h-64">
+    <div className="text-center">
+      <div className="animate-spin inline-block w-8 h-8 border-4 border-gradient-to-r from-blue-500 to-purple-500 border-t-transparent rounded-full mb-2"></div>
+      <p className="text-gray-600 font-medium">{message}</p>
+    </div>
+  </div>
+);
+
+const ErrorMessage = ({ message }: { message: string }) => (
+  <div className="bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 p-6 rounded-xl text-red-700 text-center my-8 mx-4 shadow-sm">
+    <div className="font-semibold text-lg">{message}</div>
+  </div>
+);
+
+const ImageGallery = ({ 
+  images, 
+  serviceName, 
+  selectedImage, 
+  onImageSelect 
+}: {
+  images: Array<{ image: string }>;
+  serviceName: string;
+  selectedImage: string;
+  onImageSelect: (image: string) => void;
+}) => (
+  <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
+    {/* Main image with enhanced styling */}
+    <div className="mb-6 overflow-hidden rounded-xl h-80 bg-gradient-to-br from-gray-100 to-gray-200 shadow-inner">
+      <img
+        className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
+        src={selectedImage}
+        alt={serviceName}
+      />
+    </div>
+
+    {/* Thumbnail gallery */}
+    <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-thin scrollbar-thumb-gray-300">
+      {images.map((image, index) => (
+        <div
+          key={index}
+          className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
+        >
+          <img
+            src={`${BASE_URL}${image.image}`}
+            alt={`${serviceName} ${index + 1}`}
+            onClick={() => onImageSelect(`${BASE_URL}${image.image}`)}
+            className={`h-full w-full object-cover cursor-pointer border-2 transition-all duration-200 hover:scale-110 ${
+              selectedImage === `${BASE_URL}${image.image}`
+                ? "border-blue-500 shadow-lg"
+                : "border-transparent hover:border-gray-300"
+            }`}
+          />
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const ServiceOwnerCard = ({ 
+  owner, 
+  location 
+}: {
+  owner: any;
+  location: any;
+}) => (
+  <div className="flex items-center p-5 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl mb-6 border border-gray-100 hover:shadow-md transition-all duration-300">
+    <div className="mr-4 w-14 h-14 flex-shrink-0">
+      {owner?.profile_image?.image ? (
+        <div className="w-14 h-14 rounded-full overflow-hidden shadow-md border-2 border-white">
+          <img
+            src={`${BASE_URL}/${owner.profile_image.image}`}
+            alt={owner.username}
+            className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+          />
+        </div>
+      ) : (
+        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center shadow-md">
+          <FaUser className="text-gray-500" size={22} />
+        </div>
+      )}
+    </div>
+    <div>
+      <p className="flex items-center text-gray-800 font-semibold text-lg">
+        <FaUser className="mr-2 text-blue-500" />
+        {owner?.username}
+      </p>
+      <p className="flex items-center text-gray-600 text-sm mt-1">
+        <FaMapMarkerAlt className="mr-2 text-red-500" />
+        {location?.region} - {location?.district}
+      </p>
+    </div>
+  </div>
+);
+
+const ActionButton = ({ 
+  onClick, 
+  icon: Icon, 
+  text, 
+  variant = 'primary',
+  disabled = false,
+  className = ""
+}: {
+  onClick: () => void;
+  icon: any;
+  text: string;
+  variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'warning';
+  disabled?: boolean;
+  className?: string;
+}) => {
+  const variants = {
+    primary: "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white",
+    secondary: "bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700",
+    success: "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white",
+    danger: "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white",
+    warning: "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white"
+  };
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl flex-1 min-w-[120px] transition-all duration-300 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${className}`}
+    >
+      <Icon size={18} />
+      <span>{text}</span>
+    </button>
+  );
+};
+
+const CommentForm = ({ 
+  text, 
+  setText, 
+  onSubmit, 
+  isLoading,
+  placeholder 
+}: {
+  text: string;
+  setText: (text: string) => void;
+  onSubmit: (e: React.FormEvent) => void;
+  isLoading: boolean;
+  placeholder: string;
+}) => (
+  <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl p-6 border border-gray-100">
+    <form onSubmit={onSubmit}>
+      <textarea
+        placeholder={placeholder}
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            onSubmit(e as any);
+          }
+        }}
+        className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y min-h-[120px] shadow-sm transition-all duration-200"
+      />
+      <div className="flex justify-end mt-4">
+        <button
+          type="submit"
+          disabled={isLoading || !text.trim()}
+          className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+        >
+          {isLoading ? "Posting..." : "Post Comment"}
+        </button>
+      </div>
+    </form>
+  </div>
+);
+
+const LoginPrompt = ({ message, loginText }: { message: string; loginText: string }) => (
+  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 p-8 rounded-xl text-center shadow-sm">
+    <div className="flex flex-col items-center justify-center space-y-4">
+      <div className="text-blue-700 bg-blue-100 p-4 rounded-full shadow-md">
+        <FaSignInAlt size={28} />
+      </div>
+      <h3 className="text-xl font-semibold text-blue-800">{message}</h3>
+      <Link
+        to="/login"
+        className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+      >
+        <FaSignInAlt className="mr-2" />
+        {loginText}
+      </Link>
+    </div>
+  </div>
+);
+
+// Main component
+const ServiceDetail = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const { userInfo, token, isLoggedIn, userId } = useAuth();
+
+  // Local state
+  const [selectedImage, setSelectedImage] = useState<string>("");
+  const [commentText, setCommentText] = useState<string>("");
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // API data
+  const {
+    service: serviceItem,
+    isServiceLoading,
+    serviceError,
+    refetchService,
+    favoriteItems,
+    refetchFavorites,
+    comments,
+    refetchComments,
+  } = useServiceData(id, token, isLoggedIn);
+
+  // API mutations
   const [likeService] = useLikeServiceMutation();
   const [dislikeService] = useUnlikeServiceMutation();
-  const [isEdit, setIsEdit] = useState(false);
-  const [text, setText] = useState<string>("");
-  const navigate = useNavigate();
+  const [createComment, { isLoading: isCreatingComment }] = useCreateCommentMutation();
+  const [deleteService] = useDeleteUserServiceMutation();
   const [createChatRoom] = useCreateChatRoomMutation();
-  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
-  const token = userInfo?.token;
-  const isLoggedIn = !!userInfo; // Boolean check if user is logged in
 
-  const { data: favorite_items, refetch: reload_fav } =
-    useGetFavoriteItemsQuery(
-      {
-        token: token,
-      },
-      { skip: !isLoggedIn }
-    ); // Skip query if user is not logged in
+  // Memoized values
+  const service = serviceItem?.service;
+  const isOwner = useMemo(() => userId === service?.userName?.id, [userId, service?.userName?.id]);
+  const isLiked = useMemo(() => 
+    service ? isServiceLiked(favoriteItems, service.id) : false, 
+    [favoriteItems, service?.id]
+  );
 
-  // Ensure serviceItem is available and defined
-  const serviceItem: SingleService | null = data as SingleService;
-  console.log(data);
-  const serviceId = serviceItem?.service.id;
-
-  const {
-    data: comments_data,
-
-    refetch: reload,
-  } = useGetCommentsQuery(
-    {
-      serviceId: serviceId, // Ensure serviceId is not undefined
-      token: token,
-    },
-    { skip: !isLoggedIn }
-  ); // Skip query if user is not logged in
-
-  const liked_items: ServiceRes = favorite_items as ServiceRes;
-
-  // Make sure comments data is in the correct format
-  const comments: Comment[] = (comments_data as Comment[]) || [];
-
-  const [selectedImage, setSelectedImage] = useState<string>("");
-
-  const handleServiceRedirect = () => navigate("/service");
-
-  const handleServiceDelete = async () => {
-    const confirmed = window.confirm(t("delete_confirmation_product"));
-    if (!confirmed) return;
-
-    try {
-      const response = await deleteService({
-        serviceId: id,
-        token,
-      });
-      interface DeleteResponse {
-        status: number;
-        data?: unknown;
-        error?: unknown;
-      }
-      if (response && (response as DeleteResponse).status === 204) {
-        toast.success(t("product_delete_success"), { autoClose: 2000 });
-        handleServiceRedirect();
-      } else {
-        toast.error(t("product_delete_error"), { autoClose: 2000 });
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error(t("product_delete_error"), { autoClose: 2000 });
-      } else {
-        toast.error(t("unknown_error_message"), { autoClose: 1000 });
-      }
-    }
-  };
-  // Update selectedImage when serviceItem or serviceItem images are available
+  // Effects
   useEffect(() => {
-    if (serviceItem?.service.images?.length) {
-      setSelectedImage(`${BASE_URL}${serviceItem.service.images[0].image}`);
-    }
-  }, [serviceItem]);
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-center">
-          <div className="animate-spin inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mb-2"></div>
-          <p className="text-gray-600">{t("loading")}</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !serviceItem) {
-    return (
-      <div className="bg-red-100 p-4 rounded-lg text-red-700 text-center my-8 mx-4">
-        {t("error_message")}
-      </div>
-    );
-  }
-  const onCloseHandler = () => {
-    refetch();
-    if (service.images) {
+    if (service?.images?.length) {
       setSelectedImage(`${BASE_URL}${service.images[0].image}`);
-    } else {
-      setSelectedImage("");
     }
-  };
+  }, [service?.images]);
 
-  const handleLikeService = async () => {
+  // Handlers
+  const handleImageSelect = useCallback((imageUrl: string) => {
+    setSelectedImage(imageUrl);
+  }, []);
+
+  const handleLikeToggle = useCallback(async () => {
     if (!isLoggedIn) {
-      toast.info("Please log in to like this service", { autoClose: 2000 });
+      toast.info(t("login_required_like"), { autoClose: 2000 });
       navigate("/login");
       return;
     }
 
+    if (!service) return;
+
     try {
-      const response = await likeService({
-        serviceId: serviceItem.service.id,
-        token: token,
+      const mutation = isLiked ? dislikeService : likeService;
+      const response = await mutation({
+        serviceId: service.id,
+        token: token!,
       });
 
       if (response.data) {
-        toast.success("Service liked successfully", { autoClose: 1000 });
-        refetch();
-        reload();
-        reload_fav();
+        toast.success(
+          isLiked ? t("service_unliked") : t("service_liked"),
+          { autoClose: 1000 }
+        );
+        refetchService();
+        refetchComments();
+        refetchFavorites();
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error(error.message || "Error while liking service", {
-          autoClose: 1000,
-        });
-      } else {
-        toast.error("An unknown error occurred", {
-          autoClose: 3000,
-        });
-      }
+    } catch (error) {
+      toast.error(t("error_occurred"), { autoClose: 2000 });
     }
-  };
-  const getCategoryName = (categoryItem: Category) => {
-    const langKey = `name_${i18n.language}` as keyof Category;
-    return categoryItem[langKey] || categoryItem.name_en || "";
-  };
+  }, [isLoggedIn, service, isLiked, likeService, dislikeService, token, navigate, refetchService, refetchComments, refetchFavorites, t]);
 
-  const handleDislikeService = async () => {
+  const handleChat = useCallback(async () => {
     if (!isLoggedIn) {
-      toast.info("Please log in to interact with this service", {
-        autoClose: 2000,
-      });
+      toast.info(t("login_required_chat"), { autoClose: 2000 });
       navigate("/login");
       return;
     }
 
-    try {
-      const response = await dislikeService({
-        serviceId: serviceItem.service.id,
-        token: token,
-      });
-
-      if (response.data) {
-        toast.success("Service removed from likes", { autoClose: 1000 });
-        refetch();
-        reload();
-        reload_fav();
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error(error.message || "Error while unliking service", {
-          autoClose: 3000,
-        });
-      } else {
-        toast.error("An unknown error occurred", {
-          autoClose: 3000,
-        });
-      }
-    }
-  };
-
-  const handleSubmit = async () => {
-    if (!text.trim()) {
-      toast.info("Please enter a comment");
-      return;
-    }
-
-    try {
-      const response = await createComment({
-        text: text,
-        serviceId: serviceItem.service.id,
-        token,
-      });
-
-      if (response.data) {
-        toast.success("Comment created successfully");
-        reload();
-        setText("");
-      } else {
-        toast.error("Error occurred during the creation");
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error(error.message || "Error while creating comment");
-      } else {
-        toast.error("An unknown error occurred");
-      }
-    }
-  };
-
-  const submitFormHandler = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    handleSubmit();
-  };
-
-  const { service } = serviceItem;
-
-  const handleChat = async () => {
-    if (!isLoggedIn) {
-      toast.info("Please log in to start a chat", { autoClose: 2000 });
-      navigate("/login");
-      return;
-    }
+    if (!service || !userInfo) return;
 
     try {
       const productOwnerId = service.userName.id;
       const currentUserId = userInfo.user_info.id;
 
-      // Avoid chatting with yourself
       if (currentUserId === productOwnerId) {
-        toast.info("You can't chat with yourself.");
+        toast.info(t("cannot_chat_self"));
         return;
       }
 
-      const chatName = `${service.userName.username}`;
-
+      const chatName = service.userName.username;
       const result = await createChatRoom({
         name: chatName,
         participants: [currentUserId, productOwnerId],
         token: userInfo.token,
       });
 
-      if ("data" in result) {
-        const res = result.data as Chat;
-        const chatId = res.id;
-        toast.success("Chat room created!");
-        navigate(`/chat/${chatId}`); // Redirect to chat page
-      } else {
-        throw new Error("Failed to create chat");
+      if ("data" in result && result.data) {
+        const chatId = (result.data as any).id;
+        toast.success(t("chat_created"));
+        navigate(`/chat/${chatId}`);
       }
-    } catch (error: any) {
-      toast.error(error.message || "Chat creation failed");
+    } catch (error) {
+      toast.error(t("chat_creation_failed"));
     }
-  };
-  const handleEditModal = () => {
-    refetch();
-    setIsEdit(!isEdit);
-  };
+  }, [isLoggedIn, service, userInfo, createChatRoom, navigate, t]);
+
+  const handleDelete = useCallback(async () => {
+    if (!window.confirm(t("delete_confirmation_product"))) return;
+
+    try {
+      const response = await deleteService({
+        serviceId: id!,
+        token: token!,
+      });
+
+      if ((response as any)?.status === 204) {
+        toast.success(t("product_delete_success"), { autoClose: 2000 });
+        navigate("/service");
+      } else {
+        toast.error(t("product_delete_error"), { autoClose: 2000 });
+      }
+    } catch (error) {
+      toast.error(t("product_delete_error"), { autoClose: 2000 });
+    }
+  }, [id, token, deleteService, navigate, t]);
+
+  const handleCommentSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!commentText.trim()) {
+      toast.info(t("enter_comment"));
+      return;
+    }
+
+    if (!service) return;
+
+    try {
+      const response = await createComment({
+        text: commentText,
+        serviceId: service.id,
+        token: token!,
+      });
+
+      if (response.data) {
+        toast.success(t("comment_created"));
+        refetchComments();
+        setCommentText("");
+      } else {
+        toast.error(t("comment_creation_error"));
+      }
+    } catch (error) {
+      toast.error(t("error_occurred"));
+    }
+  }, [commentText, service, createComment, token, refetchComments, t]);
+
+  const handleEditClose = useCallback(() => {
+    refetchService();
+    if (service?.images?.length) {
+      setSelectedImage(`${BASE_URL}${service.images[0].image}`);
+    }
+    setIsEditModalOpen(false);
+  }, [refetchService, service?.images]);
+
+  // Loading state
+  if (isServiceLoading) {
+    return <LoadingSpinner message={t("loading")} />;
+  }
+
+  // Error state
+  if (serviceError || !serviceItem || !service) {
+    return <ErrorMessage message={t("error_message")} />;
+  }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6 md:px-6 lg:px-8">
-      {/* Return to services button */}
-      <div className="mb-4">
-        <Link
-          to="/service"
-          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors font-medium"
-        >
-          <FaArrowLeft className="text-sm" />
-          <span>{t("service_back")}</span>
-        </Link>
-      </div>
+    <div className="max-w-7xl mx-auto px-4 py-6 md:px-6 lg:px-8 space-y-8">
+      {/* Back button */}
+      <Link
+        to="/service"
+        className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors font-medium hover:bg-blue-50 px-3 py-2 rounded-lg"
+      >
+        <FaArrowLeft className="text-sm" />
+        <span>{t("service_back")}</span>
+      </Link>
 
-      {/* Main service detail section */}
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Left side - Images */}
-        <div className="lg:w-1/2">
-          <div className="bg-white rounded-lg shadow-md p-4">
-            {/* Selected main image - FIXED HEIGHT */}
-            <div className="mb-4 overflow-hidden rounded-lg h-80 flex items-center justify-center bg-gray-100">
-              <img
-                className="w-full h-full object-contain"
-                src={selectedImage}
-                alt={service.name}
-              />
-            </div>
+      {/* Main content */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Images */}
+        <ImageGallery
+          images={service.images}
+          serviceName={service.name}
+          selectedImage={selectedImage}
+          onImageSelect={handleImageSelect}
+        />
 
-            {/* Thumbnails - FIXED SIZE */}
-            <div className="flex overflow-x-auto gap-3 pb-2">
-              {service.images.map((image, index) => (
-                <div
-                  key={index}
-                  className="h-16 w-16 flex-shrink-0 overflow-hidden rounded"
-                >
-                  <img
-                    src={`${BASE_URL}${image.image}`}
-                    alt={`${service.name} ${index + 1}`}
-                    onClick={() =>
-                      setSelectedImage(`${BASE_URL}${image.image}`)
-                    }
-                    className={`h-full w-full object-cover cursor-pointer border-2 ${
-                      selectedImage === `${BASE_URL}/services${image.image}`
-                        ? "border-blue-500"
-                        : "border-transparent"
-                    }`}
-                  />
-                </div>
-              ))}
-            </div>
+        {/* Service info */}
+        <div className="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
+          <div className="inline-block px-4 py-2 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 rounded-full text-sm font-medium mb-6 shadow-sm">
+            {getCategoryName(service.category, i18n.language)}
           </div>
-        </div>
 
-        {/* Right side - Service info */}
-        <div className="lg:w-1/2">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm mb-4">
-              {getCategoryName(service.category)}
-            </div>
+          <h1 className="text-3xl md:text-4xl font-bold mb-6 text-gray-800 leading-tight">
+            {service.name}
+          </h1>
 
-            <h1 className="text-2xl md:text-3xl font-bold mb-4">
-              {service.name}
-            </h1>
+          <div className="mb-8">
+            <p className="text-gray-700 leading-relaxed text-lg">
+              {service.description}
+            </p>
+          </div>
 
-            <div className="mb-6">
-              <p className="text-gray-700 leading-relaxed">
-                {service.description}
-              </p>
-            </div>
+          <ServiceOwnerCard
+            owner={service.userName}
+            location={service.userName?.location}
+          />
 
-            {/* Service owner info */}
-            <div className="flex items-center p-4 bg-gray-50 rounded-lg mb-6">
-              <div className="mr-4 w-12 h-12 flex-shrink-0">
-                {service.userName?.profile_image?.image ? (
-                  <div className="w-12 h-12 rounded-full overflow-hidden">
-                    <img
-                      src={`${BASE_URL}/${service.userName.profile_image.image}`}
-                      alt={service.userName.username}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ) : (
-                  <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-                    <FaUser className="text-gray-500" size={20} />
-                  </div>
-                )}
-              </div>
-              <div>
-                <p className="flex items-center text-gray-800 font-medium">
-                  <FaUser className="mr-2 text-gray-500" />
-                  {service?.userName?.username}
-                </p>
-                <p className="flex items-center text-gray-600 text-sm mt-1">
-                  <FaMapMarkerAlt className="mr-2 text-gray-500" />
-                  {service?.userName?.location?.region} -{" "}
-                  {service?.userName?.location?.district}
-                </p>
-              </div>
-            </div>
-
-            {isLoggedIn && (
-              <div className="flex flex-wrap gap-2 mb-2">
-                {/* Like/Unlike Button */}
-                <button
-                  onClick={
-                    isLoggedIn &&
-                    liked_items?.liked_services?.some(
-                      (item: Service) => item.id === serviceItem.service.id
-                    )
-                      ? handleDislikeService
-                      : handleLikeService
-                  }
-                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-md flex-1 min-w-[120px] transition-colors ${
-                    isLoggedIn &&
-                    liked_items?.liked_services?.some(
-                      (item: Service) => item.id === serviceItem.service.id
-                    )
-                      ? "bg-blue-100 text-blue-700"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  {isLoggedIn &&
-                  liked_items?.liked_services?.some(
-                    (item: Service) => item.id === serviceItem.service.id
-                  ) ? (
-                    <FaThumbsUp size={18} />
-                  ) : (
-                    <FaRegThumbsUp size={18} />
-                  )}
-                  <span>{t("like_label")}</span>
-                </button>
-
-                <button
-                  className="flex items-center justify-center gap-2 px-6 py-3 bg-green-100 text-green-700 rounded-md flex-1 min-w-[120px] hover:bg-green-200 transition-colors"
+          {!isOwner && (
+            <div className="space-y-4">
+              <div className="flex flex-wrap gap-3">
+                <ActionButton
+                  onClick={handleLikeToggle}
+                  icon={isLiked ? FaHeart : FaRegHeart}
+                  text={t("like_label")}
+                  variant={isLiked ? "primary" : "secondary"}
+                />
+                <ActionButton
                   onClick={handleChat}
-                >
-                  <FaCommentAlt size={18} />
-                  <span>{t("chat")}</span>
-                </button>
+                  icon={FaCommentAlt}
+                  text={t("chat")}
+                  variant="success"
+                />
               </div>
-            )}
+            </div>
+          )}
 
-            {isLoggedIn && (
-              <div className="flex flex-wrap gap-2">
-                {/* Edit Button */}
-                <button
-                  onClick={handleEditModal}
-                  className="flex-1 flex items-center justify-center gap-2 bg-amber-500 text-white py-3 rounded-lg hover:bg-amber-600 transition-colors font-medium"
-                >
-                  <FaEdit size={16} /> {t("edit_label")}
-                </button>
-
-                {/* Delete Button */}
-                <button
-                  onClick={() => {
-                    handleServiceDelete();
-                  }}
-                  className="flex-1 flex items-center justify-center gap-2 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors font-medium"
-                >
-                  <FaTrash size={16} /> {t("delete_label")}
-                </button>
-              </div>
-            )}
-
-            {isEdit && (
-              <MyServiceEdit
-                onClose={onCloseHandler}
-                serviceId={service.id.toString()}
-                closeModelStatus={isEdit}
+          {isOwner && (
+            <div className="flex flex-wrap gap-3">
+              <ActionButton
+                onClick={() => setIsEditModalOpen(true)}
+                icon={FaEdit}
+                text={t("edit_label")}
+                variant="warning"
               />
-            )}
-          </div>
+              <ActionButton
+                onClick={handleDelete}
+                icon={FaTrash}
+                text={t("delete_label")}
+                variant="danger"
+              />
+            </div>
+          )}
+
+          {isEditModalOpen && (
+            <MyServiceEdit
+              onClose={handleEditClose}
+              serviceId={service.id.toString()}
+              closeModelStatus={isEditModalOpen}
+            />
+          )}
         </div>
       </div>
 
       {/* Comments section */}
-      <section className="mt-10 bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
+      <section className="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
+        <h2 className="text-2xl font-bold mb-6 pb-3 border-b border-gray-200 text-gray-800">
           {t("comments_label")} {isLoggedIn && `(${comments.length})`}
         </h2>
 
         {isLoggedIn ? (
-          <>
-            {/* Comments list - Shown only to logged in users */}
-            <CommentsMain comments={comments} refetch={reload} />
-
-            {/* Comment form */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <form onSubmit={submitFormHandler}>
-                <textarea
-                  placeholder={t("write_comment")}
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSubmit();
-                    }
-                  }}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y min-h-[100px]"
-                />
-                <div className="flex justify-end mt-3">
-                  <button
-                    type="submit"
-                    disabled={create_loading}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-300"
-                  >
-                    {create_loading
-                      ? t("posting_label")
-                      : t("post_comment_label")}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </>
-        ) : (
-          <div className="bg-blue-50 border border-blue-100 p-6 rounded-lg text-center">
-            <div className="flex flex-col items-center justify-center space-y-4">
-              <div className="text-blue-700 bg-blue-100 p-3 rounded-full">
-                <FaSignInAlt size={24} />
-              </div>
-              <h3 className="text-lg font-medium text-blue-800">
-                {t("comments_visibility_notice")}
-              </h3>
-              <p className="text-blue-600 mb-2">{t("login_prompt")}</p>
-              <Link
-                to="/login"
-                className="inline-flex items-center px-5 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
-              >
-                <FaSignInAlt className="mr-2" />
-                {t("login")}
-              </Link>
-            </div>
+          <div className="space-y-6">
+            <CommentsMain comments={comments} refetch={refetchComments} />
+            <CommentForm
+              text={commentText}
+              setText={setCommentText}
+              onSubmit={handleCommentSubmit}
+              isLoading={isCreatingComment}
+              placeholder={t("write_comment")}
+            />
           </div>
+        ) : (
+          <LoginPrompt
+            message={t("comments_visibility_notice")}
+            loginText={t("login")}
+          />
         )}
       </section>
 
-      {/* Recommended services section */}
-      <section className="mt-10 bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-xl font-bold mb-4">{t("recommended_services")}</h3>
-        <div className="bg-gray-50 p-4 rounded-lg text-center text-gray-500">
-          {t("coming_soon")}
+      {/* Recommended services */}
+      <section className="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
+        <h3 className="text-2xl font-bold mb-6 text-gray-800">{t("recommended_services")}</h3>
+        <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-8 rounded-xl text-center text-gray-500 border border-gray-100">
+          <div className="text-lg font-medium">{t("coming_soon")}</div>
         </div>
       </section>
     </div>
