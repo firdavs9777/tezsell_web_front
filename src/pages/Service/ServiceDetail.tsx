@@ -221,8 +221,10 @@ const CommentForm = ({
   onSubmit: (e: React.FormEvent) => void;
   isLoading: boolean;
   placeholder: string;
-}) => (
-  <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl p-6 border border-gray-100">
+  }) => {
+  const {t} = useTranslation()
+  return (
+    <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl p-6 border border-gray-100">
     <form onSubmit={onSubmit}>
       <textarea
         placeholder={placeholder}
@@ -242,12 +244,13 @@ const CommentForm = ({
           disabled={isLoading || !text.trim()}
           className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
         >
-          {isLoading ? "Posting..." : "Post Comment"}
+          {isLoading ? t("posting_label") : t("post_comment_label") }
         </button>
       </div>
     </form>
   </div>
-);
+  )
+}
 
 const LoginPrompt = ({ message, loginText }: { message: string; loginText: string }) => (
   <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 p-8 rounded-xl text-center shadow-sm">
@@ -562,8 +565,6 @@ const ServiceDetail = () => {
           />
         )}
       </section>
-
-      {/* Recommended services */}
       <section className="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
         <h3 className="text-2xl font-bold mb-6 text-gray-800">{t("recommended_services")}</h3>
         <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-8 rounded-xl text-center text-gray-500 border border-gray-100">

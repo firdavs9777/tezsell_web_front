@@ -188,6 +188,7 @@
   "comments_label":"Comments", 
   "write_comment": "Write a comment ...",
     "posting_label": "Posting...",
+    "comment_created": "Comment created",
   "post_comment_label": "Post Comment",
   "login_prompt": "Please log in to view and post comments.",
   "recommended_services": "Recommended Services",

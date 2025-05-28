@@ -235,7 +235,8 @@
     "description": "O'zbekiston uchun yanada yaxshiroq bozor tajribasini yaratishda ishtirok eting. Fikr-mulohazalaringizni baham ko'ring va o'sishimizga yordam bering!",
     "createAccount": "Hisob yaratish",
     "learnMore": "Ko'proq ma'lumot"
-  }
+  },
+  "comment_created": "Izoh yaratildi"
 
 
 }

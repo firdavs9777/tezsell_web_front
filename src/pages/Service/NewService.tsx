@@ -291,7 +291,7 @@ const NewService = () => {
                 >
                   <span className="text-3xl text-gray-400">+</span>
                   <span className="text-xs text-gray-500 mt-1">
-                    {t("addImage")}
+                    {t("imageUploadHelper")}
                   </span>
                 </div>
               )}
