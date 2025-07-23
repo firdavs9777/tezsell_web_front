@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import {
-  FaCommentAlt, FaMapMarkerAlt, FaUser, FaThumbsUp, FaRegThumbsUp,
+  FaCommentAlt, FaMapMarkerAlt, FaUser,
   FaArrowLeft, FaSignInAlt, FaTrash, FaEdit, FaHeart, FaRegHeart
 } from "react-icons/fa";
 
@@ -49,7 +49,7 @@ const useServiceData = (id: string | undefined, token: string | undefined, isLog
     { token },
     { skip: !isLoggedIn || !token }
   );
-  
+
   const serviceId = serviceQuery.data?.service?.id;
   const commentsQuery = useGetCommentsQuery(
     { serviceId, token },
@@ -94,11 +94,11 @@ const ErrorMessage = ({ message }: { message: string }) => (
   </div>
 );
 
-const ImageGallery = ({ 
-  images, 
-  serviceName, 
-  selectedImage, 
-  onImageSelect 
+const ImageGallery = ({
+  images,
+  serviceName,
+  selectedImage,
+  onImageSelect
 }: {
   images: Array<{ image: string }>;
   serviceName: string;
@@ -138,9 +138,9 @@ const ImageGallery = ({
   </div>
 );
 
-const ServiceOwnerCard = ({ 
-  owner, 
-  location 
+const ServiceOwnerCard = ({
+  owner,
+  location
 }: {
   owner: any;
   location: any;
@@ -174,10 +174,10 @@ const ServiceOwnerCard = ({
   </div>
 );
 
-const ActionButton = ({ 
-  onClick, 
-  icon: Icon, 
-  text, 
+const ActionButton = ({
+  onClick,
+  icon: Icon,
+  text,
   variant = 'primary',
   disabled = false,
   className = ""
@@ -209,12 +209,12 @@ const ActionButton = ({
   );
 };
 
-const CommentForm = ({ 
-  text, 
-  setText, 
-  onSubmit, 
+const CommentForm = ({
+  text,
+  setText,
+  onSubmit,
   isLoading,
-  placeholder 
+  placeholder
 }: {
   text: string;
   setText: (text: string) => void;
@@ -304,8 +304,8 @@ const ServiceDetail = () => {
   // Memoized values
   const service = serviceItem?.service;
   const isOwner = useMemo(() => userId === service?.userName?.id, [userId, service?.userName?.id]);
-  const isLiked = useMemo(() => 
-    service ? isServiceLiked(favoriteItems, service.id) : false, 
+  const isLiked = useMemo(() =>
+    service ? isServiceLiked(favoriteItems, service.id) : false,
     [favoriteItems, service?.id]
   );
 
@@ -408,7 +408,7 @@ const ServiceDetail = () => {
 
   const handleCommentSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!commentText.trim()) {
       toast.info(t("enter_comment"));
       return;

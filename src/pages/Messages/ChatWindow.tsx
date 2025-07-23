@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import { SingleChat } from "@store/slices/chatSlice";
-import { useSelector } from "react-redux";
-import { RootState } from "@store/index";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { SerializedError } from "@reduxjs/toolkit";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { RootState } from "@store/index";
+import { SingleChat } from "@store/slices/chatSlice";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FiPaperclip, FiSend, FiSmile } from "react-icons/fi";
+import { useSelector } from "react-redux";
 
 interface MainChatWindowProps {
   messages: SingleChat;

@@ -54,8 +54,8 @@ const MyServices = () => {
     <div className="space-y-6 p-4">
       <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white mb-6">
         {t("my_services_title")}
-      </h1>{" "}
-      {services?.results?.length ? (
+      </h1>
+            {services?.results?.length ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.results.map((service: Service) => (
             <MyService

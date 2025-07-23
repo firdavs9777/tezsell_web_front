@@ -5,6 +5,7 @@
   "language-en": "English",
   "language-ru": "Russian",
   "language-uz": "Uzbek",
+  "service_liked": "Service liked",
   "support": "Support",
   "register": "Register",
   "login": "Sign In",
@@ -184,8 +185,8 @@
   "product_update_failed":"Prouct update failed",
   "error_updating_product":"Error occured while updating the product",
   "service_back": "Back to services",
-  "like_label": "Like", 
-  "comments_label":"Comments", 
+  "like_label": "Like",
+  "comments_label":"Comments",
   "write_comment": "Write a comment ...",
     "posting_label": "Posting...",
     "comment_created": "Comment created",
@@ -197,7 +198,7 @@
     "service_update_success": "Service updated successfully",
   "service_update_error": "Error updating service item",
    "edit_service_modal_title": "Edit Service",
-   "enter_phone_number_without_code": "Enter phone number without code" ,   
+   "enter_phone_number_without_code": "Enter phone number without code" ,
   "hero": {
     "title": "TezSell",
     "subtitle": "Your Fast & Easy Marketplace for Uzbekistan",
@@ -238,5 +239,4 @@
     "createAccount": "Create Account",
     "learnMore": "Learn More"
   }
-  
 }

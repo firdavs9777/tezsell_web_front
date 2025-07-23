@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { Product } from "@store/type";
 import { BASE_URL } from "@store/constants";
-import { useNavigate } from "react-router-dom";
-import { FaRegThumbsUp, FaThumbsUp } from "react-icons/fa";
-import { IoLocationOutline } from "react-icons/io5";
-import { MdDescription } from "react-icons/md";
-import { useSelector } from "react-redux";
-import { RootState } from "../../store";
 import {
   useGetFavoriteItemsQuery,
   useLikeProductMutation,
   useUnlikeProductMutation,
 } from "@store/slices/productsApiSlice";
-import { ServiceRes } from "../Service/MainProfile";
+import { Product } from "@store/type";
+import React, { useEffect, useState } from "react";
+import { FaRegThumbsUp, FaThumbsUp } from "react-icons/fa";
+import { IoLocationOutline } from "react-icons/io5";
+import { MdDescription } from "react-icons/md";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { RootState } from "../../store";
+import { ServiceRes } from "../Service/MainProfile";
 
 interface SingleProductProps {
   product: Product;
@@ -94,7 +94,6 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
       className="flex flex-col h-full bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
       onClick={() => redirectHandler(product.id)}
     >
-      {/* Product Image */}
       <div className="w-full aspect-square bg-gray-100 relative overflow-hidden">
         {product?.images?.length > 0 ? (
           <img
@@ -108,15 +107,11 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
           </div>
         )}
       </div>
-
-      {/* Product Details */}
-      <div className="p-4 flex flex-col flex-grow">
+  <div className="p-4 flex flex-col flex-grow">
         {/* Price */}
         <h2 className="text-xl font-bold text-blue-600 mb-2">
           {formatPrice(product.price)}
         </h2>
-
-        {/* Title */}
         <div className="flex items-start mb-2">
           <MdDescription
             className="mt-1 mr-2 text-gray-500 min-w-[24px]"
@@ -135,7 +130,6 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
           </span>
         </div>
 
-        {/* Date and Like Button */}
         <div className="flex justify-between items-center mt-auto pt-2 border-t">
           <span className="text-xs text-gray-400">Posted: {formattedDate}</span>
 

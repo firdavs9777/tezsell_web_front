@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 interface FeatureCardProps {
   emoji: string;
@@ -21,7 +21,7 @@ interface HomeProps {
 const Home: React.FC<HomeProps> = () => {
   const [isVisible, setIsVisible] = useState(false);
   const navigate = useNavigate();
- 
+
   const {t} = useTranslation()
   useEffect(() => {
     setIsVisible(true);
@@ -43,13 +43,13 @@ const Home: React.FC<HomeProps> = () => {
             {t("hero.subtitle")}
           </p>
           <div className="flex flex-col md:flex-row justify-center gap-4 mb-10">
-            <button 
+            <button
               onClick={() => navigateTo('/new-product')}
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-lg font-semibold transition duration-300 shadow-md"
             >
               {t("hero.startSelling")}
             </button>
-            <button 
+            <button
               onClick={() => navigateTo('/products')}
               className="bg-yellow-400 hover:bg-yellow-500 text-blue-900 px-8 py-3 rounded-lg text-lg font-semibold transition duration-300 shadow-md"
             >
@@ -63,8 +63,8 @@ const Home: React.FC<HomeProps> = () => {
             <div className="flex items-center justify-center h-full">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4">
                 {[1, 2, 3, 4, 5, 6].map((item) => (
-                  <div 
-                    key={item} 
+                  <div
+                    key={item}
                     className="bg-white p-2 rounded-lg shadow-md h-24 md:h-32 flex items-center justify-center"
                   >
                     <div className="w-full h-full bg-gray-200 rounded animate-pulse"></div>
@@ -83,19 +83,19 @@ const Home: React.FC<HomeProps> = () => {
           <h2 className="text-3xl font-bold text-center text-blue-900 mb-12">
             {t("features.title")}
           </h2>
-          
+
           <div className="grid md:grid-cols-3 gap-8">
-            <FeatureCard 
+            <FeatureCard
               emoji="🔍"
               title={t("features.listing.title")}
               description={t("features.listing.description")}
             />
-            <FeatureCard 
+            <FeatureCard
               emoji="📍"
               title={t("features.location.title")}
               description={t("features.location.description")}
             />
-            <FeatureCard 
+            <FeatureCard
               emoji="📂"
               title={t("features.category.title")}
               description={t("features.category.description")}
@@ -104,59 +104,32 @@ const Home: React.FC<HomeProps> = () => {
         </div>
       </section>
 
-      {/* Inspiration Section */}
-      <section className="py-16 px-4 bg-gray-50">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center gap-8">
-            <div className="md:w-1/2">
-              <h2 className="text-3xl font-bold text-blue-900 mb-6">
-                {t("inspiration.title")}
-              </h2>
-              <p className="text-lg text-gray-700 mb-6">
-                {t("inspiration.description1")}
-              </p>
-              <p className="text-lg text-gray-700">
-                {t("inspiration.description2")}
-              </p>
-            </div>
-            <div className="md:w-1/2 bg-gradient-to-br from-yellow-100 to-blue-100 p-8 rounded-xl shadow-lg">
-              <div className="aspect-video bg-white rounded-lg shadow flex items-center justify-center">
-                <div className="text-center p-4">
-                  <span className="block text-6xl mb-4">🥕</span>
-                  <span className="block text-xl font-semibold text-blue-900">{t("hero.title")}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Coming Soon Section */}
       <section className="py-16 px-4 bg-blue-900 text-white">
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-10">
             {t("comingSoon.title")}
           </h2>
-          
+
           <div className="grid md:grid-cols-3 gap-8 mb-12">
-            <ComingSoonCard 
+            <ComingSoonCard
               emoji="💬"
               title={t("comingSoon.chat")}
               badge={t("comingSoon.badge")}
             />
-            <ComingSoonCard 
+            <ComingSoonCard
               emoji="🛡️"
               title={t("comingSoon.transactions")}
               badge={t("comingSoon.badge")}
             />
-            <ComingSoonCard 
+            <ComingSoonCard
               emoji="🏢"
               title={t("comingSoon.realEstate")}
               badge={t("comingSoon.badge")}
             />
           </div>
-          
-          <button 
+
+          <button
             onClick={() => navigateTo('/updates')}
             className="inline-flex items-center bg-yellow-400 hover:bg-yellow-500 text-blue-900 px-6 py-3 rounded-lg text-lg font-semibold transition duration-300"
           >
@@ -176,13 +149,13 @@ const Home: React.FC<HomeProps> = () => {
             {t("cta.description")}
           </p>
           <div className="flex flex-col md:flex-row justify-center gap-4">
-            <button 
+            <button
               onClick={() => navigateTo('/register')}
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-lg font-semibold transition duration-300 shadow-md"
             >
               {t("cta.createAccount")}
             </button>
-            <button 
+            <button
               onClick={() => navigateTo('/about')}
               className="bg-white hover:bg-gray-100 text-blue-900 px-8 py-3 rounded-lg text-lg font-semibold transition duration-300 shadow-md"
             >

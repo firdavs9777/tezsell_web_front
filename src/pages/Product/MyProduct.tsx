@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import { RootState } from "@store/index";
+import { useDeleteUserProductMutation } from "@store/slices/users";
 import { Product } from "@store/type";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   FaEdit,
   FaPlus,
@@ -11,17 +13,15 @@ import {
 import { IoLocationOutline } from "react-icons/io5";
 import { MdDescription } from "react-icons/md";
 import { useSelector } from "react-redux";
-import { RootState } from "@store/index";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import {
   useGetFavoriteItemsQuery,
   useLikeProductMutation,
   useUnlikeProductMutation,
 } from "../../store/slices/productsApiSlice";
-import { ServiceRes } from "../Service/MainProfile";
-import { toast } from "react-toastify";
 import MyProductEdit from "../Product/ProductEdit";
-import { useDeleteUserProductMutation } from "@store/slices/users";
-
+import { ServiceRes } from "../Service/MainProfile";
 interface SingleProductProps {
   product: Product;
   refresh: () => void;
@@ -32,6 +32,7 @@ const MyProduct: React.FC<SingleProductProps> = ({ product, refresh }) => {
   const [isEdit, setIsEdit] = useState(false);
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
+  const {t} = useTranslation()
 
   const { data: favorite_items, refetch: reload } = useGetFavoriteItemsQuery({
     token,
@@ -59,7 +60,7 @@ const MyProduct: React.FC<SingleProductProps> = ({ product, refresh }) => {
     try {
       const response = await likeProduct({ productId: product.id, token });
       if (response.data) {
-        toast.success("Product liked successfully", { autoClose: 1000 });
+        toast.success("", { autoClose: 1000 });
         reload();
       }
     } catch (error: unknown) {
@@ -73,7 +74,7 @@ const MyProduct: React.FC<SingleProductProps> = ({ product, refresh }) => {
     try {
       const response = await dislikeProduct({ productId: product.id, token });
       if (response.data) {
-        toast.success("Product disliked successfully", { autoClose: 1000 });
+        toast.success(t("productLikeSuccess"), { autoClose: 1000 });
         reload();
       }
     } catch (error: unknown) {
@@ -90,10 +91,10 @@ const MyProduct: React.FC<SingleProductProps> = ({ product, refresh }) => {
   };
 
   const deleteProductHandler = async () => {
-    if (window.confirm("Are you sure you want to delete this product?")) {
+    if (window.confirm(t("delete_confirmation_product"))) {
       try {
         await deleteProduct({ productId: product.id, token });
-        toast.success("Product deleted successfully");
+        toast.success(t("product_delete_success"), {autoClose: 1000});
         refresh();
       } catch {
         toast.error("Error occurred while deleting the product");
