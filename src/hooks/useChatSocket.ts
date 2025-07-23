@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface MessageData {
   id: number;
@@ -29,7 +29,7 @@ export function useChatSocket({
   const messageQueue = useRef<Array<string>>([]);
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
-  const reconnectInterval = useRef<NodeJS.Timeout>();
+const reconnectInterval = useRef<ReturnType<typeof setTimeout>>();
   const isConnecting = useRef(false);
 
   const processQueue = useCallback(() => {
@@ -46,12 +46,12 @@ export function useChatSocket({
   const handleMessage = useCallback((event: MessageEvent) => {
     try {
       const data = JSON.parse(event.data);
-      
+
       if (data.type === "connection_established") {
         console.log("WebSocket connection confirmed by server");
         return;
       }
-      
+
       if (data.type === "message" && data.data) {
         onMessage(data.data);
       } else if (data.type === "error") {
@@ -70,7 +70,7 @@ export function useChatSocket({
     }
 
     isConnecting.current = true;
-    
+
     // Clear any existing reconnection attempts
     if (reconnectInterval.current) {
       clearTimeout(reconnectInterval.current);
@@ -86,13 +86,13 @@ export function useChatSocket({
       setIsConnected(true);
       reconnectAttempts.current = 0;
       isConnecting.current = false;
-      
+
       // Send authentication token immediately
-      socket.send(JSON.stringify({ 
+      socket.send(JSON.stringify({
         type: "authenticate",
         token: token
       }));
-      
+
       // Process any queued messages
       processQueue();
     };
@@ -143,12 +143,12 @@ export function useChatSocket({
     } else {
       messageQueue.current.push(message);
       console.warn("Message queued - connection not ready");
-      
+
       // If not connected and not already trying to connect, attempt connection
       if (!isConnected && !isConnecting.current) {
         connect();
       }
-      
+
       return false;
     }
   }, [onError, isConnected, connect]);
@@ -175,8 +175,8 @@ export function useChatSocket({
     };
   }, [chatId, token, connect]);
 
-  return { 
-    sendMessage, 
+  return {
+    sendMessage,
     isConnected,
     disconnect: () => {
       if (socketRef.current) {

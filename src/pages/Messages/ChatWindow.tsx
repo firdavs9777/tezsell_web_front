@@ -58,7 +58,8 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const reconnectAttempt = useRef(0);
   const maxReconnectAttempts = 5;
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const reconnectTimeoutRef = useRef<number | null>(null);
+
 
   const connectWebSocket = useCallback(() => {
     if (!chatId || !token) {
@@ -78,7 +79,7 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
     }
 
     const socket = new WebSocket(
-      `wss://api.tezsell.com/ws/chat/${chatId}/?token=${token}`
+      `wss://api.webtezsell.com/ws/chat/${chatId}/?token=${token}`
     );
     socketRef.current = socket;
 

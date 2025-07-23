@@ -50,7 +50,8 @@ const useServiceData = (id: string | undefined, token: string | undefined, isLog
     { skip: !isLoggedIn || !token }
   );
 
-  const serviceId = serviceQuery.data?.service?.id;
+const serviceId = (serviceQuery.data as any)?.service?.id;
+
   const commentsQuery = useGetCommentsQuery(
     { serviceId, token },
     { skip: !isLoggedIn || !serviceId || !token }
@@ -68,10 +69,11 @@ const useServiceData = (id: string | undefined, token: string | undefined, isLog
   };
 };
 
-// Utility functions
+
 const getCategoryName = (category: Category, language: string): string => {
   const langKey = `name_${language}` as keyof Category;
-  return category[langKey] || category.name_en || "";
+  const value = category[langKey];
+  return (value?.toString() || category.name_en || "");
 };
 
 const isServiceLiked = (favoriteItems: ServiceRes | undefined, serviceId: number): boolean => {
