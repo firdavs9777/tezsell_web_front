@@ -1,8 +1,10 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { RootState } from "../../store";
-import { useTranslation } from "react-i18next";
+import { BASE_URL } from "@store/constants";
+import { RootState } from "@store/index";
+import {
+  useGetDistrictsListQuery,
+  useGetFavoriteItemsQuery,
+  useGetRegionsListQuery,
+} from "@store/slices/productsApiSlice";
 import {
   useGetLoggedinUserInfoQuery,
   useGetUserProductsQuery,
@@ -10,34 +12,32 @@ import {
   useUpdateLoggedUserInfoMutation,
 } from "@store/slices/users";
 import {
-  useGetDistrictsListQuery,
-  useGetFavoriteItemsQuery,
-  useGetRegionsListQuery,
-} from "@store/slices/productsApiSlice";
-import { BASE_URL } from "@store/constants";
-import {
+  DistrictsList,
   Product,
   ProductResponse,
-  ServiceResponse,
-  Service,
-  UserInfo,
   RegionsList,
-  DistrictsList,
+  Service,
+  ServiceResponse,
+  UserInfo,
 } from "@store/type";
+import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
-import Modal from "../../components/Modal";
-import { toast } from "react-toastify";
+import Modal from "@components/Modal";
 import {
-  FaUser,
+  FaAngleRight,
+  FaCamera,
+  FaHeart,
+  FaMapMarkerAlt,
   FaPen,
   FaPlus,
-  FaCamera,
-  FaMapMarkerAlt,
-  FaAngleRight,
-  FaHeart,
-  FaToolbox,
   FaShoppingBag,
+  FaToolbox,
+  FaUser,
 } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 export interface ServiceRes {
   liked_services: Service[];

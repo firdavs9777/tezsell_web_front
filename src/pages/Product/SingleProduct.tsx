@@ -1,4 +1,6 @@
+import { ServiceRes } from "@services/MainProfile";
 import { BASE_URL } from "@store/constants";
+import { RootState } from "@store/index";
 import {
   useGetFavoriteItemsQuery,
   useLikeProductMutation,
@@ -12,8 +14,6 @@ import { MdDescription } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { RootState } from "../../store";
-import { ServiceRes } from "../Service/MainProfile";
 
 interface SingleProductProps {
   product: Product;

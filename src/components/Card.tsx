@@ -1,5 +1,5 @@
+import " @components/Card.css";
 import React from "react";
-import "./Card.css";
 
 interface CardProps {
   children: React.ReactNode;

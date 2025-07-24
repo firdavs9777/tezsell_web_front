@@ -8,13 +8,18 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-    "@assets/*": ["src/assets/*"],
-    "@components/*": ["src/components/*"],
-    "@pages/*": ["src/pages/*"],
-    "@hooks/*": ["src/hooks/*"],
-    "@utils/*": ["src/utils/*"],
-    "@styles/*": ["src/styles/*"],
-    "@store/*": ["src/store/*"]
+      "@assets/*": ["src/assets/*"],
+      "@components/*": ["src/components/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@pages/*": ["src/pages/*"],
+      "@routes/*": ["src/routes/*"],
+      "@store/*": ["src/store/*"],
+      "@styles/*": ["src/styles/*"],
+      "@utils/*": ["src/utils/*"],
+      "@products/*": ["src/pages/Product/*"],
+      "@services/*": ["src/pages/Service/*"],
+      "@chats/*": ["src/pages/Messages/*"],
+      "@authentication/*": ["src/pages/Authentication/*"]
     },
 
     /* Bundler mode */

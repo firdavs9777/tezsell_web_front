@@ -1,7 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import MainChatRoom from "./ChatRoom";
-import MainChatWindow from "./ChatWindow";
+import { useChatSocket } from "@hooks/useChatSocket";
+import MainChatWindow from "@pages/Messages/ChatWindow";
+import { RootState } from "@store/index";
 import {
   Chat,
   SingleChat,
@@ -9,10 +8,11 @@ import {
   useGetAllChatMessagesQuery,
   useGetSingleChatMessagesQuery,
 } from "@store/slices/chatSlice";
+import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "@store/index";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useChatSocket } from "../../hooks/useChatSocket";
+import MainChatRoom from "./ChatRoom";
 
 interface MessageData {
   id: number;

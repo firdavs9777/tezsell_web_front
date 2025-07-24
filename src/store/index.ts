@@ -1,23 +1,23 @@
 // src/store/index.ts
 import { configureStore } from "@reduxjs/toolkit";
-import { apiSlice } from "./slices/apiSlice";
 import {
-  persistStore,
-  persistReducer,
   FLUSH,
-  REHYDRATE,
   PAUSE,
   PERSIST,
+  persistReducer,
+  persistStore,
   PURGE,
   REGISTER,
+  REHYDRATE,
 } from "redux-persist";
+import { apiSlice } from "./slices/apiSlice";
 
-import productsSliceReducer from "./slices/productsApiSlice";
-import servicesSliceReducer from "./slices/serviceApiSlice";
-import authSliceReducer from "./slices/authSlice";
-import commentsSliceReducer from "./slices/commentApiSlice";
+import authSliceReducer from "@store/slices/authSlice";
+import messagesApiSlice from "@store/slices/chatSlice";
+import commentsSliceReducer from "@store/slices/commentApiSlice";
+import productsSliceReducer from "@store/slices/productsApiSlice";
+import servicesSliceReducer from "@store/slices/serviceApiSlice";
 import storage from "redux-persist/lib/storage"; // This uses localStorage
-import messagesApiSlice from "./slices/chatSlice";
 const persistConfig = {
   key: "root", // You can name this as per your app's needs
   storage, // Use localStorage as the storage
@@ -60,4 +60,4 @@ const persistor = persistStore(rootReducer);
 
 export type RootState = ReturnType<typeof rootReducer.getState>;
 
-export { rootReducer, persistor };
+export { persistor, rootReducer };

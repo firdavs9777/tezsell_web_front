@@ -1,11 +1,11 @@
-import Navbar from "./pages/Navbar/Navbar";
+import Footer from "@pages/Footer/Footer";
+import Navbar from "@pages/Navbar/Navbar";
+import RouterPage from "@routes/Router";
+import i18n from "@utils/i18n";
 import { I18nextProvider } from "react-i18next";
 import { BrowserRouter as Router } from "react-router-dom";
-import RouterPage from "./routes/Router";
-import i18n from "./utils/i18n";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Footer from "./pages/Footer/Footer";
 
 function App() {
   return (

@@ -1,13 +1,13 @@
 import {
-  SERVICES_URL,
-  SERVICES_CATEGORY,
-  LIKE_SERVICE,
   DISLIKE_SERVICE,
+  LIKE_SERVICE,
+  SERVICES_CATEGORY,
+  SERVICES_URL,
   USER_FAV_PRODS,
   USER_SERVICE,
-} from "../constants";
+} from "@store/constants";
 
-import { apiSlice } from "./apiSlice";
+import { apiSlice } from "@store/slices/apiSlice";
 
 export const servicessApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder: any) => ({

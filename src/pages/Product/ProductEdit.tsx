@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from "react";
 import Modal from "@components/Modal";
-import {
-  useGetSingleProductQuery,
-  useGetCategoryListQuery,
-} from "@store/slices/productsApiSlice";
-import { SingleProduct, Category } from "../../store/type";
-import { toast } from "react-toastify";
-import { useSelector } from "react-redux";
-import { RootState } from "@store/index";
-import { useUpdateUserProductMutation } from "@store/slices/users";
 import { BASE_URL } from "@store/constants";
+import { RootState } from "@store/index";
+import {
+  useGetCategoryListQuery,
+  useGetSingleProductQuery,
+} from "@store/slices/productsApiSlice";
+import { useUpdateUserProductMutation } from "@store/slices/users";
+import { Category, SingleProduct } from "@store/type";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 interface SingleProductType {
   productId: string;
@@ -32,7 +32,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
 }) => {
   const { t, i18n } = useTranslation();
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
-  
+
   // API queries and mutations
   const {
     data: productData,
@@ -40,13 +40,13 @@ const MyProductEdit: React.FC<SingleProductType> = ({
     error: productError,
     refetch: refetchSingleProduct,
   } = useGetSingleProductQuery(productId);
-  
+
   const {
     data: categoryData,
     isLoading: categoryLoading,
     error: categoryError,
   } = useGetCategoryListQuery({});
-  
+
   const [updateProduct, { isLoading: updateLoading }] = useUpdateUserProductMutation();
 
   // Typed data
@@ -82,7 +82,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
           setCategory(getCategoryName(productCategory));
         }
       }
-      
+
       // Set images
       if (singleProduct.product.images?.length > 0) {
         setExistingImages(
@@ -121,7 +121,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
       toast.error(t("maxImagesError"), { autoClose: 2000 });
       return;
     }
-    
+
     setImageUploading(true);
     const previews: string[] = [];
     const fileArray: File[] = Array.from(files);
@@ -141,7 +141,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
 
     if (invalidFiles.length > 0) {
       toast.error(t("image_valid_type"), { autoClose: 2000 });
-      
+
       // Filter out invalid files
       const validFiles = fileArray.filter(
         (file) => validFileTypes.includes(file.type) && file.size <= maxFileSize
@@ -293,8 +293,8 @@ const MyProductEdit: React.FC<SingleProductType> = ({
        const selectedCategory = categoryList?.find(
             (item: Category) => getCategoryName(item) === category
           );
-    
-    
+
+
     if (selectedCategory) {
     const selectedCategoryId = selectedCategory.id;
         formData.append("category_id", selectedCategoryId.toString());
@@ -379,7 +379,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
         <h1 className="text-2xl font-bold text-center text-gray-800 mb-6 pt-4">
           {t("edit_product_title")}
         </h1>
-        
+
         <div className="px-6 pb-6">
           <form className="space-y-6" onSubmit={submitFormHandler}>
             {/* Title Input */}
@@ -497,7 +497,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
                 {t("new_product_images")} ({totalVisibleImages}/10)
                 <span className="text-red-500 text-lg font-bold ml-1">*</span>
               </label>
-              
+
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
                 {/* Existing Images */}
                 {existingImages.map(
@@ -564,7 +564,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
                 multiple
                 className="hidden"
               />
-              
+
               <p className="text-xs text-gray-500 mt-1">
                 {t('image_upload_requirements')}
               </p>

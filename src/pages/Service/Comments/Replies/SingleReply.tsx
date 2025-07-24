@@ -1,14 +1,13 @@
+import { Reply } from "@services/Comments/SingleComment";
 import React from "react";
 import { FaUser } from "react-icons/fa";
-import { Reply } from "../SingleComment";
 
 interface SingleReplyProps {
   reply: Reply;
 }
 
 const SingleReply: React.FC<SingleReplyProps> = ({ reply }) => {
-  console.log(reply);
-  console.log("Hereeeeee");
+
   return (
     <div className="mt-3 bg-gray-50 rounded-lg p-3">
       <div className="flex items-start mb-2">

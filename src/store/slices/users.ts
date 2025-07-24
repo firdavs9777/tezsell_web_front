@@ -1,16 +1,16 @@
 import {
-  REGISTER_URL,
+  LOGGED_USER,
   LOGIN_URL,
   LOGOUT_URL,
+  REGISTER_URL,
   SEND_SMS,
-  VERIFY_SMS,
+  SERVICES_URL,
   USER_PRODUCT,
   USER_SERVICE,
-  LOGGED_USER,
-  SERVICES_URL,
-} from "../constants";
-import { LoginInfo, RegisterInfo } from "../type";
-import { apiSlice } from "./apiSlice";
+  VERIFY_SMS,
+} from "@store/constants";
+import { apiSlice } from "@store/slices/apiSlice";
+import { LoginInfo, RegisterInfo } from "@store/type";
 
 export const usersApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder: any) => ({

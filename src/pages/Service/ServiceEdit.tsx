@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from "react";
-import Modal from "../../components/Modal";
-import { Category, SingleService } from "@store/type";
-import { toast } from "react-toastify";
-import { useSelector } from "react-redux";
-import { RootState } from "@store/index";
+import Modal from "@components/Modal";
 import { BASE_URL } from "@store/constants";
+import { RootState } from "@store/index";
 import {
   useGetServiceCategoryListQuery,
   useGetSingleServiceQuery,
   useUpdateUserServiceMutation,
 } from "@store/slices/serviceApiSlice";
-import { FaTrash, FaSpinner, FaTimes, FaEdit, FaImage } from "react-icons/fa";
+import { Category, SingleService } from "@store/type";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FaEdit, FaImage, FaSpinner, FaTimes, FaTrash } from "react-icons/fa";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 interface SingleServiceType {
   serviceId: string;

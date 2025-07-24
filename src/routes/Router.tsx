@@ -1,19 +1,19 @@
-import { Route, Routes } from "react-router-dom";
-import Home from "../pages/Home/Home";
-import About from "../pages/About/About";
-import Service from "../pages/Service/Service";
-import Login from "../pages/Authentication/Login/Login";
-import Register from "../pages/Authentication/Register/Register";
-import ProductDetail from "../pages/Product/ProductDetail";
-import NewProduct from "../pages/Product/NewProduct";
-import ServiceDetail from "../pages/Service/ServiceDetail";
-import NewService from "../pages/Service/NewService";
-import MainProfile from "../pages/Service/MainProfile";
-import MyProducts from "../pages/Product/MyProducts";
-import MyServices from "../pages/Service/MyServices";
-import MainChat from "../pages/Messages/MainChat";
+import Login from "@authentication/Login/Login";
+import Register from "@authentication/Register/Register";
+import MainChat from "@chats/MainChat";
+import About from "@pages/About/About";
+import Home from "@pages/Home/Home";
 import ProductScreen from "@pages/Product/Products";
-import ProtectedRoute from "./ProtectRoute";
+import Service from "@pages/Service/Service";
+import MyProducts from "@products/MyProducts";
+import NewProduct from "@products/NewProduct";
+import ProductDetail from "@products/ProductDetail";
+import ProtectedRoute from "@routes/ProtectRoute";
+import MainProfile from "@services/MainProfile";
+import MyServices from "@services/MyServices";
+import NewService from "@services/NewService";
+import ServiceDetail from "@services/ServiceDetail";
+import { Route, Routes } from "react-router-dom";
 
 const Router = () => {
   return (

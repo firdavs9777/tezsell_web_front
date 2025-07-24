@@ -7,9 +7,9 @@ import {
   PRODUCTS_URL,
   REGIONS_URL,
   USER_FAV_PRODS,
-} from "../constants";
+} from "@store/constants";
 
-import { apiSlice } from "./apiSlice";
+import { apiSlice } from "@store/slices/apiSlice";
 // import ProductType  from "../type";
 
 export const productsApiSlice = apiSlice.injectEndpoints({

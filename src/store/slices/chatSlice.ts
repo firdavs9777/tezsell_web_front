@@ -1,6 +1,6 @@
+import { CHAT_MAIN } from "@store/constants";
+import { apiSlice } from "@store/slices/apiSlice";
 import { User } from "@store/type";
-import { CHAT_MAIN } from "../constants";
-import { apiSlice } from "./apiSlice";
 
 export interface Chat {
   id: number;

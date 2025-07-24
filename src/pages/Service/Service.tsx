@@ -1,24 +1,24 @@
-import { useState, useMemo } from "react";
+import Modal from "@components/Modal";
+import Pagination from "@components/Pagination";
+import SingleService from "@services/SingleService";
 import { useGetAllLocationListQuery } from "@store/slices/productsApiSlice";
+import {
+  useGetServiceCategoryListQuery,
+  useGetServicesQuery,
+} from "@store/slices/serviceApiSlice";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { BiCategory } from "react-icons/bi";
+import { FaPlus } from "react-icons/fa";
+import { FaLocationDot } from "react-icons/fa6";
+import { IoSearch } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 import {
   AllLocationList,
   Category,
   Service,
   ServiceResponse,
 } from "../../store/type";
-import { useTranslation } from "react-i18next";
-import SingleService from "./SingleService";
-import Modal from "@components/Modal";
-import { IoSearch } from "react-icons/io5";
-import { BiCategory } from "react-icons/bi";
-import { FaLocationDot } from "react-icons/fa6";
-import Pagination from "@components/Pagination";
-import {
-  useGetServiceCategoryListQuery,
-  useGetServicesQuery,
-} from "@store/slices/serviceApiSlice";
-import { FaPlus } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
 
 const ServiceScreen = () => {
   const [showModal, setShowModal] = useState(false);

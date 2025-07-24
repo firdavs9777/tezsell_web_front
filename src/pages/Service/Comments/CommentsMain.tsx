@@ -1,16 +1,16 @@
+import SingleComment from '@services/Comments/SingleComment';
+import { Comment } from '@store/type';
 import React from 'react';
-import { Comment } from '../../../store/type';
-import SingleComment from './SingleComment';
 import { useTranslation } from "react-i18next";
 
 interface CommentsMainProps {
   comments: Comment[];
-   refetch: () => void; 
+   refetch: () => void;
 }
 
 const CommentsMain: React.FC<CommentsMainProps> = ({ comments, refetch}) => {
    const { t } = useTranslation();
- 
+
   return (
     <div className="mb-6">
       <div className="max-h-96 overflow-y-auto pr-2 custom-scrollbar">

@@ -1,10 +1,10 @@
-import { useSelector } from "react-redux";
-import { useGetUserServicesQuery } from "@store/slices/users";
-import { useTranslation } from "react-i18next";
-import { Service, ServiceResponse } from "@store/type";
-import MyService from "./MyService";
+import MyService from "@services/MyService";
 import { RootState } from "@store/index";
+import { useGetUserServicesQuery } from "@store/slices/users";
+import { Service, ServiceResponse } from "@store/type";
+import { useTranslation } from "react-i18next";
 import { BiLoader } from "react-icons/bi";
+import { useSelector } from "react-redux";
 
 const MyServices = () => {
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);

@@ -28,14 +28,14 @@ import {
 import { useDeleteUserServiceMutation } from "@store/slices/users";
 
 // Components
-import CommentsMain from "./Comments/CommentsMain";
-import MyServiceEdit from "./ServiceEdit";
+import CommentsMain from "@services/Comments/CommentsMain";
+import MyServiceEdit from "@services/ServiceEdit";
 
 // Types and constants
+import { ServiceRes } from "@services/MainProfile";
 import { BASE_URL } from "@store/constants";
+import { RootState } from "@store/index";
 import { Category, Comment, Service, SingleService } from "@store/type";
-import { RootState } from "../../store";
-import { ServiceRes } from "./MainProfile";
 
 // Custom hooks
 const useAuth = () => {

@@ -1,23 +1,23 @@
-import React from "react";
-import { Category, Service } from "@store/type";
+import { ServiceRes } from "@services/MainProfile";
 import { BASE_URL } from "@store/constants";
+import { RootState } from "@store/index";
+import { useGetFavoriteItemsQuery } from "@store/slices/productsApiSlice";
+import {
+  useLikeServiceMutation,
+  useUnlikeServiceMutation,
+} from "@store/slices/serviceApiSlice";
+import { Category, Service } from "@store/type";
+import React from "react";
+import { useTranslation } from "react-i18next";
 import {
   FaComment,
   FaMapMarkerAlt,
   FaRegThumbsUp,
   FaThumbsUp,
 } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { RootState } from "@store/index";
-import { useGetFavoriteItemsQuery } from "@store/slices/productsApiSlice";
-import { ServiceRes } from "./MainProfile";
-import {
-  useLikeServiceMutation,
-  useUnlikeServiceMutation,
-} from "@store/slices/serviceApiSlice";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useTranslation } from "react-i18next";
 interface SingleServiceProps {
   service: Service;
 }
@@ -89,8 +89,8 @@ const SingleService: React.FC<SingleServiceProps> = ({ service }) => {
   };
 
   const isLiked = liked_items?.liked_services?.some((item) => item.id === service.id);
-  const truncatedName = service.name.length > 20 
-    ? `${service.name.substring(0, 26)}` 
+  const truncatedName = service.name.length > 20
+    ? `${service.name.substring(0, 26)}`
     : service.name;
   const truncatedDescription = service.description.length > 34
     ? `${service.description.substring(0, 34)}...`
@@ -101,8 +101,8 @@ const SingleService: React.FC<SingleServiceProps> = ({ service }) => {
   };
   return (
     <div className="flex flex-col overflow-hidden rounded-lg shadow-md bg-white hover:shadow-lg transition-shadow duration-300">
-      <div 
-        className="relative cursor-pointer" 
+      <div
+        className="relative cursor-pointer"
         onClick={() => redirectHandler(service.id)}
       >
         {service.images.length > 0 ? (
@@ -119,21 +119,21 @@ const SingleService: React.FC<SingleServiceProps> = ({ service }) => {
       </div>
 
       <div className="p-4 flex-1 flex flex-col">
-        <span 
+        <span
           className="text-xs font-semibold text-blue-600 uppercase tracking-wide cursor-pointer"
           onClick={() => redirectHandler(service.id)}
         >
           {getCategoryName(service.category)}
         </span>
-        
-        <h2 
+
+        <h2
           className="mt-1 text-lg font-semibold text-gray-900 cursor-pointer"
           onClick={() => redirectHandler(service.id)}
         >
           {truncatedName}
         </h2>
-        
-        <p 
+
+        <p
           className="mt-2 text-sm text-gray-700 font-medium cursor-pointer"
           onClick={() => redirectHandler(service.id)}
         >
@@ -143,14 +143,14 @@ const SingleService: React.FC<SingleServiceProps> = ({ service }) => {
         <div className="mt-3 flex items-center text-sm text-gray-600 cursor-pointer" onClick={() => redirectHandler(service.id)}>
           <FaMapMarkerAlt className="text-gray-500 mr-1" />
           <span>
-            {service.location ? service.location.region : ""} 
+            {service.location ? service.location.region : ""}
             {service.location?.district ? ` - ${service.location.district}` : ""}
           </span>
         </div>
 
         <div className="mt-4 flex items-center space-x-4">
-          <button 
-            className="flex items-center focus:outline-none" 
+          <button
+            className="flex items-center focus:outline-none"
             onClick={isLiked ? handleDislikeService : handleLikeService}
           >
             {isLiked ? (
@@ -159,10 +159,10 @@ const SingleService: React.FC<SingleServiceProps> = ({ service }) => {
               <FaRegThumbsUp className="text-gray-600 hover:text-blue-600" size={20} />
             )}
           </button>
-          
+
           <div className="flex items-center text-gray-600">
-            <FaComment 
-              size={20} 
+            <FaComment
+              size={20}
               className={service.comments.length === 0 ? "text-gray-400" : "text-gray-600"}
             />
             <span className="ml-1">{service.comments.length}</span>

@@ -1,4 +1,9 @@
 import { RootState } from "@store/index";
+import {
+  useGetFavoriteItemsQuery,
+  useLikeProductMutation,
+  useUnlikeProductMutation,
+} from "@store/slices/productsApiSlice";
 import { useDeleteUserProductMutation } from "@store/slices/users";
 import { Product } from "@store/type";
 import React, { useState } from "react";
@@ -15,13 +20,8 @@ import { MdDescription } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import {
-  useGetFavoriteItemsQuery,
-  useLikeProductMutation,
-  useUnlikeProductMutation,
-} from "../../store/slices/productsApiSlice";
-import MyProductEdit from "../Product/ProductEdit";
-import { ServiceRes } from "../Service/MainProfile";
+import MyProductEdit from "@products/ProductEdit";
+import { ServiceRes } from "@services/MainProfile";
 interface SingleProductProps {
   product: Product;
   refresh: () => void;

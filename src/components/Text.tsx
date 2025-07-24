@@ -1,5 +1,5 @@
+import "@components/Text.css";
 import React from "react";
-import "./Text.css";
 
 interface TextProps {
   children: React.ReactNode;

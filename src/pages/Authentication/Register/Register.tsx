@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
+import DistrictSelect from "@pages/Authentication/Register/Steps/DistrictSelect";
 import PhoneNumberVerification from "@pages/Authentication/Register/Steps/PhoneVerification";
 import RegionSelect from "@pages/Authentication/Register/Steps/RegionSelect";
-import DistrictSelect from "@pages/Authentication/Register/Steps/DistrictSelect";
 import SummaryRegister from "@pages/Authentication/Register/Steps/SummaryRegister";
-import { toast } from "react-toastify";
-import { useRegisterUserMutation } from "@store/slices/users";
-import { useLocation, useNavigate } from "react-router-dom";
-import { RegisterInfo } from "@store/type";
-import { useDispatch } from "react-redux";
 import { setCredentials } from "@store/slices/authSlice";
+import { useRegisterUserMutation } from "@store/slices/users";
+import { RegisterInfo } from "@store/type";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useDispatch } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Register = () => {
   const [currentStep, setCurrentStep] = useState(1);

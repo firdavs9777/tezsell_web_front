@@ -3,8 +3,8 @@ import {
   DISLIKE_COMMENT,
   LIKE_COMMENT,
   SERVICES_URL,
-} from "../constants";
-import { apiSlice } from "./apiSlice";
+} from "@store/constants";
+import { apiSlice } from "@store/slices/apiSlice";
 
 export const commentsApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder: any) => ({

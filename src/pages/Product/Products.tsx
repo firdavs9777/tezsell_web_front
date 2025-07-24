@@ -1,26 +1,26 @@
-import { useState, useEffect } from "react";
+import Modal from "@components/Modal";
+import SingleProduct from "@products/SingleProduct";
 import {
   useGetAllLocationListQuery,
   useGetCategoryListQuery,
   useGetProductsQuery,
 } from "@store/slices/productsApiSlice";
-import { useSelector } from "react-redux";
 import {
   AllLocationList,
   Category,
   Product,
   ProductResponse,
 } from "@store/type";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import SingleProduct from "./SingleProduct";
-import Modal from "@components/Modal";
+import { useSelector } from "react-redux";
 
-import { BiCategory } from "react-icons/bi";
-import { FaLocationDot } from "react-icons/fa6";
-import { FaPlus, FaTimes } from "react-icons/fa";
 import Pagination from "@components/Pagination";
-import { useNavigate } from "react-router-dom";
 import { RootState } from "@store/index";
+import { BiCategory } from "react-icons/bi";
+import { FaPlus, FaTimes } from "react-icons/fa";
+import { FaLocationDot } from "react-icons/fa6";
+import { useNavigate } from "react-router-dom";
 
 const ProductScreen = () => {
   // States

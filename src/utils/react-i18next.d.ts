@@ -1,13 +1,13 @@
 // src/types/react-i18next.d.ts
 import 'react-i18next';
 
-import en from '../locales/en.json';
-import rus from '../locales/rus.json';
-import uz from '../locales/uz.json';
+import en from '@utils/locales/en.json';
+import rus from '@utils/locales/rus.json';
+import uz from '@utils/locales/uz.json';
 
 declare module 'react-i18next' {
   interface CustomTypeOptions {
-    defaultNS: 'translation'; 
+    defaultNS: 'translation';
     resources: {
       en: typeof en;
       rus: typeof rus;

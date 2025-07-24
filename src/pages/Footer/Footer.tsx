@@ -1,18 +1,18 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
+  FaApple,
   FaFacebookF,
-  FaTwitter,
+  FaGooglePlay,
   FaInstagram,
   FaLinkedinIn,
-  FaApple,
-  FaGooglePlay,
+  FaTwitter,
 } from "react-icons/fa";
 import QRCode from "react-qr-code";
 import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 
 const Footer: React.FC = () => {
-  const qrCodeValue = "https://www.tezsell.com";
+  const qrCodeValue = "https://www.webtezsell.com";
   const { t } = useTranslation();
 
   return (

@@ -1,5 +1,5 @@
+import '@components/Pagination.css';
 import React from 'react';
-import './Pagination.css'
 import { useTranslation } from 'react-i18next';
 interface PaginationProps {
   currentPage: number;

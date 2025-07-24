@@ -1,5 +1,5 @@
+import '@components/Modal.css';
 import React from 'react';
-import './Modal.css'; 
 import { IoClose } from 'react-icons/io5';
 
 interface ModalProps {
@@ -18,7 +18,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
           <IoClose size={24} />
         </button>
         {children}
-      
+
       </div>
     </div>
   );

@@ -12,7 +12,7 @@ import {
   FaTrash,
 } from "react-icons/fa";
 import { BASE_URL } from "@store/constants";
-import MainReply from "./Replies/MainReply";
+import MainReply from "@services/Comments/Replies/MainReply";
 import {
   useCreateReplyMutation,
   useGetRepliesQuery,

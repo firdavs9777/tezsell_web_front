@@ -1,9 +1,18 @@
-import { Category, Service } from "../../store/type";
+import { Category, Service } from "@store/type";
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 
+import { ServiceRes } from "@services/MainProfile";
+import MyServiceEdit from "@services/ServiceEdit";
+import { RootState } from "@store/index";
+import { useGetFavoriteItemsQuery } from "@store/slices/productsApiSlice";
+import {
+  useLikeServiceMutation,
+  useUnlikeServiceMutation,
+} from "@store/slices/serviceApiSlice";
+import { useDeleteUserServiceMutation } from "@store/slices/users";
 import {
   FaComment,
   FaEdit,
@@ -13,16 +22,7 @@ import {
   FaThumbsUp,
   FaTrash,
 } from "react-icons/fa";
-import { ServiceRes } from "./MainProfile";
-import { useGetFavoriteItemsQuery } from "../../store/slices/productsApiSlice";
 import { toast } from "react-toastify";
-import {
-  useLikeServiceMutation,
-  useUnlikeServiceMutation,
-} from "../../store/slices/serviceApiSlice";
-import MyServiceEdit from "./ServiceEdit";
-import { RootState } from "@store/index";
-import { useDeleteUserServiceMutation } from "@store/slices/users";
 
 interface SingleServiceProps {
   service: Service;

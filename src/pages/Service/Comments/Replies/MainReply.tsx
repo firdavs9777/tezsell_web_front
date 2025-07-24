@@ -1,6 +1,6 @@
+import SingleReply from "@services/Comments/Replies/SingleReply"; // make sure path is correct
+import { Reply } from "@services/Comments/SingleComment";
 import React from "react";
-import SingleReply from "./SingleReply"; // make sure path is correct
-import { Reply } from "../SingleComment";
 
 interface MainReplyProps {
   replies: Reply[];
