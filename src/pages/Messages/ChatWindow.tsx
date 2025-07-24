@@ -58,7 +58,7 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const reconnectAttempt = useRef(0);
   const maxReconnectAttempts = 5;
-  const reconnectTimeoutRef = useRef<number | null>(null);
+  const reconnectTimeoutRef = useRef<ReturnType <typeof setTimeout> | null>(null);
 
 
   const connectWebSocket = useCallback(() => {
