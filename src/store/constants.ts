@@ -1,4 +1,6 @@
-export const BASE_URL = "https://api.webtezsell.com";
+export const BASE_URL = process.env.NODE_ENV === 'production'
+  ? '/api'
+  : 'https://api.webtezsell.com';
 // export const BASE_URL = "http://127.0.0.1:8000";
 export const PRODUCTS_URL = "/products/api/products";
 export const SERVICES_URL = "/services/api/services";

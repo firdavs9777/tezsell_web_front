@@ -1,25 +1,30 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { useEffect, useState, useCallback, useMemo } from "react";
-import { useSelector } from "react-redux";
-import { toast } from "react-toastify";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  FaCommentAlt, FaMapMarkerAlt, FaUser,
-  FaArrowLeft, FaSignInAlt, FaTrash, FaEdit, FaHeart, FaRegHeart
+  FaArrowLeft,
+  FaCommentAlt,
+  FaEdit, FaHeart,
+  FaMapMarkerAlt,
+  FaRegHeart,
+  FaSignInAlt, FaTrash,
+  FaUser
 } from "react-icons/fa";
+import { useSelector } from "react-redux";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 // API hooks
+import { useCreateChatRoomMutation } from "@store/slices/chatSlice";
+import {
+  useCreateCommentMutation,
+  useGetCommentsQuery,
+} from "@store/slices/commentApiSlice";
 import {
   useGetFavoriteItemsQuery,
   useGetSingleServiceQuery,
   useLikeServiceMutation,
   useUnlikeServiceMutation,
 } from "@store/slices/serviceApiSlice";
-import {
-  useCreateCommentMutation,
-  useGetCommentsQuery,
-} from "@store/slices/commentApiSlice";
-import { useCreateChatRoomMutation } from "@store/slices/chatSlice";
 import { useDeleteUserServiceMutation } from "@store/slices/users";
 
 // Components
@@ -348,7 +353,7 @@ const ServiceDetail = () => {
         refetchComments();
         refetchFavorites();
       }
-    } catch (error) {
+    } catch (error: unknown) {
       toast.error(t("error_occurred"), { autoClose: 2000 });
     }
   }, [isLoggedIn, service, isLiked, likeService, dislikeService, token, navigate, refetchService, refetchComments, refetchFavorites, t]);
@@ -432,7 +437,7 @@ const ServiceDetail = () => {
       } else {
         toast.error(t("comment_creation_error"));
       }
-    } catch (error) {
+    } catch (error: unknown) {
       toast.error(t("error_occurred"));
     }
   }, [commentText, service, createComment, token, refetchComments, t]);
@@ -444,8 +449,6 @@ const ServiceDetail = () => {
     }
     setIsEditModalOpen(false);
   }, [refetchService, service?.images]);
-
-  // Loading state
   if (isServiceLoading) {
     return <LoadingSpinner message={t("loading")} />;
   }
@@ -457,7 +460,6 @@ const ServiceDetail = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 md:px-6 lg:px-8 space-y-8">
-      {/* Back button */}
       <Link
         to="/service"
         className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors font-medium hover:bg-blue-50 px-3 py-2 rounded-lg"
@@ -465,10 +467,7 @@ const ServiceDetail = () => {
         <FaArrowLeft className="text-sm" />
         <span>{t("service_back")}</span>
       </Link>
-
-      {/* Main content */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Images */}
         <ImageGallery
           images={service.images}
           serviceName={service.name}

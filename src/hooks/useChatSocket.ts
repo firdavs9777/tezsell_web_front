@@ -46,12 +46,10 @@ const reconnectInterval = useRef<ReturnType<typeof setTimeout>>();
   const handleMessage = useCallback((event: MessageEvent) => {
     try {
       const data = JSON.parse(event.data);
-
       if (data.type === "connection_established") {
         console.log("WebSocket connection confirmed by server");
         return;
       }
-
       if (data.type === "message" && data.data) {
         onMessage(data.data);
       } else if (data.type === "error") {
@@ -68,9 +66,7 @@ const reconnectInterval = useRef<ReturnType<typeof setTimeout>>();
     if (isConnecting.current || !chatId || !token) {
       return;
     }
-
     isConnecting.current = true;
-
     // Clear any existing reconnection attempts
     if (reconnectInterval.current) {
       clearTimeout(reconnectInterval.current);
