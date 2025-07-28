@@ -1,32 +1,32 @@
-import React, { useState } from "react";
-import { Comment } from "@store/type";
-import {
-  FaUser,
-  FaReply,
-  FaChevronDown,
-  FaChevronUp,
-  FaThumbsUp,
-  FaRegThumbsUp,
-  FaEllipsisV,
-  FaEdit,
-  FaTrash,
-} from "react-icons/fa";
-import { BASE_URL } from "@store/constants";
+import { ServiceRes } from "@pages/Service/MainProfile";
 import MainReply from "@services/Comments/Replies/MainReply";
+import { BASE_URL } from "@store/constants";
+import { RootState } from "@store/index";
 import {
   useCreateReplyMutation,
+  useDeleteCommentItemMutation,
   useGetRepliesQuery,
   useLikeCommentMutation,
   useUnlikeCommentMutation,
   useUpdateCommentItemMutation,
-  useDeleteCommentItemMutation,
 } from "@store/slices/commentApiSlice";
-import { useSelector } from "react-redux";
-import { RootState } from "@store/index";
-import { toast } from "react-toastify";
 import { useGetFavoriteItemsQuery } from "@store/slices/productsApiSlice";
-import { ServiceRes } from "@pages/Service/MainProfile";
+import { Comment } from "@store/type";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  FaChevronDown,
+  FaChevronUp,
+  FaEdit,
+  FaEllipsisV,
+  FaRegThumbsUp,
+  FaReply,
+  FaThumbsUp,
+  FaTrash,
+  FaUser,
+} from "react-icons/fa";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 interface SingleCommentProps {
   comment: Comment;
@@ -305,7 +305,6 @@ const SingleComment: React.FC<SingleCommentProps> = ({
           {new Date(comment.created_at).toLocaleString()}
         </div>
 
-        {/* Comment options menu for edit/delete */}
         {isCommentOwner && (
           <div className="relative ml-2" ref={optionsRef}>
             <button
@@ -341,7 +340,6 @@ const SingleComment: React.FC<SingleCommentProps> = ({
         )}
       </div>
 
-      {/* Comment text or edit form */}
       {isEditing ? (
         <div className="mb-4">
           <textarea
@@ -456,7 +454,8 @@ const SingleComment: React.FC<SingleCommentProps> = ({
       )}
 
       {showReplies && replies.length > 0 && (
-        <MainReply replies={replies} showReplies={showReplies} />
+        <MainReply replies={replies} showReplies={showReplies}  onReplyUpdate={refetch}
+    onReplyDelete={refetch}  />
       )}
     </div>
   );

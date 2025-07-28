@@ -237,5 +237,14 @@
     "learnMore": "Ko'proq ma'lumot"
   },
   "comment_created": "Izoh yaratildi",
-  "service_liked": "Xizmat yoqdi"
+  "service_liked": "Xizmat yoqdi",
+  "reply_update_success": "Javob muvaffaqiyatli yangilandi",
+  "reply_update_error": "Javobni yangilashda xatolik",
+  "reply_delete_success": "Javob muvaffaqiyatli o'chirildi",
+  "reply_delete_error": "Javobni o'chirishda xatolik",
+  "reply_delete_confirmation": "Haqiqatan ham bu javobni o'chirmoqchimisiz?",
+  "authentication_required": "Autentifikatsiya talab qilinadi",
+  "enter_valid_reply": "Iltimos, to'g'ri javob matnini kiriting",
+  "saving": "Saqlanmoqda...",
+  "deleting": "O'chirilmoqda..."
 }

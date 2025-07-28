@@ -25,4 +25,5 @@ export const DISLIKE_PRODUCT = "/global/unlike/product/";
 export const DISLIKE_COMMENT = "/global/unlike/comment/";
 export const LIKE_SERVICE = "/global/like/service/";
 export const DISLIKE_SERVICE = "/global/unlike/service/";
+export const REPLIES_DETAIL = '/services/api/replies'
 export const CHAT_MAIN = "/chats";

@@ -235,5 +235,15 @@
     "learnMore": "Узнать больше"
   },
   "comment_created": "Комментарий создан",
-  "service_liked": "Сервис понравился"
+  "service_liked": "Сервис понравился",
+
+  "reply_update_success": "Ответ успешно обновлен",
+  "reply_update_error": "Не удалось обновить ответ",
+  "reply_delete_success": "Ответ успешно удален",
+  "reply_delete_error": "Не удалось удалить ответ",
+  "reply_delete_confirmation": "Вы уверены, что хотите удалить этот ответ?",
+  "authentication_required": "Требуется аутентификация",
+  "enter_valid_reply": "Пожалуйста, введите корректный текст ответа",
+  "saving": "Сохранение...",
+  "deleting": "Удаление..."
 }

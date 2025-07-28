@@ -2,6 +2,7 @@ import {
   COMMENTS_URL,
   DISLIKE_COMMENT,
   LIKE_COMMENT,
+  REPLIES_DETAIL,
   SERVICES_URL,
 } from "@store/constants";
 import { apiSlice } from "@store/slices/apiSlice";
@@ -113,6 +114,43 @@ export const commentsApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: ["Comment"],
     }),
+     updateReplyItem: builder.mutation({
+      query: ({
+        text,
+        token,
+        replyId,
+      }: {
+        text: string;
+        token: string;
+        replyId: string;
+      }) => ({
+        url: `${REPLIES_DETAIL}/${replyId}/`,
+        method: "PUT",
+        headers: {
+          Authorization: `Token ${token}`, // Add token to the Authorization header
+        },
+        body: { text },
+      }),
+      keepUnusedDataFor: 5,
+      provideTags: ["Comment"],
+    }),
+        deleteReplyItem: builder.mutation({
+      query: ({
+        replyId,
+        token,
+      }: {
+        replyId: string;
+        token: string;
+      }) => ({
+      url: `${REPLIES_DETAIL}/${replyId}/`,
+        method: "DELETE",
+        headers: {
+          Authorization: `Token ${token}`, // Add token to the Authorization header
+        },
+      }),
+      keepUnusedDataFor: 5,
+      provideTags: ["Comment"],
+    }),
     likeComment: builder.mutation({
       query: ({ commentId, token }: { commentId: string; token: string }) => {
         return {
@@ -151,5 +189,7 @@ export const {
   useUnlikeCommentMutation,
   useGetRepliesQuery,
   useCreateReplyMutation,
+  useUpdateReplyItemMutation,
+  useDeleteReplyItemMutation
 } = commentsApiSlice;
 export default commentsApiSlice.reducer;

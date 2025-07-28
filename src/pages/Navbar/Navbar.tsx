@@ -1,34 +1,34 @@
-import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import {
-  FaGlobe,
-  FaInfoCircle,
-  FaServicestack,
-  FaRegHandshake,
-  FaPowerOff,
-  FaEnvelope,
-  FaUser,
-  FaThList,
-  FaBoxOpen,
-  FaProductHunt,
-} from "react-icons/fa";
-import { FaUserPlus } from "react-icons/fa6";
+import { BASE_URL } from "@store/constants";
+import { RootState } from "@store/index";
+import { logout } from "@store/slices/authSlice";
 import {
   useGetLoggedinUserInfoQuery,
   useLogoutUserMutation,
 } from "@store/slices/users";
-import { logout } from "@store/slices/authSlice";
-import { RootState } from "@store/index";
-import { BASE_URL } from "@store/constants";
 import { UserInfo } from "@store/type";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  FaBoxOpen,
+  FaEnvelope,
+  FaGlobe,
+  FaInfoCircle,
+  FaPowerOff,
+  FaProductHunt,
+  FaRegHandshake,
+  FaServicestack,
+  FaThList,
+  FaUser,
+} from "react-icons/fa";
+import { FaUserPlus } from "react-icons/fa6";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const Navbar = () => {
   const [activeLink, setActiveLink] = useState("/login");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const location = useLocation(); 
+  const location = useLocation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isProfileDropDownOpen, setIsProfileDropDownOpen] = useState(false);
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
@@ -82,6 +82,7 @@ const Navbar = () => {
     try {
       await logoutApiCall(userInfo?.token).unwrap();
       dispatch(logout(userInfo));
+      localStorage.clear();
       navigate("/login");
       toast.success("Logged out successfully", { autoClose: 2000 });
     } catch {
