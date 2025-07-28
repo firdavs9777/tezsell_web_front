@@ -14,6 +14,16 @@ interface SingleReplyProps {
   onReplyDelete?: () => void;
 }
 
+// Define proper error types for RTK Query
+interface RTKQueryError {
+  data?: {
+    message?: string;
+    [key: string]: any;
+  };
+  error?: string;
+  status?: number;
+}
+
 const SingleReply: React.FC<SingleReplyProps> = ({
   reply,
   onReplyUpdate,
@@ -47,6 +57,41 @@ const SingleReply: React.FC<SingleReplyProps> = ({
     };
   }, []);
 
+  // Helper function to extract error message
+  const getErrorMessage = (error: unknown, fallbackKey: string): string => {
+    if (error && typeof error === 'object') {
+      const rtqError = error as RTKQueryError;
+
+      // Check for data.message first
+      if (rtqError.data?.message) {
+        return rtqError.data.message;
+      }
+
+      // Check for error string
+      if (rtqError.error) {
+        return rtqError.error;
+      }
+
+      // Check for status-based messages
+      if (rtqError.status) {
+        switch (rtqError.status) {
+          case 401:
+            return t("authentication_required");
+          case 403:
+            return t("permission_denied");
+          case 404:
+            return t("not_found");
+          case 500:
+            return t("server_error");
+          default:
+            return t(fallbackKey);
+        }
+      }
+    }
+
+    return t(fallbackKey);
+  };
+
   const handleUpdateReply = async () => {
     if (!token || !editText.trim()) {
       toast.error(t("enter_valid_reply"));
@@ -69,7 +114,8 @@ const SingleReply: React.FC<SingleReplyProps> = ({
       }
     } catch (error: unknown) {
       console.error("Update reply error:", error);
-      toast.error(error?.data?.message || t("reply_update_error"));
+      const errorMessage = getErrorMessage(error, "reply_update_error");
+      toast.error(errorMessage);
     }
   };
 
@@ -96,7 +142,8 @@ const SingleReply: React.FC<SingleReplyProps> = ({
       }
     } catch (error: unknown) {
       console.error("Delete reply error:", error);
-      toast.error(error?.data?.message || t("reply_delete_error"));
+      const errorMessage = getErrorMessage(error, "reply_delete_error");
+      toast.error(errorMessage);
     }
   };
 
