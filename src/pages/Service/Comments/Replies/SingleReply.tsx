@@ -67,7 +67,7 @@ const SingleReply: React.FC<SingleReplyProps> = ({
       if (onReplyUpdate) {
         onReplyUpdate();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Update reply error:", error);
       toast.error(error?.data?.message || t("reply_update_error"));
     }
@@ -94,7 +94,7 @@ const SingleReply: React.FC<SingleReplyProps> = ({
       if (onReplyDelete) {
         onReplyDelete();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Delete reply error:", error);
       toast.error(error?.data?.message || t("reply_delete_error"));
     }

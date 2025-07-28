@@ -388,7 +388,7 @@ const ServiceDetail = () => {
         toast.success(t("chat_created"));
         navigate(`/chat/${chatId}`);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       toast.error(t("chat_creation_failed"));
     }
   }, [isLoggedIn, service, userInfo, createChatRoom, navigate, t]);
@@ -408,7 +408,7 @@ const ServiceDetail = () => {
       } else {
         toast.error(t("product_delete_error"), { autoClose: 2000 });
       }
-    } catch (error) {
+    } catch (error: unknown) {
       toast.error(t("product_delete_error"), { autoClose: 2000 });
     }
   }, [id, token, deleteService, navigate, t]);
@@ -542,7 +542,6 @@ const ServiceDetail = () => {
         </div>
       </div>
 
-      {/* Comments section */}
       <section className="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
         <h2 className="text-2xl font-bold mb-6 pb-3 border-b border-gray-200 text-gray-800">
           {t("comments_label")} {isLoggedIn && `(${comments.length})`}

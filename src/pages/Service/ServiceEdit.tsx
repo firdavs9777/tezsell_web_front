@@ -176,14 +176,13 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
       return new Promise<void>((resolve) => {
         const reader = new FileReader();
         reader.onload = () => {
-          previews.push(reader.result as string); // Store preview image result
-          resolve(); // Resolve when the file is read
+          previews.push(reader.result as string);
+          resolve();
         };
         reader.readAsDataURL(file);
       });
     });
 
-    // Once all files are read, update the state for previews and actual files
     Promise.all(fileReaderPromises)
       .then(() => {
         setForm((prev) => ({
@@ -345,10 +344,10 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
   // Loading and error states
   if (productLoading || categoryLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex justify-center items-center h-32 sm:h-64">
         <div className="text-center">
-          <div className="animate-spin inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mb-2"></div>
-          <p className="text-gray-600">{t("loading")}</p>
+          <div className="animate-spin inline-block w-6 h-6 sm:w-8 sm:h-8 border-2 sm:border-4 border-blue-500 border-t-transparent rounded-full mb-2"></div>
+          <p className="text-gray-600 text-sm sm:text-base">{t("loading")}</p>
         </div>
       </div>
     );
@@ -356,7 +355,7 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
 
   if (productError || categoryError) {
     return (
-      <div className="bg-red-100 p-4 rounded-lg text-red-700 text-center">
+      <div className="bg-red-100 p-3 sm:p-4 rounded-lg text-red-700 text-center text-sm sm:text-base mx-4 sm:mx-0">
         {t("error_message")}
       </div>
     );
@@ -369,229 +368,247 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
 
   return (
     <Modal onClose={closeHandler} isOpen={isOpen}>
-      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-600 to-purple-700 py-4 px-6">
+      {/* Mobile-first responsive container */}
+      <div className="w-full max-w-xs sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto bg-white rounded-none sm:rounded-xl shadow-lg overflow-hidden h-full sm:h-auto max-h-screen sm:max-h-[90vh] flex flex-col">
+
+        {/* Header - Fixed height with responsive padding */}
+        <div className="bg-gradient-to-r from-blue-600 to-purple-700 py-3 px-4 sm:py-4 sm:px-6 flex-shrink-0">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-white flex items-center">
-              <FaEdit className="mr-2" /> {t("edit_service_modal_title")}
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white flex items-center">
+              <FaEdit className="mr-2 text-sm sm:text-base" />
+              <span className="hidden sm:inline">{t("edit_service_modal_title")}</span>
+              <span className="sm:hidden">{t("edit_service")}</span>
             </h1>
             <button
               onClick={closeHandler}
-              className="text-white hover:text-gray-200 transition-colors p-2 rounded-full hover:bg-white/10"
+              className="text-white hover:text-gray-200 transition-colors p-1 sm:p-2 rounded-full hover:bg-white/10"
               aria-label="Close"
             >
-              <FaTimes size={20} />
+              <FaTimes size={16} className="sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>
 
-        <div className="p-6">
-          <form onSubmit={submitFormHandler} className="space-y-6">
-            {/* Service Title */}
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                {t("serviceName")}{" "}
-                <span className="text-red-500 text-lg">*</span>
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                placeholder={t("serviceNamePlaceholder")}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                value={form.name}
-                onChange={handleInputChange}
-              />
-            </div>
+        {/* Scrollable content area */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4 sm:p-6">
+            <form onSubmit={submitFormHandler} className="space-y-4 sm:space-y-6">
 
-            {/* Service Description */}
-            <div>
-              <label
-                htmlFor="description"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                {t("serviceDescription")}{" "}
-                <span className="text-red-500 text-lg">*</span>
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                placeholder={t("serviceDescriptionPlaceholder")}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors min-h-32 resize-y"
-                value={form.description}
-                onChange={handleInputChange}
-              ></textarea>
-              <div className="text-xs text-gray-500 mt-1 flex justify-end">
-                {form.description.length}/500
+              {/* Service Title */}
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2"
+                >
+                  {t("serviceName")}{" "}
+                  <span className="text-red-500 text-base sm:text-lg">*</span>
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  placeholder={t("serviceNamePlaceholder")}
+                  required
+                  className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  value={form.name}
+                  onChange={handleInputChange}
+                />
               </div>
-            </div>
 
-            {/* Service Category */}
-            <div>
-              <label
-                htmlFor="category"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                {t("serviceCategory")}{" "}
-                <span className="text-red-500 text-lg">*</span>
-              </label>
-              <select
-                id="category"
-                name="category"
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
-                value={form.category}
-                onChange={handleInputChange}
-              >
-                <option value="" disabled>
-                  {t("serviceCategory")}
-                </option>
-                {categoryLoading ? (
-                  <option>{t("loading")}</option>
-                ) : categoryError ? (
-                  <option>{t("errorLoadingCategories")}</option>
-                ) : (
-                  categoryList?.map((categoryItem) => (
-                    <option
-                      key={categoryItem.id}
-                      value={getCategoryName(categoryItem)}
-                    >
-                      {getCategoryName(categoryItem)}
-                    </option>
-                  ))
-                )}
-              </select>
-            </div>
+              {/* Service Description */}
+              <div>
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2"
+                >
+                  {t("serviceDescription")}{" "}
+                  <span className="text-red-500 text-base sm:text-lg">*</span>
+                </label>
+                <textarea
+                  id="description"
+                  name="description"
+                  placeholder={t("serviceDescriptionPlaceholder")}
+                  required
+                  className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors min-h-24 sm:min-h-32 resize-y"
+                  value={form.description}
+                  onChange={handleInputChange}
+                ></textarea>
+                <div className="text-xs text-gray-500 mt-1 flex justify-end">
+                  {form.description.length}/500
+                </div>
+              </div>
 
-            {/* Service Images */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t("serviceImages")} <span className="text-red-500">*</span>
-                <span className="ml-2 text-sm font-normal text-gray-500">
-                  ({totalVisibleImages}/10)
-                </span>
-              </label>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-2">
-                {/* Existing Images */}
-                {form.existingImages.map(
-                  (image, index) =>
-                    !image.isDeleted && (
-                      <div
-                        key={`existing-${index}`}
-                        className="relative group h-24 rounded-lg overflow-hidden border border-gray-200 shadow-sm"
+              {/* Service Category */}
+              <div>
+                <label
+                  htmlFor="category"
+                  className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2"
+                >
+                  {t("serviceCategory")}{" "}
+                  <span className="text-red-500 text-base sm:text-lg">*</span>
+                </label>
+                <select
+                  id="category"
+                  name="category"
+                  required
+                  className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
+                  value={form.category}
+                  onChange={handleInputChange}
+                >
+                  <option value="" disabled>
+                    {t("serviceCategory")}
+                  </option>
+                  {categoryLoading ? (
+                    <option>{t("loading")}</option>
+                  ) : categoryError ? (
+                    <option>{t("errorLoadingCategories")}</option>
+                  ) : (
+                    categoryList?.map((categoryItem) => (
+                      <option
+                        key={categoryItem.id}
+                        value={getCategoryName(categoryItem)}
                       >
-                        <img
-                          src={image.fullUrl}
-                          alt={`Existing ${index}`}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
-                          <button
-                            type="button"
-                            className="opacity-0 group-hover:opacity-100 p-2 bg-red-500 text-white rounded-full transition-opacity duration-300 hover:bg-red-600"
-                            onClick={() => handleRemoveExistingImage(index)}
-                            aria-label="Remove image"
-                          >
-                            <FaTrash size={14} />
-                          </button>
+                        {getCategoryName(categoryItem)}
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
+
+              {/* Service Images - Responsive grid */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t("serviceImages")} <span className="text-red-500">*</span>
+                  <span className="ml-2 text-sm font-normal text-gray-500">
+                    ({totalVisibleImages}/10)
+                  </span>
+                </label>
+
+                {/* Responsive image grid: 2 cols on mobile, 3 on sm, 4 on md+ */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 mb-3">
+
+                  {/* Existing Images */}
+                  {form.existingImages.map(
+                    (image, index) =>
+                      !image.isDeleted && (
+                        <div
+                          key={`existing-${index}`}
+                          className="relative group h-20 sm:h-24 rounded-lg overflow-hidden border border-gray-200 shadow-sm"
+                        >
+                          <img
+                            src={image.fullUrl}
+                            alt={`Existing ${index}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
+                            <button
+                              type="button"
+                              className="opacity-0 group-hover:opacity-100 p-1.5 sm:p-2 bg-red-500 text-white rounded-full transition-opacity duration-300 hover:bg-red-600"
+                              onClick={() => handleRemoveExistingImage(index)}
+                              aria-label="Remove image"
+                            >
+                              <FaTrash size={12} className="sm:w-3.5 sm:h-3.5" />
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    )
-                )}
+                      )
+                  )}
 
-                {/* New Images */}
-                {form.newImagePreviews.map((preview, index) => (
-                  <div
-                    key={`new-${index}`}
-                    className="relative group h-24 rounded-lg overflow-hidden border border-gray-200 shadow-sm"
-                  >
-                    <img
-                      src={preview}
-                      alt={`New ${index}`}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
-                      <button
-                        type="button"
-                        className="opacity-0 group-hover:opacity-100 p-2 bg-red-500 text-white rounded-full transition-opacity duration-300 hover:bg-red-600"
-                        onClick={() => handleRemoveNewImage(index)}
-                        aria-label="Remove image"
-                      >
-                        <FaTrash size={14} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                {totalVisibleImages < 10 && (
-                  <div
-                    className="h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-blue-500 transition-colors hover:bg-blue-50"
-                    onClick={() =>
-                      document.getElementById("image-upload")?.click()
-                    }
-                  >
-                    {imageUploading ? (
-                      <FaSpinner
-                        className="animate-spin text-blue-500"
-                        size={20}
+                  {/* New Images */}
+                  {form.newImagePreviews.map((preview, index) => (
+                    <div
+                      key={`new-${index}`}
+                      className="relative group h-20 sm:h-24 rounded-lg overflow-hidden border border-gray-200 shadow-sm"
+                    >
+                      <img
+                        src={preview}
+                        alt={`New ${index}`}
+                        className="w-full h-full object-cover"
                       />
-                    ) : (
-                      <div className="flex flex-col items-center text-gray-500 hover:text-blue-500">
-                        <FaImage size={20} />
-                        <span className="text-xs mt-1">
-                          {t("new_product_images")}
-                        </span>
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
+                        <button
+                          type="button"
+                          className="opacity-0 group-hover:opacity-100 p-1.5 sm:p-2 bg-red-500 text-white rounded-full transition-opacity duration-300 hover:bg-red-600"
+                          onClick={() => handleRemoveNewImage(index)}
+                          aria-label="Remove image"
+                        >
+                          <FaTrash size={12} className="sm:w-3.5 sm:h-3.5" />
+                        </button>
                       </div>
-                    )}
-                  </div>
-                )}
+                    </div>
+                  ))}
+
+                  {/* Add Image Button */}
+                  {totalVisibleImages < 10 && (
+                    <div
+                      className="h-20 sm:h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-blue-500 transition-colors hover:bg-blue-50"
+                      onClick={() =>
+                        document.getElementById("image-upload")?.click()
+                      }
+                    >
+                      {imageUploading ? (
+                        <FaSpinner
+                          className="animate-spin text-blue-500"
+                          size={16}
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center text-gray-500 hover:text-blue-500">
+                          <FaImage size={16} className="sm:w-5 sm:h-5" />
+                          <span className="text-xs mt-1 text-center px-1 hidden sm:block">
+                            {t("new_product_images")}
+                          </span>
+                          <span className="text-xs mt-1 sm:hidden">Add</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <input
+                  id="image-upload"
+                  type="file"
+                  accept="image/jpeg,image/png,image/gif,image/webp"
+                  onChange={handleNewImageChange}
+                  multiple
+                  className="hidden"
+                />
+
+                <p className="text-xs text-gray-500 mt-1">
+                  {t("image_upload_requirements")}
+                </p>
               </div>
 
-              <input
-                id="image-upload"
-                type="file"
-                accept="image/jpeg,image/png,image/gif,image/webp"
-                onChange={handleNewImageChange}
-                multiple
-                className="hidden"
-              />
+              {/* Action Buttons - Responsive layout */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sticky bottom-0 bg-white">
+                <button
+                  type="submit"
+                  disabled={updateLoading || imageUploading}
+                  className="w-full sm:flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-lg font-medium flex items-center justify-center disabled:opacity-50 hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-md text-sm sm:text-base"
+                >
+                  {updateLoading ? (
+                    <>
+                      <FaSpinner className="animate-spin mr-2 w-4 h-4" />
+                      <span>{t("updating")}</span>
+                    </>
+                  ) : (
+                    t("upload_btn_label")
+                  )}
+                </button>
 
-              <p className="text-xs text-gray-500 mt-1">
-                {t("image_upload_requirements")}
-              </p>
-            </div>
-            <div className="flex gap-4 pt-4">
-              <button
-                type="submit"
-                disabled={updateLoading || imageUploading}
-                className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-lg font-medium flex items-center justify-center disabled:opacity-50 hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-md"
-              >
-                {updateLoading ? (
-                  <>
-                    <FaSpinner className="animate-spin mr-2" /> {t("updating")}
-                  </>
-                ) : (
-                  t("upload_btn_label")
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={closeHandler}
-                className="flex-1 bg-gray-100 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors border border-gray-300"
-              >
-                {t("cancel_btn_label")}
-              </button>
-            </div>
-          </form>
+                <button
+                  type="button"
+                  onClick={closeHandler}
+                  className="w-full sm:flex-1 bg-gray-100 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors border border-gray-300 text-sm sm:text-base"
+                >
+                  {t("cancel_btn_label")}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </Modal>
   );
 };
+
 export default MyServiceEdit;
