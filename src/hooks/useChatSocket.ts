@@ -76,7 +76,6 @@ const reconnectInterval = useRef<ReturnType<typeof setTimeout>>();
     const socketUrl = `wss://api.webtezsell.com/ws/chat/${chatId}/$`;
     const socket = new WebSocket(socketUrl);
     socketRef.current = socket;
-
     socket.onopen = () => {
       setIsConnected(true);
       reconnectAttempts.current = 0;

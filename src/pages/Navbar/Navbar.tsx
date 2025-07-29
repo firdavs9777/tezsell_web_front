@@ -46,17 +46,7 @@ interface NavbarProps {
   liveUnreadCount?: number;
 }
 
-// Simple hook using real chat data
-const useUnreadNotifications = (chats: Chat[] = []) => {
-  const totalUnread = chats.reduce((total, chat) => total + chat.unread_count, 0);
-  const hasUnread = totalUnread > 0;
 
-  return {
-    totalUnread,
-    hasUnread,
-    formattedCount: totalUnread > 99 ? '99+' : totalUnread.toString()
-  };
-};
 
 const Navbar: React.FC<NavbarProps> = ({ chats = [] , liveUnreadCount }) => {
   const [activeLink, setActiveLink] = useState("/login");
