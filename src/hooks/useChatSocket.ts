@@ -73,12 +73,11 @@ const reconnectInterval = useRef<ReturnType<typeof setTimeout>>();
       reconnectInterval.current = undefined;
     }
 
-    const socketUrl = `wss://api.tezsell.com/ws/chat/${chatId}/$`;
+    const socketUrl = `wss://api.webtezsell.com/ws/chat/${chatId}/$`;
     const socket = new WebSocket(socketUrl);
     socketRef.current = socket;
 
     socket.onopen = () => {
-      console.log("✅ WebSocket connected");
       setIsConnected(true);
       reconnectAttempts.current = 0;
       isConnecting.current = false;
@@ -88,7 +87,6 @@ const reconnectInterval = useRef<ReturnType<typeof setTimeout>>();
         type: "authenticate",
         token: token
       }));
-
       // Process any queued messages
       processQueue();
     };

@@ -25,7 +25,39 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-const Navbar = () => {
+interface Chat {
+  id: number;
+  name: string;
+  participants: number[];
+  last_message: {
+    id: number;
+    content: string;
+    timestamp: string;
+    sender: {
+      id: number;
+      username: string;
+    };
+  } | null;
+  unread_count: number;
+}
+
+interface NavbarProps {
+  chats?: Chat[];
+}
+
+// Simple hook using real chat data
+const useUnreadNotifications = (chats: Chat[] = []) => {
+  const totalUnread = chats.reduce((total, chat) => total + chat.unread_count, 0);
+  const hasUnread = totalUnread > 0;
+
+  return {
+    totalUnread,
+    hasUnread,
+    formattedCount: totalUnread > 99 ? '99+' : totalUnread.toString()
+  };
+};
+
+const Navbar: React.FC<NavbarProps> = ({ chats = [] }) => {
   const [activeLink, setActiveLink] = useState("/login");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
@@ -36,6 +68,9 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+
+  // Use real chat data for notifications
+  const { totalUnread, hasUnread, formattedCount } = useUnreadNotifications(chats);
 
   const { data: loggedUserInfo, refetch: refresh } =
     useGetLoggedinUserInfoQuery(
@@ -137,12 +172,12 @@ const Navbar = () => {
   function renderNavItems() {
     return (
       <>
-           <li>
+        <li>
           <Link
             to="/products"
             onClick={() => handleNavLinkClick("/products")}
             className={`flex items-center gap-1 font-medium text-lg ${
-                    location.pathname === "/products"
+              location.pathname === "/products"
                 ? "text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-800 hover:text-blue-400"
             }`}
@@ -177,7 +212,7 @@ const Navbar = () => {
           </Link>
         </li>
         {profileInfo && userInfo?.token && (
-          <li>
+          <li className="relative">
             <Link
               to="/chat"
               onClick={() => handleNavLinkClick("/chat")}
@@ -187,7 +222,16 @@ const Navbar = () => {
                   : "text-gray-800 hover:text-blue-400"
               }`}
             >
-              <FaEnvelope /> {t("chat")}
+              <div className="relative">
+                <FaEnvelope />
+                {/* Notification badge */}
+                {hasUnread && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[18px] h-[18px] flex items-center justify-center leading-none">
+                    {formattedCount}
+                  </span>
+                )}
+              </div>
+              {t("chat")}
             </Link>
           </li>
         )}
@@ -288,7 +332,6 @@ const Navbar = () => {
                       }`}
                   >
                     <FaBoxOpen className="mr-1" color="#333" size={18} />
-
                     {t("my_products_title")}
                   </Link>
                 </li>
