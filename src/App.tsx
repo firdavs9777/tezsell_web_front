@@ -11,36 +11,73 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { RootState } from "./store";
 
-function App() {
-    const [chats, setChats] = useState<Chat[]>([]);
-  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
-  const token = userInfo?.token;
 
-  // Fetch chats at the app level so both Navbar and MainChat can use them
-  const { data, isLoading, error, refetch } = useGetAllChatMessagesQuery(
-    { token },
+function App() {
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [globalUnreadCount, setGlobalUnreadCount] = useState(0);
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+
+  // Existing RTK Query
+  const { data, refetch } = useGetAllChatMessagesQuery(
+    { token: userInfo?.token },
     {
-      skip: !token, // Only fetch if user is logged in
+      skip: !userInfo?.token,
       refetchOnMountOrArgChange: true,
-      pollingInterval: 30000, // Poll every 30 seconds for live updates
+    pollingInterval: 10000,
     }
   );
+
+  // Simple WebSocket for live notifications
+  useEffect(() => {
+    if (!userInfo?.token) return;
+
+    const ws = new WebSocket(`wss://api.webtezsell.com/ws/notifications/`);
+
+    ws.onopen = () => {
+      ws.send(JSON.stringify({
+        type: "authenticate",
+        token: userInfo.token
+      }));
+    };
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      if (data.type === "unread_count_update") {
+        setGlobalUnreadCount(data.total_unread);
+      } else if (data.type === "new_message") {
+        // Increment unread count
+        setGlobalUnreadCount(prev => prev + 1);
+        // Also refresh the full chat list
+        refetch();
+      }
+    };
+
+    return () => ws.close();
+  }, [userInfo?.token, refetch]);
 
   // Update chats when data changes
   useEffect(() => {
     if (data?.results) {
       setChats(data.results as Chat[]);
+      // Update global count from fresh data
+      const totalUnread = (data.results as Chat[]).reduce(
+        (total, chat) => total + chat.unread_count, 0
+      );
+      setGlobalUnreadCount(totalUnread);
     }
   }, [data]);
-
 
   return (
     <I18nextProvider i18n={i18n}>
       <div className="page-container">
         <Router>
-       <Navbar chats={chats} />
+          {/* Pass both chats and live unread count */}
+          <Navbar chats={chats} liveUnreadCount={globalUnreadCount} />
           <div className="content">
-            <RouterPage />
+            <RouterPage
+
+            />
           </div>
           <Footer />
         </Router>

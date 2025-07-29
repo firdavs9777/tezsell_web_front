@@ -43,6 +43,7 @@ interface Chat {
 
 interface NavbarProps {
   chats?: Chat[];
+  liveUnreadCount?: number;
 }
 
 // Simple hook using real chat data
@@ -57,7 +58,7 @@ const useUnreadNotifications = (chats: Chat[] = []) => {
   };
 };
 
-const Navbar: React.FC<NavbarProps> = ({ chats = [] }) => {
+const Navbar: React.FC<NavbarProps> = ({ chats = [] , liveUnreadCount }) => {
   const [activeLink, setActiveLink] = useState("/login");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
@@ -69,9 +70,10 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [] }) => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
 
-  // Use real chat data for notifications
-  const { totalUnread, hasUnread, formattedCount } = useUnreadNotifications(chats);
-
+  const calculatedUnread = chats.reduce((total, chat) => total + chat.unread_count, 0);
+  const totalUnread = liveUnreadCount ?? calculatedUnread;
+  const hasUnread = totalUnread > 0;
+  const formattedCount = totalUnread > 99 ? '99+' : totalUnread.toString();
   const { data: loggedUserInfo, refetch: refresh } =
     useGetLoggedinUserInfoQuery(
       { token: userInfo?.token || "" },
