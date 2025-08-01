@@ -12,6 +12,7 @@ import {
   FaBoxOpen,
   FaEnvelope,
   FaGlobe,
+  FaHome,
   FaInfoCircle,
   FaPowerOff,
   FaProductHunt,
@@ -188,6 +189,19 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [] , liveUnreadCount }) => {
             }`}
           >
             <FaServicestack /> {t("service")}
+          </Link>
+        </li>
+        <li>
+          <Link
+            to="/properties"
+            onClick={() => handleNavLinkClick("/properties")}
+            className={`flex items-center gap-1 font-medium text-lg ${
+              location.pathname === "/service"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-800 hover:text-blue-400"
+            }`}
+          >
+          <FaHome /> {t("real_estate")}
           </Link>
         </li>
         <li>

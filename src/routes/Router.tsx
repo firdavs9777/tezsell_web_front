@@ -4,6 +4,7 @@ import MainChat from "@chats/MainChat";
 import About from "@pages/About/About";
 import Home from "@pages/Home/Home";
 import ProductScreen from "@pages/Product/Products";
+import MainRealEstate from "@pages/RealEstate/MainRealEstate";
 import Service from "@pages/Service/Service";
 import MyProducts from "@products/MyProducts";
 import NewProduct from "@products/NewProduct";
@@ -26,6 +27,7 @@ const Router = () => {
       <Route path="/product/:id" element={<ProductDetail />} />
       <Route path="/service" element={<Service />} />
       <Route path="/service/:id" element={<ServiceDetail />} />
+      <Route path="/properties"  element={<MainRealEstate/>}/>
       <Route element={<ProtectedRoute />}>
         <Route path="/new-product" element={<NewProduct />} />
         <Route path="/new-service" element={<NewService />} />
