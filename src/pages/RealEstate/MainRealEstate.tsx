@@ -1,467 +1,430 @@
+// src/pages/RealEstate/MainRealEstate.tsx
+// Fixed version with proper TypeScript types
+
 import React, { useState } from "react";
+// Replace lucide-react imports with react-icons
 import {
-  Search,
-  MapPin,
-  Bed,
-  Bath,
-  Square,
-  Car,
-  Heart,
-  Eye,
-  Star,
-  Filter,
-} from "lucide-react";
+  FaHome,
+  FaBed,
+  FaBath,
+  FaCar,
+  FaMapMarkerAlt,
+  FaHeart,
+  FaRegHeart,
+  FaFilter,
+  FaSearch,
+  FaUser,
+  FaPhone,
+  FaEnvelope,
+  FaStar,
+} from "react-icons/fa";
 
-const users = [
-  {
-    id: 1,
-    username: "john_doe",
-    email: "john@example.com",
-    first_name: "John",
-    last_name: "Doe",
-    phone: "+998901234567",
-  },
-  {
-    id: 2,
-    username: "sarah_agent",
-    email: "sarah@realestate.uz",
-    first_name: "Sarah",
-    last_name: "Williams",
-    phone: "+998905678901",
-  },
-  {
-    id: 3,
-    username: "mike_seller",
-    email: "mike@gmail.com",
-    first_name: "Mike",
-    last_name: "Johnson",
-    phone: "+998907891234",
-  },
-];
+// Type definitions
+interface RealEstateAgent {
+  id: number;
+  name: string;
+  photo: string;
+  phone: string;
+  email: string;
+  rating: number;
+  properties_count: number;
+}
 
-const realEstateAgents = [
-  {
-    id: 1,
-    user: 2,
-    agency_name: "Premium Properties Uzbekistan",
-    licence_number: "REA-2024-001",
-    is_verified: true,
-    rating: 4.85,
-    total_sales: 127,
-    years_experience: 8,
-    specialization: "Luxury Residential",
-  },
-  {
-    id: 2,
-    user: 3,
-    agency_name: "City Homes Realty",
-    licence_number: "REA-2024-002",
-    is_verified: true,
-    rating: 4.32,
-    total_sales: 89,
-    years_experience: 5,
-    specialization: "Commercial Properties",
-  },
-];
+interface User {
+  id: number;
+  name: string;
+  avatar: string;
+}
 
-const properties = [
-  {
-    id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-    title: "Luxury 3-Bedroom Apartment in Chilanzar",
-    description:
-      "Beautiful modern apartment with stunning city views. Fully renovated with high-end finishes, spacious living areas, and premium appliances.",
-    property_type: "apartment",
-    listing_type: "sale",
-    owner: 1,
-    agent: 1,
-    address: "15 Amir Temur Avenue, Building 7, Apt 45",
-    district: "Chilanzar",
-    city: "Tashkent",
-    bedrooms: 3,
-    bathrooms: 2,
-    square_meters: 120,
-    floor: 8,
-    total_floors: 12,
-    year_built: 2019,
-    parking_spaces: 1,
-    price: 180000.0,
-    currency: "USD",
-    has_balcony: true,
-    has_pool: true,
-    has_elevator: true,
-    is_furnished: true,
-    metro_distance: 800,
-    school_distance: 300,
-    is_featured: true,
-    views_count: 342,
-    image:
-      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=300&fit=crop",
-  },
-  {
-    id: "b2c3d4e5-f6g7-8901-bcde-f23456789012",
-    title: "Modern Townhouse with Garden",
-    description:
-      "Spacious 4-bedroom townhouse in a quiet residential area. Features include a private garden, garage, and modern kitchen.",
-    property_type: "townhouse",
-    listing_type: "rent",
-    owner: 2,
-    agent: 2,
-    address: "23 Mustaqillik Street, Yunusabad District",
-    district: "Yunusabad",
-    city: "Tashkent",
-    bedrooms: 4,
-    bathrooms: 3,
-    square_meters: 180,
-    total_floors: 2,
-    year_built: 2021,
-    parking_spaces: 2,
-    price: 2500.0,
-    currency: "USD",
-    has_balcony: true,
-    has_garage: true,
-    has_garden: true,
-    is_furnished: false,
-    metro_distance: 1500,
-    school_distance: 600,
-    is_featured: false,
-    views_count: 156,
-    image:
-      "https://images.unsplash.com/photo-1449844908441-8829872d2607?w=400&h=300&fit=crop",
-  },
-  {
-    id: "c3d4e5f6-g7h8-9012-cdef-345678901234",
-    title: "Commercial Office Space in City Center",
-    description:
-      "Prime commercial office space in the heart of Tashkent. Ideal for businesses, startups, or corporate headquarters.",
-    property_type: "office",
-    listing_type: "rent",
-    owner: 3,
-    agent: 1,
-    address: "5 Islam Karimov Street, Mirabad District",
-    district: "Mirabad",
-    city: "Tashkent",
-    bathrooms: 4,
-    square_meters: 250,
-    floor: 5,
-    total_floors: 15,
-    year_built: 2020,
-    parking_spaces: 8,
-    price: 4000.0,
-    currency: "USD",
-    has_elevator: true,
-    is_furnished: true,
-    metro_distance: 200,
-    hospital_distance: 800,
-    is_featured: true,
-    views_count: 89,
-    image:
-      "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=300&fit=crop",
-  },
-  {
-    id: "d4e5f6g7-h8i9-0123-defg-456789012345",
-    title: "Cozy 2-Bedroom Apartment",
-    description:
-      "Affordable and comfortable 2-bedroom apartment perfect for young professionals or small families.",
-    property_type: "apartment",
-    listing_type: "sale",
-    owner: 1,
-    agent: null,
-    address: "42 Navoi Street, Chilanzar District",
-    district: "Chilanzar",
-    city: "Tashkent",
-    bedrooms: 2,
-    bathrooms: 1,
-    square_meters: 75,
-    floor: 4,
-    total_floors: 9,
-    year_built: 2015,
-    parking_spaces: 0,
-    price: 95000.0,
-    currency: "USD",
-    has_balcony: true,
-    has_elevator: true,
-    is_furnished: false,
-    metro_distance: 1200,
-    school_distance: 400,
-    is_featured: false,
-    views_count: 234,
-    image:
-      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400&h=300&fit=crop",
-  },
-];
+interface Property {
+  id: number;
+  title: string;
+  price: number;
+  currency: string;
+  listing_type: "sale" | "rent";
+  property_type: string;
+  bedrooms: number;
+  bathrooms: number;
+  parking: number;
+  area: number;
+  location: string;
+  images: string[];
+  description: string;
+  agent_id: number;
+  posted_by: number;
+  posted_date: string;
+  features: string[];
+  is_featured: boolean;
+}
 
-const PROPERTY_TYPES = [
-  { value: "apartment", label: "Apartment" },
-  { value: "house", label: "House" },
-  { value: "townhouse", label: "Townhouse" },
-  { value: "office", label: "Office" },
-  { value: "commercial", label: "Commercial" },
-];
+interface PropertyCardProps {
+  property: Property;
+}
 
-const LISTING_TYPES = [
-  { value: "sale", label: "For Sale" },
-  { value: "rent", label: "For Rent" },
-];
+const MainRealEstate: React.FC = () => {
+  const [savedProperties, setSavedProperties] = useState<number[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [filterType, setFilterType] = useState<string>("all");
+  const [priceRange, setPriceRange] = useState<string>("all");
 
-const MainRealEstate = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedType, setSelectedType] = useState("");
-  const [selectedListing, setSelectedListing] = useState("");
-  const [savedProperties, setSavedProperties] = useState(new Set());
-  const [showFilters, setShowFilters] = useState(false);
+  // Mock data - replace with your actual data fetching
+  const realEstateAgents: RealEstateAgent[] = [
+    {
+      id: 1,
+      name: "John Smith",
+      photo: "/api/placeholder/150/150",
+      phone: "+1-234-567-8900",
+      email: "john@realestate.com",
+      rating: 4.8,
+      properties_count: 25,
+    },
+    {
+      id: 2,
+      name: "Sarah Johnson",
+      photo: "/api/placeholder/150/150",
+      phone: "+1-234-567-8901",
+      email: "sarah@realestate.com",
+      rating: 4.9,
+      properties_count: 32,
+    },
+  ];
 
-  const getAgentById = (id) => realEstateAgents.find((a) => a.id === id);
-  const getUserById = (id) => users.find((u) => u.id === id);
+  const users: User[] = [
+    {
+      id: 1,
+      name: "Mike Wilson",
+      avatar: "/api/placeholder/100/100",
+    },
+    {
+      id: 2,
+      name: "Emma Davis",
+      avatar: "/api/placeholder/100/100",
+    },
+  ];
 
-  const toggleSaveProperty = (propertyId) => {
-    setSavedProperties((prev) => {
-      const newSaved = new Set(prev);
-      if (newSaved.has(propertyId)) {
-        newSaved.delete(propertyId);
-      } else {
-        newSaved.add(propertyId);
-      }
-      return newSaved;
-    });
+  const properties: Property[] = [
+    {
+      id: 1,
+      title: "Modern Family Home in Suburbia",
+      price: 450000,
+      currency: "USD",
+      listing_type: "sale",
+      property_type: "House",
+      bedrooms: 4,
+      bathrooms: 3,
+      parking: 2,
+      area: 2500,
+      location: "Suburbia, CA",
+      images: ["/api/placeholder/400/300", "/api/placeholder/400/300"],
+      description: "Beautiful modern home with spacious rooms and garden.",
+      agent_id: 1,
+      posted_by: 1,
+      posted_date: "2024-01-15",
+      features: ["Garden", "Swimming Pool", "Modern Kitchen"],
+      is_featured: true,
+    },
+    {
+      id: 2,
+      title: "Downtown Luxury Apartment",
+      price: 2500,
+      currency: "USD",
+      listing_type: "rent",
+      property_type: "Apartment",
+      bedrooms: 2,
+      bathrooms: 2,
+      parking: 1,
+      area: 1200,
+      location: "Downtown, NY",
+      images: ["/api/placeholder/400/300"],
+      description: "Luxury apartment in the heart of downtown.",
+      agent_id: 2,
+      posted_by: 2,
+      posted_date: "2024-02-01",
+      features: ["City View", "Gym Access", "Concierge"],
+      is_featured: false,
+    },
+  ];
+
+  // Properly typed helper functions
+  const getAgentById = (id: number): RealEstateAgent | undefined =>
+    realEstateAgents.find((a) => a.id === id);
+
+  const getUserById = (id: number): User | undefined =>
+    users.find((u) => u.id === id);
+
+  const toggleSaveProperty = (propertyId: number): void => {
+    setSavedProperties((prev) =>
+      prev.includes(propertyId)
+        ? prev.filter((id) => id !== propertyId)
+        : [...prev, propertyId]
+    );
   };
 
-  const filteredProperties = properties.filter((property) => {
-    const matchesSearch =
-      property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      property.district.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType =
-      !selectedType || property.property_type === selectedType;
-    const matchesListing =
-      !selectedListing || property.listing_type === selectedListing;
-
-    return matchesSearch && matchesType && matchesListing;
-  });
-
-  const formatPrice = (price, currency, listingType) => {
-    const formattedPrice = new Intl.NumberFormat("en-US").format(price);
-    const suffix = listingType === "rent" ? "/month" : "";
-    return `${formattedPrice} ${currency}${suffix}`;
+  const formatPrice = (
+    price: number,
+    currency: string,
+    listingType: "sale" | "rent"
+  ): string => {
+    const formatted = new Intl.NumberFormat("en-US").format(price);
+    const symbol = currency === "USD" ? "$" : currency;
+    return listingType === "rent"
+      ? `${symbol}${formatted}/month`
+      : `${symbol}${formatted}`;
   };
 
-  const PropertyCard = ({ property }) => {
-    const agent = property.agent ? getAgentById(property.agent) : null;
-    const agentUser = agent ? getUserById(agent.user) : null;
-    const isSaved = savedProperties.has(property.id);
+  // Properly typed PropertyCard component
+  const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
+    const agent = getAgentById(property.agent_id);
+    const postedBy = getUserById(property.posted_by);
+    const isSaved = savedProperties.includes(property.id);
 
     return (
-      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+        {/* Property Image */}
         <div className="relative">
           <img
-            src={property.image}
+            src={property.images[0]}
             alt={property.title}
             className="w-full h-48 object-cover"
           />
-          <div className="absolute top-3 left-3">
-            <span
-              className={`px-2 py-1 rounded text-xs font-semibold text-white ${
-                property.listing_type === "sale"
-                  ? "bg-green-500"
-                  : "bg-blue-500"
-              }`}
-            >
-              {property.listing_type === "sale" ? "For Sale" : "For Rent"}
+          {property.is_featured && (
+            <span className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded text-sm font-semibold">
+              Featured
             </span>
-          </div>
-          <div className="absolute top-3 right-3 flex gap-2">
-            {property.is_featured && (
-              <span className="bg-yellow-500 text-white px-2 py-1 rounded text-xs font-semibold">
-                Featured
-              </span>
+          )}
+          <button
+            onClick={() => toggleSaveProperty(property.id)}
+            className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-shadow"
+          >
+            {isSaved ? (
+              <FaHeart className="text-red-500" />
+            ) : (
+              <FaRegHeart className="text-gray-500" />
             )}
-            <button
-              onClick={() => toggleSaveProperty(property.id)}
-              className={`p-1 rounded-full ${
-                isSaved ? "bg-red-500 text-white" : "bg-white text-gray-600"
-              } hover:bg-red-500 hover:text-white transition-colors`}
-            >
-              <Heart size={16} fill={isSaved ? "white" : "none"} />
-            </button>
-          </div>
-          <div className="absolute bottom-3 right-3 flex items-center gap-1 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
-            <Eye size={12} />
-            {property.views_count}
-          </div>
+          </button>
+          <span className="absolute bottom-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-sm font-semibold capitalize">
+            For {property.listing_type}
+          </span>
         </div>
 
+        {/* Property Details */}
         <div className="p-4">
-          <h3 className="font-semibold text-lg mb-2 line-clamp-2">
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">
             {property.title}
           </h3>
+
           <div className="flex items-center text-gray-600 mb-2">
-            <MapPin size={14} className="mr-1" />
-            <span className="text-sm">
-              {property.district}, {property.city}
-            </span>
+            <FaMapMarkerAlt className="mr-1" />
+            <span className="text-sm">{property.location}</span>
           </div>
 
-          <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-            {property.description}
-          </p>
-
-          <div className="flex items-center gap-4 mb-3 text-sm text-gray-600">
-            {property.bedrooms && (
-              <div className="flex items-center gap-1">
-                <Bed size={14} />
-                <span>{property.bedrooms}</span>
-              </div>
+          <div className="text-2xl font-bold text-blue-600 mb-3">
+            {formatPrice(
+              property.price,
+              property.currency,
+              property.listing_type
             )}
-            <div className="flex items-center gap-1">
-              <Bath size={14} />
-              <span>{property.bathrooms}</span>
+          </div>
+
+          {/* Property Features */}
+          <div className="flex items-center justify-between mb-3 text-sm text-gray-600">
+            <div className="flex items-center">
+              <FaBed className="mr-1" />
+              <span>{property.bedrooms} bed</span>
             </div>
-            <div className="flex items-center gap-1">
-              <Square size={14} />
-              <span>{property.square_meters}m²</span>
+            <div className="flex items-center">
+              <FaBath className="mr-1" />
+              <span>{property.bathrooms} bath</span>
             </div>
-            {property.parking_spaces > 0 && (
-              <div className="flex items-center gap-1">
-                <Car size={14} />
-                <span>{property.parking_spaces}</span>
-              </div>
-            )}
+            <div className="flex items-center">
+              <FaCar className="mr-1" />
+              <span>{property.parking} parking</span>
+            </div>
+            <div className="flex items-center">
+              <FaHome className="mr-1" />
+              <span>{property.area} sq ft</span>
+            </div>
           </div>
 
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-2xl font-bold text-green-600">
-              {formatPrice(
-                property.price,
-                property.currency,
-                property.listing_type
-              )}
-            </span>
-            {property.listing_type === "sale" && (
-              <span className="text-sm text-gray-500">
-                {Math.round(property.price / property.square_meters)}{" "}
-                {property.currency}/m²
-              </span>
-            )}
-          </div>
-
-          {agent && agentUser && (
-            <div className="border-t pt-3 mt-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-sm">
-                    {agentUser.first_name} {agentUser.last_name}
-                  </p>
-                  <p className="text-xs text-gray-500">{agent.agency_name}</p>
+          {/* Agent Info */}
+          {agent && (
+            <div className="border-t pt-3">
+              <div className="flex items-center">
+                <img
+                  src={agent.photo}
+                  alt={agent.name}
+                  className="w-8 h-8 rounded-full mr-2"
+                />
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-gray-800">
+                    {agent.name}
+                  </div>
+                  <div className="flex items-center">
+                    <FaStar className="text-yellow-400 text-xs mr-1" />
+                    <span className="text-xs text-gray-600">
+                      {agent.rating} ({agent.properties_count} properties)
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Star size={12} className="text-yellow-400 fill-current" />
-                  <span className="text-sm">{agent.rating}</span>
+                <div className="flex space-x-2">
+                  <button className="p-1 text-green-600 hover:bg-green-50 rounded">
+                    <FaPhone size={12} />
+                  </button>
+                  <button className="p-1 text-blue-600 hover:bg-blue-50 rounded">
+                    <FaEnvelope size={12} />
+                  </button>
                 </div>
               </div>
             </div>
           )}
-
-          <div className="mt-4 flex gap-2">
-            <button className="flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors text-sm">
-              View Details
-            </button>
-            <button className="flex-1 border border-blue-600 text-blue-600 py-2 px-4 rounded hover:bg-blue-50 transition-colors text-sm">
-              Contact Agent
-            </button>
-          </div>
         </div>
       </div>
     );
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">
-            Real Estate Properties
-          </h1>
+  // Filter properties based on search and filters
+  const filteredProperties = properties.filter((property) => {
+    const matchesSearch =
+      property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      property.location.toLowerCase().includes(searchTerm.toLowerCase());
 
-          {/* Search and Filters */}
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                size={20}
-              />
+    const matchesType =
+      filterType === "all" || property.listing_type === filterType;
+
+    const matchesPrice =
+      priceRange === "all" ||
+      (() => {
+        switch (priceRange) {
+          case "under-100k":
+            return property.price < 100000;
+          case "100k-300k":
+            return property.price >= 100000 && property.price <= 300000;
+          case "300k-500k":
+            return property.price >= 300000 && property.price <= 500000;
+          case "over-500k":
+            return property.price > 500000;
+          case "under-2k":
+            return property.listing_type === "rent" && property.price < 2000;
+          case "2k-4k":
+            return (
+              property.listing_type === "rent" &&
+              property.price >= 2000 &&
+              property.price <= 4000
+            );
+          case "over-4k":
+            return property.listing_type === "rent" && property.price > 4000;
+          default:
+            return true;
+        }
+      })();
+
+    return matchesSearch && matchesType && matchesPrice;
+  });
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-4">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-800 mb-4">
+            Find Your Dream Property
+          </h1>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Discover the perfect home or investment property with our
+            comprehensive real estate listings.
+          </p>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* Search */}
+            <div className="relative">
+              <FaSearch className="absolute left-3 top-3 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search by title or location..."
+                placeholder="Search properties..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
               />
             </div>
 
-            <div className="flex gap-2">
-              <select
-                value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">All Types</option>
-                {PROPERTY_TYPES.map((type) => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
-                ))}
-              </select>
+            {/* Type Filter */}
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+            >
+              <option value="all">All Types</option>
+              <option value="sale">For Sale</option>
+              <option value="rent">For Rent</option>
+            </select>
 
-              <select
-                value={selectedListing}
-                onChange={(e) => setSelectedListing(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">Sale & Rent</option>
-                {LISTING_TYPES.map((type) => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
-                ))}
-              </select>
+            {/* Price Range Filter */}
+            <select
+              value={priceRange}
+              onChange={(e) => setPriceRange(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+            >
+              <option value="all">All Prices</option>
+              {filterType === "rent" ? (
+                <>
+                  <option value="under-2k">Under $2,000</option>
+                  <option value="2k-4k">$2,000 - $4,000</option>
+                  <option value="over-4k">Over $4,000</option>
+                </>
+              ) : (
+                <>
+                  <option value="under-100k">Under $100K</option>
+                  <option value="100k-300k">$100K - $300K</option>
+                  <option value="300k-500k">$300K - $500K</option>
+                  <option value="over-500k">Over $500K</option>
+                </>
+              )}
+            </select>
 
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2"
-              >
-                <Filter size={16} />
-                Filters
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Results */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">
-            {filteredProperties.length} Properties Found
-          </h2>
-          <div className="text-sm text-gray-600">
-            {savedProperties.size} properties saved
+            {/* Advanced Filters Button */}
+            <button className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              <FaFilter className="mr-2" />
+              Advanced Filters
+            </button>
           </div>
         </div>
 
-        {filteredProperties.length === 0 ? (
+        {/* Results Count */}
+        <div className="mb-6">
+          <p className="text-gray-600">
+            Showing {filteredProperties.length} of {properties.length}{" "}
+            properties
+          </p>
+        </div>
+
+        {/* Properties Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredProperties.map((property) => (
+            <PropertyCard key={property.id} property={property} />
+          ))}
+        </div>
+
+        {/* No Results */}
+        {filteredProperties.length === 0 && (
           <div className="text-center py-12">
-            <div className="text-gray-400 mb-4">
-              <Search size={48} className="mx-auto" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <FaHome className="mx-auto text-6xl text-gray-300 mb-4" />
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">
               No properties found
             </h3>
-            <p className="text-gray-600">Try adjusting your search criteria</p>
+            <p className="text-gray-500">
+              Try adjusting your search criteria or filters.
+            </p>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProperties.map((property) => (
-              <PropertyCard key={property.id} property={property} />
-            ))}
+        )}
+
+        {/* Saved Properties Count */}
+        {savedProperties.length > 0 && (
+          <div className="fixed bottom-6 right-6 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg">
+            <FaHeart className="inline mr-2" />
+            {savedProperties.length} saved
           </div>
         )}
       </div>

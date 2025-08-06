@@ -61,7 +61,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   const { t, i18n } = useTranslation();
 
   // Initialize auto-logout hook
-  const { performLogout, clearAllStorage } = useAutoLogout();
+  const { clearAllStorage } = useAutoLogout();
 
   const calculatedUnread = chats.reduce(
     (total, chat) => total + chat.unread_count,
