@@ -29,12 +29,6 @@ interface RealEstateAgent {
   properties_count: number;
 }
 
-interface User {
-  id: number;
-  name: string;
-  avatar: string;
-}
-
 interface Property {
   id: number;
   title: string;
@@ -88,19 +82,6 @@ const MainRealEstate: React.FC = () => {
     },
   ];
 
-  const users: User[] = [
-    {
-      id: 1,
-      name: "Mike Wilson",
-      avatar: "/api/placeholder/100/100",
-    },
-    {
-      id: 2,
-      name: "Emma Davis",
-      avatar: "/api/placeholder/100/100",
-    },
-  ];
-
   const properties: Property[] = [
     {
       id: 1,
@@ -147,9 +128,6 @@ const MainRealEstate: React.FC = () => {
   // Properly typed helper functions
   const getAgentById = (id: number): RealEstateAgent | undefined =>
     realEstateAgents.find((a) => a.id === id);
-
-  const getUserById = (id: number): User | undefined =>
-    users.find((u) => u.id === id);
 
   const toggleSaveProperty = (propertyId: number): void => {
     setSavedProperties((prev) =>
