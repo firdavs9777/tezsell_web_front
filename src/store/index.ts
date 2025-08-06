@@ -17,6 +17,7 @@ import messagesApiSlice from "@store/slices/chatSlice";
 import commentsSliceReducer from "@store/slices/commentApiSlice";
 import productsSliceReducer from "@store/slices/productsApiSlice";
 import servicesSliceReducer from "@store/slices/serviceApiSlice";
+import realEstateApiSlice from "@store/slices/realEstate";
 import storage from "redux-persist/lib/storage"; // This uses localStorage
 const persistConfig = {
   key: "root", // You can name this as per your app's needs
@@ -37,6 +38,11 @@ const persistedCommentReducer = persistReducer(
   persistConfig,
   commentsSliceReducer
 );
+const persistedRealEstateReducer = persistReducer(
+  persistConfig,
+  realEstateApiSlice
+);
+
 const persistedMessageReducer = persistReducer(persistConfig, messagesApiSlice);
 const rootReducer = configureStore({
   reducer: {
@@ -45,6 +51,7 @@ const rootReducer = configureStore({
     service: persistedServiceReducer,
     auth: persistedAuthReducer,
     comment: persistedCommentReducer,
+    real_estate: persistedRealEstateReducer,
     messsage: persistedMessageReducer,
   },
   middleware: (getDefaultMiddleware) =>

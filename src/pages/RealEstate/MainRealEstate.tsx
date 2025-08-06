@@ -12,7 +12,6 @@ import {
   Filter,
 } from "lucide-react";
 
-// Mockup Data
 const users = [
   {
     id: 1,

@@ -1,6 +1,5 @@
-export const BASE_URL = process.env.NODE_ENV === 'production'
-  ? '/api'
-  : 'https://api.webtezsell.com';
+export const BASE_URL =
+  process.env.NODE_ENV === "production" ? "/api" : "https://api.webtezsell.com";
 // export const BASE_URL = "http://127.0.0.1:8000";
 export const PRODUCTS_URL = "/products/api/products";
 export const SERVICES_URL = "/services/api/services";
@@ -25,5 +24,6 @@ export const DISLIKE_PRODUCT = "/global/unlike/product/";
 export const DISLIKE_COMMENT = "/global/unlike/comment/";
 export const LIKE_SERVICE = "/global/like/service/";
 export const DISLIKE_SERVICE = "/global/unlike/service/";
-export const REPLIES_DETAIL = '/services/api/replies'
+export const REPLIES_DETAIL = "/services/api/replies";
+export const PROPERTIES_URL = "/real_estate/api/properties";
 export const CHAT_MAIN = "/chats";

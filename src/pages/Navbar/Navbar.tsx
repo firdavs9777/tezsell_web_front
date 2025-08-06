@@ -25,6 +25,7 @@ import { FaUserPlus } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useAutoLogout } from "@hooks/useAutoLogout"; // Import the hook
 
 interface Chat {
   id: number;
@@ -59,6 +60,9 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
 
+  // Initialize auto-logout hook
+  const { performLogout, clearAllStorage } = useAutoLogout();
+
   const calculatedUnread = chats.reduce(
     (total, chat) => total + chat.unread_count,
     0
@@ -77,9 +81,9 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
 
   // Add console logs to track what's happening
   useEffect(() => {
+    console.log(userInfo);
     const token = userInfo?.token;
     if (token) {
-      console.log("Refreshing with token");
       refresh();
     }
   }, [userInfo, refresh, loggedUserInfo]);
@@ -107,11 +111,12 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
     setIsMenuOpen(false);
   };
 
+  // Updated logout handler to use the comprehensive cleanup
   const logoutHandler = async () => {
     try {
       await logoutApiCall(userInfo?.token).unwrap();
       dispatch(logout(userInfo));
-      localStorage.clear();
+      clearAllStorage(); // Use the comprehensive storage clearing
       navigate("/login");
       toast.success("Logged out successfully", { autoClose: 2000 });
     } catch {
