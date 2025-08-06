@@ -13,7 +13,6 @@ import {
   FaRegHeart,
   FaFilter,
   FaSearch,
-  FaUser,
   FaPhone,
   FaEnvelope,
   FaStar,
@@ -175,7 +174,6 @@ const MainRealEstate: React.FC = () => {
   // Properly typed PropertyCard component
   const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
     const agent = getAgentById(property.agent_id);
-    const postedBy = getUserById(property.posted_by);
     const isSaved = savedProperties.includes(property.id);
 
     return (
