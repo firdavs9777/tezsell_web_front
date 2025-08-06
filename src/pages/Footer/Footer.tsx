@@ -38,6 +38,14 @@ const Footer: React.FC = () => {
               </div>
               <div>
                 <Link
+                  to="/properties"
+                  className="hover:text-gray-300 transition-colors"
+                >
+                  {t("real_estate")}
+                </Link>
+              </div>
+              <div>
+                <Link
                   to="/about"
                   className="hover:text-gray-300 transition-colors"
                 >

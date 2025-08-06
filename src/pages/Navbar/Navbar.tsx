@@ -47,9 +47,7 @@ interface NavbarProps {
   liveUnreadCount?: number;
 }
 
-
-
-const Navbar: React.FC<NavbarProps> = ({ chats = [] , liveUnreadCount }) => {
+const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   const [activeLink, setActiveLink] = useState("/login");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
@@ -61,10 +59,13 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [] , liveUnreadCount }) => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
 
-  const calculatedUnread = chats.reduce((total, chat) => total + chat.unread_count, 0);
+  const calculatedUnread = chats.reduce(
+    (total, chat) => total + chat.unread_count,
+    0
+  );
   const totalUnread = liveUnreadCount ?? calculatedUnread;
   const hasUnread = totalUnread > 0;
-  const formattedCount = totalUnread > 99 ? '99+' : totalUnread.toString();
+  const formattedCount = totalUnread > 99 ? "99+" : totalUnread.toString();
   const { data: loggedUserInfo, refetch: refresh } =
     useGetLoggedinUserInfoQuery(
       { token: userInfo?.token || "" },
@@ -196,12 +197,12 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [] , liveUnreadCount }) => {
             to="/properties"
             onClick={() => handleNavLinkClick("/properties")}
             className={`flex items-center gap-1 font-medium text-lg ${
-              location.pathname === "/service"
+              location.pathname === "/properties"
                 ? "text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-800 hover:text-blue-400"
             }`}
           >
-          <FaHome /> {t("real_estate")}
+            <FaHome /> {t("real_estate")}
           </Link>
         </li>
         <li>
