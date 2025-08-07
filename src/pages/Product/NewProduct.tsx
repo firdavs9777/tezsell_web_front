@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
+import { RootState } from "@store/index";
 import {
   useCreateProductMutation,
   useGetCategoryListQuery,
 } from "@store/slices/productsApiSlice";
 import { Category } from "@store/type";
-import { toast } from "react-toastify";
-import { useSelector } from "react-redux";
-import { RootState } from "@store/index";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaTimes } from "react-icons/fa";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const NewProduct = () => {
   const navigate = useNavigate();
@@ -96,75 +96,89 @@ const NewProduct = () => {
     setPrice(formattedValue);
   };
 
-  const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
-    if (isSubmitting) return;
-    setIsSubmitting(true);
+  if (isSubmitting) return;
+  setIsSubmitting(true);
 
-    try {
-      // Validate required fields
-      if (
-        !title ||
-        !description ||
-        !price ||
-        !condition ||
-        imageFiles.length === 0
-      ) {
-        toast.error(t("please_fill_all_required_fields"), { autoClose: 3000 });
-        setIsSubmitting(false);
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append("title", title);
-      formData.append("description", description);
-      formData.append("condition", condition);
-      formData.append("currency", "Sum");
-      formData.append("in_stock", "true");
-
-      const cleanedPrice = price.replace(/\./g, "");
-      formData.append("price", cleanedPrice);
-
-      imageFiles.forEach((file) => {
-        formData.append("images", file);
-      });
-
-      formData.append("location_id", userInfo.user_info.location.id.toString());
-      formData.append("userName_id", userInfo.user_info.id.toString());
-      formData.append("userAddress_id", userInfo?.user_info.location.id.toString());
-
-      // Find the selected category ID by name
-      const selectedCategory = category_list.find(
-        (item: Category) => getCategoryName(item) === category
-      );
-
-      if (selectedCategory) {
-        const selectedCategoryId = selectedCategory.id;
-        formData.append("category_id", selectedCategoryId.toString());
-      } else {
-        toast.error(t("categoryNotFound"), { autoClose: 3000 });
-        setIsSubmitting(false);
-        return;
-      }
-
-      const token = userInfo?.token;
-      const response = await createProduct({ productData: formData, token });
-
-      if (response.data) {
-        toast.success(t("productCreatedSuccess"), { autoClose: 2000 });
-        navigate("/");
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error(t("errorCreatingProduct"), { autoClose: 2000 });
-      } else {
-        toast.error(t("unknown_error_message"), { autoClose: 2000 });
-      }
-    } finally {
+  try {
+    // Validate required fields
+    if (
+      !title ||
+      !description ||
+      !price ||
+      !condition ||
+      imageFiles.length === 0
+    ) {
+      toast.error(t("please_fill_all_required_fields"), { autoClose: 3000 });
       setIsSubmitting(false);
+      return;
     }
-  };
+
+    // Validate user authentication and data
+    if (!userInfo?.user_info?.location?.id || !userInfo?.user_info?.id) {
+      toast.error(t("user_info_missing"), { autoClose: 3000 });
+      setIsSubmitting(false);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("condition", condition);
+    formData.append("currency", "Sum");
+    formData.append("in_stock", "true");
+
+    const cleanedPrice = price.replace(/\./g, "");
+    formData.append("price", cleanedPrice);
+
+    imageFiles.forEach((file) => {
+      formData.append("images", file);
+    });
+
+    // Now safe to access these properties with proper null checks
+    formData.append("location_id", userInfo.user_info.location.id.toString());
+    formData.append("userName_id", userInfo.user_info.id.toString());
+    formData.append("userAddress_id", userInfo.user_info.location.id.toString());
+
+    // Find the selected category ID by name
+    const selectedCategory = category_list?.find(
+      (item: Category) => getCategoryName(item) === category
+    );
+
+    if (selectedCategory) {
+      const selectedCategoryId = selectedCategory.id;
+      formData.append("category_id", selectedCategoryId.toString());
+    } else {
+      toast.error(t("categoryNotFound"), { autoClose: 3000 });
+      setIsSubmitting(false);
+      return;
+    }
+
+    const token = userInfo?.token;
+    if (!token) {
+      toast.error(t("authentication_required"), { autoClose: 3000 });
+      setIsSubmitting(false);
+      return;
+    }
+
+    const response = await createProduct({ productData: formData, token });
+
+    if (response.data) {
+      toast.success(t("productCreatedSuccess"), { autoClose: 2000 });
+      navigate("/");
+    }
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      toast.error(t("errorCreatingProduct"), { autoClose: 2000 });
+    } else {
+      toast.error(t("unknown_error_message"), { autoClose: 2000 });
+    }
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   if (isLoading || create_loading) {
     return (

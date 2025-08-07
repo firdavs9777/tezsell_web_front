@@ -18,7 +18,7 @@ interface MainChatWindowProps {
 interface WebSocketMessage {
   id?: number;
   content: string;
-  sender: { id?: number; username: string };
+ sender: { id?: number; username: string } | number | string;
   timestamp: string;
   room_id?: number;
   type?: string;
@@ -94,30 +94,31 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
         const data = JSON.parse(e.data);
         console.log("📨 Received WebSocket message:", data);
 
+
         if (data.type === "message") {
-          const isMyMessage = data.sender === currentUsername;
+  const isMyMessage = data.sender === currentUsername;
 
-          const messageData: WebSocketMessage = {
-            content: data.message,
-            sender: isMyMessage
-              ? {
-                  id: userId,
-                  username: data.sender,
-                }
-              : {
-                  username: data.sender,
-                },
-            timestamp: data.timestamp,
-            id: Date.now() + Math.random(),
-          };
+  const messageData: WebSocketMessage = {
+    content: data.message,
+    sender: isMyMessage && typeof userId === 'number'
+      ? {
+          id: userId,
+          username: data.sender,
+        }
+      : {
+          username: data.sender,
+        },
+    timestamp: data.timestamp,
+    id: Date.now() + Math.random(),
+  };
 
-          if (data.file) {
-            messageData.file = data.file;
-          }
+  if (data.file) {
+    messageData.file = data.file;
+  }
 
-          console.log("Processing message:", { isMyMessage, messageData });
-          setSocketMessages((prev) => [...prev, messageData]);
-        } else if (data.type === "connection_established") {
+  setSocketMessages((prev) => [...prev, messageData]);
+}
+      else if (data.type === "connection_established") {
           console.log("✅ Connection established:", data.message);
         } else if (data.type === "error") {
           console.error("❌ Server error:", data.error);

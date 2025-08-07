@@ -35,7 +35,7 @@ const MainChat = () => {
   const token = userInfo?.token;
 
   const { data, isLoading, error, refetch } = useGetAllChatMessagesQuery({
-    token,
+    token: token || "",
   });
 
   const {
@@ -44,7 +44,7 @@ const MainChat = () => {
     error: singleRoomError,
     refetch: reload_chat,
   } = useGetSingleChatMessagesQuery(
-    { chatId: selectedChatId?.toString() || "", token },
+    { chatId: selectedChatId?.toString() || "", token: token || "" },
     { skip: selectedChatId === null }
   );
 
@@ -75,12 +75,17 @@ const MainChat = () => {
     const confirm = window.confirm(
       "Are you sure you want to delete this chat?"
     );
+     if (!token) {
+    toast.error("Authentication required");
+    return;
+  }
+
     if (!confirm) return;
 
     try {
       await deleteChat({
         chatId: chatId.toString(),
-        token,
+        token: token,
       });
       toast.success("Chat deleted successfully");
       refetch();
@@ -88,7 +93,8 @@ const MainChat = () => {
         setSelectedChatId(null);
         navigate("/chat");
       }
-    } catch (err) {
+    } catch (error: unknown) {
+      console.error(error)
       toast.error("Error occurred while deleting the chat");
     }
   };

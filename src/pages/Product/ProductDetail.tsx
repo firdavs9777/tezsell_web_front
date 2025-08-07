@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { BASE_URL } from "@store/constants";
 import {
   useDeleteProductItemMutation,
   useGetFavoriteItemsQuery,
@@ -8,26 +7,27 @@ import {
   useUnlikeProductMutation,
 } from "@store/slices/productsApiSlice";
 import { Product, SingleProduct } from "@store/type";
-import { BASE_URL } from "@store/constants";
+import { useEffect, useState } from "react";
 import {
   FaArrowLeft,
   FaCommentAlt,
   FaEdit,
+  FaHeart,
+  FaMapMarkerAlt,
+  FaRegHeart,
+  FaStar,
   FaTrash,
   FaUser,
-  FaMapMarkerAlt,
-  FaStar,
-  FaHeart,
-  FaRegHeart,
 } from "react-icons/fa";
+import { useNavigate, useParams } from "react-router-dom";
 
-import { useSelector } from "react-redux";
-import { ServiceRes } from "../Service/MainProfile";
-import { RootState } from "../../store";
-import { toast } from "react-toastify";
-import MyProductEdit from "./ProductEdit";
-import { Chat, useCreateChatRoomMutation } from "../../store/slices/chatSlice";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { RootState } from "../../store";
+import { Chat, useCreateChatRoomMutation } from "../../store/slices/chatSlice";
+import { ServiceRes } from "../Service/MainProfile";
+import MyProductEdit from "./ProductEdit";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -250,7 +250,7 @@ const ProductDetail = () => {
             {singleProduct.product.images.map((image, index) => (
               <div
                 key={index}
-                className={`relative aspect-square rounded-md overflow-hidden cursor-pointer 
+                className={`relative aspect-square rounded-md overflow-hidden cursor-pointer
                   ${
                     selectedImage === `${BASE_URL}${image.image}`
                       ? "ring-2 ring-blue-500"
@@ -342,34 +342,34 @@ const ProductDetail = () => {
           </div>
 
           <div className="flex gap-3">
-            {userInfo?.user_info.id !== singleProduct.product.userName.id && (
-              <button
-                className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                onClick={handleChat}
-              >
-                <FaCommentAlt size={16} />
-                {t("message_seller")}
-              </button>
-            )}
+           {userInfo?.user_info?.id && userInfo.user_info.id !== singleProduct.product.userName.id && (
+  <button
+    className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+    onClick={handleChat}
+  >
+    <FaCommentAlt size={16} />
+    {t("message_seller")}
+  </button>
+)}
 
-            {userInfo?.user_info.id === singleProduct.product.userName.id && (
-              <>
-                <button
-                  onClick={handleEditModal}
-                  className="flex-1 flex items-center justify-center gap-2 bg-amber-500 text-white py-3 rounded-lg hover:bg-amber-600 transition-colors font-medium"
-                >
-                  <FaEdit size={16} /> {t("edit_label")}
-                </button>
-                <button
-                  onClick={() => {
-                    handleProductDelete();
-                  }}
-                  className="flex-1 flex items-center justify-center gap-2 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors font-medium"
-                >
-                  <FaTrash size={16} /> {t("delete_label")}
-                </button>
-              </>
-            )}
+{userInfo?.user_info?.id && userInfo.user_info.id === singleProduct.product.userName.id && (
+  <>
+    <button
+      onClick={handleEditModal}
+      className="flex-1 flex items-center justify-center gap-2 bg-amber-500 text-white py-3 rounded-lg hover:bg-amber-600 transition-colors font-medium"
+    >
+      <FaEdit size={16} /> {t("edit_label")}
+    </button>
+    <button
+      onClick={() => {
+        handleProductDelete();
+      }}
+      className="flex-1 flex items-center justify-center gap-2 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors font-medium"
+    >
+      <FaTrash size={16} /> {t("delete_label")}
+    </button>
+  </>
+)}
           </div>
 
           {isEdit && (
