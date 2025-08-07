@@ -41,7 +41,7 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
   onClose,
 }) => {
   const { t, i18n } = useTranslation();
-  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo );
 
   // API Hooks
   const {

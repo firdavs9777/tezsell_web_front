@@ -19,7 +19,7 @@ function App() {
 
   // Existing RTK Query
   const { data, refetch } = useGetAllChatMessagesQuery(
-    { token: userInfo?.token },
+    { token: userInfo?.token || '' },
     {
       skip: !userInfo?.token,
       refetchOnMountOrArgChange: true,

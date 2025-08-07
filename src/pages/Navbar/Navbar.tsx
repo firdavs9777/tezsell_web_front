@@ -141,7 +141,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
       }
 
       // Clear Redux state
-      dispatch(logout());
+      dispatch(logout(undefined));
 
       // Clear all storage
       clearAllStorage();
@@ -154,7 +154,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
       console.error("Logout error:", error);
 
       // Even if API call fails, clear local state
-      dispatch(logout());
+      dispatch(logout(undefined));
       clearAllStorage();
       navigate("/login");
 

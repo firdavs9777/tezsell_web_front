@@ -1,11 +1,11 @@
 // hooks/useAutoLogout.ts
-import { useEffect, useCallback, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 import { RootState } from "@store/index";
 import { logout } from "@store/slices/authSlice";
 import { useLogoutUserMutation } from "@store/slices/users";
+import { useCallback, useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const AUTO_LOGOUT_TIME = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
 const WARNING_TIME = 5 * 60 * 1000; // 5 minutes before logout
@@ -56,7 +56,7 @@ export const useAutoLogout = () => {
       } catch (error) {
         console.error("Logout API call failed:", error);
       } finally {
-        dispatch(logout(userInfo));
+        dispatch(logout(undefined));
         clearAllStorage();
         navigate("/login");
 

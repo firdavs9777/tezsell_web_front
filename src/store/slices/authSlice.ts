@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { User } from "@store/type";
 
 
 export interface UserType {
@@ -17,6 +18,7 @@ export interface UserType {
 export interface AuthResponse {
   message?: string;
   token?: string;
+  user_info: User,
   user?: UserType;
 
 }
