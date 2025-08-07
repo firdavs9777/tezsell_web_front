@@ -167,7 +167,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const handleNavLinkClick = (path: string) => {
+  const handleNavLinkClick = () => {
     setIsMenuOpen(false);
   };
 
