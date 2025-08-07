@@ -58,7 +58,7 @@ interface RealEstateAgent {
   phone_number?: string;
 }
 
-interface ExtendedProperty extends Property {
+interface ExtendedProperty extends Omit<Property, 'owner' | 'agent'> {
   owner?: PropertyOwner;
   agent?: RealEstateAgent;
 }
@@ -125,7 +125,8 @@ const RealEstateDetail: React.FC = () => {
           text: `Check out this ${property.property_type} for ${property.listing_type}`,
           url: window.location.href,
         });
-      } catch (error:unknown) {
+      } catch (error: unknown) {
+        console.error(error)
         // Fallback to copying URL
         navigator.clipboard.writeText(window.location.href);
         alert('Property link copied to clipboard!');
@@ -172,6 +173,7 @@ const RealEstateDetail: React.FC = () => {
       await navigator.clipboard.writeText(phoneNumber);
       alert('Phone number copied to clipboard!');
     } catch (error: unknown) {
+      console.error(error)
       // Fallback for older browsers
       const textArea = document.createElement('textarea');
       textArea.value = phoneNumber;
@@ -183,7 +185,7 @@ const RealEstateDetail: React.FC = () => {
     }
   };
 
-  const handleEmailContact = (userType: 'owner' | 'agent', contactInfo: PropertyOwner | RealEstateAgent | undefined) => {
+  const handleEmailContact = (contactInfo: PropertyOwner | RealEstateAgent | undefined) => {
     if (!property || !contactInfo) return;
 
     const subject = `Inquiry about: ${property.title}`;
@@ -509,7 +511,7 @@ const RealEstateDetail: React.FC = () => {
                       Call Agent
                     </button>
                     <button
-                      onClick={() => handleEmailContact('agent', property.agent)}
+                      onClick={() => handleEmailContact(property.agent)}
                       className="w-full border border-blue-600 text-blue-600 py-3 px-4 rounded-lg hover:bg-blue-50 transition-colors flex items-center justify-center"
                     >
                       <FaEnvelope className="mr-2" />
@@ -534,7 +536,13 @@ const RealEstateDetail: React.FC = () => {
                       <FaPhone className="mr-2" />
                       Call Owner
                     </button>
-
+                    <button
+                      onClick={() => handleEmailContact(property.owner)}
+                      className="w-full border border-green-600 text-green-600 py-3 px-4 rounded-lg hover:bg-green-50 transition-colors flex items-center justify-center"
+                    >
+                      <FaEnvelope className="mr-2" />
+                      Email Owner
+                    </button>
                   </div>
                 </div>
               )}
