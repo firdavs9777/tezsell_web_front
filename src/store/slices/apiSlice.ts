@@ -25,7 +25,22 @@ const baseQuery = fetchBaseQuery({
 export const apiSlice = createApi({
   reducerPath: "api", // optional, but helps for clarity and advanced config
   baseQuery,
-  tagTypes: ["Product", "Auth", "Service", "Comment", "Message"],
+  tagTypes: [
+    "Product",
+    "Auth",
+    "Service",
+    "Comment",
+    "Message",
+    // Real Estate Tags
+    "Property",
+    "Agent",
+    "AgentData",
+    "SavedProperty",
+    "Inquiry",
+    "Location",
+    "Stats",
+    "RealEstate"
+  ],
   endpoints: () => ({}),
   keepUnusedDataFor: 60,
 });

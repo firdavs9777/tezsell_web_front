@@ -1,6 +1,7 @@
 export const BASE_URL =
   process.env.NODE_ENV === "production" ? "/api" : "https://api.webtezsell.com";
 // export const BASE_URL = "http://127.0.0.1:8000";
+
 export const PRODUCTS_URL = "/products/api/products";
 export const SERVICES_URL = "/services/api/services";
 export const COMMENTS_URL = "/services/api/comments";
@@ -25,5 +26,32 @@ export const DISLIKE_COMMENT = "/global/unlike/comment/";
 export const LIKE_SERVICE = "/global/like/service/";
 export const DISLIKE_SERVICE = "/global/unlike/service/";
 export const REPLIES_DETAIL = "/services/api/replies";
-export const PROPERTIES_URL = "/real_estate/api/properties";
 export const CHAT_MAIN = "/chats";
+
+// Real Estate URLs
+export const PROPERTIES_URL = "/real_estate/api/properties";
+export const AGENTS_URL = "/real_estate/api/agents";
+export const AGENT_BECOME_URL = "/real_estate/api/agent/become";
+export const AGENT_PROFILE_URL = "/real_estate/api/agent/profile";
+export const AGENT_STATUS_URL = "/real_estate/api/agent/status";
+export const AGENT_DASHBOARD_URL = "/real_estate/api/agent/dashboard";
+export const AGENT_INQUIRIES_URL = "/real_estate/api/agent/inquiries";
+export const AGENT_APPLICATION_STATUS_URL = "/real_estate/api/agent/application-status";
+export const TOP_AGENTS_URL = "/real_estate/api/agents/top";
+
+// Real Estate Map URLs
+export const MAP_BOUNDS_URL = "/real_estate/api/map/bounds";
+export const MAP_STATS_URL = "/real_estate/api/map/stats";
+
+// Real Estate Location URLs
+export const LOCATION_CHOICES_URL = "/real_estate/api/locations/choices";
+export const USER_LOCATIONS_URL = "/real_estate/api/locations/user-locations";
+
+// Real Estate Property URLs
+export const SAVED_PROPERTIES_URL = "/real_estate/api/properties/saved";
+export const PROPERTY_INQUIRIES_URL = "/real_estate/api/inquiries";
+export const PROPERTY_STATS_URL = "/real_estate/api/stats";
+
+// Real Estate Admin URLs
+export const PENDING_AGENTS_URL = "/real_estate/api/admin/agents/pending";
+export const VERIFY_AGENT_URL = "/real_estate/api/admin/agents"; // {id}/verify will be appended
