@@ -1,7 +1,7 @@
-import { useAutoLogout } from "@hooks/useAutoLogout"; // Import the hook
+import { useAutoLogout } from "@hooks/useAutoLogout";
 import { BASE_URL } from "@store/constants";
 import { RootState } from "@store/index";
-import { logout } from "@store/slices/authSlice";
+import { logout, syncWithStorage } from "@store/slices/authSlice";
 import {
   useGetLoggedinUserInfoQuery,
   useLogoutUserMutation,
@@ -55,12 +55,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isProfileDropDownOpen, setIsProfileDropDownOpen] = useState(false);
 
-const userInfoFromRedux = useSelector((state: RootState) => state.auth.userInfo);
-const userInfoFromStorage = localStorage.getItem('userInfo')
-  ? JSON.parse(localStorage.getItem('userInfo')!)
-  : null;
-
-const userInfo = userInfoFromRedux || userInfoFromStorage;
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const [logoutApiCall] = useLogoutUserMutation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -69,6 +64,13 @@ const userInfo = userInfoFromRedux || userInfoFromStorage;
   // Initialize auto-logout hook
   const { clearAllStorage } = useAutoLogout();
 
+  // Sync Redux with localStorage on mount
+  useEffect(() => {
+    if (!userInfo) {
+      dispatch(syncWithStorage());
+    }
+  }, [userInfo, dispatch]);
+
   const calculatedUnread = chats.reduce(
     (total, chat) => total + chat.unread_count,
     0
@@ -76,23 +78,36 @@ const userInfo = userInfoFromRedux || userInfoFromStorage;
   const totalUnread = liveUnreadCount ?? calculatedUnread;
   const hasUnread = totalUnread > 0;
   const formattedCount = totalUnread > 99 ? "99+" : totalUnread.toString();
-  const { data: loggedUserInfo, refetch: refresh } =
-    useGetLoggedinUserInfoQuery(
-      { token: userInfo?.token || "" },
-      {
-        skip: !userInfo?.token,
-        refetchOnMountOrArgChange: true,
-      }
-    );
 
-  // Add console logs to track what's happening
+  const {
+    data: loggedUserInfo,
+    refetch: refresh,
+    isError: userInfoError
+  } = useGetLoggedinUserInfoQuery(
+    { token: userInfo?.token || "" },
+    {
+      skip: !userInfo?.token,
+      refetchOnMountOrArgChange: true,
+    }
+  );
+
+  // Handle API errors (e.g., token expired)
   useEffect(() => {
-    console.log(userInfo);
+    if (userInfoError && userInfo?.token) {
+      console.log("User info fetch failed, possibly expired token");
+      // Optionally auto-logout on token expiry
+      // dispatch(logout());
+      // navigate("/login");
+    }
+  }, [userInfoError, userInfo, dispatch, navigate]);
+
+  // Refresh user info when token is available
+  useEffect(() => {
     const token = userInfo?.token;
     if (token) {
       refresh();
     }
-  }, [userInfo, refresh, loggedUserInfo]);
+  }, [userInfo?.token, refresh]);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -117,16 +132,33 @@ const userInfo = userInfoFromRedux || userInfoFromStorage;
     setIsMenuOpen(false);
   };
 
-  // Updated logout handler to use the comprehensive cleanup
+  // Improved logout handler
   const logoutHandler = async () => {
     try {
-      await logoutApiCall(userInfo?.token).unwrap();
-      dispatch(logout(userInfo));
-      clearAllStorage(); // Use the comprehensive storage clearing
+      // Call logout API if token exists
+      if (userInfo?.token) {
+        await logoutApiCall(userInfo.token).unwrap();
+      }
+
+      // Clear Redux state
+      dispatch(logout());
+
+      // Clear all storage
+      clearAllStorage();
+
+      // Navigate to login
       navigate("/login");
+
       toast.success("Logged out successfully", { autoClose: 2000 });
-    } catch {
-      toast.error("Error occurred", { autoClose: 2000 });
+    } catch (error) {
+      console.error("Logout error:", error);
+
+      // Even if API call fails, clear local state
+      dispatch(logout());
+      clearAllStorage();
+      navigate("/login");
+
+      toast.error("Logout completed (with errors)", { autoClose: 2000 });
     }
   };
 
@@ -139,6 +171,25 @@ const userInfo = userInfoFromRedux || userInfoFromStorage;
     setActiveLink(path);
     setIsMenuOpen(false);
   };
+
+  // Determine authentication state
+  const isAuthenticated = !!(userInfo?.token);
+  const hasProfile = !!(profileInfo?.data);
+  const showUserMenu = isAuthenticated && hasProfile;
+  const showLogin = !isAuthenticated;
+
+  // Debug logging (remove in production)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Auth Debug:', {
+      userInfo: !!userInfo,
+      token: !!userInfo?.token,
+      profileInfo: !!profileInfo,
+      hasProfile,
+      isAuthenticated,
+      showUserMenu,
+      showLogin
+    });
+  }
 
   return (
     <header className="sticky top-0 z-50 bg-yellow-300/90 backdrop-blur-md shadow-md px-4 py-2">
@@ -181,11 +232,10 @@ const userInfo = userInfoFromRedux || userInfoFromStorage;
           <Link
             to="/products"
             onClick={() => handleNavLinkClick("/products")}
-            className={`flex items-center gap-1 font-medium text-lg ${
-              location.pathname === "/products"
+            className={`flex items-center gap-1 font-medium text-lg ${location.pathname === "/products"
                 ? "text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-800 hover:text-blue-400"
-            }`}
+              }`}
           >
             <FaProductHunt /> {t("products_title")}
           </Link>
@@ -194,11 +244,10 @@ const userInfo = userInfoFromRedux || userInfoFromStorage;
           <Link
             to="/service"
             onClick={() => handleNavLinkClick("/service")}
-            className={`flex items-center gap-1 font-medium text-lg ${
-              location.pathname === "/service"
+            className={`flex items-center gap-1 font-medium text-lg ${location.pathname === "/service"
                 ? "text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-800 hover:text-blue-400"
-            }`}
+              }`}
           >
             <FaServicestack /> {t("service")}
           </Link>
@@ -207,11 +256,10 @@ const userInfo = userInfoFromRedux || userInfoFromStorage;
           <Link
             to="/properties"
             onClick={() => handleNavLinkClick("/properties")}
-            className={`flex items-center gap-1 font-medium text-lg ${
-              location.pathname === "/properties"
+            className={`flex items-center gap-1 font-medium text-lg ${location.pathname === "/properties" || location.pathname.startsWith("/properties/")
                 ? "text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-800 hover:text-blue-400"
-            }`}
+              }`}
           >
             <FaHome /> {t("real_estate")}
           </Link>
@@ -220,25 +268,25 @@ const userInfo = userInfoFromRedux || userInfoFromStorage;
           <Link
             to="/about"
             onClick={() => handleNavLinkClick("/about")}
-            className={`flex items-center gap-1 font-medium text-lg ${
-              location.pathname === "/about"
+            className={`flex items-center gap-1 font-medium text-lg ${location.pathname === "/about"
                 ? "text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-800 hover:text-blue-400"
-            }`}
+              }`}
           >
             <FaInfoCircle /> {t("about")}
           </Link>
         </li>
-        {profileInfo && userInfo?.token && (
+
+        {/* Chat - only show if authenticated */}
+        {isAuthenticated && (
           <li className="relative">
             <Link
               to="/chat"
               onClick={() => handleNavLinkClick("/chat")}
-              className={`flex items-center gap-1 font-medium text-lg ${
-                location.pathname === "/chat"
+              className={`flex items-center gap-1 font-medium text-lg ${location.pathname === "/chat"
                   ? "text-blue-600 border-b-2 border-blue-600"
                   : "text-gray-800 hover:text-blue-400"
-              }`}
+                }`}
             >
               <div className="relative">
                 <FaEnvelope />
@@ -253,6 +301,7 @@ const userInfo = userInfoFromRedux || userInfoFromStorage;
             </Link>
           </li>
         )}
+
         <li>
           <a
             href="https://t.me/tezsell_menejer"
@@ -265,7 +314,8 @@ const userInfo = userInfoFromRedux || userInfoFromStorage;
           </a>
         </li>
 
-        {profileInfo && userInfo?.token ? (
+        {/* User Menu or Login */}
+        {showUserMenu ? (
           <li className="relative">
             <button
               className="flex items-center gap-2"
@@ -275,28 +325,40 @@ const userInfo = userInfoFromRedux || userInfoFromStorage;
                 setIsProfileDropDownOpen(!isProfileDropDownOpen);
               }}
             >
-              <img
-                src={`${BASE_URL}${profileInfo?.data.profile_image?.image}`}
-                alt="profile"
-                className="w-8 h-8 rounded-full"
-              />
+              {profileInfo?.data.profile_image?.image ? (
+                <img
+                  src={`${BASE_URL}${profileInfo.data.profile_image.image}`}
+                  alt="profile"
+                  className="w-8 h-8 rounded-full object-cover"
+                  onError={(e) => {
+                    // Hide the broken image and show fallback
+                    e.currentTarget.style.display = 'none';
+                    const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                    if (fallback) fallback.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div
+                className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-semibold"
+                style={{ display: profileInfo?.data.profile_image?.image ? 'none' : 'flex' }}
+              >
+                {profileInfo?.data.username?.charAt(0).toUpperCase() || 'U'}
+              </div>
               <span
-                className={`text-gray-800 ${
-                  location.pathname === "/myprofile" ||
-                  location.pathname === "/my-services" ||
-                  location.pathname === "/my-products"
+                className={`text-gray-800 ${location.pathname === "/myprofile" ||
+                    location.pathname === "/my-services" ||
+                    location.pathname === "/my-products"
                     ? "text-[blue] border-b-2 border-blue-600 text-[16px]"
                     : "text-gray-700 hover:text-blue-600 "
-                }`}
+                  }`}
               >
-                {profileInfo.data.username}
+                {profileInfo?.data.username || 'User'}
               </span>
             </button>
             {isProfileDropDownOpen && (
               <ul
-                className={`mt-2 w-40 bg-yellow-400 rounded-lg shadow-lg py-2 z-50 ${
-                  isMenuOpen ? "" : "absolute right-0"
-                }`}
+                className={`mt-2 w-40 bg-yellow-400 rounded-lg shadow-lg py-2 z-50 ${isMenuOpen ? "" : "absolute right-0"
+                  }`}
               >
                 <li>
                   <Link
@@ -305,11 +367,9 @@ const userInfo = userInfoFromRedux || userInfoFromStorage;
                       handleNavLinkClick("/myprofile");
                       setIsProfileDropDownOpen(false);
                     }}
-                    className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200
-                      ${
-                        location.pathname === "/myprofile"
-                          ? "bg-blue-100 text-blue-700 font-semibold"
-                          : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
+                    className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200 ${location.pathname === "/myprofile"
+                        ? "bg-blue-100 text-blue-700 font-semibold"
+                        : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
                       }`}
                   >
                     <FaUser className="mr-2" color="#333" />
@@ -324,11 +384,9 @@ const userInfo = userInfoFromRedux || userInfoFromStorage;
                       handleNavLinkClick("/my-services");
                       setIsProfileDropDownOpen(false);
                     }}
-                    className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200
-                      ${
-                        location.pathname === "/my-services"
-                          ? "bg-blue-100 text-blue-700 font-semibold"
-                          : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
+                    className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200 ${location.pathname === "/my-services"
+                        ? "bg-blue-100 text-blue-700 font-semibold"
+                        : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
                       }`}
                   >
                     <FaThList className="mr-1" color="#333" size={18} />
@@ -342,11 +400,9 @@ const userInfo = userInfoFromRedux || userInfoFromStorage;
                       handleNavLinkClick("/my-products");
                       setIsProfileDropDownOpen(false);
                     }}
-                    className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200
-                      ${
-                        location.pathname === "/my-products"
-                          ? "bg-blue-100 text-blue-700 font-semibold"
-                          : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
+                    className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200 ${location.pathname === "/my-products"
+                        ? "bg-blue-100 text-blue-700 font-semibold"
+                        : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
                       }`}
                   >
                     <FaBoxOpen className="mr-1" color="#333" size={18} />
@@ -368,23 +424,29 @@ const userInfo = userInfoFromRedux || userInfoFromStorage;
               </ul>
             )}
           </li>
-        ) : (
+        ) : showLogin ? (
           <li>
             <Link
               to="/login"
               onClick={() => handleNavLinkClick("/login")}
-              className={`flex items-center gap-1 text-lg font-medium ${
-                activeLink === "/login"
+              className={`flex items-center gap-1 text-lg font-medium ${location.pathname === "/login"
                   ? "text-blue-600 border-b-2 border-blue-600"
                   : "text-gray-800 hover:text-blue-400"
-              }`}
+                }`}
             >
               <FaUserPlus /> {t("login")}
             </Link>
           </li>
+        ) : (
+          <li>
+            <div className="flex items-center gap-1 text-gray-500">
+              <FaUser />
+              Loading...
+            </div>
+          </li>
         )}
 
-        {/* Language Dropdown */}
+
         <li className="relative">
           <button
             className="flex items-center gap-2 text-cyan-500 hover:text-blue-400"
@@ -398,18 +460,16 @@ const userInfo = userInfoFromRedux || userInfoFromStorage;
           </button>
           {isDropdownOpen && (
             <ul
-              className={`mt-2 w-40 bg-yellow-400 rounded-lg shadow-lg py-2 z-50 ${
-                isMenuOpen ? "" : "absolute right-0"
-              }`}
+              className={`mt-2 w-40 bg-yellow-400 rounded-lg shadow-lg py-2 z-50 ${isMenuOpen ? "" : "absolute right-0"
+                }`}
             >
               <li>
                 <button
                   onClick={() => changeLanguage("uz")}
-                  className={`block w-full text-left px-4 py-2 hover:bg-blue-300 ${
-                    i18n.language === "uz"
+                  className={`block w-full text-left px-4 py-2 hover:bg-blue-300 ${i18n.language === "uz"
                       ? "text-blue-700 font-bold"
                       : "text-white"
-                  }`}
+                    }`}
                 >
                   {t("language-uz")}
                 </button>
@@ -417,11 +477,10 @@ const userInfo = userInfoFromRedux || userInfoFromStorage;
               <li>
                 <button
                   onClick={() => changeLanguage("ru")}
-                  className={`block w-full text-left px-4 py-2 hover:bg-blue-300 ${
-                    i18n.language === "ru"
+                  className={`block w-full text-left px-4 py-2 hover:bg-blue-300 ${i18n.language === "ru"
                       ? "text-blue-700 font-bold"
                       : "text-white"
-                  }`}
+                    }`}
                 >
                   {t("language-ru")}
                 </button>
@@ -429,11 +488,10 @@ const userInfo = userInfoFromRedux || userInfoFromStorage;
               <li>
                 <button
                   onClick={() => changeLanguage("en")}
-                  className={`block w-full text-left px-4 py-2 hover:bg-blue-300 ${
-                    i18n.language === "en"
+                  className={`block w-full text-left px-4 py-2 hover:bg-blue-300 ${i18n.language === "en"
                       ? "text-blue-700 font-bold"
                       : "text-white"
-                  }`}
+                    }`}
                 >
                   {t("language-en")}
                 </button>

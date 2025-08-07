@@ -410,7 +410,7 @@ const RealEstateDetail: React.FC = () => {
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Property Type:</span>
-                      <span className="font-medium capitalize">{property.property_type}</span>
+                      <span className="font-medium capitalize"> {property.property_type}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Listing Type:</span>
