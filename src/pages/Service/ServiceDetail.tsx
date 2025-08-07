@@ -380,7 +380,7 @@ const ServiceDetail = () => {
       const result = await createChatRoom({
         name: chatName,
         participants: [currentUserId, productOwnerId],
-        token: userInfo.token,
+        token: userInfo.token || '',
       });
 
       if ("data" in result && result.data) {

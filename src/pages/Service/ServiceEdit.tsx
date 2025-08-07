@@ -280,9 +280,9 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
       return null;
     }
 
-    formData.append("location_id", userInfo.user_info.location.id);
-    formData.append("userName_id", userInfo.user_info.id);
-    formData.append("userAddress_id", userInfo.user_info.location.id);
+formData.append("location_id", userInfo.user_info.location.id.toString());
+formData.append("userName_id", userInfo.user_info.id.toString());
+formData.append("userAddress_id", userInfo.user_info.location.id.toString());
 
     // Add category
     const selectedCategory = categoryList?.find(

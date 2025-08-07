@@ -61,7 +61,7 @@ export const messagesApiSlice = apiSlice.injectEndpoints({
     }),
     createChatRoom: builder.mutation<
       Chat,
-      { name: string; participants: number[]; token: string }
+      { name: string; participants: number[]; token?: string }
     >({
       query: ({ name, participants, token }) => ({
         url: `${CHAT_MAIN}/`,
