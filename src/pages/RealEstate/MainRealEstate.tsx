@@ -1,27 +1,27 @@
-import React, { useState, useEffect } from "react";
 import {
-  FaHome,
-  FaBed,
-  FaBath,
-  FaCar,
-  FaMapMarkerAlt,
-  FaHeart,
-  FaRegHeart,
-  FaFilter,
-  FaSearch,
-  FaPhone,
-  FaEnvelope,
-  FaStar,
-  FaSpinner,
-  FaEye,
-} from "react-icons/fa";
-import {
-  useGetPropertiesQuery,
   useGetAgentsQuery,
-  useToggleSavePropertyMutation,
+  useGetPropertiesQuery,
   useGetSavedPropertiesQuery,
-
+  useToggleSavePropertyMutation,
 } from '@store/slices/realEstate'; // Adjust import path as needed
+import { GetAgentsQueryParams, GetPropertiesQueryParams } from '@store/type';
+import React, { useEffect, useState } from "react";
+import {
+  FaBath,
+  FaBed,
+  FaCar,
+  FaEnvelope,
+  FaEye,
+  FaFilter,
+  FaHeart,
+  FaHome,
+  FaMapMarkerAlt,
+  FaPhone,
+  FaRegHeart,
+  FaSearch,
+  FaSpinner,
+  FaStar,
+} from "react-icons/fa";
 
 // API Types (matching our backend)
 interface RealEstateAgent {
@@ -91,7 +91,6 @@ const MainRealEstate: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filterType, setFilterType] = useState<string>("all");
   const [propertyType, setPropertyType] = useState<string>("all");
-  const [priceRange, setPriceRange] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [savedPropertyIds, setSavedPropertyIds] = useState<Set<string>>(new Set());
 
@@ -105,15 +104,15 @@ const MainRealEstate: React.FC = () => {
     page: currentPage,
     page_size: 12,
     search: searchTerm || undefined,
-    listing_type: filterType !== "all" ? filterType as "sale" | "rent" : undefined,
+    listing_type: filterType !== "all" ? (filterType as "sale" | "rent") : undefined,
     property_type: propertyType !== "all" ? propertyType : undefined,
     ordering: '-is_featured,-created_at'
-  });
+  } as GetPropertiesQueryParams);
 
   const { data: agentsData } = useGetAgentsQuery({
     is_verified: true,
     page_size: 100
-  });
+  } as GetAgentsQueryParams);
 
   const { data: savedPropertiesData } = useGetSavedPropertiesQuery();
 
@@ -316,7 +315,7 @@ const MainRealEstate: React.FC = () => {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [searchTerm, filterType, propertyType, priceRange, refetchProperties]);
+  }, [searchTerm, filterType, propertyType, refetchProperties]);
 
   const properties = propertiesData?.results || [];
   const totalProperties = propertiesData?.count || 0;
@@ -452,7 +451,7 @@ const MainRealEstate: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {properties.map((property) => (
+            {properties.map((property: any) => (
               <PropertyCard
                 key={property.id}
                 property={property}
