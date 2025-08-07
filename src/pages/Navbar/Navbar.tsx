@@ -49,7 +49,7 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
-  const [activeLink, setActiveLink] = useState("/login");
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -168,7 +168,6 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   };
 
   const handleNavLinkClick = (path: string) => {
-    setActiveLink(path);
     setIsMenuOpen(false);
   };
 

@@ -369,13 +369,16 @@ const ServiceDetail = () => {
 
     try {
       const productOwnerId = service.userName.id;
-      const currentUserId = userInfo.user_info.id;
+      const currentUserId = userInfo.user_info?.id;
 
-      if (currentUserId === productOwnerId) {
-        toast.info(t("cannot_chat_self"));
-        return;
-      }
-
+     if (!currentUserId) {
+    toast.error(t("authentication_required"));
+    return;
+    }
+    if (currentUserId === productOwnerId) {
+    toast.info(t("cannot_chat_self"));
+    return;
+  }
       const chatName = service.userName.username;
       const result = await createChatRoom({
         name: chatName,
@@ -389,6 +392,7 @@ const ServiceDetail = () => {
         navigate(`/chat/${chatId}`);
       }
     } catch (error: unknown) {
+      console.error(error)
       toast.error(t("chat_creation_failed"));
     }
   }, [isLoggedIn, service, userInfo, createChatRoom, navigate, t]);
@@ -409,6 +413,7 @@ const ServiceDetail = () => {
         toast.error(t("product_delete_error"), { autoClose: 2000 });
       }
     } catch (error: unknown) {
+      console.error(error)
       toast.error(t("product_delete_error"), { autoClose: 2000 });
     }
   }, [id, token, deleteService, navigate, t]);
@@ -438,6 +443,7 @@ const ServiceDetail = () => {
         toast.error(t("comment_creation_error"));
       }
     } catch (error: unknown) {
+      console.error(error)
       toast.error(t("error_occurred"));
     }
   }, [commentText, service, createComment, token, refetchComments, t]);

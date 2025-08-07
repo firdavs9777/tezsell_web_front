@@ -39,7 +39,7 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
     (state: RootState) => state.auth.userInfo?.user_info?.id || ''
   );
   const currentUsername = useSelector(
-    (state: RootState) => state.auth.userInfo?.user_info.username || ''
+    (state: RootState) => state.auth.userInfo?.user_info?.username || ''
   );
   const token = useSelector((state: RootState) => state.auth?.userInfo?.token);
 
