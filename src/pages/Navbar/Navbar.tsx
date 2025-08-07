@@ -168,6 +168,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   };
 
   const handleNavLinkClick = () => {
+
     setIsMenuOpen(false);
   };
 
@@ -195,7 +196,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
       <div className="flex justify-between items-center">
         <Link
           to="/"
-          onClick={() => handleNavLinkClick("/")}
+          onClick={handleNavLinkClick}
           className="text-2xl font-bold text-blue-900"
         >
           TezSell
@@ -230,7 +231,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
         <li>
           <Link
             to="/products"
-            onClick={() => handleNavLinkClick("/products")}
+            onClick={ handleNavLinkClick}
             className={`flex items-center gap-1 font-medium text-lg ${location.pathname === "/products"
                 ? "text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-800 hover:text-blue-400"
@@ -242,7 +243,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
         <li>
           <Link
             to="/service"
-            onClick={() => handleNavLinkClick("/service")}
+            onClick={handleNavLinkClick}
             className={`flex items-center gap-1 font-medium text-lg ${location.pathname === "/service"
                 ? "text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-800 hover:text-blue-400"
@@ -254,7 +255,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
         <li>
           <Link
             to="/properties"
-            onClick={() => handleNavLinkClick("/properties")}
+            onClick={handleNavLinkClick}
             className={`flex items-center gap-1 font-medium text-lg ${location.pathname === "/properties" || location.pathname.startsWith("/properties/")
                 ? "text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-800 hover:text-blue-400"
@@ -266,7 +267,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
         <li>
           <Link
             to="/about"
-            onClick={() => handleNavLinkClick("/about")}
+            onClick={ handleNavLinkClick}
             className={`flex items-center gap-1 font-medium text-lg ${location.pathname === "/about"
                 ? "text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-800 hover:text-blue-400"
@@ -281,7 +282,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           <li className="relative">
             <Link
               to="/chat"
-              onClick={() => handleNavLinkClick("/chat")}
+              onClick={ handleNavLinkClick}
               className={`flex items-center gap-1 font-medium text-lg ${location.pathname === "/chat"
                   ? "text-blue-600 border-b-2 border-blue-600"
                   : "text-gray-800 hover:text-blue-400"
@@ -363,7 +364,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                   <Link
                     to="/myprofile"
                     onClick={() => {
-                      handleNavLinkClick("/myprofile");
+                      handleNavLinkClick();
                       setIsProfileDropDownOpen(false);
                     }}
                     className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200 ${location.pathname === "/myprofile"
@@ -380,7 +381,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                   <Link
                     to="/my-services"
                     onClick={() => {
-                      handleNavLinkClick("/my-services");
+                      handleNavLinkClick();
                       setIsProfileDropDownOpen(false);
                     }}
                     className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200 ${location.pathname === "/my-services"
@@ -396,7 +397,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                   <Link
                     to="/my-products"
                     onClick={() => {
-                      handleNavLinkClick("/my-products");
+                      handleNavLinkClick();
                       setIsProfileDropDownOpen(false);
                     }}
                     className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200 ${location.pathname === "/my-products"
@@ -427,7 +428,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           <li>
             <Link
               to="/login"
-              onClick={() => handleNavLinkClick("/login")}
+              onClick={handleNavLinkClick}
               className={`flex items-center gap-1 text-lg font-medium ${location.pathname === "/login"
                   ? "text-blue-600 border-b-2 border-blue-600"
                   : "text-gray-800 hover:text-blue-400"
