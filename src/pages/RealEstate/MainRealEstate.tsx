@@ -22,6 +22,7 @@ import {
   FaSpinner,
   FaStar,
 } from "react-icons/fa";
+import { useNavigate } from 'react-router-dom';
 
 // API Types (matching our backend)
 interface RealEstateAgent {
@@ -93,8 +94,6 @@ const MainRealEstate: React.FC = () => {
   const [propertyType, setPropertyType] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [savedPropertyIds, setSavedPropertyIds] = useState<Set<string>>(new Set());
-
-  // API Queries
   const {
     data: propertiesData,
     isLoading: propertiesLoading,
@@ -179,12 +178,15 @@ const MainRealEstate: React.FC = () => {
   // PropertyCard component
   const PropertyCard: React.FC<PropertyCardProps> = ({ property, agent, isSaved, onToggleSave }) => {
     // Default image if no images available
+    const navigate = useNavigate();
     const defaultImage = `https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=300&fit=crop`;
+   const redirectHandler = (id: string) => navigate(`/properties/${id}`);
 
     return (
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-        {/* Property Image */}
-        <div className="relative">
+
+
+        <div className="relative" onClick={() => redirectHandler(property.id)}>
           <img
             src={defaultImage}
             alt={property.title}
@@ -214,7 +216,6 @@ const MainRealEstate: React.FC = () => {
           </div>
         </div>
 
-        {/* Property Details */}
         <div className="p-4">
           <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
             {property.title}
