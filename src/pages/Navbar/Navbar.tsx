@@ -1,3 +1,4 @@
+import { useAutoLogout } from "@hooks/useAutoLogout"; // Import the hook
 import { BASE_URL } from "@store/constants";
 import { RootState } from "@store/index";
 import { logout } from "@store/slices/authSlice";
@@ -25,7 +26,6 @@ import { FaUserPlus } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useAutoLogout } from "@hooks/useAutoLogout"; // Import the hook
 
 interface Chat {
   id: number;
@@ -54,7 +54,13 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   const location = useLocation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isProfileDropDownOpen, setIsProfileDropDownOpen] = useState(false);
-  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+
+const userInfoFromRedux = useSelector((state: RootState) => state.auth.userInfo);
+const userInfoFromStorage = localStorage.getItem('userInfo')
+  ? JSON.parse(localStorage.getItem('userInfo')!)
+  : null;
+
+const userInfo = userInfoFromRedux || userInfoFromStorage;
   const [logoutApiCall] = useLogoutUserMutation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
