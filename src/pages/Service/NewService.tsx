@@ -1,14 +1,14 @@
-import React, { useState } from "react";
-import { Category } from "@store/type";
-import { toast } from "react-toastify";
-import { useSelector } from "react-redux";
 import { RootState } from "@store/index";
-import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import {
   useCreateServiceMutation,
   useGetServiceCategoryListQuery,
 } from "@store/slices/serviceApiSlice";
+import { Category } from "@store/type";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const NewService = () => {
   const { t, i18n } = useTranslation();
@@ -121,15 +121,15 @@ const NewService = () => {
 
     // Add user info
     if (userInfo?.user_info?.location?.id) {
-      formData.append("location_id", userInfo.user_info.location.id);
-      formData.append("userAddress_id", userInfo.user_info.location.id);
+      formData.append("location_id", userInfo.user_info.location.id.toString());
+      formData.append("userAddress_id", userInfo.user_info.location.id.toString());
     } else {
       toast.error(t("locationMissing"));
       return;
     }
 
     if (userInfo?.user_info?.id) {
-      formData.append("userName_id", userInfo.user_info.id);
+      formData.append("userName_id", userInfo.user_info.id.toString());
     } else {
       toast.error(t("userInfoMissing"));
       return;

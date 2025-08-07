@@ -18,7 +18,7 @@ export interface UserType {
 export interface AuthResponse {
   message?: string;
   token?: string;
-  user_info: User,
+  user_info?: User,
   user?: UserType;
 
 }
