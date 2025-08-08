@@ -21,6 +21,10 @@ import {
   FaServicestack,
   FaThList,
   FaUser,
+  FaUserTie,
+  FaChevronDown,
+  FaUserPlus as FaUserPlusIcon,
+  FaBuilding,
 } from "react-icons/fa";
 import { FaUserPlus } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
@@ -49,11 +53,11 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
-
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isProfileDropDownOpen, setIsProfileDropDownOpen] = useState(false);
+  const [isRealEstateDropdownOpen, setIsRealEstateDropdownOpen] = useState(false);
 
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const [logoutApiCall] = useLogoutUserMutation();
@@ -95,9 +99,6 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   useEffect(() => {
     if (userInfoError && userInfo?.token) {
       console.log("User info fetch failed, possibly expired token");
-      // Optionally auto-logout on token expiry
-      // dispatch(logout());
-      // navigate("/login");
     }
   }, [userInfoError, userInfo, dispatch, navigate]);
 
@@ -113,16 +114,17 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   useEffect(() => {
     const handleClickOutside = () => {
       setIsMenuOpen(false);
+      setIsRealEstateDropdownOpen(false);
     };
 
-    if (isMenuOpen) {
+    if (isMenuOpen || isRealEstateDropdownOpen) {
       document.addEventListener("click", handleClickOutside);
     }
 
     return () => {
       document.removeEventListener("click", handleClickOutside);
     };
-  }, [isMenuOpen]);
+  }, [isMenuOpen, isRealEstateDropdownOpen]);
 
   const profileInfo: UserInfo | undefined = loggedUserInfo as UserInfo;
 
@@ -135,29 +137,19 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   // Improved logout handler
   const logoutHandler = async () => {
     try {
-      // Call logout API if token exists
       if (userInfo?.token) {
         await logoutApiCall(userInfo.token).unwrap();
       }
 
-      // Clear Redux state
       dispatch(logout(undefined));
-
-      // Clear all storage
       clearAllStorage();
-
-      // Navigate to login
       navigate("/login");
-
       toast.success("Logged out successfully", { autoClose: 2000 });
     } catch (error) {
       console.error("Logout error:", error);
-
-      // Even if API call fails, clear local state
       dispatch(logout(undefined));
       clearAllStorage();
       navigate("/login");
-
       toast.error("Logout completed (with errors)", { autoClose: 2000 });
     }
   };
@@ -168,28 +160,28 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   };
 
   const handleNavLinkClick = () => {
-
     setIsMenuOpen(false);
+    setIsRealEstateDropdownOpen(false);
   };
+
+  const handleRealEstateDropdownToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsRealEstateDropdownOpen(!isRealEstateDropdownOpen);
+    setIsDropdownOpen(false);
+    setIsProfileDropDownOpen(false);
+  };
+
+  // Check if current path is real estate related
+  const isRealEstateActive = location.pathname === "/properties" ||
+                            location.pathname.startsWith("/properties/") ||
+                            location.pathname === "/agents" ||
+                            location.pathname === "/become-agent";
 
   // Determine authentication state
   const isAuthenticated = !!(userInfo?.token);
   const hasProfile = !!(profileInfo?.data);
   const showUserMenu = isAuthenticated && hasProfile;
   const showLogin = !isAuthenticated;
-
-  // Debug logging (remove in production)
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Auth Debug:', {
-      userInfo: !!userInfo,
-      token: !!userInfo?.token,
-      profileInfo: !!profileInfo,
-      hasProfile,
-      isAuthenticated,
-      showUserMenu,
-      showLogin
-    });
-  }
 
   return (
     <header className="sticky top-0 z-50 bg-yellow-300/90 backdrop-blur-md shadow-md px-4 py-2">
@@ -231,11 +223,12 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
         <li>
           <Link
             to="/products"
-            onClick={ handleNavLinkClick}
-            className={`flex items-center gap-1 font-medium text-lg ${location.pathname === "/products"
+            onClick={handleNavLinkClick}
+            className={`flex items-center gap-1 font-medium text-lg ${
+              location.pathname === "/products"
                 ? "text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-800 hover:text-blue-400"
-              }`}
+            }`}
           >
             <FaProductHunt /> {t("products_title")}
           </Link>
@@ -244,53 +237,113 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           <Link
             to="/service"
             onClick={handleNavLinkClick}
-            className={`flex items-center gap-1 font-medium text-lg ${location.pathname === "/service"
+            className={`flex items-center gap-1 font-medium text-lg ${
+              location.pathname === "/service"
                 ? "text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-800 hover:text-blue-400"
-              }`}
+            }`}
           >
             <FaServicestack /> {t("service")}
           </Link>
         </li>
-        <li>
-          <Link
-            to="/properties"
-            onClick={handleNavLinkClick}
-            className={`flex items-center gap-1 font-medium text-lg ${location.pathname === "/properties" || location.pathname.startsWith("/properties/")
+
+        {/* Real Estate Dropdown */}
+        <li className="relative">
+          <button
+            onClick={handleRealEstateDropdownToggle}
+            className={`flex items-center gap-1 font-medium text-lg ${
+              isRealEstateActive
                 ? "text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-800 hover:text-blue-400"
-              }`}
+            }`}
           >
-            <FaHome /> {t("real_estate")}
-          </Link>
+            <FaHome />
+            {t("real_estate")}
+            <FaChevronDown
+              className={`transition-transform duration-200 ${
+                isRealEstateDropdownOpen ? "rotate-180" : ""
+              }`}
+              size={12}
+            />
+          </button>
+
+          {isRealEstateDropdownOpen && (
+            <ul className={`mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200 ${
+              isMenuOpen ? "" : "absolute left-0"
+            }`}>
+              <li>
+                <Link
+                  to="/properties"
+                  onClick={handleNavLinkClick}
+                  className={`flex items-center px-4 py-2 transition-colors duration-200 ${
+                    location.pathname === "/properties" || location.pathname.startsWith("/properties/")
+                      ? "bg-blue-100 text-blue-700 font-semibold"
+                      : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
+                  }`}
+                >
+                  <FaBuilding className="mr-2" size={14} />
+                  {t("properties")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/agents"
+                  onClick={handleNavLinkClick}
+                  className={`flex items-center px-4 py-2 transition-colors duration-200 ${
+                    location.pathname === "/agents"
+                      ? "bg-blue-100 text-blue-700 font-semibold"
+                      : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
+                  }`}
+                >
+                  <FaUserTie className="mr-2" size={14} />
+                  {t("agents")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/become-agent"
+                  onClick={handleNavLinkClick}
+                  className={`flex items-center px-4 py-2 transition-colors duration-200 ${
+                    location.pathname === "/become-agent"
+                      ? "bg-blue-100 text-blue-700 font-semibold"
+                      : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
+                  }`}
+                >
+                  <FaUserPlusIcon className="mr-2" size={14} />
+                  {t("become_agent")}
+                </Link>
+              </li>
+            </ul>
+          )}
         </li>
+
         <li>
           <Link
             to="/about"
-            onClick={ handleNavLinkClick}
-            className={`flex items-center gap-1 font-medium text-lg ${location.pathname === "/about"
+            onClick={handleNavLinkClick}
+            className={`flex items-center gap-1 font-medium text-lg ${
+              location.pathname === "/about"
                 ? "text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-800 hover:text-blue-400"
-              }`}
+            }`}
           >
             <FaInfoCircle /> {t("about")}
           </Link>
         </li>
 
-        {/* Chat - only show if authenticated */}
         {isAuthenticated && (
           <li className="relative">
             <Link
               to="/chat"
-              onClick={ handleNavLinkClick}
-              className={`flex items-center gap-1 font-medium text-lg ${location.pathname === "/chat"
+              onClick={handleNavLinkClick}
+              className={`flex items-center gap-1 font-medium text-lg ${
+                location.pathname === "/chat"
                   ? "text-blue-600 border-b-2 border-blue-600"
                   : "text-gray-800 hover:text-blue-400"
-                }`}
+              }`}
             >
               <div className="relative">
                 <FaEnvelope />
-                {/* Notification badge */}
                 {hasUnread && (
                   <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[18px] h-[18px] flex items-center justify-center leading-none">
                     {formattedCount}
@@ -314,7 +367,6 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           </a>
         </li>
 
-        {/* User Menu or Login */}
         {showUserMenu ? (
           <li className="relative">
             <button
@@ -322,6 +374,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
               onClick={(e) => {
                 e.stopPropagation();
                 setIsDropdownOpen(false);
+                setIsRealEstateDropdownOpen(false);
                 setIsProfileDropDownOpen(!isProfileDropDownOpen);
               }}
             >
@@ -331,7 +384,6 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                   alt="profile"
                   className="w-8 h-8 rounded-full object-cover"
                   onError={(e) => {
-                    // Hide the broken image and show fallback
                     e.currentTarget.style.display = 'none';
                     const fallback = e.currentTarget.nextElementSibling as HTMLElement;
                     if (fallback) fallback.style.display = 'flex';
@@ -345,20 +397,22 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                 {profileInfo?.data.username?.charAt(0).toUpperCase() || 'U'}
               </div>
               <span
-                className={`text-gray-800 ${location.pathname === "/myprofile" ||
-                    location.pathname === "/my-services" ||
-                    location.pathname === "/my-products"
+                className={`text-gray-800 ${
+                  location.pathname === "/myprofile" ||
+                  location.pathname === "/my-services" ||
+                  location.pathname === "/my-products"
                     ? "text-[blue] border-b-2 border-blue-600 text-[16px]"
                     : "text-gray-700 hover:text-blue-600 "
-                  }`}
+                }`}
               >
                 {profileInfo?.data.username || 'User'}
               </span>
             </button>
             {isProfileDropDownOpen && (
               <ul
-                className={`mt-2 w-40 bg-yellow-400 rounded-lg shadow-lg py-2 z-50 ${isMenuOpen ? "" : "absolute right-0"
-                  }`}
+                className={`mt-2 w-40 bg-yellow-400 rounded-lg shadow-lg py-2 z-50 ${
+                  isMenuOpen ? "" : "absolute right-0"
+                }`}
               >
                 <li>
                   <Link
@@ -367,10 +421,11 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                       handleNavLinkClick();
                       setIsProfileDropDownOpen(false);
                     }}
-                    className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200 ${location.pathname === "/myprofile"
+                    className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200 ${
+                      location.pathname === "/myprofile"
                         ? "bg-blue-100 text-blue-700 font-semibold"
                         : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
-                      }`}
+                    }`}
                   >
                     <FaUser className="mr-2" color="#333" />
                     {t("my_profile")}
@@ -384,10 +439,11 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                       handleNavLinkClick();
                       setIsProfileDropDownOpen(false);
                     }}
-                    className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200 ${location.pathname === "/my-services"
+                    className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200 ${
+                      location.pathname === "/my-services"
                         ? "bg-blue-100 text-blue-700 font-semibold"
                         : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
-                      }`}
+                    }`}
                   >
                     <FaThList className="mr-1" color="#333" size={18} />
                     {t("my_services_title")}
@@ -400,10 +456,11 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                       handleNavLinkClick();
                       setIsProfileDropDownOpen(false);
                     }}
-                    className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200 ${location.pathname === "/my-products"
+                    className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200 ${
+                      location.pathname === "/my-products"
                         ? "bg-blue-100 text-blue-700 font-semibold"
                         : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
-                      }`}
+                    }`}
                   >
                     <FaBoxOpen className="mr-1" color="#333" size={18} />
                     {t("my_products_title")}
@@ -429,10 +486,11 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
             <Link
               to="/login"
               onClick={handleNavLinkClick}
-              className={`flex items-center gap-1 text-lg font-medium ${location.pathname === "/login"
+              className={`flex items-center gap-1 text-lg font-medium ${
+                location.pathname === "/login"
                   ? "text-blue-600 border-b-2 border-blue-600"
                   : "text-gray-800 hover:text-blue-400"
-                }`}
+              }`}
             >
               <FaUserPlus /> {t("login")}
             </Link>
@@ -446,13 +504,13 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           </li>
         )}
 
-
         <li className="relative">
           <button
             className="flex items-center gap-2 text-cyan-500 hover:text-blue-400"
             onClick={(e) => {
               e.stopPropagation();
               setIsProfileDropDownOpen(false);
+              setIsRealEstateDropdownOpen(false);
               setIsDropdownOpen(!isDropdownOpen);
             }}
           >
@@ -460,16 +518,18 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           </button>
           {isDropdownOpen && (
             <ul
-              className={`mt-2 w-40 bg-yellow-400 rounded-lg shadow-lg py-2 z-50 ${isMenuOpen ? "" : "absolute right-0"
-                }`}
+              className={`mt-2 w-40 bg-yellow-400 rounded-lg shadow-lg py-2 z-50 ${
+                isMenuOpen ? "" : "absolute right-0"
+              }`}
             >
               <li>
                 <button
                   onClick={() => changeLanguage("uz")}
-                  className={`block w-full text-left px-4 py-2 hover:bg-blue-300 ${i18n.language === "uz"
+                  className={`block w-full text-left px-4 py-2 hover:bg-blue-300 ${
+                    i18n.language === "uz"
                       ? "text-blue-700 font-bold"
                       : "text-white"
-                    }`}
+                  }`}
                 >
                   {t("language-uz")}
                 </button>
@@ -477,10 +537,11 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
               <li>
                 <button
                   onClick={() => changeLanguage("ru")}
-                  className={`block w-full text-left px-4 py-2 hover:bg-blue-300 ${i18n.language === "ru"
+                  className={`block w-full text-left px-4 py-2 hover:bg-blue-300 ${
+                    i18n.language === "ru"
                       ? "text-blue-700 font-bold"
                       : "text-white"
-                    }`}
+                  }`}
                 >
                   {t("language-ru")}
                 </button>
@@ -488,10 +549,11 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
               <li>
                 <button
                   onClick={() => changeLanguage("en")}
-                  className={`block w-full text-left px-4 py-2 hover:bg-blue-300 ${i18n.language === "en"
+                  className={`block w-full text-left px-4 py-2 hover:bg-blue-300 ${
+                    i18n.language === "en"
                       ? "text-blue-700 font-bold"
                       : "text-white"
-                    }`}
+                  }`}
                 >
                   {t("language-en")}
                 </button>

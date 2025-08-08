@@ -205,9 +205,12 @@ export const realEstateApiSlice = apiSlice.injectEndpoints({
     }),
 
     becomeAgent: builder.mutation<BecomeAgentResponse, BecomeAgentRequest>({
-      query: ({ agency_name, licence_number, years_experience, specialization }) => ({
+      query: ({ agency_name, licence_number, years_experience, specialization, token }) => ({
         url: `${AGENT_BECOME_URL}/`,
         method: 'POST',
+        headers: {
+            Authorization: `Token ${token}`, // Pass token in headers
+          },
         body: {
           agency_name,
           licence_number,

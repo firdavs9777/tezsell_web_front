@@ -184,8 +184,6 @@ const MainRealEstate: React.FC = () => {
 
     return (
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-
-
         <div className="relative" onClick={() => redirectHandler(property.id)}>
           <img
             src={defaultImage}

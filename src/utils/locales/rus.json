@@ -246,5 +246,8 @@
   "authentication_required": "Требуется аутентификация",
   "enter_valid_reply": "Пожалуйста, введите корректный текст ответа",
   "saving": "Сохранение...",
-  "deleting": "Удаление..."
+  "deleting": "Удаление...",
+  "properties": "Объекты",
+  "agents": "Агенты",
+  "become_agent": "Стать агентом"
 }

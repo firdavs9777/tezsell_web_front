@@ -248,5 +248,9 @@
   "authentication_required": "Authentication required",
   "enter_valid_reply": "Please enter a valid reply text",
   "saving": "Saving...",
-  "deleting": "Deleting..."
+  "deleting": "Deleting...",
+
+  "properties": "Properties",
+  "agents": "Agents",
+  "become_agent": "Become an Agent"
 }

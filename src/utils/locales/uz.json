@@ -247,5 +247,8 @@
   "authentication_required": "Autentifikatsiya talab qilinadi",
   "enter_valid_reply": "Iltimos, to'g'ri javob matnini kiriting",
   "saving": "Saqlanmoqda...",
-  "deleting": "O'chirilmoqda..."
+  "deleting": "O'chirilmoqda...",
+  "properties": "Mulklar",
+  "agents": "Agentlar",
+  "become_agent": "Agent bo'lish"
 }
