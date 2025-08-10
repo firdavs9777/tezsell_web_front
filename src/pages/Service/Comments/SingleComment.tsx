@@ -454,8 +454,12 @@ const SingleComment: React.FC<SingleCommentProps> = ({
       )}
 
       {showReplies && replies.length > 0 && (
-        <MainReply replies={replies} showReplies={showReplies}  onReplyUpdate={refetch}
-    onReplyDelete={refetch}  />
+        <MainReply
+          replies={replies}
+          showReplies={showReplies}
+          onReplyUpdate={refetch}
+          onReplyDelete={refetch}
+        />
       )}
     </div>
   );
