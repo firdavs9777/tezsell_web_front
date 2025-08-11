@@ -1,10 +1,13 @@
 import {
-  useGetAgentsQuery,
   useGetPropertiesQuery,
   useGetSavedPropertiesQuery,
   useToggleSavePropertyMutation,
-} from '@store/slices/realEstate';
-import { GetAgentsQueryParams, GetPropertiesQueryParams, Property, RealEstateAgent } from '@store/type';
+} from "@store/slices/realEstate";
+import {
+  GetPropertiesQueryParams,
+  Property,
+  RealEstateAgent,
+} from "@store/type";
 import React, { useEffect, useState } from "react";
 import {
   FaBath,
@@ -24,31 +27,29 @@ import {
   FaCopy,
   FaInfoCircle,
 } from "react-icons/fa";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
-// Additional types that might not be in store but are used in API responses
-interface ExtendedProperty extends Property {
+// User interface for owner info
+interface User {
+  id: number;
+  username: string;
+  phone_number: string;
+  user_type: string;
+}
+
+// Extended Property interface that properly overrides the base Property interface
+interface ExtendedProperty extends Omit<Property, "owner"> {
   property_type_display?: string;
   listing_type_display?: string;
   main_image?: string | null;
-  owner?: {
-    id: number;
-    username: string;
-    phone_number: string;
-    user_type: string;
-  };
+  owner?: User;
   agent?: {
     id: number;
-    user: {
-      id: number;
-      username: string;
-      phone_number: string;
-      user_type: string;
-    };
+    user: User;
     agency_name: string;
     licence_number: string;
     is_verified: boolean;
-    rating: string;
+    rating: string | number;
     total_sales: number;
     years_experience: number;
     specialization: string;
@@ -68,22 +69,26 @@ const MainRealEstate: React.FC = () => {
   const [filterType, setFilterType] = useState<string>("all");
   const [propertyType, setPropertyType] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [savedPropertyIds, setSavedPropertyIds] = useState<Set<string>>(new Set());
+  const [savedPropertyIds, setSavedPropertyIds] = useState<Set<string>>(
+    new Set()
+  );
   const [showPhoneModal, setShowPhoneModal] = useState<boolean>(false);
-  const [selectedProperty, setSelectedProperty] = useState<ExtendedProperty | null>(null);
+  const [selectedProperty, setSelectedProperty] =
+    useState<ExtendedProperty | null>(null);
 
   const {
     data: propertiesData,
     isLoading: propertiesLoading,
     error: propertiesError,
-    refetch: refetchProperties
+    refetch: refetchProperties,
   } = useGetPropertiesQuery({
     page: currentPage,
     page_size: 12,
     search: searchTerm || undefined,
-    listing_type: filterType !== "all" ? (filterType as "sale" | "rent") : undefined,
+    listing_type:
+      filterType !== "all" ? (filterType as "sale" | "rent") : undefined,
     property_type: propertyType !== "all" ? propertyType : undefined,
-    ordering: '-is_featured,-created_at'
+    ordering: "-is_featured,-created_at",
   } as GetPropertiesQueryParams);
 
   const { data: savedPropertiesData } = useGetSavedPropertiesQuery();
@@ -93,7 +98,9 @@ const MainRealEstate: React.FC = () => {
   useEffect(() => {
     if (savedPropertiesData?.results) {
       const savedIds = new Set(
-        savedPropertiesData.results.map((saved: any) => saved.property.id || saved.property)
+        savedPropertiesData.results.map(
+          (saved: any) => saved.property.id || saved.property
+        )
       );
       setSavedPropertyIds(savedIds);
     }
@@ -104,7 +111,7 @@ const MainRealEstate: React.FC = () => {
       await toggleSaveProperty(propertyId).unwrap();
 
       // Optimistically update local state
-      setSavedPropertyIds(prev => {
+      setSavedPropertyIds((prev) => {
         const newSet = new Set(prev);
         if (newSet.has(propertyId)) {
           newSet.delete(propertyId);
@@ -114,7 +121,7 @@ const MainRealEstate: React.FC = () => {
         return newSet;
       });
     } catch (error) {
-      console.error('Failed to toggle save property:', error);
+      console.error("Failed to toggle save property:", error);
     }
   };
 
@@ -130,10 +137,10 @@ const MainRealEstate: React.FC = () => {
   const handleCopyPhone = async (phoneNumber: string): Promise<void> => {
     try {
       await navigator.clipboard.writeText(phoneNumber);
-      console.log('Phone number copied to clipboard');
+      console.log("Phone number copied to clipboard");
       // You could add a toast notification here
     } catch (err) {
-      console.error('Failed to copy phone number:', err);
+      console.error("Failed to copy phone number:", err);
     }
   };
 
@@ -142,23 +149,28 @@ const MainRealEstate: React.FC = () => {
     currency: string,
     listingType: "sale" | "rent"
   ): string => {
-    const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+    const numPrice = typeof price === "string" ? parseFloat(price) : price;
     const formatted = new Intl.NumberFormat("en-US").format(numPrice);
-    const symbol = currency === "USD" ? "$" : currency === "UZS" ? "so'm" : currency;
+    const symbol =
+      currency === "USD" ? "$" : currency === "UZS" ? "so'm" : currency;
     return listingType === "rent"
       ? `${symbol}${formatted}/month`
       : `${symbol}${formatted}`;
   };
 
   // Helper function to safely get property display values
-  const getPropertyDisplayValue = (property: Property, field: string, fallback: string): string => {
+  const getPropertyDisplayValue = (
+    property: ExtendedProperty,
+    field: string,
+    fallback: string
+  ): string => {
     const value = (property as any)[field];
     return value || fallback;
   };
 
   // Helper function to safely access nested agent properties
   const getAgentInfo = (agent: any): RealEstateAgent | null => {
-    if (agent && typeof agent === 'object' && agent.id) {
+    if (agent && typeof agent === "object" && agent.id) {
       return agent as RealEstateAgent;
     }
     return null;
@@ -166,13 +178,13 @@ const MainRealEstate: React.FC = () => {
 
   // Helper function to safely access owner info
   const getOwnerInfo = (owner: any): User | null => {
-    if (owner && typeof owner === 'object' && owner.id) {
+    if (owner && typeof owner === "object" && owner.id) {
       return owner as User;
     }
     return null;
   };
 
-  const getPropertyFeatures = (property: Property): string[] => {
+  const getPropertyFeatures = (property: ExtendedProperty): string[] => {
     const features: string[] = [];
     if (property.has_balcony) features.push("Balcony");
     if (property.has_garage) features.push("Garage");
@@ -183,8 +195,21 @@ const MainRealEstate: React.FC = () => {
     return features;
   };
 
+  // Helper function to safely format agent rating
+  const formatAgentRating = (rating: string | number): string => {
+    if (typeof rating === "string") {
+      return parseFloat(rating).toFixed(1);
+    }
+    return (rating || 0).toFixed(1);
+  };
+
   // PropertyCard component
-  const PropertyCard: React.FC<PropertyCardProps> = ({ property, isSaved, onToggleSave, onContactClick }) => {
+  const PropertyCard: React.FC<PropertyCardProps> = ({
+    property,
+    isSaved,
+    onToggleSave,
+    onContactClick,
+  }) => {
     const navigate = useNavigate();
     const defaultImage = `https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=300&fit=crop`;
     const redirectHandler = (id: string) => navigate(`/properties/${id}`);
@@ -199,13 +224,15 @@ const MainRealEstate: React.FC = () => {
       onContactClick(property);
     };
 
-    // Safely access agent and owner information
+    // Safely access agent information
     const agent = getAgentInfo(property.agent);
-    const owner = getOwnerInfo(property.owner);
 
     return (
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-        <div className="relative cursor-pointer" onClick={() => redirectHandler(property.id)}>
+        <div
+          className="relative cursor-pointer"
+          onClick={() => redirectHandler(property.id)}
+        >
           <img
             src={property.main_image || defaultImage}
             alt={property.title}
@@ -227,7 +254,11 @@ const MainRealEstate: React.FC = () => {
             )}
           </button>
           <span className="absolute bottom-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-sm font-semibold capitalize">
-            {getPropertyDisplayValue(property, 'listing_type_display', `For ${property.listing_type}`)}
+            {getPropertyDisplayValue(
+              property,
+              "listing_type_display",
+              `For ${property.listing_type}`
+            )}
           </span>
           <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs flex items-center">
             <FaEye className="mr-1" size={12} />
@@ -242,11 +273,17 @@ const MainRealEstate: React.FC = () => {
 
           <div className="flex items-center text-gray-600 mb-2">
             <FaMapMarkerAlt className="mr-1" />
-            <span className="text-sm">{property.district}, {property.city}</span>
+            <span className="text-sm">
+              {property.district}, {property.city}
+            </span>
           </div>
 
           <div className="text-2xl font-bold text-blue-600 mb-3">
-            {formatPrice(property.price, property.currency, property.listing_type)}
+            {formatPrice(
+              property.price,
+              property.currency,
+              property.listing_type
+            )}
           </div>
 
           {/* Property Features */}
@@ -276,13 +313,22 @@ const MainRealEstate: React.FC = () => {
           {/* Property Type and Features */}
           <div className="mb-3">
             <span className="inline-block bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-medium mb-1 capitalize">
-              {getPropertyDisplayValue(property, 'property_type_display', property.property_type.replace('_', ' '))}
+              {getPropertyDisplayValue(
+                property,
+                "property_type_display",
+                property.property_type.replace("_", " ")
+              )}
             </span>
-            {getPropertyFeatures(property).slice(0, 2).map((feature, index) => (
-              <span key={index} className="inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-medium ml-1 mb-1">
-                {feature}
-              </span>
-            ))}
+            {getPropertyFeatures(property)
+              .slice(0, 2)
+              .map((feature, index) => (
+                <span
+                  key={index}
+                  className="inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-medium ml-1 mb-1"
+                >
+                  {feature}
+                </span>
+              ))}
           </div>
 
           {/* Agent Info */}
@@ -299,7 +345,8 @@ const MainRealEstate: React.FC = () => {
                   <div className="flex items-center">
                     <FaStar className="text-yellow-400 text-xs mr-1" />
                     <span className="text-xs text-gray-600">
-                      {typeof agent.rating === 'string' ? parseFloat(agent.rating).toFixed(1) : (agent.rating || 0).toFixed(1)} ({agent.total_sales} sales)
+                      {formatAgentRating(agent.rating)} ({agent.total_sales}{" "}
+                      sales)
                     </span>
                   </div>
                 </div>
@@ -361,9 +408,9 @@ const MainRealEstate: React.FC = () => {
           className="absolute inset-0 opacity-20"
           style={{
             backgroundImage: `url('/assets/properties.svg')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
           }}
         />
 
@@ -373,14 +420,18 @@ const MainRealEstate: React.FC = () => {
               Find Your Dream Property
             </h1>
             <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-              Discover premium real estate opportunities in Tashkent's most desirable locations
+              Discover premium real estate opportunities in Tashkent's most
+              desirable locations
             </p>
           </div>
 
           {/* Search and Filters */}
           <div className="flex flex-col md:flex-row gap-4 bg-white p-6 rounded-lg shadow-lg">
             <div className="relative flex-1">
-              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <FaSearch
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={20}
+              />
               <input
                 type="text"
                 placeholder="Search by title or location..."
@@ -457,7 +508,10 @@ const MainRealEstate: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Loading skeletons */}
             {[...Array(6)].map((_, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+              <div
+                key={index}
+                className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse"
+              >
                 <div className="w-full h-48 bg-gray-300"></div>
                 <div className="p-4">
                   <div className="h-4 bg-gray-300 rounded mb-2"></div>
@@ -477,7 +531,9 @@ const MainRealEstate: React.FC = () => {
             <div className="text-gray-400 mb-4">
               <FaSearch size={48} className="mx-auto" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No properties found</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No properties found
+            </h3>
             <p className="text-gray-600">Try adjusting your search criteria</p>
           </div>
         ) : (
@@ -499,7 +555,7 @@ const MainRealEstate: React.FC = () => {
           <div className="flex justify-center mt-8">
             <div className="flex space-x-2">
               <button
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
                 className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
               >
@@ -509,7 +565,7 @@ const MainRealEstate: React.FC = () => {
                 Page {currentPage}
               </span>
               <button
-                onClick={() => setCurrentPage(prev => prev + 1)}
+                onClick={() => setCurrentPage((prev) => prev + 1)}
                 disabled={!propertiesData.next}
                 className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
               >
@@ -537,21 +593,29 @@ const MainRealEstate: React.FC = () => {
                 <FaPhone size={24} />
               </div>
 
-              <h3 className="text-xl font-semibold mb-2">Contact Information</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                Contact Information
+              </h3>
 
               {selectedProperty.agent ? (
                 <div className="mb-4">
                   <div className="text-gray-600 mb-2">Agent Contact</div>
-                  <div className="font-medium text-lg">{selectedProperty.agent.agency_name}</div>
+                  <div className="font-medium text-lg">
+                    {selectedProperty.agent.agency_name}
+                  </div>
                   <div className="text-sm text-gray-500">
                     Agent: {selectedProperty.agent.user.username}
                   </div>
-                  <div className="text-sm text-gray-500">License: {selectedProperty.agent.licence_number}</div>
+                  <div className="text-sm text-gray-500">
+                    License: {selectedProperty.agent.licence_number}
+                  </div>
                 </div>
               ) : selectedProperty.owner ? (
                 <div className="mb-4">
                   <div className="text-gray-600 mb-2">Property Owner</div>
-                  <div className="font-medium text-lg">{selectedProperty.owner.username}</div>
+                  <div className="font-medium text-lg">
+                    {selectedProperty.owner.username}
+                  </div>
                 </div>
               ) : (
                 <div className="mb-4">
@@ -564,11 +628,13 @@ const MainRealEstate: React.FC = () => {
               <div className="bg-gray-50 rounded-lg p-4 mb-6">
                 <div className="text-2xl font-bold text-blue-600 mb-2">
                   {selectedProperty.agent?.user.phone_number ||
-                   selectedProperty.owner?.phone_number ||
-                   '+998 90 123 45 67'}
+                    selectedProperty.owner?.phone_number ||
+                    "+998 90 123 45 67"}
                 </div>
                 <div className="text-sm text-gray-600">
-                  {selectedProperty.agent ? 'Agent Phone Number' : 'Owner Phone Number'}
+                  {selectedProperty.agent
+                    ? "Agent Phone Number"
+                    : "Owner Phone Number"}
                 </div>
               </div>
 
@@ -577,10 +643,7 @@ const MainRealEstate: React.FC = () => {
                 <div className="mb-6 grid grid-cols-2 gap-4 text-sm">
                   <div className="bg-blue-50 rounded-lg p-3">
                     <div className="font-semibold text-blue-600">
-                      {typeof selectedProperty.agent.rating === 'string'
-                        ? parseFloat(selectedProperty.agent.rating).toFixed(1)
-                        : (selectedProperty.agent.rating || 0).toFixed(1)
-                      }
+                      {formatAgentRating(selectedProperty.agent.rating)}
                     </div>
                     <div className="text-gray-600">Rating</div>
                   </div>
@@ -597,9 +660,10 @@ const MainRealEstate: React.FC = () => {
               <div className="space-y-3">
                 <button
                   onClick={() => {
-                    const phoneNumber = selectedProperty.agent?.user.phone_number ||
-                                      selectedProperty.owner?.phone_number ||
-                                      '+998901234567';
+                    const phoneNumber =
+                      selectedProperty.agent?.user.phone_number ||
+                      selectedProperty.owner?.phone_number ||
+                      "+998901234567";
                     handlePhoneCall(phoneNumber);
                     setShowPhoneModal(false);
                   }}
@@ -611,9 +675,10 @@ const MainRealEstate: React.FC = () => {
 
                 <button
                   onClick={() => {
-                    const phoneNumber = selectedProperty.agent?.user.phone_number ||
-                                      selectedProperty.owner?.phone_number ||
-                                      '+998901234567';
+                    const phoneNumber =
+                      selectedProperty.agent?.user.phone_number ||
+                      selectedProperty.owner?.phone_number ||
+                      "+998901234567";
                     handleCopyPhone(phoneNumber);
                   }}
                   className="w-full border border-blue-600 text-blue-600 py-3 px-4 rounded-lg hover:bg-blue-50 transition-colors flex items-center justify-center"

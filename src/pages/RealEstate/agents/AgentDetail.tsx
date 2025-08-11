@@ -56,7 +56,8 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
 
   // Extract data from the response structure
   const agent = agentResponse?.agent;
-  if (propertiesError) return <div>Error</div>;
+
+  if (propertiesError) return <div> Error</div>;
 
   const handlePhoneCall = (phoneNumber: string): void => {
     window.open(`tel:${phoneNumber}`);
@@ -232,7 +233,7 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
                   )}
 
                   <div className="flex items-center mb-4">
-                    <StarRating rating={Number(agent.rating)} size={24} />
+                    <StarRating rating={agent.rating} size={24} />
                     <span className="text-white ml-3">•</span>
                     <span className="text-blue-100 ml-3">
                       {agent.total_sales} sales
@@ -397,7 +398,7 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
                 <div className="grid grid-cols-2 gap-6">
                   <div className="text-center p-4 bg-blue-50 rounded-lg">
                     <div className="text-3xl font-bold text-blue-600">
-                      {Number(agent.rating).toFixed(1)}
+                      {agent.rating.toFixed(1)}
                     </div>
                     <div className="text-gray-600 mt-1">Average Rating</div>
                     <StarRating
@@ -538,7 +539,7 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
               agentPropertiesData.results.length > 0 ? (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {agentPropertiesData.results.map((property) => (
+                  {agentPropertiesData.results.map((property: any) => (
                     <div
                       key={property.id}
                       className="border rounded-lg p-4 hover:shadow-md transition-shadow"
@@ -646,7 +647,7 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
               <div className="mb-6 grid grid-cols-2 gap-4 text-sm">
                 <div className="bg-blue-50 rounded-lg p-3">
                   <div className="font-semibold text-blue-600">
-                    {Number(agent.rating).toFixed(1)}
+                    {agent.rating.toFixed(1)}
                   </div>
                   <div className="text-gray-600">Rating</div>
                 </div>
