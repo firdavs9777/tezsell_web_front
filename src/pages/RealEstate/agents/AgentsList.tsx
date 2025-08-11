@@ -1,34 +1,16 @@
 import { useGetAgentsQuery } from "@store/slices/realEstate";
+import { GetAgentsQueryParams, RealEstateAgent } from "@store/type";
 import { Award, Calendar, Filter, Grid, List, MapPin, Search, Star } from 'lucide-react';
 import React, { useState } from 'react';
 
-// Type definitions
-interface User {
-  id: number;
-  username: string;
-  phone_number: string;
-  user_type: string;
-}
+// Use the actual API types instead of redefining them
+type Agent = RealEstateAgent;
 
-interface Agent {
-  id: number;
-  user: User;
-  agency_name: string;
-  licence_number: string;
-  is_verified: boolean;
-  rating: string;
-  total_sales: number;
-  years_experience: number;
-  specialization: string;
-  created_at: string;
-}
+// Type guard to check if user is an object with username property
+const isUserObject = (user: any): user is { username: string; phone_number: string } => {
+  return typeof user === 'object' && user !== null && 'username' in user;
+};
 
-interface QueryParams {
-  search?: string;
-  specialization?: string;
-  min_rating?: string;
-  ordering?: string;
-}
 
 type ViewMode = 'grid' | 'list';
 
@@ -39,11 +21,10 @@ const AgentsList: React.FC = () => {
   const [ordering, setOrdering] = useState<string>('-rating');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
-  const queryParams: QueryParams = {
+  const queryParams: GetAgentsQueryParams = {
     search: searchTerm || undefined,
     specialization: specialization || undefined,
-    min_rating: minRating || undefined,
-    ordering
+    min_rating: minRating ? parseFloat(minRating) : undefined
   };
 
   const { data: agentsData, isLoading, error, refetch } = useGetAgentsQuery(queryParams);
@@ -97,8 +78,8 @@ const AgentsList: React.FC = () => {
     );
   }
 
-  const StarRating: React.FC<{ rating: string }> = ({ rating }) => {
-    const numRating: number = parseFloat(rating) || 0;
+  const StarRating: React.FC<{ rating: string | number }> = ({ rating }) => {
+    const numRating: number = typeof rating === 'string' ? parseFloat(rating) || 0 : rating || 0;
     return (
       <div className="flex items-center space-x-1">
         {[...Array(5)].map((_, i) => (
@@ -113,119 +94,130 @@ const AgentsList: React.FC = () => {
     );
   };
 
-  const AgentCard: React.FC<{ agent: Agent }> = ({ agent }) => (
-    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-      <div className="p-6">
-        {/* Agent Header */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
-            <h3 className="text-xl font-semibold text-gray-900 mb-1">
-              {agent.user.username}
-            </h3>
-            <p className="text-blue-600 font-medium">{agent.agency_name}</p>
-            {agent.is_verified && (
-              <div className="flex items-center mt-2">
-                <Award size={16} className="text-green-500 mr-1" />
-                <span className="text-sm text-green-600 font-medium">Verified Agent</span>
-              </div>
-            )}
-          </div>
-          <div className="text-right">
-            <StarRating rating={agent.rating} />
-            <p className="text-sm text-gray-500 mt-1">{agent.total_sales} sales</p>
-          </div>
-        </div>
+  const AgentCard: React.FC<{ agent: Agent }> = ({ agent }) => {
+    // Handle the case where user might be a number (ID) or object
+    const userName = isUserObject(agent.user) ? agent.user.username : `Agent ${agent.id}`;
+    const userPhone = isUserObject(agent.user) ? agent.user.phone_number : '';
 
-        {/* Agent Details */}
-        <div className="space-y-3 mb-4">
-          <div className="flex items-center text-gray-600">
-            <Calendar size={16} className="mr-2" />
-            <span className="text-sm">{agent.years_experience} years experience</span>
-          </div>
-
-          <div className="flex items-start text-gray-600">
-            <MapPin size={16} className="mr-2 mt-0.5 flex-shrink-0" />
-            <div className="text-sm">
-              <p className="font-medium">License: {agent.licence_number}</p>
-              <p className="text-gray-500">{agent.user.phone_number}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Specialization */}
-        {agent.specialization && (
-          <div className="mb-4">
-            <h4 className="text-sm font-medium text-gray-900 mb-2">Specialization</h4>
-            <p className="text-sm text-gray-600 line-clamp-2">{agent.specialization}</p>
-          </div>
-        )}
-
-        {/* Action Buttons */}
-        <div className="flex space-x-3">
-          <button className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
-            View Profile
-          </button>
-          <button className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
-            Contact
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  const AgentListItem: React.FC<{ agent: Agent }> = ({ agent }) => (
-    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6">
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <div className="flex items-start justify-between mb-3">
-            <div>
+    return (
+      <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+        <div className="p-6">
+          {/* Agent Header */}
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex-1">
               <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                {agent.user.username}
+                {userName}
               </h3>
               <p className="text-blue-600 font-medium">{agent.agency_name}</p>
-            </div>
-            <div className="text-right">
-              <StarRating rating={agent.rating} />
               {agent.is_verified && (
-                <div className="flex items-center justify-end mt-1">
-                  <Award size={14} className="text-green-500 mr-1" />
-                  <span className="text-xs text-green-600">Verified</span>
+                <div className="flex items-center mt-2">
+                  <Award size={16} className="text-green-500 mr-1" />
+                  <span className="text-sm text-green-600 font-medium">Verified Agent</span>
                 </div>
               )}
             </div>
+            <div className="text-right">
+              <StarRating rating={agent.rating} />
+              <p className="text-sm text-gray-500 mt-1">{agent.total_sales} sales</p>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          {/* Agent Details */}
+          <div className="space-y-3 mb-4">
             <div className="flex items-center text-gray-600">
               <Calendar size={16} className="mr-2" />
-              <span className="text-sm">{agent.years_experience} years</span>
+              <span className="text-sm">{agent.years_experience} years experience</span>
             </div>
-            <div className="flex items-center text-gray-600">
-              <Award size={16} className="mr-2" />
-              <span className="text-sm">{agent.total_sales} sales</span>
-            </div>
-            <div className="flex items-center text-gray-600">
-              <MapPin size={16} className="mr-2" />
-              <span className="text-sm">{agent.licence_number}</span>
+
+            <div className="flex items-start text-gray-600">
+              <MapPin size={16} className="mr-2 mt-0.5 flex-shrink-0" />
+              <div className="text-sm">
+                <p className="font-medium">License: {agent.licence_number}</p>
+                {userPhone && <p className="text-gray-500">{userPhone}</p>}
+              </div>
             </div>
           </div>
 
+          {/* Specialization */}
           {agent.specialization && (
-            <p className="text-sm text-gray-600 mb-4 line-clamp-2">{agent.specialization}</p>
+            <div className="mb-4">
+              <h4 className="text-sm font-medium text-gray-900 mb-2">Specialization</h4>
+              <p className="text-sm text-gray-600 line-clamp-2">{agent.specialization}</p>
+            </div>
           )}
-        </div>
 
-        <div className="ml-6 flex flex-col space-y-2">
-          <button className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
-            View Profile
-          </button>
-          <button className="bg-gray-100 text-gray-700 py-2 px-6 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
-            Contact
-          </button>
+          {/* Action Buttons */}
+          <div className="flex space-x-3">
+            <button className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+              View Profile
+            </button>
+            <button className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
+              Contact
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
+
+  const AgentListItem: React.FC<{ agent: Agent }> = ({ agent }) => {
+    // Handle the case where user might be a number (ID) or object
+    const userName = isUserObject(agent.user) ? agent.user.username : `Agent ${agent.id}`;
+
+    return (
+      <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-1">
+                  {userName}
+                </h3>
+                <p className="text-blue-600 font-medium">{agent.agency_name}</p>
+              </div>
+              <div className="text-right">
+                <StarRating rating={agent.rating} />
+                {agent.is_verified && (
+                  <div className="flex items-center justify-end mt-1">
+                    <Award size={14} className="text-green-500 mr-1" />
+                    <span className="text-xs text-green-600">Verified</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div className="flex items-center text-gray-600">
+                <Calendar size={16} className="mr-2" />
+                <span className="text-sm">{agent.years_experience} years</span>
+              </div>
+              <div className="flex items-center text-gray-600">
+                <Award size={16} className="mr-2" />
+                <span className="text-sm">{agent.total_sales} sales</span>
+              </div>
+              <div className="flex items-center text-gray-600">
+                <MapPin size={16} className="mr-2" />
+                <span className="text-sm">{agent.licence_number}</span>
+              </div>
+            </div>
+
+            {agent.specialization && (
+              <p className="text-sm text-gray-600 mb-4 line-clamp-2">{agent.specialization}</p>
+            )}
+          </div>
+
+          <div className="ml-6 flex flex-col space-y-2">
+            <button className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+              View Profile
+            </button>
+            <button className="bg-gray-100 text-gray-700 py-2 px-6 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
+              Contact
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">

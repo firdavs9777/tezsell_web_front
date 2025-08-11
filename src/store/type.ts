@@ -254,6 +254,7 @@ export interface BecomeAgentRequest {
   licence_number: string;
   years_experience: number;
   specialization: string;
+  token?: string
 }
 
 export interface BecomeAgentResponse {
