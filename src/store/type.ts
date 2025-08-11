@@ -172,16 +172,23 @@ export interface RegisterInfo {
   phone_number: string;
   password: string;
   user_type: string;
-  location_id: number;
+  location_id?: number;
 }
-
 
 export interface Property {
   id: string;
   title: string;
   description: string;
-  property_type: 'apartment' | 'house' | 'townhouse' | 'villa' | 'commercial' | 'office' | 'land' | 'warehouse';
-  listing_type: 'sale' | 'rent';
+  property_type:
+    | "apartment"
+    | "house"
+    | "townhouse"
+    | "villa"
+    | "commercial"
+    | "office"
+    | "land"
+    | "warehouse";
+  listing_type: "sale" | "rent";
   owner: number;
   agent?: number;
   user_location?: number;
@@ -221,7 +228,7 @@ export interface Property {
 
 export interface RealEstateAgent {
   id: number;
-  user: number;
+  user: User;
   agency_name: string;
   licence_number: string;
   is_verified: boolean;
@@ -241,7 +248,7 @@ export interface PropertyInquiry {
   id: number;
   property: string;
   user: number;
-  inquiry_type: 'viewing' | 'info' | 'offer' | 'callback';
+  inquiry_type: "viewing" | "info" | "offer" | "callback";
   message: string;
   preferred_contact_time?: string;
   offered_price?: number;
@@ -254,7 +261,7 @@ export interface BecomeAgentRequest {
   licence_number: string;
   years_experience: number;
   specialization: string;
-  token?: string
+  token?: string;
 }
 
 export interface BecomeAgentResponse {
@@ -275,7 +282,7 @@ export interface AgentStatus {
   is_agent: boolean;
   agent_id?: number;
   is_verified?: boolean;
-  application_status?: 'pending' | 'approved' | 'rejected';
+  application_status?: "pending" | "approved" | "rejected";
   rejection_reason?: string;
 }
 
@@ -300,9 +307,9 @@ export interface MapStatistics {
 }
 
 export interface LocationChoices {
-  districts: Array<{ value: string; label: string; }>;
-  cities: Array<{ value: string; label: string; }>;
-  regions: Array<{ value: string; label: string; }>;
+  districts: Array<{ value: string; label: string }>;
+  cities: Array<{ value: string; label: string }>;
+  regions: Array<{ value: string; label: string }>;
 }
 
 export interface PropertyStats {
@@ -336,7 +343,7 @@ export interface GetAgentsQueryParams {
   specialization?: string;
   min_rating?: number;
   search?: string;
-  ordering?: string
+  ordering?: string;
 }
 
 export interface PaginatedResponse<T> {
