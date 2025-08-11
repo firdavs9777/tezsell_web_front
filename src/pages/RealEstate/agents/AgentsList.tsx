@@ -1,7 +1,8 @@
 import { useGetAgentsQuery } from "@store/slices/realEstate";
 import { GetAgentsQueryParams, RealEstateAgent } from "@store/type";
-import { Award, Calendar, Filter, Grid, List, MapPin, Search, Star } from 'lucide-react';
+import { Award, Calendar, Copy, Filter, Grid, Info, List, MapPin, Phone, Search, Star } from 'lucide-react';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Add this import
 
 // Use the actual API types instead of redefining them
 type Agent = RealEstateAgent;
@@ -11,20 +12,27 @@ const isUserObject = (user: any): user is { username: string; phone_number: stri
   return typeof user === 'object' && user !== null && 'username' in user;
 };
 
-
 type ViewMode = 'grid' | 'list';
 
-const AgentsList: React.FC = () => {
+interface AgentsListProps {
+  onAgentSelect?: (agent: Agent) => void;
+}
+
+const AgentsList: React.FC<AgentsListProps> = ({ onAgentSelect }) => {
+  const navigate = useNavigate(); // Add this hook
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [specialization, setSpecialization] = useState<string>('');
   const [minRating, setMinRating] = useState<string>('');
   const [ordering, setOrdering] = useState<string>('-rating');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [showContactModal, setShowContactModal] = useState<boolean>(false);
+  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
 
   const queryParams: GetAgentsQueryParams = {
     search: searchTerm || undefined,
     specialization: specialization || undefined,
-    min_rating: minRating ? parseFloat(minRating) : undefined
+    min_rating: minRating ? parseFloat(minRating) : undefined,
+    ordering
   };
 
   const { data: agentsData, isLoading, error, refetch } = useGetAgentsQuery(queryParams);
@@ -40,6 +48,35 @@ const AgentsList: React.FC = () => {
     setSpecialization('');
     setMinRating('');
     setOrdering('-rating');
+  };
+
+  const handleContactClick = (agent: Agent): void => {
+    setSelectedAgent(agent);
+    setShowContactModal(true);
+  };
+
+  // Modified handleViewProfile to navigate to agent detail page
+  const handleViewProfile = (agent: Agent): void => {
+    // Navigate to the agent detail page using the agent's ID
+    navigate(`/agents/${agent.id}`);
+
+    // Keep the original callback if needed for parent component
+    if (onAgentSelect) {
+      onAgentSelect(agent);
+    }
+  };
+
+  const handlePhoneCall = (phoneNumber: string): void => {
+    window.open(`tel:${phoneNumber}`);
+  };
+
+  const handleCopyPhone = async (phoneNumber: string): Promise<void> => {
+    try {
+      await navigator.clipboard.writeText(phoneNumber);
+      console.log('Phone number copied to clipboard');
+    } catch (err) {
+      console.error('Failed to copy phone number:', err);
+    }
   };
 
   if (isLoading) {
@@ -148,10 +185,16 @@ const AgentsList: React.FC = () => {
 
           {/* Action Buttons */}
           <div className="flex space-x-3">
-            <button className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+            <button
+              onClick={() => handleViewProfile(agent)}
+              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            >
               View Profile
             </button>
-            <button className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
+            <button
+              onClick={() => handleContactClick(agent)}
+              className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+            >
               Contact
             </button>
           </div>
@@ -207,10 +250,16 @@ const AgentsList: React.FC = () => {
           </div>
 
           <div className="ml-6 flex flex-col space-y-2">
-            <button className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+            <button
+              onClick={() => handleViewProfile(agent)}
+              className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            >
               View Profile
             </button>
-            <button className="bg-gray-100 text-gray-700 py-2 px-6 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
+            <button
+              onClick={() => handleContactClick(agent)}
+              className="bg-gray-100 text-gray-700 py-2 px-6 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+            >
               Contact
             </button>
           </div>
@@ -376,6 +425,104 @@ const AgentsList: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Contact Modal */}
+      {showContactModal && selectedAgent && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-sm w-full p-6">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4">
+                <Phone size={24} />
+              </div>
+
+              <h3 className="text-xl font-semibold mb-2">Contact Information</h3>
+
+              <div className="mb-4">
+                <div className="text-gray-600 mb-2">Real Estate Agent</div>
+                <div className="font-medium text-lg">{selectedAgent.agency_name}</div>
+                <div className="text-sm text-gray-500">License: {selectedAgent.licence_number}</div>
+                <div className="text-sm text-gray-500">
+                  Agent: {isUserObject(selectedAgent.user) ? selectedAgent.user.username : `Agent #${selectedAgent.id}`}
+                </div>
+              </div>
+
+              {/* Phone Number Display */}
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <div className="text-2xl font-bold text-blue-600 mb-2">
+                  {isUserObject(selectedAgent.user) ? selectedAgent.user.phone_number : '+998 90 123 45 67'}
+                </div>
+                <div className="text-sm text-gray-600">
+                  Agent Phone Number
+                </div>
+              </div>
+
+              {/* Agent Stats */}
+              <div className="mb-6 grid grid-cols-2 gap-4 text-sm">
+                <div className="bg-blue-50 rounded-lg p-3">
+                  <div className="font-semibold text-blue-600">
+                    {typeof selectedAgent.rating === 'string'
+                      ? parseFloat(selectedAgent.rating).toFixed(1)
+                      : selectedAgent.rating.toFixed(1)
+                    }
+                  </div>
+                  <div className="text-gray-600">Rating</div>
+                </div>
+                <div className="bg-green-50 rounded-lg p-3">
+                  <div className="font-semibold text-green-600">
+                    {selectedAgent.total_sales}
+                  </div>
+                  <div className="text-gray-600">Sales</div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-3">
+                <button
+                  onClick={() => {
+                    const phoneNumber = isUserObject(selectedAgent.user)
+                      ? selectedAgent.user.phone_number
+                      : '+998901234567';
+                    handlePhoneCall(phoneNumber);
+                    setShowContactModal(false);
+                  }}
+                  className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center"
+                >
+                  <Phone className="mr-2" size={16} />
+                  Call Now
+                </button>
+
+                <button
+                  onClick={() => {
+                    const phoneNumber = isUserObject(selectedAgent.user)
+                      ? selectedAgent.user.phone_number
+                      : '+998901234567';
+                    handleCopyPhone(phoneNumber);
+                  }}
+                  className="w-full border border-blue-600 text-blue-600 py-3 px-4 rounded-lg hover:bg-blue-50 transition-colors flex items-center justify-center"
+                >
+                  <Copy className="mr-2" size={16} />
+                  Copy Number
+                </button>
+
+                <button
+                  onClick={() => setShowContactModal(false)}
+                  className="w-full bg-gray-200 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+
+              {/* Additional Info */}
+              <div className="mt-4 text-xs text-gray-500">
+                <div className="flex items-center justify-center">
+                  <Info className="mr-1" size={12} />
+                  Contact hours: 9 AM - 8 PM
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

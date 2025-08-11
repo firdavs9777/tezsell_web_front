@@ -336,6 +336,7 @@ export interface GetAgentsQueryParams {
   specialization?: string;
   min_rating?: number;
   search?: string;
+  ordering?: string
 }
 
 export interface PaginatedResponse<T> {

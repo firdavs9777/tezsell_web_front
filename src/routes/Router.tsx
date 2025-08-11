@@ -21,6 +21,7 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { useAutoLogout } from "../hooks/useAutoLogout";
+import AgentDetail from '@pages/RealEstate/agents/AgentDetail';
 
 // Component to handle auto-logout for authenticated routes
 const AutoLogoutWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -50,6 +51,7 @@ const Router = () => {
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/service" element={<Service />} />
         <Route path="/agents" element={<AgentsList />} />
+        <Route path="/agents/:id" element={<AgentDetail />} />
         <Route path="/service/:id" element={<ServiceDetail />} />
         <Route path="/properties" element={<MainRealEstate />} />
                 <Route path="/properties/:id" element={<RealEstateDetail />} />

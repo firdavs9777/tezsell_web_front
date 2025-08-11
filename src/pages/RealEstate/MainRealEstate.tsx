@@ -3,8 +3,8 @@ import {
   useGetPropertiesQuery,
   useGetSavedPropertiesQuery,
   useToggleSavePropertyMutation,
-} from '@store/slices/realEstate'; // Adjust import path as needed
-import { GetAgentsQueryParams, GetPropertiesQueryParams } from '@store/type';
+} from '@store/slices/realEstate';
+import { GetAgentsQueryParams, GetPropertiesQueryParams, Property, RealEstateAgent } from '@store/type';
 import React, { useEffect, useState } from "react";
 import {
   FaBath,
@@ -21,71 +21,46 @@ import {
   FaSearch,
   FaSpinner,
   FaStar,
+  FaCopy,
+  FaInfoCircle,
 } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 
-// API Types (matching our backend)
-interface RealEstateAgent {
-  id: number;
-  user: number;
-  agency_name: string;
-  licence_number: string;
-  is_verified: boolean;
-  rating: number;
-  total_sales: number;
-  years_experience: number;
-  specialization: string;
-  created_at: string;
-}
-
-interface Property {
-  id: string;
-  title: string;
-  description: string;
-  property_type: 'apartment' | 'house' | 'townhouse' | 'villa' | 'commercial' | 'office' | 'land' | 'warehouse';
-  listing_type: 'sale' | 'rent';
-  owner: number;
-  agent?: number;
-  user_location?: number;
-  address: string;
-  district: string;
-  city: string;
-  region: string;
-  latitude?: number;
-  longitude?: number;
-  bedrooms?: number;
-  bathrooms?: number;
-  square_meters: number;
-  floor?: number;
-  total_floors?: number;
-  year_built?: number;
-  parking_spaces: number;
-  price: number;
-  price_per_sqm?: number;
-  currency: string;
-  has_balcony: boolean;
-  has_garage: boolean;
-  has_garden: boolean;
-  has_pool: boolean;
-  has_elevator: boolean;
-  is_furnished: boolean;
-  metro_distance?: number;
-  school_distance?: number;
-  hospital_distance?: number;
-  shopping_distance?: number;
-  is_active: boolean;
-  is_featured: boolean;
-  is_sold: boolean;
-  views_count: number;
-  created_at: string;
-  updated_at: string;
+// Additional types that might not be in store but are used in API responses
+interface ExtendedProperty extends Property {
+  property_type_display?: string;
+  listing_type_display?: string;
+  main_image?: string | null;
+  owner?: {
+    id: number;
+    username: string;
+    phone_number: string;
+    user_type: string;
+  };
+  agent?: {
+    id: number;
+    user: {
+      id: number;
+      username: string;
+      phone_number: string;
+      user_type: string;
+    };
+    agency_name: string;
+    licence_number: string;
+    is_verified: boolean;
+    rating: string;
+    total_sales: number;
+    years_experience: number;
+    specialization: string;
+    created_at: string;
+  };
 }
 
 interface PropertyCardProps {
-  property: Property;
-  agent?: RealEstateAgent;
+  property: ExtendedProperty;
   isSaved: boolean;
   onToggleSave: (propertyId: string) => void;
+  onContactClick: (property: ExtendedProperty) => void;
 }
 
 const MainRealEstate: React.FC = () => {
@@ -94,6 +69,9 @@ const MainRealEstate: React.FC = () => {
   const [propertyType, setPropertyType] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [savedPropertyIds, setSavedPropertyIds] = useState<Set<string>>(new Set());
+  const [showPhoneModal, setShowPhoneModal] = useState<boolean>(false);
+  const [selectedProperty, setSelectedProperty] = useState<ExtendedProperty | null>(null);
+
   const {
     data: propertiesData,
     isLoading: propertiesLoading,
@@ -108,13 +86,7 @@ const MainRealEstate: React.FC = () => {
     ordering: '-is_featured,-created_at'
   } as GetPropertiesQueryParams);
 
-  const { data: agentsData } = useGetAgentsQuery({
-    is_verified: true,
-    page_size: 100
-  } as GetAgentsQueryParams);
-
   const { data: savedPropertiesData } = useGetSavedPropertiesQuery();
-
   const [toggleSaveProperty] = useToggleSavePropertyMutation();
 
   // Update saved properties when data changes
@@ -126,11 +98,6 @@ const MainRealEstate: React.FC = () => {
       setSavedPropertyIds(savedIds);
     }
   }, [savedPropertiesData]);
-
-  // Helper functions
-  const getAgentById = (id: number): RealEstateAgent | undefined => {
-    return agentsData?.results?.find((agent) => agent.id === id);
-  };
 
   const handleToggleSave = async (propertyId: string): Promise<void> => {
     try {
@@ -148,20 +115,61 @@ const MainRealEstate: React.FC = () => {
       });
     } catch (error) {
       console.error('Failed to toggle save property:', error);
-      // Could show a toast notification here
+    }
+  };
+
+  const handleContactClick = (property: ExtendedProperty): void => {
+    setSelectedProperty(property);
+    setShowPhoneModal(true);
+  };
+
+  const handlePhoneCall = (phoneNumber: string): void => {
+    window.open(`tel:${phoneNumber}`);
+  };
+
+  const handleCopyPhone = async (phoneNumber: string): Promise<void> => {
+    try {
+      await navigator.clipboard.writeText(phoneNumber);
+      console.log('Phone number copied to clipboard');
+      // You could add a toast notification here
+    } catch (err) {
+      console.error('Failed to copy phone number:', err);
     }
   };
 
   const formatPrice = (
-    price: number,
+    price: string | number,
     currency: string,
     listingType: "sale" | "rent"
   ): string => {
-    const formatted = new Intl.NumberFormat("en-US").format(price);
+    const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+    const formatted = new Intl.NumberFormat("en-US").format(numPrice);
     const symbol = currency === "USD" ? "$" : currency === "UZS" ? "so'm" : currency;
     return listingType === "rent"
       ? `${symbol}${formatted}/month`
       : `${symbol}${formatted}`;
+  };
+
+  // Helper function to safely get property display values
+  const getPropertyDisplayValue = (property: Property, field: string, fallback: string): string => {
+    const value = (property as any)[field];
+    return value || fallback;
+  };
+
+  // Helper function to safely access nested agent properties
+  const getAgentInfo = (agent: any): RealEstateAgent | null => {
+    if (agent && typeof agent === 'object' && agent.id) {
+      return agent as RealEstateAgent;
+    }
+    return null;
+  };
+
+  // Helper function to safely access owner info
+  const getOwnerInfo = (owner: any): User | null => {
+    if (owner && typeof owner === 'object' && owner.id) {
+      return owner as User;
+    }
+    return null;
   };
 
   const getPropertyFeatures = (property: Property): string[] => {
@@ -176,17 +184,30 @@ const MainRealEstate: React.FC = () => {
   };
 
   // PropertyCard component
-  const PropertyCard: React.FC<PropertyCardProps> = ({ property, agent, isSaved, onToggleSave }) => {
-    // Default image if no images available
+  const PropertyCard: React.FC<PropertyCardProps> = ({ property, isSaved, onToggleSave, onContactClick }) => {
     const navigate = useNavigate();
     const defaultImage = `https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=300&fit=crop`;
-   const redirectHandler = (id: string) => navigate(`/properties/${id}`);
+    const redirectHandler = (id: string) => navigate(`/properties/${id}`);
+
+    const handleSaveClick = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onToggleSave(property.id);
+    };
+
+    const handleContactClick = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onContactClick(property);
+    };
+
+    // Safely access agent and owner information
+    const agent = getAgentInfo(property.agent);
+    const owner = getOwnerInfo(property.owner);
 
     return (
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-        <div className="relative" onClick={() => redirectHandler(property.id)}>
+        <div className="relative cursor-pointer" onClick={() => redirectHandler(property.id)}>
           <img
-            src={defaultImage}
+            src={property.main_image || defaultImage}
             alt={property.title}
             className="w-full h-48 object-cover"
           />
@@ -196,7 +217,7 @@ const MainRealEstate: React.FC = () => {
             </span>
           )}
           <button
-            onClick={() => onToggleSave(property.id)}
+            onClick={handleSaveClick}
             className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-shadow"
           >
             {isSaved ? (
@@ -206,7 +227,7 @@ const MainRealEstate: React.FC = () => {
             )}
           </button>
           <span className="absolute bottom-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-sm font-semibold capitalize">
-            For {property.listing_type}
+            {getPropertyDisplayValue(property, 'listing_type_display', `For ${property.listing_type}`)}
           </span>
           <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs flex items-center">
             <FaEye className="mr-1" size={12} />
@@ -236,10 +257,12 @@ const MainRealEstate: React.FC = () => {
                 <span>{property.bedrooms} bed</span>
               </div>
             )}
-            <div className="flex items-center">
-              <FaBath className="mr-1" />
-              <span>{property.bathrooms} bath</span>
-            </div>
+            {property.bathrooms && (
+              <div className="flex items-center">
+                <FaBath className="mr-1" />
+                <span>{property.bathrooms} bath</span>
+              </div>
+            )}
             <div className="flex items-center">
               <FaCar className="mr-1" />
               <span>{property.parking_spaces} parking</span>
@@ -253,7 +276,7 @@ const MainRealEstate: React.FC = () => {
           {/* Property Type and Features */}
           <div className="mb-3">
             <span className="inline-block bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-medium mb-1 capitalize">
-              {property.property_type}
+              {getPropertyDisplayValue(property, 'property_type_display', property.property_type.replace('_', ' '))}
             </span>
             {getPropertyFeatures(property).slice(0, 2).map((feature, index) => (
               <span key={index} className="inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-medium ml-1 mb-1">
@@ -276,12 +299,15 @@ const MainRealEstate: React.FC = () => {
                   <div className="flex items-center">
                     <FaStar className="text-yellow-400 text-xs mr-1" />
                     <span className="text-xs text-gray-600">
-                      {agent.rating} ({agent.total_sales} sales)
+                      {typeof agent.rating === 'string' ? parseFloat(agent.rating).toFixed(1) : (agent.rating || 0).toFixed(1)} ({agent.total_sales} sales)
                     </span>
                   </div>
                 </div>
                 <div className="flex space-x-2">
-                  <button className="p-1 text-green-600 hover:bg-green-50 rounded">
+                  <button
+                    onClick={handleContactClick}
+                    className="p-1 text-green-600 hover:bg-green-50 rounded"
+                  >
                     <FaPhone size={12} />
                   </button>
                   <button className="p-1 text-blue-600 hover:bg-blue-50 rounded">
@@ -294,10 +320,16 @@ const MainRealEstate: React.FC = () => {
 
           {/* Action Buttons */}
           <div className="mt-4 flex gap-2">
-            <button className="flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors text-sm">
+            <button
+              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors text-sm"
+              onClick={() => redirectHandler(property.id)}
+            >
               View Details
             </button>
-            <button className="flex-1 border border-blue-600 text-blue-600 py-2 px-4 rounded hover:bg-blue-50 transition-colors text-sm">
+            <button
+              className="flex-1 border border-blue-600 text-blue-600 py-2 px-4 rounded hover:bg-blue-50 transition-colors text-sm"
+              onClick={handleContactClick}
+            >
               Contact
             </button>
           </div>
@@ -453,10 +485,10 @@ const MainRealEstate: React.FC = () => {
             {properties.map((property: any) => (
               <PropertyCard
                 key={property.id}
-                property={property}
-                agent={property.agent ? getAgentById(property.agent) : undefined}
+                property={property as ExtendedProperty}
                 isSaved={savedPropertyIds.has(property.id)}
                 onToggleSave={handleToggleSave}
+                onContactClick={handleContactClick}
               />
             ))}
           </div>
@@ -495,6 +527,120 @@ const MainRealEstate: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Contact Modal */}
+      {showPhoneModal && selectedProperty && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-sm w-full p-6">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4">
+                <FaPhone size={24} />
+              </div>
+
+              <h3 className="text-xl font-semibold mb-2">Contact Information</h3>
+
+              {selectedProperty.agent ? (
+                <div className="mb-4">
+                  <div className="text-gray-600 mb-2">Agent Contact</div>
+                  <div className="font-medium text-lg">{selectedProperty.agent.agency_name}</div>
+                  <div className="text-sm text-gray-500">
+                    Agent: {selectedProperty.agent.user.username}
+                  </div>
+                  <div className="text-sm text-gray-500">License: {selectedProperty.agent.licence_number}</div>
+                </div>
+              ) : selectedProperty.owner ? (
+                <div className="mb-4">
+                  <div className="text-gray-600 mb-2">Property Owner</div>
+                  <div className="font-medium text-lg">{selectedProperty.owner.username}</div>
+                </div>
+              ) : (
+                <div className="mb-4">
+                  <div className="text-gray-600 mb-2">Property Contact</div>
+                  <div className="font-medium text-lg">Property Owner</div>
+                </div>
+              )}
+
+              {/* Phone Number Display */}
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <div className="text-2xl font-bold text-blue-600 mb-2">
+                  {selectedProperty.agent?.user.phone_number ||
+                   selectedProperty.owner?.phone_number ||
+                   '+998 90 123 45 67'}
+                </div>
+                <div className="text-sm text-gray-600">
+                  {selectedProperty.agent ? 'Agent Phone Number' : 'Owner Phone Number'}
+                </div>
+              </div>
+
+              {/* Agent Stats (if agent exists) */}
+              {selectedProperty.agent && (
+                <div className="mb-6 grid grid-cols-2 gap-4 text-sm">
+                  <div className="bg-blue-50 rounded-lg p-3">
+                    <div className="font-semibold text-blue-600">
+                      {typeof selectedProperty.agent.rating === 'string'
+                        ? parseFloat(selectedProperty.agent.rating).toFixed(1)
+                        : (selectedProperty.agent.rating || 0).toFixed(1)
+                      }
+                    </div>
+                    <div className="text-gray-600">Rating</div>
+                  </div>
+                  <div className="bg-green-50 rounded-lg p-3">
+                    <div className="font-semibold text-green-600">
+                      {selectedProperty.agent.total_sales}
+                    </div>
+                    <div className="text-gray-600">Sales</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="space-y-3">
+                <button
+                  onClick={() => {
+                    const phoneNumber = selectedProperty.agent?.user.phone_number ||
+                                      selectedProperty.owner?.phone_number ||
+                                      '+998901234567';
+                    handlePhoneCall(phoneNumber);
+                    setShowPhoneModal(false);
+                  }}
+                  className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center"
+                >
+                  <FaPhone className="mr-2" />
+                  Call Now
+                </button>
+
+                <button
+                  onClick={() => {
+                    const phoneNumber = selectedProperty.agent?.user.phone_number ||
+                                      selectedProperty.owner?.phone_number ||
+                                      '+998901234567';
+                    handleCopyPhone(phoneNumber);
+                  }}
+                  className="w-full border border-blue-600 text-blue-600 py-3 px-4 rounded-lg hover:bg-blue-50 transition-colors flex items-center justify-center"
+                >
+                  <FaCopy className="mr-2" />
+                  Copy Number
+                </button>
+
+                <button
+                  onClick={() => setShowPhoneModal(false)}
+                  className="w-full bg-gray-200 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+
+              {/* Additional Info */}
+              <div className="mt-4 text-xs text-gray-500">
+                <div className="flex items-center justify-center">
+                  <FaInfoCircle className="mr-1" />
+                  Contact hours: 9 AM - 8 PM
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
