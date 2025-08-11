@@ -227,21 +227,24 @@ export interface Property {
 }
 
 export interface RealEstateAgent {
-  id: number;
-  user: User;
-  agency_name: string;
-  licence_number: string;
-  is_verified: boolean;
-  rating: number;
-  total_sales: number;
-  years_experience: number;
-  specialization: string;
-  created_at: string;
-  verified_at?: string;
-  verified_by?: number;
-  rejection_reason?: string;
-  rejected_at?: string;
-  rejected_by?: number;
+  success: string;
+  agent: {
+    id: number;
+    user: User;
+    agency_name: string;
+    licence_number: string;
+    is_verified: boolean;
+    rating: number;
+    total_sales: number;
+    years_experience: number;
+    specialization: string;
+    created_at: string;
+    verified_at?: string;
+    verified_by?: number;
+    rejection_reason?: string;
+    rejected_at?: string;
+    rejected_by?: number;
+  };
 }
 
 export interface PropertyInquiry {
