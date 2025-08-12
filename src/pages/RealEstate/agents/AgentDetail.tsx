@@ -1,3 +1,5 @@
+import { SerializedError } from '@reduxjs/toolkit';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import {
   useGetAgentByIdQuery,
   useGetAgentPropertiesQuery,
@@ -28,8 +30,6 @@ import {
 } from "lucide-react";
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { SerializedError } from '@reduxjs/toolkit';
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 // Updated interfaces to match your RTK Query response structure
 interface AgentDetailProps {
