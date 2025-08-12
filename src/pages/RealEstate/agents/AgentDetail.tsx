@@ -33,13 +33,14 @@ import { useNavigate, useParams } from "react-router-dom";
 interface AgentDetailProps {
   test?: string;
 }
+type ProfileImageType = string | { image: string };
 
 // Helper function to safely get profile image source
-const getProfileImageSrc = (profileImage: any): string => {
+const getProfileImageSrc = (profileImage: ProfileImageType): string => {
   if (typeof profileImage === 'string') {
     return profileImage;
   }
-  if (profileImage && typeof profileImage === 'object' && profileImage.image) {
+  if (profileImage && typeof profileImage === 'object' && 'image' in profileImage) {
     return profileImage.image;
   }
   return '/default-avatar.png'; // fallback image path
@@ -64,7 +65,7 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
   }) as {
     data: AgentDetailResponse | undefined;
     isLoading: boolean;
-    error: any;
+    error: unknown;
     isError: boolean;
   };
 
@@ -193,7 +194,6 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
     );
   }
 
-  // Handle case where agent is not found
   if (!agent) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -323,7 +323,7 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
             {["overview", "properties", "reviews"].map((tab) => (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab as any)}
+                onClick={() => setActiveTab(tab as 'overview' | 'properties' | 'reviews')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm capitalize transition-colors ${
                   activeTab === tab
                     ? "border-blue-500 text-blue-600"
@@ -658,8 +658,6 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
           </div>
         )}
       </div>
-
-      {/* Contact Modal */}
       {showPhoneModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-sm w-full p-6">

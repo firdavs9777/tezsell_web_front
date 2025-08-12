@@ -1,8 +1,9 @@
 import { useGetAgentsQuery } from "@store/slices/realEstate";
 import { GetAgentsQueryParams, RealEstateAgent } from "@store/type";
-import { Award, Calendar, Copy, Filter, Grid, Info, List, MapPin, Phone, Search, Star } from 'lucide-react';
+import { Award, Calendar, Copy, Filter, Grid, Info, List, MapPin, Phone, Search } from 'lucide-react';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Add this import
+import StarRating from "./AgentRating";
 
 // Use the actual API types instead of redefining them
 type Agent = RealEstateAgent;
@@ -115,21 +116,7 @@ const AgentsList: React.FC<AgentsListProps> = ({ onAgentSelect }) => {
     );
   }
 
-  const StarRating: React.FC<{ rating: string | number }> = ({ rating }) => {
-    const numRating: number = typeof rating === 'string' ? parseFloat(rating) || 0 : rating || 0;
-    return (
-      <div className="flex items-center space-x-1">
-        {[...Array(5)].map((_, i) => (
-          <Star
-            key={i}
-            size={16}
-            className={i < numRating ? "text-yellow-400 fill-current" : "text-gray-300"}
-          />
-        ))}
-        <span className="text-sm text-gray-600 ml-1">({numRating.toFixed(1)})</span>
-      </div>
-    );
-  };
+
 
   const AgentCard: React.FC<{ agent: Agent }> = ({ agent }) => {
     // Handle the case where user might be a number (ID) or object
