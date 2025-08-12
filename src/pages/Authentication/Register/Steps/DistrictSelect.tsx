@@ -23,7 +23,7 @@ const DistrictSelect: React.FC<DistrictProps> = ({
   const { t } = useTranslation();
 
   if (isLoading) {
-    return <div className="text-center text-gray-500">{t("loading")}</div>;
+    return <div className="text-center text-gray-500">{t("loading.loading")}</div>;
   }
   if (error) {
     return <div className="text-center text-red-500">{t("error_message")}</div>;

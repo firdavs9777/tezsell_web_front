@@ -1,35 +1,36 @@
 import {
-    useCreatePropertyInquiryMutation,
-    useGetPropertyByIdQuery,
-    useToggleSavePropertyMutation,
+  useCreatePropertyInquiryMutation,
+  useGetPropertyByIdQuery,
+  useToggleSavePropertyMutation,
 } from '@store/slices/realEstate';
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
-    FaArrowLeft,
-    FaBath,
-    FaBed,
-    FaBuilding,
-    FaCalendarAlt,
-    FaCar,
-    FaCheck,
-    FaChevronLeft,
-    FaChevronRight,
-    FaComments,
-    FaCopy,
-    FaEnvelope,
-    FaExpand,
-    FaEye,
-    FaHeart,
-    FaHome,
-    FaInfoCircle,
-    FaMapMarkerAlt,
-    FaPaperPlane,
-    FaPhone,
-    FaRegHeart,
-    FaShare,
-    FaSpinner,
-    FaTimes,
-    FaUser,
+  FaArrowLeft,
+  FaBath,
+  FaBed,
+  FaBuilding,
+  FaCalendarAlt,
+  FaCar,
+  FaCheck,
+  FaChevronLeft,
+  FaChevronRight,
+  FaComments,
+  FaCopy,
+  FaEnvelope,
+  FaExpand,
+  FaEye,
+  FaHeart,
+  FaHome,
+  FaInfoCircle,
+  FaMapMarkerAlt,
+  FaPaperPlane,
+  FaPhone,
+  FaRegHeart,
+  FaShare,
+  FaSpinner,
+  FaTimes,
+  FaUser,
 } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 import { Property } from '../../../store/type';
@@ -72,6 +73,7 @@ interface PropertyResponse {
 const RealEstateDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showImageModal, setShowImageModal] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -113,7 +115,7 @@ const RealEstateDetail: React.FC = () => {
       await toggleSaveProperty(id);
       setIsSaved(!isSaved);
     } catch (error) {
-      console.error('Failed to save property:', error);
+      console.error(t('alerts.savePropertyFailed'), error);
     }
   };
 
@@ -129,11 +131,11 @@ const RealEstateDetail: React.FC = () => {
         console.error(error)
         // Fallback to copying URL
         navigator.clipboard.writeText(window.location.href);
-        alert('Property link copied to clipboard!');
+        alert(t('alerts.linkCopied'));
       }
     } else {
       navigator.clipboard.writeText(window.location.href);
-      alert('Property link copied to clipboard!');
+      alert(t('alerts.linkCopied'));
     }
   };
 
@@ -157,10 +159,10 @@ const RealEstateDetail: React.FC = () => {
         preferred_contact_time: '',
         offered_price: ''
       });
-      alert('Inquiry sent successfully!');
+      alert(t('inquiry.inquirySentSuccess'));
     } catch (error) {
       console.error('Failed to send inquiry:', error);
-      alert('Failed to send inquiry. Please try again.');
+      alert(t('inquiry.inquirySentError'));
     }
   };
 
@@ -171,7 +173,7 @@ const RealEstateDetail: React.FC = () => {
   const handleCopyPhone = async (phoneNumber: string) => {
     try {
       await navigator.clipboard.writeText(phoneNumber);
-      alert('Phone number copied to clipboard!');
+      alert(t('alerts.phoneCopied'));
     } catch (error: unknown) {
       console.error(error)
       // Fallback for older browsers
@@ -181,15 +183,18 @@ const RealEstateDetail: React.FC = () => {
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
-      alert('Phone number copied to clipboard!');
+      alert(t('alerts.phoneCopied'));
     }
   };
 
   const handleEmailContact = (contactInfo: PropertyOwner | RealEstateAgent | undefined) => {
     if (!property || !contactInfo) return;
 
-    const subject = `Inquiry about: ${property.title}`;
-    const body = `Hello,\n\nI am interested in your property "${property.title}" located at ${property.address}.\n\nPlease contact me for more information.\n\nBest regards`;
+    const subject = `${t('alerts.emailSubject')} ${property.title}`;
+    const body = t('alerts.emailBody', {
+      title: property.title,
+      address: property.address
+    }).replace(/\\n/g, '\n');
     const email = contactInfo.email || 'contact@example.com';
 
     window.open(`mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_self');
@@ -203,12 +208,12 @@ const RealEstateDetail: React.FC = () => {
 
   const getPropertyFeatures = (property: ExtendedProperty): string[] => {
     const features: string[] = [];
-    if (property.has_balcony) features.push("Balcony");
-    if (property.has_garage) features.push("Garage");
-    if (property.has_garden) features.push("Garden");
-    if (property.has_pool) features.push("Swimming Pool");
-    if (property.has_elevator) features.push("Elevator");
-    if (property.is_furnished) features.push("Furnished");
+    if (property.has_balcony) features.push(t('features.balcony'));
+    if (property.has_garage) features.push(t('features.garage'));
+    if (property.has_garden) features.push(t('features.garden'));
+    if (property.has_pool) features.push(t('features.swimmingPool'));
+    if (property.has_elevator) features.push(t('features.elevator'));
+    if (property.is_furnished) features.push(t('features.furnished'));
     return features;
   };
 
@@ -229,7 +234,7 @@ const RealEstateDetail: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex items-center space-x-2">
           <FaSpinner className="animate-spin text-blue-600" size={24} />
-          <span>Loading property details...</span>
+          <span>{t('loading.loadingDetails')}</span>
         </div>
       </div>
     );
@@ -239,13 +244,13 @@ const RealEstateDetail: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Property Not Found</h2>
-          <p className="text-gray-600 mb-4">The property you're looking for doesn't exist or has been removed.</p>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('loading.propertyNotFound')}</h2>
+          <p className="text-gray-600 mb-4">{t('loading.propertyNotFoundMessage')}</p>
           <button
             onClick={() => navigate('/properties')}
             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Back to Properties
+            {t('loading.backToProperties')}
           </button>
         </div>
       </div>
@@ -264,7 +269,7 @@ const RealEstateDetail: React.FC = () => {
             className="flex items-center text-gray-600 hover:text-blue-600 mb-4"
           >
             <FaArrowLeft className="mr-2" />
-            Back to Properties
+            {t('navigation.backToProperties')}
           </button>
 
           <div className="flex justify-between items-start">
@@ -277,11 +282,11 @@ const RealEstateDetail: React.FC = () => {
               <div className="flex items-center space-x-4 text-sm text-gray-500">
                 <div className="flex items-center">
                   <FaEye className="mr-1" />
-                  <span>{property.views_count} views</span>
+                  <span>{property.views_count} {t('propertyInfo.views')}</span>
                 </div>
                 <div className="flex items-center">
                   <FaCalendarAlt className="mr-1" />
-                  <span>Listed {new Date(property.created_at).toLocaleDateString()}</span>
+                  <span>{t('propertyInfo.listed')} {new Date(property.created_at).toLocaleDateString()}</span>
                 </div>
               </div>
             </div>
@@ -292,7 +297,7 @@ const RealEstateDetail: React.FC = () => {
               </div>
               {property.listing_type === 'sale' && property.price_per_sqm && (
                 <div className="text-sm text-gray-600">
-                  {Math.round(property.price_per_sqm)} {property.currency}/m²
+                  {Math.round(property.price_per_sqm)} {property.currency}{t('propertyInfo.pricePerSqm')}
                 </div>
               )}
               <div className="flex items-center space-x-2 mt-4">
@@ -305,14 +310,14 @@ const RealEstateDetail: React.FC = () => {
                   }`}
                 >
                   {isSaved ? <FaHeart className="mr-2" /> : <FaRegHeart className="mr-2" />}
-                  {isSaved ? 'Saved' : 'Save'}
+                  {isSaved ? t('propertyInfo.saved') : t('propertyInfo.save')}
                 </button>
                 <button
                   onClick={handleShare}
                   className="flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <FaShare className="mr-2" />
-                  Share
+                  {t('propertyInfo.share')}
                 </button>
               </div>
             </div>
@@ -375,7 +380,7 @@ const RealEstateDetail: React.FC = () => {
 
             {/* Property Details */}
             <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-              <h2 className="text-2xl font-semibold mb-4">Property Details</h2>
+              <h2 className="text-2xl font-semibold mb-4">{t('propertyDetails.title')}</h2>
 
               {/* Quick Stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -383,50 +388,52 @@ const RealEstateDetail: React.FC = () => {
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
                     <FaBed className="mx-auto text-blue-600 mb-2" size={24} />
                     <div className="font-semibold">{property.bedrooms}</div>
-                    <div className="text-sm text-gray-600">Bedrooms</div>
+                    <div className="text-sm text-gray-600">{t('propertyDetails.bedrooms')}</div>
                   </div>
                 )}
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
                   <FaBath className="mx-auto text-blue-600 mb-2" size={24} />
                   <div className="font-semibold">{property.bathrooms}</div>
-                  <div className="text-sm text-gray-600">Bathrooms</div>
+                  <div className="text-sm text-gray-600">{t('propertyDetails.bathrooms')}</div>
                 </div>
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
                   <FaHome className="mx-auto text-blue-600 mb-2" size={24} />
                   <div className="font-semibold">{property.square_meters}m²</div>
-                  <div className="text-sm text-gray-600">Floor Area</div>
+                  <div className="text-sm text-gray-600">{t('propertyDetails.floorArea')}</div>
                 </div>
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
                   <FaCar className="mx-auto text-blue-600 mb-2" size={24} />
                   <div className="font-semibold">{property.parking_spaces}</div>
-                  <div className="text-sm text-gray-600">Parking</div>
+                  <div className="text-sm text-gray-600">{t('propertyDetails.parking')}</div>
                 </div>
               </div>
 
               {/* Property Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h3 className="font-semibold text-lg mb-3">Basic Information</h3>
+                  <h3 className="font-semibold text-lg mb-3">{t('propertyDetails.basicInformation')}</h3>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Property Type:</span>
+                      <span className="text-gray-600">{t('propertyDetails.propertyType')}</span>
                       <span className="font-medium capitalize"> {property.property_type}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Listing Type:</span>
-                      <span className="font-medium capitalize">For {property.listing_type}</span>
+                      <span className="text-gray-600">{t('propertyDetails.listingType')}</span>
+                      <span className="font-medium capitalize">
+                        {property.listing_type === 'sale' ? t('propertyDetails.forSale') : t('propertyDetails.forRent')}
+                      </span>
                     </div>
                     {property.year_built && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Year Built:</span>
+                        <span className="text-gray-600">{t('propertyDetails.yearBuilt')}</span>
                         <span className="font-medium">{property.year_built}</span>
                       </div>
                     )}
                     {property.floor && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Floor:</span>
+                        <span className="text-gray-600">{t('propertyDetails.floor')}</span>
                         <span className="font-medium">
-                          {property.floor}{property.total_floors && ` of ${property.total_floors}`}
+                          {property.floor}{property.total_floors && ` ${t('propertyDetails.of')} ${property.total_floors}`}
                         </span>
                       </div>
                     )}
@@ -434,7 +441,7 @@ const RealEstateDetail: React.FC = () => {
                 </div>
 
                 <div>
-                  <h3 className="font-semibold text-lg mb-3">Features & Amenities</h3>
+                  <h3 className="font-semibold text-lg mb-3">{t('propertyDetails.featuresAmenities')}</h3>
                   <div className="grid grid-cols-2 gap-2">
                     {features.map((feature, index) => (
                       <div key={index} className="flex items-center">
@@ -449,37 +456,37 @@ const RealEstateDetail: React.FC = () => {
 
             {/* Description */}
             <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-              <h2 className="text-2xl font-semibold mb-4">Description</h2>
+              <h2 className="text-2xl font-semibold mb-4">{t('sections.description')}</h2>
               <p className="text-gray-700 leading-relaxed">{property.description}</p>
             </div>
 
             {/* Nearby Amenities */}
             {(property.metro_distance || property.school_distance || property.hospital_distance || property.shopping_distance) && (
               <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-                <h2 className="text-2xl font-semibold mb-4">Nearby Amenities</h2>
+                <h2 className="text-2xl font-semibold mb-4">{t('sections.nearbyAmenities')}</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {property.metro_distance && (
                     <div className="text-center">
-                      <div className="font-medium">Metro</div>
-                      <div className="text-sm text-gray-600">{property.metro_distance}m away</div>
+                      <div className="font-medium">{t('amenities.metro')}</div>
+                      <div className="text-sm text-gray-600">{property.metro_distance}m {t('amenities.away')}</div>
                     </div>
                   )}
                   {property.school_distance && (
                     <div className="text-center">
-                      <div className="font-medium">School</div>
-                      <div className="text-sm text-gray-600">{property.school_distance}m away</div>
+                      <div className="font-medium">{t('amenities.school')}</div>
+                      <div className="text-sm text-gray-600">{property.school_distance}m {t('amenities.away')}</div>
                     </div>
                   )}
                   {property.hospital_distance && (
                     <div className="text-center">
-                      <div className="font-medium">Hospital</div>
-                      <div className="text-sm text-gray-600">{property.hospital_distance}m away</div>
+                      <div className="font-medium">{t('amenities.hospital')}</div>
+                      <div className="text-sm text-gray-600">{property.hospital_distance}m {t('amenities.away')}</div>
                     </div>
                   )}
                   {property.shopping_distance && (
                     <div className="text-center">
-                      <div className="font-medium">Shopping</div>
-                      <div className="text-sm text-gray-600">{property.shopping_distance}m away</div>
+                      <div className="font-medium">{t('amenities.shopping')}</div>
+                      <div className="text-sm text-gray-600">{property.shopping_distance}m {t('amenities.away')}</div>
                     </div>
                   )}
                 </div>
@@ -491,15 +498,15 @@ const RealEstateDetail: React.FC = () => {
           <div className="space-y-6">
             {/* Contact Card */}
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-xl font-semibold mb-4">Contact Information</h3>
+              <h3 className="text-xl font-semibold mb-4">{t('contact.title')}</h3>
 
               {property.agent ? (
                 <div className="text-center">
                   <div className="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4">
                     <FaBuilding size={24} />
                   </div>
-                  <div className="font-semibold text-lg">Professional Listing</div>
-                  <div className="text-gray-600 mb-2">Listed by verified agent</div>
+                  <div className="font-semibold text-lg">{t('contact.professionalListing')}</div>
+                  <div className="text-gray-600 mb-2">{t('contact.listedByAgent')}</div>
                   <div className="font-medium text-gray-800 mb-4">{property.agent.agency_name}</div>
 
                   <div className="space-y-3">
@@ -508,14 +515,14 @@ const RealEstateDetail: React.FC = () => {
                       className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
                     >
                       <FaPhone className="mr-2" />
-                      Call Agent
+                      {t('contact.callAgent')}
                     </button>
                     <button
                       onClick={() => handleEmailContact(property.agent)}
                       className="w-full border border-blue-600 text-blue-600 py-3 px-4 rounded-lg hover:bg-blue-50 transition-colors flex items-center justify-center"
                     >
                       <FaEnvelope className="mr-2" />
-                      Email Agent
+                      {t('contact.emailAgent')}
                     </button>
                   </div>
                 </div>
@@ -524,9 +531,9 @@ const RealEstateDetail: React.FC = () => {
                   <div className="w-16 h-16 bg-green-600 text-white rounded-full flex items-center justify-center mx-auto mb-4">
                     <FaUser size={24} />
                   </div>
-                  <div className="font-semibold text-lg">By Owner</div>
-                  <div className="text-gray-600 mb-2">Direct contact with property owner</div>
-                  <div className="font-medium text-gray-800 mb-4">{property.owner?.username || 'Property Owner'}</div>
+                  <div className="font-semibold text-lg">{t('contact.byOwner')}</div>
+                  <div className="text-gray-600 mb-2">{t('contact.directContact')}</div>
+                  <div className="font-medium text-gray-800 mb-4">{property.owner?.username || t('contact.propertyOwner')}</div>
 
                   <div className="space-y-3">
                     <button
@@ -534,14 +541,14 @@ const RealEstateDetail: React.FC = () => {
                       className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center"
                     >
                       <FaPhone className="mr-2" />
-                      Call Owner
+                      {t('contact.callOwner')}
                     </button>
                     <button
                       onClick={() => handleEmailContact(property.owner)}
                       className="w-full border border-green-600 text-green-600 py-3 px-4 rounded-lg hover:bg-green-50 transition-colors flex items-center justify-center"
                     >
                       <FaEnvelope className="mr-2" />
-                      Email Owner
+                      {t('contact.emailOwner')}
                     </button>
                   </div>
                 </div>
@@ -552,34 +559,34 @@ const RealEstateDetail: React.FC = () => {
                 className="w-full mt-4 bg-gray-100 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center"
               >
                 <FaComments className="mr-2" />
-                Send Inquiry
+                {t('contact.sendInquiry')}
               </button>
             </div>
 
             {/* Property Status */}
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-xl font-semibold mb-4">Property Status</h3>
+              <h3 className="text-xl font-semibold mb-4">{t('propertyStatus.title')}</h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span>Availability:</span>
+                  <span>{t('propertyStatus.availability')}</span>
                   <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
                     property.is_active && !property.is_sold
                       ? 'bg-green-100 text-green-800'
                       : 'bg-red-100 text-red-800'
                   }`}>
-                    {property.is_active && !property.is_sold ? 'Available' : 'Not Available'}
+                    {property.is_active && !property.is_sold ? t('propertyStatus.available') : t('propertyStatus.notAvailable')}
                   </span>
                 </div>
                 {property.is_featured && (
                   <div className="flex items-center justify-between">
-                    <span>Featured:</span>
+                    <span>{t('propertyStatus.featured')}</span>
                     <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold">
-                      Featured Property
+                      {t('propertyStatus.featuredProperty')}
                     </span>
                   </div>
                 )}
                 <div className="flex items-center justify-between">
-                  <span>Property ID:</span>
+                  <span>{t('propertyStatus.propertyId')}</span>
                   <span className="text-sm text-gray-600">{property.id.slice(0, 8)}</span>
                 </div>
               </div>
@@ -590,7 +597,7 @@ const RealEstateDetail: React.FC = () => {
         {/* Related Properties */}
         {relatedProperties.length > 0 && (
           <div className="mt-12">
-            <h2 className="text-2xl font-semibold mb-6">Similar Properties</h2>
+            <h2 className="text-2xl font-semibold mb-6">{t('sections.similarProperties')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {relatedProperties.slice(0, 3).map((relatedProperty) => (
                 <div key={relatedProperty.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
@@ -612,7 +619,7 @@ const RealEstateDetail: React.FC = () => {
                       onClick={() => navigate(`/properties/${relatedProperty.id}`)}
                       className="w-full mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
                     >
-                      View Details
+                      {t('relatedProperties.viewDetails')}
                     </button>
                   </div>
                 </div>
@@ -631,17 +638,17 @@ const RealEstateDetail: React.FC = () => {
                 <FaPhone size={24} />
               </div>
 
-              <h3 className="text-xl font-semibold mb-2">Contact Information</h3>
+              <h3 className="text-xl font-semibold mb-2">{t('contact.title')}</h3>
 
               {property.agent ? (
                 <div className="mb-4">
-                  <div className="text-gray-600 mb-2">Agent Contact</div>
+                  <div className="text-gray-600 mb-2">{t('contact.agentContact')}</div>
                   <div className="font-medium text-lg">{property.agent.agency_name}</div>
                 </div>
               ) : (
                 <div className="mb-4">
-                  <div className="text-gray-600 mb-2">Property Owner</div>
-                  <div className="font-medium text-lg">{property.owner?.username || 'Property Owner'}</div>
+                  <div className="text-gray-600 mb-2">{t('contact.propertyOwner')}</div>
+                  <div className="font-medium text-lg">{property.owner?.username || t('contact.propertyOwner')}</div>
                 </div>
               )}
 
@@ -651,7 +658,7 @@ const RealEstateDetail: React.FC = () => {
                   {(property.agent?.phone_number || property.owner?.phone_number) || '+998 90 123 45 67'}
                 </div>
                 <div className="text-sm text-gray-600">
-                  {property.agent ? 'Agent Phone Number' : 'Owner Phone Number'}
+                  {property.agent ? t('contact.agentPhoneNumber') : t('contact.ownerPhoneNumber')}
                 </div>
               </div>
 
@@ -666,7 +673,7 @@ const RealEstateDetail: React.FC = () => {
                   className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center"
                 >
                   <FaPhone className="mr-2" />
-                  Call Now
+                  {t('contact.callNow')}
                 </button>
 
                 <button
@@ -677,14 +684,14 @@ const RealEstateDetail: React.FC = () => {
                   className="w-full border border-blue-600 text-blue-600 py-3 px-4 rounded-lg hover:bg-blue-50 transition-colors flex items-center justify-center"
                 >
                   <FaCopy className="mr-2" />
-                  Copy Number
+                  {t('contact.copyNumber')}
                 </button>
 
                 <button
                   onClick={() => setShowPhoneModal(false)}
                   className="w-full bg-gray-200 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors"
                 >
-                  Close
+                  {t('contact.close')}
                 </button>
               </div>
 
@@ -692,7 +699,7 @@ const RealEstateDetail: React.FC = () => {
               <div className="mt-4 text-xs text-gray-500">
                 <div className="flex items-center justify-center">
                   <FaInfoCircle className="mr-1" />
-                  Contact hours: 9 AM - 8 PM
+                  {t('contact.contactHours')}
                 </div>
               </div>
             </div>
@@ -705,7 +712,7 @@ const RealEstateDetail: React.FC = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold">Send Inquiry</h3>
+              <h3 className="text-xl font-semibold">{t('inquiry.title')}</h3>
               <button
                 onClick={() => setShowInquiryForm(false)}
                 className="text-gray-500 hover:text-gray-700"
@@ -717,7 +724,7 @@ const RealEstateDetail: React.FC = () => {
             <form onSubmit={handleInquirySubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Inquiry Type
+                  {t('inquiry.inquiryType')}
                 </label>
                 <select
                   value={inquiryData.inquiry_type}
@@ -727,23 +734,23 @@ const RealEstateDetail: React.FC = () => {
                   }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="info">Request Information</option>
-                  <option value="viewing">Schedule Viewing</option>
-                  <option value="offer">Make Offer</option>
-                  <option value="callback">Request Callback</option>
+                  <option value="info">{t('inquiry.requestInfo')}</option>
+                  <option value="viewing">{t('inquiry.scheduleViewing')}</option>
+                  <option value="offer">{t('inquiry.makeOffer')}</option>
+                  <option value="callback">{t('inquiry.requestCallback')}</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Message
+                  {t('inquiry.message')}
                 </label>
                 <textarea
                   value={inquiryData.message}
                   onChange={(e) => setInquiryData(prev => ({ ...prev, message: e.target.value }))}
                   rows={4}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Tell us about your interest in this property..."
+                  placeholder={t('inquiry.messagePlaceholder')}
                   required
                 />
               </div>
@@ -751,28 +758,28 @@ const RealEstateDetail: React.FC = () => {
               {inquiryData.inquiry_type === 'offer' && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Offered Price ({property.currency})
+                    {t('inquiry.offeredPrice')} ({property.currency})
                   </label>
                   <input
                     type="number"
                     value={inquiryData.offered_price}
                     onChange={(e) => setInquiryData(prev => ({ ...prev, offered_price: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter your offer"
+                    placeholder={t('inquiry.enterOffer')}
                   />
                 </div>
               )}
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Preferred Contact Time (Optional)
+                  {t('inquiry.preferredContactTime')}
                 </label>
                 <input
                   type="text"
                   value={inquiryData.preferred_contact_time}
                   onChange={(e) => setInquiryData(prev => ({ ...prev, preferred_contact_time: e.target.value }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., Weekdays 9 AM - 5 PM"
+                  placeholder={t('inquiry.contactTimePlaceholder')}
                 />
               </div>
 
@@ -782,7 +789,7 @@ const RealEstateDetail: React.FC = () => {
                   onClick={() => setShowInquiryForm(false)}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                 >
-                  Cancel
+                  {t('inquiry.cancel')}
                 </button>
                 <button
                   type="submit"
@@ -794,7 +801,7 @@ const RealEstateDetail: React.FC = () => {
                   ) : (
                     <FaPaperPlane className="mr-2" />
                   )}
-                  {isSubmittingInquiry ? 'Sending...' : 'Send Inquiry'}
+                  {isSubmittingInquiry ? t('inquiry.sending') : t('inquiry.sendInquiry')}
                 </button>
               </div>
             </form>

@@ -100,7 +100,7 @@ const ServiceScreen = () => {
       <div className="flex items-center justify-center h-64">
         <div className="text-center py-10 text-lg text-gray-600">
           <div className="animate-spin inline-block w-6 h-6 border-4 border-current border-t-transparent rounded-full mb-2" />
-          <div>{t("loading")}</div>
+          <div>{t("loading.loading")}</div>
         </div>
       </div>
     );

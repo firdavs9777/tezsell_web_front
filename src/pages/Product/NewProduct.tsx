@@ -184,7 +184,7 @@ const NewProduct = () => {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        <p className="ml-2">{t("loading")}</p>
+        <p className="ml-2">{t("loading.loading")}</p>
       </div>
     );
   }
@@ -292,7 +292,7 @@ const NewProduct = () => {
                   {t("select_category")}
                 </option>
                 {isLoading ? (
-                  <option>{t("loading")}</option>
+                  <option>{t("loading.loading")}</option>
                 ) : error ? (
                   <option>{t("error_loading_categories")}</option>
                 ) : (

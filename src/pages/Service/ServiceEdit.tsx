@@ -347,7 +347,7 @@ formData.append("userAddress_id", userInfo.user_info.location.id.toString());
       <div className="flex justify-center items-center h-32 sm:h-64">
         <div className="text-center">
           <div className="animate-spin inline-block w-6 h-6 sm:w-8 sm:h-8 border-2 sm:border-4 border-blue-500 border-t-transparent rounded-full mb-2"></div>
-          <p className="text-gray-600 text-sm sm:text-base">{t("loading")}</p>
+          <p className="text-gray-600 text-sm sm:text-base">{t("loading.loading")}</p>
         </div>
       </div>
     );
@@ -459,7 +459,7 @@ formData.append("userAddress_id", userInfo.user_info.location.id.toString());
                     {t("serviceCategory")}
                   </option>
                   {categoryLoading ? (
-                    <option>{t("loading")}</option>
+                    <option>{t("loading.loading")}</option>
                   ) : categoryError ? (
                     <option>{t("errorLoadingCategories")}</option>
                   ) : (

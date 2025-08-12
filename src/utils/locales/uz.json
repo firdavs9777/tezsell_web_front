@@ -29,7 +29,6 @@
   "page_info": "Sahifa soni",
   "page_next": "Keyingi",
   "page_last": "Oxirgi",
-  "loading": "Yuklanyapti.. ",
   "loading_message_product": "Mahsulotlar yuklanmoqda...",
   "loading_message_error": "Mahsulotlarni yuklashda xatolik yuz berdi",
   "loading_message_location": "Manzillar yuklanmoqda...",
@@ -205,6 +204,12 @@
   },
   "features": {
     "title": "Nega TezSell?",
+    "balcony": "Balkon",
+    "garage": "Garaj",
+    "garden": "Bog'",
+    "swimmingPool": "Suzish havzasi",
+    "elevator": "Lift",
+    "furnished": "Jihozlangan",
     "listing": {
       "title": "Oddiy mahsulot ro'yxati",
       "description": "Bir necha bosish bilan tovarlaringizni qo'shing. Rasmlarni qo'shing, narxingizni belgilang va xaridorlar bilan darhol bog'laning."
@@ -250,5 +255,180 @@
   "deleting": "O'chirilmoqda...",
   "properties": "Mulklar",
   "agents": "Agentlar",
-  "become_agent": "Agent bo'lish"
+  "become_agent": "Agent bo'lish",
+  "header": {
+    "title": "Orzu qilgan mulkingizni toping",
+    "subtitle": "Toshkentning eng yaxshi joylarida premium ko'chmas mulk imkoniyatlarini kashf eting"
+  },
+  "search": {
+    "placeholder": "Sarlavha yoki joylashuv bo'yicha qidirish...",
+    "filters": "Filtrlar"
+  },
+  "filterOptions": {
+    "saleAndRent": "Sotuv va ijara",
+    "forSale": "Sotuvga",
+    "forRent": "Ijaraga",
+    "allTypes": "Barcha turlar",
+    "apartment": "Kvartira",
+    "house": "Uy",
+    "townhouse": "Taunhaus",
+    "villa": "Villa",
+    "commercial": "Tijorat",
+    "office": "Ofis"
+  },
+  "propertyCard": {
+    "featured": "Tavsiya etilgan",
+    "bed": "xona",
+    "bath": "hammom",
+    "parking": "to'xtash joyi",
+    "viewDetails": "Batafsil",
+    "contact": "Bog'lanish",
+    "balcony": "Balkon",
+    "garage": "Garaj",
+    "garden": "Bog'",
+    "pool": "Basseyn",
+    "elevator": "Lift",
+    "furnished": "Jihozlangan",
+    "sales": "sotuv"
+  },
+  "pricing": {
+    "month": "/oy"
+  },
+  "results": {
+    "propertiesFound": "Mulk topildi",
+    "propertiesSaved": "mulk saqlandi",
+    "saved": "saqlandi",
+    "loadingProperties": "Mulklar yuklanmoqda...",
+    "failedToLoad": "Mulklarni yuklashda xatolik. Qayta urinib ko'ring.",
+    "noPropertiesFound": "Hech qanday mulk topilmadi",
+    "tryAdjusting": "Qidiruv mezonlarini o'zgartirib ko'ring"
+  },
+  "pagination": {
+    "previous": "Oldingi",
+    "next": "Keyingi",
+    "page": "Sahifa"
+  },
+  "contactModal": {
+    "title": "Aloqa ma'lumotlari",
+    "agentContact": "Agent bilan aloqa",
+    "propertyOwner": "Mulk egasi",
+    "agentPhoneNumber": "Agent telefoni",
+    "ownerPhoneNumber": "Egasi telefoni",
+    "license": "Litsenziya",
+    "rating": "Reyting",
+    "callNow": "Hozir qo'ng'iroq qiling",
+    "copyNumber": "Raqamni nusxalash",
+    "close": "Yopish",
+    "contactHours": "Aloqa vaqti: 9:00 - 20:00",
+    "agent": "Agent"
+  },
+  "errors": {
+    "toggleSaveFailed": "Mulkni saqlash/olib tashlashda xatolik:",
+    "copyFailed": "Telefon raqamini nusxalashda xatolik:",
+    "phoneCopied": "Telefon raqami buferga nusxalandi"
+  },
+  "navigation": {
+    "backToProperties": "Mulklarga qaytish"
+  },
+  "propertyInfo": {
+    "views": "ko'rishlar",
+    "listed": "Joylashtrilgan",
+    "pricePerSqm": "/m²",
+    "saved": "Saqlandi",
+    "save": "Saqlash",
+    "share": "Ulashish"
+  },
+  "loading": {
+    "loading": "Yuklanyapti.. ",
+    "loadingDetails": "Mulk tafsilotlari yuklanmoqda...",
+    "propertyNotFound": "Mulk topilmadi",
+    "propertyNotFoundMessage": "Siz izlayotgan mulk mavjud emas yoki o'chirilgan.",
+    "backToProperties": "Mulklarga qaytish"
+  },
+  "propertyDetails": {
+    "title": "Mulk tafsilotlari",
+    "bedrooms": "Yotoq xonalari",
+    "bathrooms": "Hammomlar",
+    "floorArea": "Maydon",
+    "parking": "To'xtash joyi",
+    "basicInformation": "Asosiy ma'lumotlar",
+    "propertyType": "Mulk turi:",
+    "listingType": "E'lon turi:",
+    "forSale": "Sotuvga",
+    "forRent": "Ijaraga",
+    "yearBuilt": "Qurilgan yili:",
+    "floor": "Qavat:",
+    "of": "dan",
+    "featuresAmenities": "Xususiyatlar va qulayliklar"
+  },
+  "sections": {
+    "description": "Tavsif",
+    "nearbyAmenities": "Yaqin atrofdagi qulayliklar",
+    "similarProperties": "O'xshash mulklar"
+  },
+  "amenities": {
+    "metro": "Metro",
+    "school": "Maktab",
+    "hospital": "Kasalxona",
+    "shopping": "Savdo markazi",
+    "away": "uzoqlikda"
+  },
+  "contact": {
+    "title": "Aloqa ma'lumotlari",
+    "professionalListing": "Professional e'lon",
+    "listedByAgent": "Tasdiqlangan agent tomonidan joylashtirilgan",
+    "byOwner": "Egasi tomonidan",
+    "directContact": "Mulk egasi bilan to'g'ridan-to'g'ri aloqa",
+    "propertyOwner": "Mulk egasi",
+    "callAgent": "Agentga qo'ng'iroq qiling",
+    "emailAgent": "Agentga email yozing",
+    "callOwner": "Egasiga qo'ng'iroq qiling",
+    "emailOwner": "Egasiga email yozing",
+    "sendInquiry": "So'rov yuborish",
+    "agentContact": "Agent bilan aloqa",
+    "agentPhoneNumber": "Agent telefoni",
+    "ownerPhoneNumber": "Egasi telefoni",
+    "callNow": "Hozir qo'ng'iroq qiling",
+    "copyNumber": "Raqamni nusxalash",
+    "close": "Yopish",
+    "contactHours": "Aloqa vaqti: 9:00 - 20:00"
+  },
+  "propertyStatus": {
+    "title": "Mulk holati",
+    "availability": "Mavjudlik:",
+    "available": "Mavjud",
+    "notAvailable": "Mavjud emas",
+    "featured": "Tavsiya etilgan:",
+    "featuredProperty": "Tavsiya etilgan mulk",
+    "propertyId": "Mulk ID:"
+  },
+  "inquiry": {
+    "title": "So'rov yuborish",
+    "inquiryType": "So'rov turi",
+    "requestInfo": "Ma'lumot so'rash",
+    "scheduleViewing": "Ko'rishni rejalashtirish",
+    "makeOffer": "Taklif berish",
+    "requestCallback": "Qayta qo'ng'iroq so'rash",
+    "message": "Xabar",
+    "messagePlaceholder": "Ushbu mulkka qiziqishingiz haqida bizga aytib bering...",
+    "offeredPrice": "Taklif qilingan narx",
+    "enterOffer": "Taklifingizni kiriting",
+    "preferredContactTime": "Afzal qilingan aloqa vaqti (ixtiyoriy)",
+    "contactTimePlaceholder": "masalan, ish kunlari 9:00 - 17:00",
+    "cancel": "Bekor qilish",
+    "sending": "Yuborilmoqda...",
+    "sendInquiry": "So'rov yuborish",
+    "inquirySentSuccess": "So'rov muvaffaqiyatli yuborildi!",
+    "inquirySentError": "So'rovni yuborishda xatolik. Qayta urinib ko'ring."
+  },
+  "alerts": {
+    "linkCopied": "Mulk havolasi buferga nusxalandi!",
+    "phoneCopied": "Telefon raqami buferga nusxalandi!",
+    "savePropertyFailed": "Mulkni saqlashda xatolik:",
+    "emailSubject": "Quyidagi haqida so'rov:",
+    "emailBody": "Assalomu alaykum,\\n\\nMen sizning \"{title}\" mulkingizga qiziqaman, manzil: {address}.\\n\\nQo'shimcha ma'lumot olish uchun men bilan bog'laning.\\n\\nHurmat bilan"
+  },
+  "relatedProperties": {
+    "viewDetails": "Batafsil"
+  }
 }

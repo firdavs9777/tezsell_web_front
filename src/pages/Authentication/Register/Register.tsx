@@ -95,7 +95,7 @@ const Register = () => {
       });
     }
   };
-  if (isLoading) return <div>{t("loading")}</div>;
+  if (isLoading) return <div>{t("loading.loading")}</div>;
   return (
     <form
       onSubmit={submitRegister}

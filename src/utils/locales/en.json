@@ -107,7 +107,7 @@
   "new_product_category": "Category",
   "new_product_images": "Images",
   "addNewService": "Add New Service",
-  "loading": "Loading...",
+
   "creating": "Creating...",
   "serviceName": "Service Name ",
   "serviceNamePlaceholder": "Enter service title",
@@ -208,6 +208,12 @@
   },
   "features": {
     "title": "Why Choose TezSell?",
+    "balcony": "Balcony",
+    "garage": "Garage",
+    "garden": "Garden",
+    "swimmingPool": "Swimming Pool",
+    "elevator": "Elevator",
+    "furnished": "Furnished",
     "listing": {
       "title": "Simple Product Listing",
       "description": "List your items with just a few clicks. Add photos, set your price, and connect with buyers instantly."
@@ -249,8 +255,183 @@
   "enter_valid_reply": "Please enter a valid reply text",
   "saving": "Saving...",
   "deleting": "Deleting...",
-
   "properties": "Properties",
   "agents": "Agents",
-  "become_agent": "Become an Agent"
+  "become_agent": "Become an Agent",
+  "header": {
+    "title": "Find Your Dream Property",
+    "subtitle": "Discover premium real estate opportunities in Tashkent's most desirable locations"
+  },
+  "search": {
+    "placeholder": "Search by title or location...",
+    "filters": "Filters"
+  },
+  "filterOptions": {
+    "saleAndRent": "Sale & Rent",
+    "forSale": "For Sale",
+    "forRent": "For Rent",
+    "allTypes": "All Types",
+    "apartment": "Apartment",
+    "house": "House",
+    "townhouse": "Townhouse",
+    "villa": "Villa",
+    "commercial": "Commercial",
+    "office": "Office"
+  },
+  "propertyCard": {
+    "featured": "Featured",
+    "bed": "bed",
+    "bath": "bath",
+    "parking": "parking",
+    "viewDetails": "View Details",
+    "contact": "Contact",
+    "balcony": "Balcony",
+    "garage": "Garage",
+    "garden": "Garden",
+    "pool": "Pool",
+    "elevator": "Elevator",
+    "furnished": "Furnished",
+    "sales": "sales"
+  },
+  "pricing": {
+    "month": "/month"
+  },
+  "results": {
+    "propertiesFound": "Properties Found",
+    "propertiesSaved": "properties saved",
+    "saved": "saved",
+    "loadingProperties": "Loading properties...",
+    "failedToLoad": "Failed to load properties. Please try again.",
+    "noPropertiesFound": "No properties found",
+    "tryAdjusting": "Try adjusting your search criteria"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page"
+  },
+  "contactModal": {
+    "title": "Contact Information",
+    "agentContact": "Agent Contact",
+    "propertyOwner": "Property Owner",
+    "agentPhoneNumber": "Agent Phone Number",
+    "ownerPhoneNumber": "Owner Phone Number",
+    "license": "License",
+    "rating": "Rating",
+    "callNow": "Call Now",
+    "copyNumber": "Copy Number",
+    "close": "Close",
+    "contactHours": "Contact hours: 9 AM - 8 PM",
+    "agent": "Agent"
+  },
+  "errors": {
+    "toggleSaveFailed": "Failed to toggle save property:",
+    "copyFailed": "Failed to copy phone number:",
+    "phoneCopied": "Phone number copied to clipboard"
+  },
+  "navigation": {
+    "backToProperties": "Back to Properties"
+  },
+  "propertyInfo": {
+    "views": "views",
+    "listed": "Listed",
+    "pricePerSqm": "/m²",
+    "saved": "Saved",
+    "save": "Save",
+    "share": "Share"
+  },
+  "loading": {
+    "loading": "Loading...",
+    "loadingDetails": "Loading property details...",
+    "propertyNotFound": "Property Not Found",
+    "propertyNotFoundMessage": "The property you're looking for doesn't exist or has been removed.",
+    "backToProperties": "Back to Properties"
+  },
+  "propertyDetails": {
+    "title": "Property Details",
+    "bedrooms": "Bedrooms",
+    "bathrooms": "Bathrooms",
+    "floorArea": "Floor Area",
+    "parking": "Parking",
+    "basicInformation": "Basic Information",
+    "propertyType": "Property Type:",
+    "listingType": "Listing Type:",
+    "forSale": "For Sale",
+    "forRent": "For Rent",
+    "yearBuilt": "Year Built:",
+    "floor": "Floor:",
+    "of": "of",
+    "featuresAmenities": "Features & Amenities"
+  },
+
+  "sections": {
+    "description": "Description",
+    "nearbyAmenities": "Nearby Amenities",
+    "similarProperties": "Similar Properties"
+  },
+  "amenities": {
+    "metro": "Metro",
+    "school": "School",
+    "hospital": "Hospital",
+    "shopping": "Shopping",
+    "away": "away"
+  },
+  "contact": {
+    "title": "Contact Information",
+    "professionalListing": "Professional Listing",
+    "listedByAgent": "Listed by verified agent",
+    "byOwner": "By Owner",
+    "directContact": "Direct contact with property owner",
+    "propertyOwner": "Property Owner",
+    "callAgent": "Call Agent",
+    "emailAgent": "Email Agent",
+    "callOwner": "Call Owner",
+    "emailOwner": "Email Owner",
+    "sendInquiry": "Send Inquiry",
+    "agentContact": "Agent Contact",
+    "agentPhoneNumber": "Agent Phone Number",
+    "ownerPhoneNumber": "Owner Phone Number",
+    "callNow": "Call Now",
+    "copyNumber": "Copy Number",
+    "close": "Close",
+    "contactHours": "Contact hours: 9 AM - 8 PM"
+  },
+  "propertyStatus": {
+    "title": "Property Status",
+    "availability": "Availability:",
+    "available": "Available",
+    "notAvailable": "Not Available",
+    "featured": "Featured:",
+    "featuredProperty": "Featured Property",
+    "propertyId": "Property ID:"
+  },
+  "inquiry": {
+    "title": "Send Inquiry",
+    "inquiryType": "Inquiry Type",
+    "requestInfo": "Request Information",
+    "scheduleViewing": "Schedule Viewing",
+    "makeOffer": "Make Offer",
+    "requestCallback": "Request Callback",
+    "message": "Message",
+    "messagePlaceholder": "Tell us about your interest in this property...",
+    "offeredPrice": "Offered Price",
+    "enterOffer": "Enter your offer",
+    "preferredContactTime": "Preferred Contact Time (Optional)",
+    "contactTimePlaceholder": "e.g., Weekdays 9 AM - 5 PM",
+    "cancel": "Cancel",
+    "sending": "Sending...",
+    "sendInquiry": "Send Inquiry",
+    "inquirySentSuccess": "Inquiry sent successfully!",
+    "inquirySentError": "Failed to send inquiry. Please try again."
+  },
+  "alerts": {
+    "linkCopied": "Property link copied to clipboard!",
+    "phoneCopied": "Phone number copied to clipboard!",
+    "savePropertyFailed": "Failed to save property:",
+    "emailSubject": "Inquiry about:",
+    "emailBody": "Hello,\\n\\nI am interested in your property \"{title}\" located at {address}.\\n\\nPlease contact me for more information.\\n\\nBest regards"
+  },
+  "relatedProperties": {
+    "viewDetails": "View Details"
+  }
 }

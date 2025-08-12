@@ -29,7 +29,6 @@
   "page_info": "Страница из",
   "page_next": "Следующая",
   "page_last": "Последняя",
-  "loading": "Загрузка...",
   "loading_message_product": "Загрузка товаров...",
   "loading_message_error": "Ошибка при загрузке товаров",
   "loading_message_location": "Загрузка локаций...",
@@ -203,6 +202,12 @@
   },
   "features": {
     "title": "Почему TezSell?",
+    "balcony": "Балкон",
+    "garage": "Гараж",
+    "garden": "Сад",
+    "swimmingPool": "Плавательный бассейн",
+    "elevator": "Лифт",
+    "furnished": "Меблированная",
     "listing": {
       "title": "Простое размещение товаров",
       "description": "Разместите свои товары всего за несколько кликов. Добавьте фото, установите цену и мгновенно связывайтесь с покупателями."
@@ -249,5 +254,181 @@
   "deleting": "Удаление...",
   "properties": "Объекты",
   "agents": "Агенты",
-  "become_agent": "Стать агентом"
+  "become_agent": "Стать агентом",
+  "header": {
+    "title": "Найдите недвижимость своей мечты",
+    "subtitle": "Откройте для себя премиальные возможности недвижимости в самых желанных районах Ташкента"
+  },
+  "search": {
+    "placeholder": "Поиск по названию или местоположению...",
+    "filters": "Фильтры"
+  },
+  "filterOptions": {
+    "saleAndRent": "Продажа и аренда",
+    "forSale": "На продажу",
+    "forRent": "В аренду",
+    "allTypes": "Все типы",
+    "apartment": "Квартира",
+    "house": "Дом",
+    "townhouse": "Таунхаус",
+    "villa": "Вилла",
+    "commercial": "Коммерческая",
+    "office": "Офис"
+  },
+  "propertyCard": {
+    "featured": "Рекомендуемое",
+    "bed": "спальня",
+    "bath": "ванная",
+    "parking": "парковка",
+    "viewDetails": "Подробнее",
+    "contact": "Связаться",
+    "balcony": "Балкон",
+    "garage": "Гараж",
+    "garden": "Сад",
+    "pool": "Бассейн",
+    "elevator": "Лифт",
+    "furnished": "Меблированная",
+    "sales": "продаж"
+  },
+  "pricing": {
+    "month": "/месяц"
+  },
+  "results": {
+    "propertiesFound": "Объектов найдено",
+    "propertiesSaved": "объектов сохранено",
+    "saved": "сохранено",
+    "loadingProperties": "Загрузка объектов...",
+    "failedToLoad": "Не удалось загрузить объекты. Попробуйте еще раз.",
+    "noPropertiesFound": "Объекты не найдены",
+    "tryAdjusting": "Попробуйте изменить критерии поиска"
+  },
+  "pagination": {
+    "previous": "Предыдущая",
+    "next": "Следующая",
+    "page": "Страница"
+  },
+  "contactModal": {
+    "title": "Контактная информация",
+    "agentContact": "Контакты агента",
+    "propertyOwner": "Владелец недвижимости",
+    "agentPhoneNumber": "Телефон агента",
+    "ownerPhoneNumber": "Телефон владельца",
+    "license": "Лицензия",
+    "rating": "Рейтинг",
+    "callNow": "Позвонить сейчас",
+    "copyNumber": "Копировать номер",
+    "close": "Закрыть",
+    "contactHours": "Часы связи: 9:00 - 20:00",
+    "agent": "Агент"
+  },
+  "errors": {
+    "toggleSaveFailed": "Не удалось сохранить/убрать объект:",
+    "copyFailed": "Не удалось скопировать номер телефона:",
+    "phoneCopied": "Номер телефона скопирован в буфер обмена"
+  },
+  "navigation": {
+    "backToProperties": "Назад к объектам"
+  },
+  "propertyInfo": {
+    "views": "просмотров",
+    "listed": "Размещено",
+    "pricePerSqm": "/м²",
+    "saved": "Сохранено",
+    "save": "Сохранить",
+    "share": "Поделиться"
+  },
+  "loading": {
+    "loading": "Загрузка...",
+    "loadingDetails": "Загрузка деталей объекта...",
+    "propertyNotFound": "Объект не найден",
+    "propertyNotFoundMessage": "Объект, который вы ищете, не существует или был удален.",
+    "backToProperties": "Назад к объектам"
+  },
+  "propertyDetails": {
+    "title": "Детали объекта",
+    "bedrooms": "Спальни",
+    "bathrooms": "Ванные",
+    "floorArea": "Площадь",
+    "parking": "Парковка",
+    "basicInformation": "Основная информация",
+    "propertyType": "Тип недвижимости:",
+    "listingType": "Тип объявления:",
+    "forSale": "На продажу",
+    "forRent": "В аренду",
+    "yearBuilt": "Год постройки:",
+    "floor": "Этаж:",
+    "of": "из",
+    "featuresAmenities": "Особенности и удобства"
+  },
+
+  "sections": {
+    "description": "Описание",
+    "nearbyAmenities": "Ближайшие удобства",
+    "similarProperties": "Похожие объекты"
+  },
+  "amenities": {
+    "metro": "Метро",
+    "school": "Школа",
+    "hospital": "Больница",
+    "shopping": "Торговый центр",
+    "away": "в стороне"
+  },
+  "contact": {
+    "title": "Контактная информация",
+    "professionalListing": "Профессиональное объявление",
+    "listedByAgent": "Размещено проверенным агентом",
+    "byOwner": "От владельца",
+    "directContact": "Прямая связь с владельцем недвижимости",
+    "propertyOwner": "Владелец недвижимости",
+    "callAgent": "Позвонить агенту",
+    "emailAgent": "Написать агенту",
+    "callOwner": "Позвонить владельцу",
+    "emailOwner": "Написать владельцу",
+    "sendInquiry": "Отправить запрос",
+    "agentContact": "Контакты агента",
+    "agentPhoneNumber": "Телефон агента",
+    "ownerPhoneNumber": "Телефон владельца",
+    "callNow": "Позвонить сейчас",
+    "copyNumber": "Копировать номер",
+    "close": "Закрыть",
+    "contactHours": "Часы связи: 9:00 - 20:00"
+  },
+  "propertyStatus": {
+    "title": "Статус объекта",
+    "availability": "Доступность:",
+    "available": "Доступен",
+    "notAvailable": "Недоступен",
+    "featured": "Рекомендуемый:",
+    "featuredProperty": "Рекомендуемый объект",
+    "propertyId": "ID объекта:"
+  },
+  "inquiry": {
+    "title": "Отправить запрос",
+    "inquiryType": "Тип запроса",
+    "requestInfo": "Запрос информации",
+    "scheduleViewing": "Назначить просмотр",
+    "makeOffer": "Сделать предложение",
+    "requestCallback": "Запросить обратный звонок",
+    "message": "Сообщение",
+    "messagePlaceholder": "Расскажите нам о своем интересе к этому объекту...",
+    "offeredPrice": "Предложенная цена",
+    "enterOffer": "Введите ваше предложение",
+    "preferredContactTime": "Предпочтительное время связи (необязательно)",
+    "contactTimePlaceholder": "например, будни с 9:00 до 17:00",
+    "cancel": "Отмена",
+    "sending": "Отправка...",
+    "sendInquiry": "Отправить запрос",
+    "inquirySentSuccess": "Запрос успешно отправлен!",
+    "inquirySentError": "Не удалось отправить запрос. Попробуйте еще раз."
+  },
+  "alerts": {
+    "linkCopied": "Ссылка на объект скопирована в буфер обмена!",
+    "phoneCopied": "Номер телефона скопирован в буфер обмена!",
+    "savePropertyFailed": "Не удалось сохранить объект:",
+    "emailSubject": "Запрос по поводу:",
+    "emailBody": "Здравствуйте,\\n\\nМеня интересует ваш объект \"{title}\" по адресу {address}.\\n\\nПожалуйста, свяжитесь со мной для получения дополнительной информации.\\n\\nС уважением"
+  },
+  "relatedProperties": {
+    "viewDetails": "Подробнее"
+  }
 }

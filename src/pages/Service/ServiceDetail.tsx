@@ -456,7 +456,7 @@ const ServiceDetail = () => {
     setIsEditModalOpen(false);
   }, [refetchService, service?.images]);
   if (isServiceLoading) {
-    return <LoadingSpinner message={t("loading")} />;
+    return <LoadingSpinner message={t("loading.loading")} />;
   }
 
   // Error state

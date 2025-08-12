@@ -1,6 +1,6 @@
-import React from "react";
 import { useGetRegionsListQuery } from "@store/slices/productsApiSlice";
 import { RegionsList } from "@store/type";
+import React from "react";
 import { useTranslation } from "react-i18next";
 
 interface RegionSelectProps {
@@ -14,7 +14,7 @@ const RegionSelect: React.FC<RegionSelectProps> = ({ onSelect, region }) => {
   const { t } = useTranslation();
 
   if (isLoading) {
-    return <div className="text-center text-gray-500">{t("loading")}</div>;
+    return <div className="text-center text-gray-500">{t("loading.loading")}</div>;
   }
   if (error) {
     return <div className="text-center text-red-500">{t("error_message")}</div>;

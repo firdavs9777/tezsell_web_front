@@ -355,7 +355,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
   if (productLoading || categoryLoading) {
     return (
       <div className="flex justify-center items-center p-8 text-lg font-medium text-gray-600">
-        {t("loading")}
+        {t("loading.loading")}
       </div>
     );
   }
@@ -475,7 +475,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
                   {t("select_category")}
                 </option>
                 {categoryLoading ? (
-                  <option>{t("loading")}</option>
+                  <option>{t("loading.loading")}</option>
                 ) : categoryError ? (
                   <option>{t("error_loading_categories")}</option>
                 ) : (

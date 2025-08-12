@@ -74,7 +74,7 @@ const NewService = () => {
       <div className="flex justify-center items-center h-screen">
         <div className="text-center">
           <div className="animate-spin inline-block w-6 h-6 border-4 border-current border-t-transparent text-blue-600 rounded-full mb-2"></div>
-          <p>{t("loading")}</p>
+          <p>{t("loading.loading")}</p>
         </div>
       </div>
     );
