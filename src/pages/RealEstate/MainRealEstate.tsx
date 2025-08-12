@@ -13,19 +13,19 @@ import {
   FaBath,
   FaBed,
   FaCar,
+  FaCopy,
   FaEnvelope,
   FaEye,
   FaFilter,
   FaHeart,
   FaHome,
+  FaInfoCircle,
   FaMapMarkerAlt,
   FaPhone,
   FaRegHeart,
   FaSearch,
   FaSpinner,
   FaStar,
-  FaCopy,
-  FaInfoCircle,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
@@ -38,7 +38,7 @@ interface User {
 }
 
 // Extended Property interface that properly overrides the base Property interface
-interface ExtendedProperty extends Omit<Property, "owner"> {
+interface ExtendedProperty extends Omit<Property, "owner" | "agent"> {
   property_type_display?: string;
   listing_type_display?: string;
   main_image?: string | null;
@@ -55,6 +55,8 @@ interface ExtendedProperty extends Omit<Property, "owner"> {
     specialization: string;
     created_at: string;
   };
+  // Keep the original agent ID if needed
+  agent_id?: number;
 }
 
 interface PropertyCardProps {

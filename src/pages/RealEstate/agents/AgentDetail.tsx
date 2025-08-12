@@ -1,27 +1,27 @@
 import {
-  Award,
-  Calendar,
-  MapPin,
-  Star,
-  Phone,
-  Mail,
-  User,
-  Building,
-  TrendingUp,
-  Shield,
-  MessageCircle,
-  ArrowLeft,
-  Copy,
-  ExternalLink,
-  Clock,
-  Loader,
-} from "lucide-react";
-import React, { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import {
   useGetAgentByIdQuery,
   useGetAgentPropertiesQuery,
 } from "@store/slices/realEstate";
+import {
+  ArrowLeft,
+  Award,
+  Building,
+  Calendar,
+  Clock,
+  Copy,
+  ExternalLink,
+  Loader,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Phone,
+  Shield,
+  Star,
+  TrendingUp,
+  User,
+} from "lucide-react";
+import React, { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 // Updated interfaces to match your RTK Query response structure
 interface AgentDetailProps {
@@ -119,7 +119,7 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
         ))}
         {showNumber && (
           <span className="text-sm text-gray-600 ml-2">
-            ({numRating.toFixed(1)})
+            ({Number(numRating).toFixed(1)})
           </span>
         )}
       </div>
@@ -398,7 +398,7 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
                 <div className="grid grid-cols-2 gap-6">
                   <div className="text-center p-4 bg-blue-50 rounded-lg">
                     <div className="text-3xl font-bold text-blue-600">
-                      {agent.rating.toFixed(1)}
+                      {Number(agent.rating).toFixed(1)}
                     </div>
                     <div className="text-gray-600 mt-1">Average Rating</div>
                     <StarRating

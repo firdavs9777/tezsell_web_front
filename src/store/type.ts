@@ -13,6 +13,7 @@ export interface ProductType {
   commentCount: number;
   images: Array<{ image: string; alt_text: string | null }>;
 }
+
 export interface Location {
   id: number;
   region: string;
@@ -37,6 +38,7 @@ export interface UserInfo {
   result: boolean;
   data: User;
 }
+
 export interface User {
   id: number;
   username: string;
@@ -85,50 +87,52 @@ interface ProductImage {
   image: string;
   alt_text: string | null;
 }
-export interface Category {
-  id: number;
-  key: string;
-  name_uz: string;
-  name_en: string;
-  name_ru: string;
-}
+
 export interface UserLocation {
   id: number;
   region: string;
   district: string;
 }
+
 export interface Region {
   region: string;
   districts: string[];
 }
+
 export interface AllLocationList {
   success: boolean;
   regions: Region[];
 }
+
 export interface RegionsList {
   success: boolean;
   regions: { region: string }[];
 }
+
 export interface DistrictsList {
   success: boolean;
   districts: { district: string; id: number }[];
 }
+
 export interface ProductResponse {
   count: number;
   next: string;
   previous: string;
   results: Product[];
 }
+
 export interface SingleService {
   success: boolean;
   service: Service;
   recommended_services: Service[];
 }
+
 export interface SingleProduct {
   success: boolean;
   product: Product;
   recommended_products: Product[];
 }
+
 export interface Product {
   id: number;
   title: string;
@@ -162,11 +166,13 @@ export interface LoginInfo {
   phone_number: string;
   password: string;
 }
+
 export interface LocationInfo {
   country: string | null;
   region: string | null;
   district: string | null;
 }
+
 export interface RegisterInfo {
   username: string;
   phone_number: string;
@@ -226,24 +232,44 @@ export interface Property {
   updated_at: string;
 }
 
+// CORRECTED: Individual agent type (what you're actually using in the component)
 export interface RealEstateAgent {
+  id: number;
+  user: User;
+  agency_name: string;
+  licence_number: string;
+  is_verified: boolean;
+  rating: number;
+  total_sales: number;
+  years_experience: number;
+  specialization: string;
+  created_at: string;
+  verified_at?: string;
+  verified_by?: number;
+  rejection_reason?: string;
+  rejected_at?: string;
+  rejected_by?: number;
+}
+
+// API response wrapper (for single agent API calls)
+export interface RealEstateAgentResponse {
   success: string;
-  agent: {
-    id: number;
-    user: User;
-    agency_name: string;
-    licence_number: string;
-    is_verified: boolean;
-    rating: number;
-    total_sales: number;
-    years_experience: number;
-    specialization: string;
-    created_at: string;
-    verified_at?: string;
-    verified_by?: number;
-    rejection_reason?: string;
-    rejected_at?: string;
-    rejected_by?: number;
+  agent: RealEstateAgent;
+}
+
+// For the agents list API response
+export interface GetAgentsResponse {
+  count: number;
+  next?: string;
+  previous?: string;
+  results: RealEstateAgent[];
+}
+
+// For AgentDetail component - flexible profile image handling
+export interface AgentDetailUser extends Omit<User, 'profile_image'> {
+  profile_image: string | {
+    image: string;
+    alt_text: string | null;
   };
 }
 
