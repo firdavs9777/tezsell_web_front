@@ -3,6 +3,12 @@ import {
   useGetAgentPropertiesQuery,
 } from "@store/slices/realEstate";
 import {
+  AgentDetailAgent,
+  AgentDetailProperty,
+  AgentDetailResponse,
+  GetAgentPropertiesResponse
+} from "@store/type";
+import {
   ArrowLeft,
   Award,
   Building,
@@ -28,6 +34,17 @@ interface AgentDetailProps {
   test?: string;
 }
 
+// Helper function to safely get profile image source
+const getProfileImageSrc = (profileImage: any): string => {
+  if (typeof profileImage === 'string') {
+    return profileImage;
+  }
+  if (profileImage && typeof profileImage === 'object' && profileImage.image) {
+    return profileImage.image;
+  }
+  return '/default-avatar.png'; // fallback image path
+};
+
 const AgentDetail: React.FC<AgentDetailProps> = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -36,7 +53,7 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
     "overview" | "properties" | "reviews"
   >("overview");
 
-  // Use RTK Query hooks
+  // Use RTK Query hooks with proper typing
   const {
     data: agentResponse,
     isLoading: agentLoading,
@@ -44,7 +61,12 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
     isError: isAgentError,
   } = useGetAgentByIdQuery(id!, {
     skip: !id, // Skip the query if no ID is provided
-  });
+  }) as {
+    data: AgentDetailResponse | undefined;
+    isLoading: boolean;
+    error: any;
+    isError: boolean;
+  };
 
   const {
     data: agentPropertiesData,
@@ -52,10 +74,16 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
     error: propertiesError,
   } = useGetAgentPropertiesQuery(id!, {
     skip: !id, // Only skip if no ID is provided
-  });
+  }) as {
+    data: GetAgentPropertiesResponse | undefined;
+    isLoading: boolean;
+    error: any;
+  };
 
-  // Extract data from the response structure
-  const agent = agentResponse?.agent;
+  // FIXED: Access agent directly from the response structure
+  const agent: AgentDetailAgent | undefined = agentResponse?.agent;
+  const statistics = agentResponse?.statistics;
+  const recentProperties = agentResponse?.recent_properties || [];
 
   if (propertiesError) return <div> Error</div>;
 
@@ -101,11 +129,11 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
   };
 
   const StarRating: React.FC<{
-    rating: number;
+    rating: number | string;
     size?: number;
     showNumber?: boolean;
   }> = ({ rating, size = 20, showNumber = true }) => {
-    const numRating = rating || 0;
+    const numRating = typeof rating === 'string' ? parseFloat(rating) : (rating || 0);
     return (
       <div className="flex items-center space-x-1">
         {[...Array(5)].map((_, i) => (
@@ -202,7 +230,7 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
               <div className="w-32 h-32 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
                 {agent.user?.profile_image ? (
                   <img
-                    src={agent.user.profile_image}
+                    src={getProfileImageSrc(agent.user.profile_image)}
                     alt={getAgentName()}
                     className="w-full h-full rounded-full object-cover"
                   />
@@ -271,13 +299,13 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
                 </div>
                 <div className="bg-white bg-opacity-10 rounded-lg p-4">
                   <div className="text-2xl font-bold">
-                    {agentPropertiesData?.count || 0}
+                    {statistics?.active_listings || agentPropertiesData?.count || 0}
                   </div>
                   <div className="text-blue-100 text-sm">Active Listings</div>
                 </div>
                 <div className="bg-white bg-opacity-10 rounded-lg p-4">
                   <div className="text-2xl font-bold">
-                    {agentPropertiesData?.count || 0}
+                    {statistics?.total_properties || agentPropertiesData?.count || 0}
                   </div>
                   <div className="text-blue-100 text-sm">Total Properties</div>
                 </div>
@@ -370,8 +398,8 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
                       </p>
                     </div>
                   </div>
-
-                  {agent.verified_at && (
+{/*
+                  {agent && (
                     <div className="flex items-start">
                       <Shield
                         size={20}
@@ -386,7 +414,7 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
                         </p>
                       </div>
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
 
@@ -415,7 +443,7 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
                   </div>
                   <div className="text-center p-4 bg-purple-50 rounded-lg">
                     <div className="text-3xl font-bold text-purple-600">
-                      {agentPropertiesData?.count || 0}
+                      {statistics?.active_listings || agentPropertiesData?.count || 0}
                     </div>
                     <div className="text-gray-600 mt-1">Active Listings</div>
                   </div>
@@ -527,7 +555,7 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
         {activeTab === "properties" && (
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-2xl font-semibold mb-6">
-              Agent's Properties ({agentPropertiesData?.count || 0})
+              Agent's Properties ({statistics?.total_properties || agentPropertiesData?.count || 0})
             </h2>
 
             {propertiesLoading ? (
@@ -535,11 +563,12 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
                 <Loader className="animate-spin mx-auto mb-4" size={48} />
                 <p className="text-gray-600">Loading properties...</p>
               </div>
-            ) : agentPropertiesData?.results &&
-              agentPropertiesData.results.length > 0 ? (
+            ) : (agentPropertiesData?.results && agentPropertiesData.results.length > 0) ||
+               (recentProperties && recentProperties.length > 0) ? (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {agentPropertiesData.results.map((property: any) => (
+                  {/* Show either API properties or recent properties from agent detail */}
+                  {(agentPropertiesData?.results || recentProperties).map((property: AgentDetailProperty) => (
                     <div
                       key={property.id}
                       className="border rounded-lg p-4 hover:shadow-md transition-shadow"
@@ -554,10 +583,10 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
                       <div className="space-y-2 mb-3">
                         <div className="flex justify-between text-sm text-gray-600">
                           <span className="capitalize">
-                            {property.property_type?.replace("_", " ")}
+                            {property.property_type_display || property.property_type?.replace("_", " ")}
                           </span>
                           <span className="capitalize">
-                            For {property.listing_type}
+                            {property.listing_type_display || `For ${property.listing_type}`}
                           </span>
                         </div>
 
@@ -572,19 +601,33 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
                           <span>{property.square_meters} m²</span>
                           {property.bedrooms && (
                             <span>
-                              {property.bedrooms} bed • {property.bathrooms}{" "}
-                              bath
+                              {property.bedrooms} bed • {property.bathrooms} bath
                             </span>
                           )}
                         </div>
+
+                        {property.price_per_sqm && (
+                          <div className="text-sm text-gray-500">
+                            ${property.price_per_sqm}/m²
+                          </div>
+                        )}
                       </div>
 
                       <p className="text-xs text-gray-500 border-t pt-2">
-                        Listed {formatDate(property.created_at)}
+                        Listed {formatDate(property.created_at)} • {property.views_count} views
                       </p>
                     </div>
                   ))}
                 </div>
+
+                {/* Show recent properties section if available */}
+                {recentProperties.length > 0 && !agentPropertiesData?.results && (
+                  <div className="mt-8 p-4 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-blue-600">
+                      Showing recent properties. For all agent properties, check the full listings.
+                    </p>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="text-center py-12">
@@ -647,7 +690,7 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
               <div className="mb-6 grid grid-cols-2 gap-4 text-sm">
                 <div className="bg-blue-50 rounded-lg p-3">
                   <div className="font-semibold text-blue-600">
-                    {agent.rating.toFixed(1)}
+                    {Number(agent.rating).toFixed(1)}
                   </div>
                   <div className="text-gray-600">Rating</div>
                 </div>

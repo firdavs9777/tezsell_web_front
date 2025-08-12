@@ -381,3 +381,100 @@ export interface PaginatedResponse<T> {
   previous?: string;
   results: T[];
 }
+
+
+// Add these types to your types file (@store/type.ts)
+
+// Agent detail specific types
+export interface AgentDetailUser {
+  id: number;
+  phone_number: string;
+  user_type: string;
+  username: string;
+}
+
+export interface AgentDetailAgent {
+  agency_name: string;
+  created_at: string;
+  id: number;
+  is_verified: boolean;
+  verified_at? : string;
+  licence_number: string;
+  rating: string; // Note: API returns string, not number
+  specialization: string;
+  total_sales: number;
+  user: AgentDetailUser;
+  years_experience: number;
+}
+
+export interface PropertyOwner {
+  id: number;
+  phone_number: string;
+  user_type: string;
+  username: string;
+}
+
+export interface PropertyUserLocation {
+  id: number;
+  country: string;
+  region: string;
+  district: string;
+  display_name: string;
+}
+
+export interface AgentDetailProperty {
+  address: string;
+  agent: AgentDetailAgent;
+  bathrooms: number;
+  bedrooms: number;
+  city: string;
+  created_at: string;
+  currency: string;
+  district: string;
+  id: string;
+  is_featured: boolean;
+  latitude: string;
+  listing_type: string;
+  listing_type_display: string;
+  longitude: string;
+  main_image: string | null;
+  owner: PropertyOwner;
+  price: string;
+  price_per_sqm: string;
+  property_type: string;
+  property_type_display: string;
+  region: string;
+  square_meters: number;
+  title: string;
+  user_location: PropertyUserLocation;
+  views_count: number;
+}
+
+export interface PropertyTypeStatistic {
+  count: number;
+  property_type: string;
+}
+
+export interface AgentStatistics {
+  active_listings: number;
+  avg_property_price: number;
+  property_types: PropertyTypeStatistic[];
+  sold_properties: number;
+  total_properties: number;
+}
+
+// Main API response type for AgentDetail
+export interface AgentDetailResponse {
+  success: boolean;
+  agent: AgentDetailAgent;
+  statistics: AgentStatistics;
+  recent_properties: AgentDetailProperty[];
+}
+
+// Update your RTK Query types
+export interface GetAgentPropertiesResponse {
+  count: number;
+  next?: string;
+  previous?: string;
+  results: AgentDetailProperty[];
+}
