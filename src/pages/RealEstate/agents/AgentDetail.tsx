@@ -28,6 +28,8 @@ import {
 } from "lucide-react";
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { SerializedError } from '@reduxjs/toolkit';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 // Updated interfaces to match your RTK Query response structure
 interface AgentDetailProps {
@@ -166,13 +168,25 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
       </div>
     );
   }
+const isFetchBaseQueryError = (error: unknown): error is FetchBaseQueryError => {
+  return typeof error === 'object' && error != null && 'status' in error;
+};
 
+// Helper function to check if it's a SerializedError
+const isSerializedError = (error: unknown): error is SerializedError => {
+  return typeof error === 'object' && error != null;
+};
   // Handle error state
-  if (isAgentError) {
-    const errorMessage =
-      agentError && "status" in agentError
-        ? `Error ${agentError.status}: Failed to load agent details`
-        : "Failed to load agent details";
+if (isAgentError && agentError) {
+  let errorMessage = "Failed to load agent details";
+
+  if (isFetchBaseQueryError(agentError)) {
+    // Handle FetchBaseQueryError (network errors, HTTP errors)
+    errorMessage = `Error ${agentError.status}: Failed to load agent details`;
+  } else if (isSerializedError(agentError)) {
+    // Handle SerializedError (thrown errors)
+    errorMessage = agentError.message || errorMessage;
+  }
 
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
