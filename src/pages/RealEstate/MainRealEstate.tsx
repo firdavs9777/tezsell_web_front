@@ -178,13 +178,7 @@ const MainRealEstate: React.FC = () => {
     return null;
   };
 
-  // Helper function to safely access owner info
-  const getOwnerInfo = (owner: any): User | null => {
-    if (owner && typeof owner === "object" && owner.id) {
-      return owner as User;
-    }
-    return null;
-  };
+
 
   const getPropertyFeatures = (property: ExtendedProperty): string[] => {
     const features: string[] = [];
