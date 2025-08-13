@@ -34,6 +34,10 @@ import {
 } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 import { Property } from '../../../store/type';
+import { PropertyMap } from '../shared/MapComponents';
+
+// Import map styles
+import '../shared/MapComponents/MapStyles.css';
 
 // Extended interfaces to match API response
 interface PropertyOwner {
@@ -62,6 +66,9 @@ interface RealEstateAgent {
 interface ExtendedProperty extends Omit<Property, 'owner' | 'agent'> {
   owner?: PropertyOwner;
   agent?: RealEstateAgent;
+  // Add coordinates for map
+  latitude?: number;
+  longitude?: number;
 }
 
 interface PropertyResponse {
@@ -79,6 +86,7 @@ const RealEstateDetail: React.FC = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [showPhoneModal, setShowPhoneModal] = useState(false);
+  const [showMapFullscreen, setShowMapFullscreen] = useState(false);
   const [inquiryData, setInquiryData] = useState({
     inquiry_type: 'info' as 'viewing' | 'info' | 'offer' | 'callback',
     message: '',
@@ -108,6 +116,36 @@ const RealEstateDetail: React.FC = () => {
     'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop',
     'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop',
   ];
+
+  // Mock coordinates for now (you can remove this when your API provides real coordinates)
+  const getPropertyWithCoordinates = (property: ExtendedProperty): ExtendedProperty => {
+    if (property.latitude && property.longitude) {
+      return property;
+    }
+
+    // Mock coordinates based on district (Tashkent districts)
+    const districtCoordinates: Record<string, [number, number]> = {
+      'yunusabad': [41.3656, 69.2891],
+      'chilanzar': [41.2751, 69.2034],
+      'shaykhantaur': [41.3231, 69.2897],
+      'mirobod': [41.2865, 69.2734],
+      'almazar': [41.3479, 69.2348],
+      'bektemir': [41.2081, 69.3370],
+      'sergeli': [41.2265, 69.2265],
+      'uchtepa': [41.2876, 69.1864],
+      'yashnaabad': [41.2632, 69.3201],
+      'olmazor': [41.3145, 69.2428],
+    };
+
+    const districtKey = property.district?.toLowerCase().replace(/\s+/g, '');
+    const coords = districtCoordinates[districtKey] || [41.2995, 69.2401]; // Default to Tashkent center
+
+    return {
+      ...property,
+      latitude: coords[0],
+      longitude: coords[1]
+    };
+  };
 
   const handleSaveProperty = async () => {
     if (!id) return;
@@ -258,6 +296,7 @@ const RealEstateDetail: React.FC = () => {
   }
 
   const features = getPropertyFeatures(property);
+  const propertyWithCoords = getPropertyWithCoordinates(property);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -376,6 +415,41 @@ const RealEstateDetail: React.FC = () => {
                   ))}
                 </div>
               )}
+            </div>
+
+            {/* Location Map */}
+            <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-semibold">Location</h2>
+                <button
+                  onClick={() => setShowMapFullscreen(true)}
+                  className="text-blue-600 hover:text-blue-700 text-sm flex items-center"
+                >
+                  <FaExpand className="mr-1" size={12} />
+                  View Fullscreen
+                </button>
+              </div>
+
+              <div className="h-64 rounded-lg overflow-hidden">
+                <PropertyMap
+                  properties={[propertyWithCoords]}
+                  center={[propertyWithCoords.latitude!, propertyWithCoords.longitude!]}
+                  zoom={15}
+                  height="100%"
+                  showControls={false}
+                  className="rounded-lg"
+                />
+              </div>
+
+              <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center text-sm text-gray-600">
+                  <FaMapMarkerAlt className="mr-2 text-blue-600" />
+                  <span className="font-medium">{property.address}</span>
+                </div>
+                <div className="text-sm text-gray-500 mt-1">
+                  {property.district}, {property.city}
+                </div>
+              </div>
             </div>
 
             {/* Property Details */}
@@ -628,6 +702,37 @@ const RealEstateDetail: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Fullscreen Map Modal */}
+      {showMapFullscreen && (
+        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
+          <div className="relative w-full h-full max-w-6xl max-h-[90vh]">
+            <button
+              onClick={() => setShowMapFullscreen(false)}
+              className="absolute top-4 right-4 z-10 text-white bg-black bg-opacity-50 p-2 rounded-lg hover:bg-opacity-70"
+            >
+              <FaTimes size={20} />
+            </button>
+            <div className="w-full h-full rounded-lg overflow-hidden">
+              <PropertyMap
+                properties={[propertyWithCoords]}
+                center={[propertyWithCoords.latitude!, propertyWithCoords.longitude!]}
+                zoom={16}
+                height="100%"
+                showControls={true}
+                className="rounded-lg"
+              />
+            </div>
+            <div className="absolute bottom-4 left-4 bg-white rounded-lg p-3 shadow-lg">
+              <div className="font-medium text-gray-900">{property.title}</div>
+              <div className="text-sm text-gray-600 flex items-center">
+                <FaMapMarkerAlt className="mr-1" />
+                {property.address}, {property.district}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Phone Number Modal */}
       {showPhoneModal && property && (
