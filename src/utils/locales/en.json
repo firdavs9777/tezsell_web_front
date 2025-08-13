@@ -255,16 +255,15 @@
   "enter_valid_reply": "Please enter a valid reply text",
   "saving": "Saving...",
   "deleting": "Deleting...",
-  "properties": "Properties",
+  "properties_main": "Properties",
   "agents": "Agents",
   "become_agent": "Become an Agent",
-  "header": {
-    "title": "Find Your Dream Property",
-    "subtitle": "Discover premium real estate opportunities in Tashkent's most desirable locations"
-  },
   "search": {
     "placeholder": "Search by title or location...",
-    "filters": "Filters"
+    "filters": "Filters",
+
+    "searchButton": "Search",
+    "clearFilters": "Clear Filters"
   },
   "filterOptions": {
     "saleAndRent": "Sale & Rent",
@@ -308,7 +307,8 @@
   "pagination": {
     "previous": "Previous",
     "next": "Next",
-    "page": "Page"
+    "page": "Page",
+    "pageOf": "Page 1 of"
   },
   "contactModal": {
     "title": "Contact Information",
@@ -322,16 +322,15 @@
     "copyNumber": "Copy Number",
     "close": "Close",
     "contactHours": "Contact hours: 9 AM - 8 PM",
-    "agent": "Agent"
+    "agent": "Agent",
+    "sales": "Sales"
   },
   "errors": {
     "toggleSaveFailed": "Failed to toggle save property:",
     "copyFailed": "Failed to copy phone number:",
     "phoneCopied": "Phone number copied to clipboard"
   },
-  "navigation": {
-    "backToProperties": "Back to Properties"
-  },
+
   "propertyInfo": {
     "views": "views",
     "listed": "Listed",
@@ -345,7 +344,10 @@
     "loadingDetails": "Loading property details...",
     "propertyNotFound": "Property Not Found",
     "propertyNotFoundMessage": "The property you're looking for doesn't exist or has been removed.",
-    "backToProperties": "Back to Properties"
+    "backToProperties": "Back to Properties",
+    "title": "Loading agents...",
+    "message": "Please wait while we fetch the agents list.",
+    "agentNotFound": "Agent not found"
   },
   "propertyDetails": {
     "title": "Property Details",
@@ -433,5 +435,134 @@
   },
   "relatedProperties": {
     "viewDetails": "View Details"
+  },
+  "header": {
+    "property": "Find Your Dream Property",
+    "sub_property": "Discover premium real estate opportunities in Tashkent's most desirable locations",
+    "title": "Real Estate Agents",
+    "subtitle": "Find experienced agents to help with your property needs",
+    "agentsFound": "agents found"
+  },
+
+  "filters": {
+    "allSpecializations": "All Specializations",
+    "residential": "Residential",
+    "commercial": "Commercial",
+    "luxury": "Luxury Properties",
+    "investment": "Investment",
+    "anyRating": "Any Rating",
+    "fourStars": "4+ Stars",
+    "fourHalfStars": "4.5+ Stars",
+    "fiveStars": "5 Stars",
+    "highestRated": "Highest Rated",
+    "lowestRated": "Lowest Rated",
+    "mostSales": "Most Sales",
+    "mostExperience": "Most Experience"
+  },
+  "agentCard": {
+    "verifiedAgent": "Verified Agent",
+    "sales": "sales",
+    "yearsExperience": "years experience",
+    "years": "years",
+    "license": "License",
+    "specialization": "Specialization",
+    "viewProfile": "View Profile",
+    "contact": "Contact",
+    "verified": "Verified"
+  },
+
+  "noResults": {
+    "title": "No agents found",
+    "message": "Try adjusting your search criteria or filters."
+  },
+
+  "error": {
+    "title": "Error Loading Agents",
+    "message": "Failed to load agents list. Please try again.",
+    "retry": "Retry",
+    "defaultMessage": "Failed to load agent details",
+    "tryAgain": "Try Again"
+  },
+
+  "notifications": {
+    "phoneCopied": "Phone number copied to clipboard",
+    "copyFailed": "Failed to copy phone number:"
+  },
+  "fallback": {
+    "agentName": "Agent",
+    "defaultPhone": "+998 90 123 45 67"
+  },
+  "navigation": {
+    "backToAgents": "Back to Agents"
+  },
+  "agentProfile": {
+    "verifiedAgent": "Verified Agent",
+    "sales": "sales",
+    "contactAgent": "Contact Agent",
+    "sendMessage": "Send Message",
+    "yearsExperience": "Years Experience",
+    "propertiesSold": "Properties Sold",
+    "activeListings": "Active Listings",
+    "totalProperties": "Total Properties"
+  },
+  "tabs": {
+    "overview": "overview",
+    "properties": "properties",
+    "reviews": "reviews"
+  },
+  "about_agent": {
+    "title": "About",
+    "agency": "Agency",
+    "licenseNumber": "License Number",
+    "specialization": "Specialization",
+    "memberSince": "Member Since",
+    "verifiedSince": "Verified Since"
+  },
+  "performanceMetrics": {
+    "title": "Performance Metrics",
+    "averageRating": "Average Rating",
+    "propertiesSold": "Properties Sold",
+    "activeListings": "Active Listings",
+    "yearsExperience": "Years Experience"
+  },
+  "contactInfo": {
+    "title": "Contact Information",
+    "contactViaPlatform": "Contact via platform"
+  },
+  "verificationStatus": {
+    "title": "Verification Status",
+    "verifiedAgent": "Verified Agent",
+    "pendingVerification": "Pending Verification",
+    "licensedProfessional": "Licensed Professional",
+    "registeredAgency": "Registered Agency"
+  },
+  "quickActions": {
+    "title": "Quick Actions",
+    "callNow": "Call Now",
+    "sendMessage": "Send Message",
+    "viewProperties": "View Properties"
+  },
+  "properties": {
+    "title": "Agent's Properties",
+    "loadingProperties": "Loading properties...",
+    "noPropertiesTitle": "No properties found",
+    "noPropertiesMessage": "This agent's properties will appear here.",
+    "recentPropertiesNote": "Showing recent properties. For all agent properties, check the full listings.",
+    "listed": "Listed",
+    "views": "views",
+    "bed": "bed",
+    "bath": "bath",
+    "forSale": "For Sale",
+    "forRent": "For Rent"
+  },
+  "reviews": {
+    "title": "Client Reviews",
+    "noReviewsTitle": "No reviews yet",
+    "noReviewsMessage": "Client reviews and testimonials will appear here."
+  },
+
+  "fallbacks": {
+    "agentName": "Agent",
+    "defaultProfileImage": "/default-avatar.png"
   }
 }

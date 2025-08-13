@@ -11,6 +11,8 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   FaBoxOpen,
+  FaBuilding,
+  FaChevronDown,
   FaEnvelope,
   FaGlobe,
   FaHome,
@@ -21,10 +23,8 @@ import {
   FaServicestack,
   FaThList,
   FaUser,
-  FaUserTie,
-  FaChevronDown,
   FaUserPlus as FaUserPlusIcon,
-  FaBuilding,
+  FaUserTie,
 } from "react-icons/fa";
 import { FaUserPlus } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
@@ -282,7 +282,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                   }`}
                 >
                   <FaBuilding className="mr-2" size={14} />
-                  {t("properties")}
+                  {t("properties_main")}
                 </Link>
               </li>
               <li>

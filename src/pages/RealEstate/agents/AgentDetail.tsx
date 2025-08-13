@@ -25,10 +25,10 @@ import {
   Phone,
   Shield,
   Star,
-  TrendingUp,
-  User,
+  User
 } from "lucide-react";
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 
 // Updated interfaces to match your RTK Query response structure
@@ -50,6 +50,7 @@ const getProfileImageSrc = (profileImage: ProfileImageType): string => {
 
 const AgentDetail: React.FC<AgentDetailProps> = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const [showPhoneModal, setShowPhoneModal] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<
@@ -97,9 +98,9 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
   const handleCopyPhone = async (phoneNumber: string): Promise<void> => {
     try {
       await navigator.clipboard.writeText(phoneNumber);
-      console.log("Phone number copied to clipboard");
+      console.log(t('notifications.phoneCopied'));
     } catch (err) {
-      console.error("Failed to copy phone number:", err);
+      console.error(t('notifications.copyFailed'), err);
     }
   };
 
@@ -108,7 +109,7 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
   };
 
   const getAgentName = () => {
-    return agent?.user?.username || "Agent";
+    return agent?.user?.username || t('fallbacks.agentName');
   };
 
   const getPhoneNumber = () => {
@@ -163,44 +164,46 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Loader className="animate-spin mx-auto mb-4" size={48} />
-          <p className="text-gray-600">Loading agent details...</p>
+          <p className="text-gray-600">{t('loading.loadingDetails')}</p>
         </div>
       </div>
     );
   }
-const isFetchBaseQueryError = (error: unknown): error is FetchBaseQueryError => {
-  return typeof error === 'object' && error != null && 'status' in error;
-};
 
-// Helper function to check if it's a SerializedError
-const isSerializedError = (error: unknown): error is SerializedError => {
-  return typeof error === 'object' && error != null;
-};
+  const isFetchBaseQueryError = (error: unknown): error is FetchBaseQueryError => {
+    return typeof error === 'object' && error != null && 'status' in error;
+  };
+
+  // Helper function to check if it's a SerializedError
+  const isSerializedError = (error: unknown): error is SerializedError => {
+    return typeof error === 'object' && error != null;
+  };
+
   // Handle error state
-if (isAgentError && agentError) {
-  let errorMessage = "Failed to load agent details";
+  if (isAgentError && agentError) {
+    let errorMessage = t('error.defaultMessage');
 
-  if (isFetchBaseQueryError(agentError)) {
-    // Handle FetchBaseQueryError (network errors, HTTP errors)
-    errorMessage = `Error ${agentError.status}: Failed to load agent details`;
-  } else if (isSerializedError(agentError)) {
-    // Handle SerializedError (thrown errors)
-    errorMessage = agentError.message || errorMessage;
-  }
+    if (isFetchBaseQueryError(agentError)) {
+      // Handle FetchBaseQueryError (network errors, HTTP errors)
+      errorMessage = `Error ${agentError.status}: ${t('error.defaultMessage')}`;
+    } else if (isSerializedError(agentError)) {
+      // Handle SerializedError (thrown errors)
+      errorMessage = agentError.message || errorMessage;
+    }
 
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
             <h2 className="text-xl font-semibold text-red-800 mb-2">
-              Error Loading Agent
+              {t('error.title')}
             </h2>
             <p className="text-red-600 mb-4">{errorMessage}</p>
             <button
               onClick={() => window.location.reload()}
               className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
             >
-              Try Again
+              {t('error.tryAgain')}
             </button>
           </div>
         </div>
@@ -212,7 +215,7 @@ if (isAgentError && agentError) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600">Agent not found</p>
+          <p className="text-gray-600">{t('loading.agentNotFound')}</p>
         </div>
       </div>
     );
@@ -229,7 +232,7 @@ if (isAgentError && agentError) {
               className="flex items-center text-gray-600 hover:text-gray-800 mr-4"
             >
               <ArrowLeft size={20} className="mr-2" />
-              Back to Agents
+              {t('navigation.backToAgents')}
             </button>
           </div>
         </div>
@@ -269,7 +272,7 @@ if (isAgentError && agentError) {
                     <div className="flex items-center mb-3">
                       <Shield size={20} className="text-green-400 mr-2" />
                       <span className="text-green-100 font-medium">
-                        Verified Agent
+                        {t('agentProfile.verifiedAgent')}
                       </span>
                     </div>
                   )}
@@ -278,7 +281,7 @@ if (isAgentError && agentError) {
                     <StarRating rating={agent.rating} size={24} />
                     <span className="text-white ml-3">•</span>
                     <span className="text-blue-100 ml-3">
-                      {agent.total_sales} sales
+                      {agent.total_sales} {t('agentProfile.sales')}
                     </span>
                   </div>
                 </div>
@@ -290,11 +293,11 @@ if (isAgentError && agentError) {
                     className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg flex items-center transition-colors"
                   >
                     <Phone size={18} className="mr-2" />
-                    Contact Agent
+                    {t('agentProfile.contactAgent')}
                   </button>
                   <button className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-3 rounded-lg flex items-center transition-colors">
                     <Mail size={18} className="mr-2" />
-                    Send Message
+                    {t('agentProfile.sendMessage')}
                   </button>
                 </div>
               </div>
@@ -305,23 +308,23 @@ if (isAgentError && agentError) {
                   <div className="text-2xl font-bold">
                     {agent.years_experience}
                   </div>
-                  <div className="text-blue-100 text-sm">Years Experience</div>
+                  <div className="text-blue-100 text-sm">{t('agentProfile.yearsExperience')}</div>
                 </div>
                 <div className="bg-white bg-opacity-10 rounded-lg p-4">
                   <div className="text-2xl font-bold">{agent.total_sales}</div>
-                  <div className="text-blue-100 text-sm">Properties Sold</div>
+                  <div className="text-blue-100 text-sm">{t('agentProfile.propertiesSold')}</div>
                 </div>
                 <div className="bg-white bg-opacity-10 rounded-lg p-4">
                   <div className="text-2xl font-bold">
                     {statistics?.active_listings || agentPropertiesData?.count || 0}
                   </div>
-                  <div className="text-blue-100 text-sm">Active Listings</div>
+                  <div className="text-blue-100 text-sm">{t('agentProfile.activeListings')}</div>
                 </div>
                 <div className="bg-white bg-opacity-10 rounded-lg p-4">
                   <div className="text-2xl font-bold">
                     {statistics?.total_properties || agentPropertiesData?.count || 0}
                   </div>
-                  <div className="text-blue-100 text-sm">Total Properties</div>
+                  <div className="text-blue-100 text-sm">{t('agentProfile.totalProperties')}</div>
                 </div>
               </div>
             </div>
@@ -344,7 +347,7 @@ if (isAgentError && agentError) {
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
               >
-                {tab}
+                {t(`tabs.${tab}`)}
               </button>
             ))}
           </nav>
@@ -358,7 +361,7 @@ if (isAgentError && agentError) {
               {/* About */}
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h2 className="text-2xl font-semibold mb-4">
-                  About {agent.user.username}
+                  {t('about_agent.title')} {agent.user.username}
                 </h2>
                 <div className="space-y-4">
                   <div className="flex items-start">
@@ -367,32 +370,8 @@ if (isAgentError && agentError) {
                       className="text-gray-400 mr-3 mt-1 flex-shrink-0"
                     />
                     <div>
-                      <h3 className="font-medium text-gray-900">Agency</h3>
-                      <p className="text-gray-600">{agent.agency_name}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start">
-                    <Award
-                      size={20}
-                      className="text-gray-400 mr-3 mt-1 flex-shrink-0"
-                    />
-                    <div>
                       <h3 className="font-medium text-gray-900">
-                        License Number
-                      </h3>
-                      <p className="text-gray-600">{agent.licence_number}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start">
-                    <TrendingUp
-                      size={20}
-                      className="text-gray-400 mr-3 mt-1 flex-shrink-0"
-                    />
-                    <div>
-                      <h3 className="font-medium text-gray-900">
-                        Specialization
+                        {t('about_agent.specialization')}
                       </h3>
                       <p className="text-gray-600">{agent.specialization}</p>
                     </div>
@@ -405,44 +384,27 @@ if (isAgentError && agentError) {
                     />
                     <div>
                       <h3 className="font-medium text-gray-900">
-                        Member Since
+                        {t('about_agent.memberSince')}
                       </h3>
                       <p className="text-gray-600">
                         {formatDate(agent.created_at)}
                       </p>
                     </div>
                   </div>
-{/*
-                  {agent && (
-                    <div className="flex items-start">
-                      <Shield
-                        size={20}
-                        className="text-green-500 mr-3 mt-1 flex-shrink-0"
-                      />
-                      <div>
-                        <h3 className="font-medium text-gray-900">
-                          Verified Since
-                        </h3>
-                        <p className="text-gray-600">
-                          {formatDate(agent.verified_at)}
-                        </p>
-                      </div>
-                    </div>
-                  )} */}
                 </div>
               </div>
 
               {/* Performance Metrics */}
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h2 className="text-2xl font-semibold mb-6">
-                  Performance Metrics
+                  {t('performanceMetrics.title')}
                 </h2>
                 <div className="grid grid-cols-2 gap-6">
                   <div className="text-center p-4 bg-blue-50 rounded-lg">
                     <div className="text-3xl font-bold text-blue-600">
                       {Number(agent.rating).toFixed(1)}
                     </div>
-                    <div className="text-gray-600 mt-1">Average Rating</div>
+                    <div className="text-gray-600 mt-1">{t('performanceMetrics.averageRating')}</div>
                     <StarRating
                       rating={agent.rating}
                       size={16}
@@ -453,19 +415,19 @@ if (isAgentError && agentError) {
                     <div className="text-3xl font-bold text-green-600">
                       {agent.total_sales}
                     </div>
-                    <div className="text-gray-600 mt-1">Properties Sold</div>
+                    <div className="text-gray-600 mt-1">{t('performanceMetrics.propertiesSold')}</div>
                   </div>
                   <div className="text-center p-4 bg-purple-50 rounded-lg">
                     <div className="text-3xl font-bold text-purple-600">
                       {statistics?.active_listings || agentPropertiesData?.count || 0}
                     </div>
-                    <div className="text-gray-600 mt-1">Active Listings</div>
+                    <div className="text-gray-600 mt-1">{t('performanceMetrics.activeListings')}</div>
                   </div>
                   <div className="text-center p-4 bg-orange-50 rounded-lg">
                     <div className="text-3xl font-bold text-orange-600">
                       {agent.years_experience}
                     </div>
-                    <div className="text-gray-600 mt-1">Years Experience</div>
+                    <div className="text-gray-600 mt-1">{t('performanceMetrics.yearsExperience')}</div>
                   </div>
                 </div>
               </div>
@@ -476,7 +438,7 @@ if (isAgentError && agentError) {
               {/* Contact Info */}
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h3 className="text-lg font-semibold mb-4">
-                  Contact Information
+                  {t('contactInfo.title')}
                 </h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -495,7 +457,7 @@ if (isAgentError && agentError) {
                   </div>
                   <div className="flex items-center">
                     <Mail size={16} className="text-gray-400 mr-3" />
-                    <span className="text-gray-600">Contact via platform</span>
+                    <span className="text-gray-600">{t('contactInfo.contactViaPlatform')}</span>
                   </div>
                   <div className="flex items-center">
                     <MapPin size={16} className="text-gray-400 mr-3" />
@@ -507,7 +469,7 @@ if (isAgentError && agentError) {
               {/* Verification Status */}
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h3 className="text-lg font-semibold mb-4">
-                  Verification Status
+                  {t('verificationStatus.title')}
                 </h3>
                 <div className="space-y-3">
                   <div className="flex items-center">
@@ -523,42 +485,42 @@ if (isAgentError && agentError) {
                       }
                     >
                       {agent.is_verified
-                        ? "Verified Agent"
-                        : "Pending Verification"}
+                        ? t('verificationStatus.verifiedAgent')
+                        : t('verificationStatus.pendingVerification')}
                     </span>
                   </div>
                   <div className="flex items-center">
                     <Award size={16} className="text-blue-500 mr-3" />
-                    <span className="text-gray-600">Licensed Professional</span>
+                    <span className="text-gray-600">{t('verificationStatus.licensedProfessional')}</span>
                   </div>
                   <div className="flex items-center">
                     <Building size={16} className="text-purple-500 mr-3" />
-                    <span className="text-gray-600">Registered Agency</span>
+                    <span className="text-gray-600">{t('verificationStatus.registeredAgency')}</span>
                   </div>
                 </div>
               </div>
 
               {/* Quick Actions */}
               <div className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
+                <h3 className="text-lg font-semibold mb-4">{t('quickActions.title')}</h3>
                 <div className="space-y-3">
                   <button
                     onClick={handleContactClick}
                     className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center"
                   >
                     <Phone size={16} className="mr-2" />
-                    Call Now
+                    {t('quickActions.callNow')}
                   </button>
                   <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
                     <MessageCircle size={16} className="mr-2" />
-                    Send Message
+                    {t('quickActions.sendMessage')}
                   </button>
                   <button
                     onClick={() => setActiveTab("properties")}
                     className="w-full border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center"
                   >
                     <ExternalLink size={16} className="mr-2" />
-                    View Properties
+                    {t('quickActions.viewProperties')}
                   </button>
                 </div>
               </div>
@@ -569,13 +531,13 @@ if (isAgentError && agentError) {
         {activeTab === "properties" && (
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-2xl font-semibold mb-6">
-              Agent's Properties ({statistics?.total_properties || agentPropertiesData?.count || 0})
+              {t('properties.title')} ({statistics?.total_properties || agentPropertiesData?.count || 0})
             </h2>
 
             {propertiesLoading ? (
               <div className="text-center py-12">
                 <Loader className="animate-spin mx-auto mb-4" size={48} />
-                <p className="text-gray-600">Loading properties...</p>
+                <p className="text-gray-600">{t('properties.loadingProperties')}</p>
               </div>
             ) : (agentPropertiesData?.results && agentPropertiesData.results.length > 0) ||
                (recentProperties && recentProperties.length > 0) ? (
@@ -600,7 +562,8 @@ if (isAgentError && agentError) {
                             {property.property_type_display || property.property_type?.replace("_", " ")}
                           </span>
                           <span className="capitalize">
-                            {property.listing_type_display || `For ${property.listing_type}`}
+                            {property.listing_type_display ||
+                             (property.listing_type === 'sale' ? t('properties.forSale') : t('properties.forRent'))}
                           </span>
                         </div>
 
@@ -615,7 +578,7 @@ if (isAgentError && agentError) {
                           <span>{property.square_meters} m²</span>
                           {property.bedrooms && (
                             <span>
-                              {property.bedrooms} bed • {property.bathrooms} bath
+                              {property.bedrooms} {t('properties.bed')} • {property.bathrooms} {t('properties.bath')}
                             </span>
                           )}
                         </div>
@@ -628,7 +591,7 @@ if (isAgentError && agentError) {
                       </div>
 
                       <p className="text-xs text-gray-500 border-t pt-2">
-                        Listed {formatDate(property.created_at)} • {property.views_count} views
+                        {t('properties.listed')} {formatDate(property.created_at)} • {property.views_count} {t('properties.views')}
                       </p>
                     </div>
                   ))}
@@ -638,7 +601,7 @@ if (isAgentError && agentError) {
                 {recentProperties.length > 0 && !agentPropertiesData?.results && (
                   <div className="mt-8 p-4 bg-blue-50 rounded-lg">
                     <p className="text-sm text-blue-600">
-                      Showing recent properties. For all agent properties, check the full listings.
+                      {t('properties.recentPropertiesNote')}
                     </p>
                   </div>
                 )}
@@ -647,10 +610,10 @@ if (isAgentError && agentError) {
               <div className="text-center py-12">
                 <Building size={48} className="mx-auto text-gray-400 mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  No properties found
+                  {t('properties.noPropertiesTitle')}
                 </h3>
                 <p className="text-gray-600">
-                  This agent's properties will appear here.
+                  {t('properties.noPropertiesMessage')}
                 </p>
               </div>
             )}
@@ -659,14 +622,14 @@ if (isAgentError && agentError) {
 
         {activeTab === "reviews" && (
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-semibold mb-6">Client Reviews</h2>
+            <h2 className="text-2xl font-semibold mb-6">{t('reviews.title')}</h2>
             <div className="text-center py-12">
               <Star size={48} className="mx-auto text-gray-400 mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No reviews yet
+                {t('reviews.noReviewsTitle')}
               </h3>
               <p className="text-gray-600">
-                Client reviews and testimonials will appear here.
+                {t('reviews.noReviewsMessage')}
               </p>
             </div>
           </div>
@@ -681,14 +644,14 @@ if (isAgentError && agentError) {
               </div>
 
               <h3 className="text-xl font-semibold mb-2">
-                Contact {getAgentName()}
+                {t('contactModal.title')} {getAgentName()}
               </h3>
 
               <div className="mb-4">
-                <div className="text-gray-600 mb-2">Real Estate Agent</div>
+                <div className="text-gray-600 mb-2">{t('contactModal.realEstateAgent')}</div>
                 <div className="font-medium text-lg">{agent.agency_name}</div>
                 <div className="text-sm text-gray-500">
-                  License: {agent.licence_number}
+                  {t('contactModal.license')} {agent.licence_number}
                 </div>
               </div>
 
@@ -696,7 +659,7 @@ if (isAgentError && agentError) {
                 <div className="text-2xl font-bold text-blue-600 mb-2">
                   {getPhoneNumber()}
                 </div>
-                <div className="text-sm text-gray-600">Agent Phone Number</div>
+                <div className="text-sm text-gray-600">{t('contactModal.agentPhoneNumber')}</div>
               </div>
 
               <div className="mb-6 grid grid-cols-2 gap-4 text-sm">
@@ -704,13 +667,13 @@ if (isAgentError && agentError) {
                   <div className="font-semibold text-blue-600">
                     {Number(agent.rating).toFixed(1)}
                   </div>
-                  <div className="text-gray-600">Rating</div>
+                  <div className="text-gray-600">{t('contactModal.rating')}</div>
                 </div>
                 <div className="bg-green-50 rounded-lg p-3">
                   <div className="font-semibold text-green-600">
                     {agent.total_sales}
                   </div>
-                  <div className="text-gray-600">Sales</div>
+                  <div className="text-gray-600">{t('contactModal.sales')}</div>
                 </div>
               </div>
 
@@ -723,7 +686,7 @@ if (isAgentError && agentError) {
                   className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center"
                 >
                   <Phone className="mr-2" size={16} />
-                  Call Now
+                  {t('contactModal.callNow')}
                 </button>
 
                 <button
@@ -731,21 +694,21 @@ if (isAgentError && agentError) {
                   className="w-full border border-blue-600 text-blue-600 py-3 px-4 rounded-lg hover:bg-blue-50 transition-colors flex items-center justify-center"
                 >
                   <Copy className="mr-2" size={16} />
-                  Copy Number
+                  {t('contactModal.copyNumber')}
                 </button>
 
                 <button
                   onClick={() => setShowPhoneModal(false)}
                   className="w-full bg-gray-200 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors"
                 >
-                  Close
+                  {t('contactModal.close')}
                 </button>
               </div>
 
               <div className="mt-4 text-xs text-gray-500">
                 <div className="flex items-center justify-center">
                   <Clock className="mr-1" size={12} />
-                  Contact hours: 9 AM - 8 PM
+                  {t('contactModal.contactHours')}
                 </div>
               </div>
             </div>
