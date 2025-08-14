@@ -333,9 +333,31 @@ const RealEstateDetail: React.FC = () => {
     );
   }
 
+  // Convert ExtendedProperty to MapProperty format for the map component
+  const convertToMapProperty = (property: ExtendedProperty): any => {
+    const withCoords = getPropertyWithCoordinates(property);
+    return {
+      id: withCoords.id,
+      title: withCoords.title,
+      latitude: withCoords.latitude || 41.2995,
+      longitude: withCoords.longitude || 69.2401,
+      price: withCoords.price,
+      currency: withCoords.currency,
+      listing_type: withCoords.listing_type,
+      property_type: withCoords.property_type,
+      is_featured: withCoords.is_featured,
+      district: withCoords.district,
+      city: withCoords.city,
+      bedrooms: withCoords.bedrooms,
+      bathrooms: withCoords.bathrooms,
+      square_meters: withCoords.square_meters,
+      main_image: withCoords.main_image
+    };
+  };
+
   const features = getPropertyFeatures(property);
   const propertyWithCoords = getPropertyWithCoordinates(property);
-  const propertyForMap = ensureCoordinates(property);
+  const propertyForMap = convertToMapProperty(property);
 
   return (
     <div className="min-h-screen bg-gray-50">

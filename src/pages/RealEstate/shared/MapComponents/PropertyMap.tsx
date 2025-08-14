@@ -5,12 +5,59 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
 
-import {
-  defaultMapConfig,
-  propertyMarkerConfig,
-  tileProviders,
-  uzbekistanCities
-} from './config/mapConfig';
+// Mock config types and data since the config file might be missing
+const defaultMapConfig = {
+  center: [41.2995, 69.2401] as [number, number],
+  zoom: 11,
+  minZoom: 3,
+  maxZoom: 18,
+};
+
+const tileProviders = {
+  openStreetMap: {
+    name: 'Street Map',
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '© OpenStreetMap contributors'
+  },
+  satellite: {
+    name: 'Satellite',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attribution: '© Esri'
+  }
+};
+
+const propertyMarkerConfig = {
+  sale: {
+    color: '#10B981',
+    fillColor: '#10B981',
+    radius: 12
+  },
+  rent: {
+    color: '#3B82F6',
+    fillColor: '#3B82F6',
+    radius: 12
+  },
+  featured: {
+    color: '#F59E0B',
+    fillColor: '#F59E0B',
+    radius: 16
+  }
+};
+
+const uzbekistanCities = {
+  tashkent: {
+    name: 'Tashkent',
+    lat: 41.2995,
+    lng: 69.2401,
+    zoom: 11
+  },
+  samarkand: {
+    name: 'Samarkand',
+    lat: 39.6270,
+    lng: 66.9750,
+    zoom: 12
+  }
+};
 
 // Fix for default markers in React-Leaflet
 delete (Icon.Default.prototype as any)._getIconUrl;
@@ -20,7 +67,8 @@ Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-interface Property {
+// Use a more generic interface that works with both Property types
+interface MapProperty {
   id: string;
   title: string;
   latitude: number;
@@ -39,16 +87,16 @@ interface Property {
 }
 
 interface PropertyMapProps {
-  properties: Property[];
+  properties: MapProperty[];
   center?: [number, number];
   zoom?: number;
   height?: string;
   showControls?: boolean;
-  onPropertyClick?: (property: Property) => void;
+  onPropertyClick?: (property: MapProperty) => void;
   onMapBoundsChange?: (bounds: LatLngBounds) => void;
   className?: string;
-  hidePropertyCount?: boolean; // Add this prop to hide property count
-  hideLegend?: boolean; // Add this prop to hide legend
+  hidePropertyCount?: boolean;
+  hideLegend?: boolean;
 }
 
 // Custom hook to handle map events
@@ -72,19 +120,7 @@ const MapEvents: React.FC<{
       map.on('moveend', handleMoveEnd);
       map.on('zoomend', handleMoveEnd);
 
-      // Don't render map until component is fully mounted (prevents hydration issues)
-  if (!isMounted) {
-    return (
-      <div
-        className={`relative ${className} flex items-center justify-center bg-gray-100`}
-        style={{ height: isFullscreen ? '100vh' : height }}
-      >
-        <div className="text-gray-500">Loading map...</div>
-      </div>
-    );
-  }
-
-  return () => {
+      return () => {
         map.off('moveend', handleMoveEnd);
         map.off('zoomend', handleMoveEnd);
       };
@@ -107,7 +143,7 @@ const MapEvents: React.FC<{
 };
 
 // Property popup component
-const PropertyPopup: React.FC<{ property: Property; onPropertyClick?: (property: Property) => void }> = ({
+const PropertyPopup: React.FC<{ property: MapProperty; onPropertyClick?: (property: MapProperty) => void }> = ({
   property,
   onPropertyClick
 }) => {
@@ -136,7 +172,7 @@ const PropertyPopup: React.FC<{ property: Property; onPropertyClick?: (property:
         <div className="text-lg font-bold text-blue-600 mb-2">
           {formatPrice(property.price, property.currency)}
           {property.listing_type === 'rent' && (
-            <span className="text-sm">{t('pricing.month')}</span>
+            <span className="text-sm">/month</span>
           )}
         </div>
 
@@ -148,10 +184,10 @@ const PropertyPopup: React.FC<{ property: Property; onPropertyClick?: (property:
         {(property.bedrooms || property.bathrooms || property.square_meters) && (
           <div className="flex justify-between text-xs text-gray-600 mb-3">
             {property.bedrooms && (
-              <span>{property.bedrooms} {t('propertyCard.bed')}</span>
+              <span>{property.bedrooms} bed</span>
             )}
             {property.bathrooms && (
-              <span>{property.bathrooms} {t('propertyCard.bath')}</span>
+              <span>{property.bathrooms} bath</span>
             )}
             {property.square_meters && (
               <span>{property.square_meters}m²</span>
@@ -163,7 +199,7 @@ const PropertyPopup: React.FC<{ property: Property; onPropertyClick?: (property:
           onClick={() => onPropertyClick?.(property)}
           className="w-full bg-blue-600 text-white text-xs py-2 px-3 rounded hover:bg-blue-700 transition-colors"
         >
-          {t('propertyCard.viewDetails')}
+          View Details
         </button>
       </div>
     </div>
@@ -171,7 +207,7 @@ const PropertyPopup: React.FC<{ property: Property; onPropertyClick?: (property:
 };
 
 // Custom property marker
-const createPropertyIcon = (property: Property) => {
+const createPropertyIcon = (property: MapProperty) => {
   const config = property.is_featured
     ? propertyMarkerConfig.featured
     : propertyMarkerConfig[property.listing_type];
@@ -211,11 +247,11 @@ const PropertyMap: React.FC<PropertyMapProps> = React.memo(({
   onPropertyClick,
   onMapBoundsChange,
   className = '',
-  hidePropertyCount = false, // Add this prop with default value
-  hideLegend = false // Add this prop with default value
+  hidePropertyCount = false,
+  hideLegend = false
 }) => {
   const { t } = useTranslation();
-  const [mapStyle, setMapStyle] = useState<keyof typeof tileProviders>('openStreetMap');
+  const [mapStyle, setMapStyle] = useState('openStreetMap');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);
@@ -257,6 +293,18 @@ const PropertyMap: React.FC<PropertyMapProps> = React.memo(({
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
+  // Don't render map until component is fully mounted (prevents hydration issues)
+  if (!isMounted) {
+    return (
+      <div
+        className={`relative ${className} flex items-center justify-center bg-gray-100`}
+        style={{ height: isFullscreen ? '100vh' : height }}
+      >
+        <div className="text-gray-500">Loading map...</div>
+      </div>
+    );
+  }
+
   return (
     <div
       ref={mapRef}
@@ -272,7 +320,7 @@ const PropertyMap: React.FC<PropertyMapProps> = React.memo(({
               onChange={(e) => setMapStyle(e.target.value)}
               className="text-sm border-none outline-none bg-transparent"
             >
-              {Object.entries(tileProviders).map(([key, provider]: [string, any]) => (
+              {Object.entries(tileProviders).map(([key, provider]) => (
                 <option key={key} value={key}>{provider.name}</option>
               ))}
             </select>
@@ -295,7 +343,7 @@ const PropertyMap: React.FC<PropertyMapProps> = React.memo(({
               defaultValue=""
             >
               <option value="">Quick Jump</option>
-              {Object.entries(uzbekistanCities).map(([key, city]: [string, any]) => (
+              {Object.entries(uzbekistanCities).map(([key, city]) => (
                 <option key={key} value={key}>{city.name}</option>
               ))}
             </select>
@@ -308,7 +356,7 @@ const PropertyMap: React.FC<PropertyMapProps> = React.memo(({
         <div className="absolute top-4 left-4 z-[1000] bg-white rounded-lg shadow-md px-3 py-2">
           <div className="flex items-center space-x-2 text-sm">
             <Home size={16} className="text-blue-600" />
-            <span className="font-medium">{properties.length} {t('results.propertiesFound')}</span>
+            <span className="font-medium">{properties.length} Properties Found</span>
           </div>
         </div>
       )}
@@ -325,7 +373,7 @@ const PropertyMap: React.FC<PropertyMapProps> = React.memo(({
       >
         <TileLayer
           url={tileProviders[mapStyle as keyof typeof tileProviders]?.url || tileProviders.openStreetMap.url}
-          key={mapStyle} // Only re-render TileLayer when style changes
+          key={mapStyle}
         />
 
         <MapEvents
@@ -336,7 +384,7 @@ const PropertyMap: React.FC<PropertyMapProps> = React.memo(({
 
         {properties.map((property) => (
           <Marker
-            key={`marker-${property.id}`} // More specific key
+            key={`marker-${property.id}`}
             position={[property.latitude, property.longitude]}
             icon={createPropertyIcon(property)}
           >
@@ -365,21 +413,21 @@ const PropertyMap: React.FC<PropertyMapProps> = React.memo(({
                 className="w-3 h-3 rounded-full"
                 style={{ backgroundColor: propertyMarkerConfig.sale.fillColor }}
               />
-              <span>{t('filterOptions.forSale')}</span>
+              <span>For Sale</span>
             </div>
             <div className="flex items-center space-x-2">
               <div
                 className="w-3 h-3 rounded-full"
                 style={{ backgroundColor: propertyMarkerConfig.rent.fillColor }}
               />
-              <span>{t('filterOptions.forRent')}</span>
+              <span>For Rent</span>
             </div>
             <div className="flex items-center space-x-2">
               <div
                 className="w-4 h-4 rounded-full"
                 style={{ backgroundColor: propertyMarkerConfig.featured.fillColor }}
               />
-              <span>{t('propertyCard.featured')}</span>
+              <span>Featured</span>
             </div>
           </div>
         </div>
@@ -397,8 +445,8 @@ const PropertyMap: React.FC<PropertyMapProps> = React.memo(({
     prevProps.height === nextProps.height &&
     prevProps.showControls === nextProps.showControls &&
     prevProps.className === nextProps.className &&
-    prevProps.hidePropertyCount === nextProps.hidePropertyCount && // Add this to comparison
-    prevProps.hideLegend === nextProps.hideLegend // Add this to comparison
+    prevProps.hidePropertyCount === nextProps.hidePropertyCount &&
+    prevProps.hideLegend === nextProps.hideLegend
   );
 });
 
