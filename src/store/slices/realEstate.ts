@@ -150,20 +150,38 @@ export const realEstateApiSlice = apiSlice.injectEndpoints({
     }),
 
     // Saved properties endpoints
-    toggleSaveProperty: builder.mutation<{ saved: boolean }, string>({
-      query: (propertyId) => ({
+    toggleSaveProperty: builder.mutation<{ saved: boolean }, { propertyId: string; token: string }>({
+      query: ({propertyId, token}) => ({
         url: `${PROPERTIES_URL}/${propertyId}/save/`,
+       headers: {
+            Authorization: `Token ${token}`, // Pass token in headers
+          },
         method: "POST",
       }),
       invalidatesTags: ["SavedProperty"],
     }),
-
-    getSavedProperties: builder.query<PaginatedResponse<Property>, void>({
-      query: () => `${SAVED_PROPERTIES_URL}/`,
-      providesTags: ["SavedProperty"],
+     toggleUnsaveProperty: builder.mutation<{ saved: boolean }, { propertyId: string; token: string }>({
+      query: ({propertyId, token}) => ({
+        url: `${PROPERTIES_URL}/${propertyId}/save/`,
+       headers: {
+            Authorization: `Token ${token}`, // Pass token in headers
+          },
+        method: "DELETE",
+      }),
+      invalidatesTags: ["SavedProperty"],
     }),
-
-    // Property inquiries
+    getSavedProperties: builder.query<PaginatedResponse<Property>, { token: string }>({
+      query: ({ token }: { token: string }) => {
+        return {
+      url: `${SAVED_PROPERTIES_URL}/`,
+      headers: {
+        Authorization: `Token ${token}`, // Pass token in headers
+      },
+      credentials: "include",
+    };
+  },
+  providesTags: ["SavedProperty"],
+}),
     createPropertyInquiry: builder.mutation<
       PropertyInquiry,
       Omit<PropertyInquiry, "id" | "user" | "is_responded" | "created_at">
@@ -332,6 +350,7 @@ export const {
 
   // Saved properties hooks
   useToggleSavePropertyMutation,
+  useToggleUnsavePropertyMutation,
   useGetSavedPropertiesQuery,
 
   // Inquiry hooks

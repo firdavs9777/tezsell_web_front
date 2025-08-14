@@ -37,6 +37,9 @@ import { Property } from '../../../store/type';
 import { PropertyMap } from '../shared/MapComponents';
 
 // Import map styles
+import { RootState } from '@store/index';
+import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import '../shared/MapComponents/MapStyles.css';
 
 // Extended interfaces to match API response
@@ -82,6 +85,8 @@ const RealEstateDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+  const token = userInfo?.token || '';
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showImageModal, setShowImageModal] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -180,7 +185,7 @@ const RealEstateDetail: React.FC = () => {
   const handleSaveProperty = async () => {
     if (!id) return;
     try {
-      await toggleSaveProperty(id);
+      await toggleSaveProperty({propertyId: id, token}).unwrap();
       setIsSaved(!isSaved);
     } catch (error) {
       console.error(t('alerts.savePropertyFailed'), error);
@@ -199,11 +204,11 @@ const RealEstateDetail: React.FC = () => {
         console.error(error)
         // Fallback to copying URL
         navigator.clipboard.writeText(window.location.href);
-        alert(t('alerts.linkCopied'));
+        toast.success(t('alerts.linkCopied'));
       }
     } else {
       navigator.clipboard.writeText(window.location.href);
-      alert(t('alerts.linkCopied'));
+      toast.success(t('alerts.linkCopied'));
     }
   };
 

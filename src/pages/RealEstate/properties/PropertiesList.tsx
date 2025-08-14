@@ -1,7 +1,9 @@
+import { RootState } from "@store/index";
 import {
   useGetPropertiesQuery,
   useGetSavedPropertiesQuery,
   useToggleSavePropertyMutation,
+  useToggleUnsavePropertyMutation,
 } from "@store/slices/realEstate";
 import {
   GetPropertiesQueryParams,
@@ -28,7 +30,9 @@ import {
   FaSpinner,
   FaStar,
 } from "react-icons/fa";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 // User interface for owner info
 interface User {
@@ -95,8 +99,12 @@ const PropertiesList: React.FC = () => {
     ordering: "-is_featured,-created_at",
   } as GetPropertiesQueryParams);
 
-  const { data: savedPropertiesData } = useGetSavedPropertiesQuery();
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+  const token = userInfo?.token || '';
+  const { data: savedPropertiesData, refetch: refetchSavedProperties } = useGetSavedPropertiesQuery({token});
+  console.log(savedPropertiesData)
   const [toggleSaveProperty] = useToggleSavePropertyMutation();
+  const [toggleUnsaveProperty] = useToggleUnsavePropertyMutation()
 
   // Update saved properties when data changes
   useEffect(() => {
@@ -110,20 +118,47 @@ const PropertiesList: React.FC = () => {
     }
   }, [savedPropertiesData]);
 
-  const handleToggleSave = async (propertyId: string): Promise<void> => {
+  // Fake unsave property function (replace with actual API call when ready)
+  const handleUnsaveProperty = async (propertyId: string): Promise<void> => {
     try {
-      await toggleSaveProperty(propertyId).unwrap();
 
-      // Optimistically update local state
+
+     await toggleUnsaveProperty({propertyId, token}).unwrap();
+      // Update local state
       setSavedPropertyIds((prev) => {
         const newSet = new Set(prev);
-        if (newSet.has(propertyId)) {
-          newSet.delete(propertyId);
-        } else {
-          newSet.add(propertyId);
-        }
+        newSet.delete(propertyId);
         return newSet;
       });
+
+      // Optionally refetch saved properties to ensure consistency
+      refetchSavedProperties();
+
+      console.log(t('success.propertyUnsaved') || 'Property removed from saved list');
+    } catch (error) {
+      console.error(t('errors.unsaveFailed') || 'Failed to unsave property', error);
+    }
+  };
+
+  const handleToggleSave = async (propertyId: string): Promise<void> => {
+    try {
+      const isSaved = savedPropertyIds.has(propertyId);
+
+      if (isSaved) {
+        // If already saved, unsave it
+        await handleUnsaveProperty(propertyId);
+      } else {
+        // If not saved, save it
+        await toggleSaveProperty({propertyId, token}).unwrap();
+
+        setSavedPropertyIds((prev) => {
+          const newSet = new Set(prev);
+          newSet.add(propertyId);
+          return newSet;
+        });
+
+        console.log(t('success.propertySaved') || 'Property saved successfully');
+      }
     } catch (error) {
       console.error(t('errors.toggleSaveFailed'), error);
     }
@@ -213,6 +248,13 @@ const PropertiesList: React.FC = () => {
     const handleSaveClick = (e: React.MouseEvent) => {
       e.stopPropagation();
       onToggleSave(property.id);
+
+      // Show appropriate message based on current state
+      const message = isSaved
+        ? t('success.propertyUnsaved') || 'Property removed from saved list'
+        : t('success.propertySaved') || 'Property saved successfully';
+     toast.success(message, {autoClose: 2000});
+
     };
 
     const handleContactClick = (e: React.MouseEvent) => {
@@ -241,10 +283,13 @@ const PropertiesList: React.FC = () => {
           )}
           <button
             onClick={handleSaveClick}
-            className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-shadow"
+            className={`absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-all duration-200 ${
+              isSaved ? 'scale-110' : 'hover:scale-105'
+            }`}
+            title={isSaved ? t('propertyCard.unsave') || 'Remove from saved' : t('propertyCard.save') || 'Save property'}
           >
             {isSaved ? (
-              <FaHeart className="text-red-500" />
+              <FaHeart className="text-red-500 animate-pulse" />
             ) : (
               <FaRegHeart className="text-gray-500" />
             )}
