@@ -147,6 +147,16 @@ const RealEstateDetail: React.FC = () => {
     };
   };
 
+  // Ensure property has coordinates before passing to map
+  const ensureCoordinates = (property: ExtendedProperty): Property => {
+    const withCoords = getPropertyWithCoordinates(property);
+    return {
+      ...withCoords,
+      latitude: withCoords.latitude!,
+      longitude: withCoords.longitude!
+    } as Property;
+  };
+
   // ESC key handler and body scroll prevention
   useEffect(() => {
     const handleEscapeKey = (event: KeyboardEvent) => {
@@ -325,6 +335,7 @@ const RealEstateDetail: React.FC = () => {
 
   const features = getPropertyFeatures(property);
   const propertyWithCoords = getPropertyWithCoordinates(property);
+  const propertyForMap = ensureCoordinates(property);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -460,7 +471,7 @@ const RealEstateDetail: React.FC = () => {
 
               <div className="h-64 rounded-lg overflow-hidden">
                 <PropertyMap
-                  properties={[propertyWithCoords]}
+                  properties={[propertyForMap]}
                   center={[propertyWithCoords.latitude!, propertyWithCoords.longitude!]}
                   zoom={15}
                   height="100%"
@@ -761,7 +772,7 @@ const RealEstateDetail: React.FC = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <PropertyMap
-                properties={[propertyWithCoords]}
+                properties={[propertyForMap]}
                 center={[propertyWithCoords.latitude!, propertyWithCoords.longitude!]}
                 zoom={16}
                 height="100%"

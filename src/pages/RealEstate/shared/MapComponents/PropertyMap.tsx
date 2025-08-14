@@ -269,10 +269,10 @@ const PropertyMap: React.FC<PropertyMapProps> = React.memo(({
           <div className="bg-white rounded-lg shadow-md p-2">
             <select
               value={mapStyle}
-              onChange={(e) => setMapStyle(e.target.value as keyof typeof tileProviders)}
+              onChange={(e) => setMapStyle(e.target.value)}
               className="text-sm border-none outline-none bg-transparent"
             >
-              {Object.entries(tileProviders).map(([key, provider]) => (
+              {Object.entries(tileProviders).map(([key, provider]: [string, any]) => (
                 <option key={key} value={key}>{provider.name}</option>
               ))}
             </select>
@@ -295,7 +295,7 @@ const PropertyMap: React.FC<PropertyMapProps> = React.memo(({
               defaultValue=""
             >
               <option value="">Quick Jump</option>
-              {Object.entries(uzbekistanCities).map(([key, city]) => (
+              {Object.entries(uzbekistanCities).map(([key, city]: [string, any]) => (
                 <option key={key} value={key}>{city.name}</option>
               ))}
             </select>
@@ -324,7 +324,7 @@ const PropertyMap: React.FC<PropertyMapProps> = React.memo(({
         closePopupOnClick={true}
       >
         <TileLayer
-          url={tileProviders[mapStyle].url}
+          url={tileProviders[mapStyle as keyof typeof tileProviders]?.url || tileProviders.openStreetMap.url}
           key={mapStyle} // Only re-render TileLayer when style changes
         />
 
