@@ -69,6 +69,7 @@ interface ExtendedProperty extends Omit<Property, 'owner' | 'agent'> {
   // Add coordinates for map
   latitude?: number;
   longitude?: number;
+  main_image?: string
 }
 
 interface PropertyResponse {
@@ -147,15 +148,6 @@ const RealEstateDetail: React.FC = () => {
     };
   };
 
-  // Ensure property has coordinates before passing to map
-  const ensureCoordinates = (property: ExtendedProperty): Property => {
-    const withCoords = getPropertyWithCoordinates(property);
-    return {
-      ...withCoords,
-      latitude: withCoords.latitude!,
-      longitude: withCoords.longitude!
-    } as Property;
-  };
 
   // ESC key handler and body scroll prevention
   useEffect(() => {

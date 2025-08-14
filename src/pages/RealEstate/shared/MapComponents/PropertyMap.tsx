@@ -2,7 +2,6 @@ import { divIcon, Icon, LatLngBounds } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Home, MapPin, Maximize2 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
 
 // Mock config types and data since the config file might be missing
@@ -147,7 +146,7 @@ const PropertyPopup: React.FC<{ property: MapProperty; onPropertyClick?: (proper
   property,
   onPropertyClick
 }) => {
-  const { t } = useTranslation();
+
 
   const formatPrice = (price: number, currency: string) => {
     const symbol = currency === "USD" ? "$" : currency === "UZS" ? "so'm" : currency;
@@ -250,7 +249,6 @@ const PropertyMap: React.FC<PropertyMapProps> = React.memo(({
   hidePropertyCount = false,
   hideLegend = false
 }) => {
-  const { t } = useTranslation();
   const [mapStyle, setMapStyle] = useState('openStreetMap');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
