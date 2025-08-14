@@ -3,7 +3,7 @@ import {
   useGetPropertyByIdQuery,
   useToggleSavePropertyMutation,
 } from '@store/slices/realEstate';
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   FaArrowLeft,
@@ -146,6 +146,34 @@ const RealEstateDetail: React.FC = () => {
       longitude: coords[1]
     };
   };
+
+  // ESC key handler and body scroll prevention
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        if (showMapFullscreen) {
+          setShowMapFullscreen(false);
+        } else if (showImageModal) {
+          setShowImageModal(false);
+        } else if (showInquiryForm) {
+          setShowInquiryForm(false);
+        } else if (showPhoneModal) {
+          setShowPhoneModal(false);
+        }
+      }
+    };
+
+    if (showMapFullscreen || showImageModal || showInquiryForm || showPhoneModal) {
+      document.addEventListener('keydown', handleEscapeKey);
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden';
+
+      return () => {
+        document.removeEventListener('keydown', handleEscapeKey);
+        document.body.style.overflow = 'unset';
+      };
+    }
+  }, [showMapFullscreen, showImageModal, showInquiryForm, showPhoneModal]);
 
   const handleSaveProperty = async () => {
     if (!id) return;
@@ -703,17 +731,35 @@ const RealEstateDetail: React.FC = () => {
         )}
       </div>
 
-      {/* Fullscreen Map Modal */}
+      {/* Fullscreen Map Modal - FIXED VERSION */}
       {showMapFullscreen && (
-        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
-          <div className="relative w-full h-full max-w-6xl max-h-[90vh]">
+        <div
+          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
+          onClick={(e) => {
+            // Close modal when clicking the backdrop (not the map container)
+            if (e.target === e.currentTarget) {
+              setShowMapFullscreen(false);
+            }
+          }}
+        >
+          <div className="relative w-full h-full max-w-6xl max-h-[90vh] m-4">
+            {/* Close button with higher z-index and better positioning */}
             <button
-              onClick={() => setShowMapFullscreen(false)}
-              className="absolute top-4 right-4 z-10 text-white bg-black bg-opacity-50 p-2 rounded-lg hover:bg-opacity-70"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowMapFullscreen(false);
+              }}
+              className="absolute top-4 right-4 z-[2000] text-white bg-black bg-opacity-70 hover:bg-opacity-90 p-3 rounded-lg transition-all duration-200 shadow-lg"
+              style={{ zIndex: 2000 }}
             >
               <FaTimes size={20} />
             </button>
-            <div className="w-full h-full rounded-lg overflow-hidden">
+
+            {/* Map container with event isolation */}
+            <div
+              className="w-full h-full rounded-lg overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
               <PropertyMap
                 properties={[propertyWithCoords]}
                 center={[propertyWithCoords.latitude!, propertyWithCoords.longitude!]}
@@ -721,15 +767,30 @@ const RealEstateDetail: React.FC = () => {
                 height="100%"
                 showControls={true}
                 className="rounded-lg"
+                hidePropertyCount={true}
+                hideLegend={true}
               />
             </div>
-            <div className="absolute bottom-4 left-4 bg-white rounded-lg p-3 shadow-lg">
-              <div className="font-medium text-gray-900">{property.title}</div>
-              <div className="text-sm text-gray-600 flex items-center">
+
+            {/* Property info overlay */}
+            <div className="absolute bottom-4 left-4 bg-white rounded-lg p-3 shadow-lg z-[1500] max-w-sm">
+              <div className="font-medium text-gray-900 text-sm">{property.title}</div>
+              <div className="text-xs text-gray-600 flex items-center mt-1">
                 <FaMapMarkerAlt className="mr-1" />
                 {property.address}, {property.district}
               </div>
             </div>
+
+            {/* Additional close button in bottom right corner as backup */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowMapFullscreen(false);
+              }}
+              className="absolute bottom-4 right-4 z-[1500] bg-red-600 hover:bg-red-700 text-white p-2 rounded-full transition-colors shadow-lg"
+            >
+              <FaTimes size={16} />
+            </button>
           </div>
         </div>
       )}

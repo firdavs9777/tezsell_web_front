@@ -1,5 +1,3 @@
-// Main Interactive map component
-// src/shared/MapComponents/PropertyMap.tsx
 import { divIcon, Icon, LatLngBounds } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Home, MapPin, Maximize2 } from 'lucide-react';
@@ -49,11 +47,19 @@ interface PropertyMapProps {
   onPropertyClick?: (property: Property) => void;
   onMapBoundsChange?: (bounds: LatLngBounds) => void;
   className?: string;
+  hidePropertyCount?: boolean; // Add this prop to hide property count
+  hideLegend?: boolean; // Add this prop to hide legend
 }
 
 // Custom hook to handle map events
-const MapEvents: React.FC<{ onBoundsChange?: (bounds: LatLngBounds) => void }> = ({
-  onBoundsChange
+const MapEvents: React.FC<{
+  onBoundsChange?: (bounds: LatLngBounds) => void;
+  jumpToCity?: string;
+  onJumpComplete?: () => void;
+}> = ({
+  onBoundsChange,
+  jumpToCity,
+  onJumpComplete
 }) => {
   const map = useMap();
 
@@ -66,12 +72,36 @@ const MapEvents: React.FC<{ onBoundsChange?: (bounds: LatLngBounds) => void }> =
       map.on('moveend', handleMoveEnd);
       map.on('zoomend', handleMoveEnd);
 
-      return () => {
+      // Don't render map until component is fully mounted (prevents hydration issues)
+  if (!isMounted) {
+    return (
+      <div
+        className={`relative ${className} flex items-center justify-center bg-gray-100`}
+        style={{ height: isFullscreen ? '100vh' : height }}
+      >
+        <div className="text-gray-500">Loading map...</div>
+      </div>
+    );
+  }
+
+  return () => {
         map.off('moveend', handleMoveEnd);
         map.off('zoomend', handleMoveEnd);
       };
     }
   }, [map, onBoundsChange]);
+
+  // Handle city jumping
+  useEffect(() => {
+    if (jumpToCity && uzbekistanCities[jumpToCity as keyof typeof uzbekistanCities]) {
+      const city = uzbekistanCities[jumpToCity as keyof typeof uzbekistanCities];
+      map.setView([city.lat, city.lng], city.zoom || 12, {
+        animate: true,
+        duration: 1.5
+      });
+      onJumpComplete?.();
+    }
+  }, [map, jumpToCity, onJumpComplete]);
 
   return null;
 };
@@ -172,20 +202,39 @@ const createPropertyIcon = (property: Property) => {
   });
 };
 
-const PropertyMap: React.FC<PropertyMapProps> = ({
+const PropertyMap: React.FC<PropertyMapProps> = React.memo(({
   properties = [],
   center = defaultMapConfig.center,
   zoom = defaultMapConfig.zoom,
-  height = '400px',
+  height = '500px',
   showControls = true,
   onPropertyClick,
   onMapBoundsChange,
-  className = ''
+  className = '',
+  hidePropertyCount = false, // Add this prop with default value
+  hideLegend = false // Add this prop with default value
 }) => {
   const { t } = useTranslation();
   const [mapStyle, setMapStyle] = useState<keyof typeof tileProviders>('openStreetMap');
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);
+  const [jumpToCity, setJumpToCity] = useState<string>('');
+
+  // Ensure component is mounted before rendering map to prevent hydration issues
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const handleCityJump = (cityKey: string) => {
+    if (cityKey && uzbekistanCities[cityKey as keyof typeof uzbekistanCities]) {
+      setJumpToCity(cityKey);
+    }
+  };
+
+  const handleJumpComplete = () => {
+    setJumpToCity('');
+  };
 
   const toggleFullscreen = () => {
     if (mapRef.current) {
@@ -214,7 +263,6 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
       className={`relative ${className}`}
       style={{ height: isFullscreen ? '100vh' : height }}
     >
-      {/* Map Controls */}
       {showControls && (
         <div className="absolute top-4 right-4 z-[1000] space-y-2">
           {/* Style Selector */}
@@ -242,13 +290,7 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
           {/* City Quick Jump */}
           <div className="bg-white rounded-lg shadow-md p-2">
             <select
-              onChange={(e) => {
-                if (e.target.value) {
-                  const city = uzbekistanCities[e.target.value as keyof typeof uzbekistanCities];
-                  // You can implement map centering here
-                  console.log('Navigate to:', city);
-                }
-              }}
+              onChange={(e) => handleCityJump(e.target.value)}
               className="text-sm border-none outline-none bg-transparent"
               defaultValue=""
             >
@@ -261,8 +303,8 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
         </div>
       )}
 
-      {/* Property Count Display */}
-      {properties.length > 0 && (
+      {/* Property Count Display - Only show if not hidden */}
+      {properties.length > 0 && !hidePropertyCount && (
         <div className="absolute top-4 left-4 z-[1000] bg-white rounded-lg shadow-md px-3 py-2">
           <div className="flex items-center space-x-2 text-sm">
             <Home size={16} className="text-blue-600" />
@@ -271,7 +313,6 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
         </div>
       )}
 
-      {/* Map Container */}
       <MapContainer
         center={center}
         zoom={zoom}
@@ -279,24 +320,32 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
         maxZoom={defaultMapConfig.maxZoom}
         style={{ height: '100%', width: '100%' }}
         className="rounded-lg"
-        zoomControl={false} // We'll add custom zoom control
+        zoomControl={true}
+        closePopupOnClick={true}
       >
         <TileLayer
           url={tileProviders[mapStyle].url}
-          attribution={tileProviders[mapStyle].attribution}
+          key={mapStyle} // Only re-render TileLayer when style changes
         />
 
-        {/* Map Events Handler */}
-        <MapEvents onBoundsChange={onMapBoundsChange} />
+        <MapEvents
+          onBoundsChange={onMapBoundsChange}
+          jumpToCity={jumpToCity}
+          onJumpComplete={handleJumpComplete}
+        />
 
-        {/* Property Markers */}
         {properties.map((property) => (
           <Marker
-            key={property.id}
+            key={`marker-${property.id}`} // More specific key
             position={[property.latitude, property.longitude]}
             icon={createPropertyIcon(property)}
           >
-            <Popup closeButton={false} className="custom-popup">
+            <Popup
+              closeButton={true}
+              className="custom-popup"
+              maxWidth={320}
+              minWidth={250}
+            >
               <PropertyPopup
                 property={property}
                 onPropertyClick={onPropertyClick}
@@ -306,8 +355,8 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
         ))}
       </MapContainer>
 
-      {/* Map Legend */}
-      {properties.length > 0 && (
+      {/* Legend - Only show if not hidden */}
+      {properties.length > 0 && !hideLegend && (
         <div className="absolute bottom-4 left-4 z-[1000] bg-white rounded-lg shadow-md p-3">
           <h4 className="font-medium text-sm mb-2">Legend</h4>
           <div className="space-y-1 text-xs">
@@ -337,6 +386,22 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
       )}
     </div>
   );
-};
+}, (prevProps, nextProps) => {
+  // Custom comparison function to prevent unnecessary re-renders
+  return (
+    prevProps.properties.length === nextProps.properties.length &&
+    prevProps.properties.every((prop, index) => prop.id === nextProps.properties[index]?.id) &&
+    prevProps.center?.[0] === nextProps.center?.[0] &&
+    prevProps.center?.[1] === nextProps.center?.[1] &&
+    prevProps.zoom === nextProps.zoom &&
+    prevProps.height === nextProps.height &&
+    prevProps.showControls === nextProps.showControls &&
+    prevProps.className === nextProps.className &&
+    prevProps.hidePropertyCount === nextProps.hidePropertyCount && // Add this to comparison
+    prevProps.hideLegend === nextProps.hideLegend // Add this to comparison
+  );
+});
+
+PropertyMap.displayName = 'PropertyMap';
 
 export default PropertyMap;

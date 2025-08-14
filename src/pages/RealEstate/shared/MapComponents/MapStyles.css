@@ -1,4 +1,53 @@
-/* src/shared/MapComponents/MapStyles.css */
+/* Add this to your CSS file or create a new MapFix.css */
+
+/* Prevent duplicate/overlapping maps */
+.leaflet-container {
+  position: relative !important;
+  z-index: 1 !important;
+  isolation: isolate;
+}
+
+/* Ensure only one map instance */
+.leaflet-map-pane {
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+}
+
+/* Fix for tile loading issues */
+.leaflet-tile-pane {
+  transform: translate3d(0px, 0px, 0px) !important;
+}
+
+.leaflet-tile {
+  position: absolute !important;
+}
+
+/* Prevent marker duplication */
+.leaflet-marker-pane {
+  position: absolute !important;
+}
+
+/* Ensure popup positioning */
+.leaflet-popup-pane {
+  position: absolute !important;
+  z-index: 1000 !important;
+}
+
+/* Fix for overlay duplication */
+.leaflet-overlay-pane {
+  position: absolute !important;
+}
+
+/* Prevent control duplication */
+.leaflet-control-container {
+  position: absolute !important;
+  pointer-events: none;
+}
+
+.leaflet-control {
+  pointer-events: auto;
+}
 
 /* Import Leaflet CSS first */
 @import "leaflet/dist/leaflet.css";
@@ -8,7 +57,9 @@
   background: transparent !important;
   border: none !important;
 }
-
+.custom-popup {
+  padding: 2px;
+}
 /* Custom popup styling */
 .leaflet-popup-content-wrapper {
   border-radius: 8px;
@@ -80,4 +131,21 @@
   100% {
     transform: rotate(360deg);
   }
+}
+
+/* Additional fix for StrictMode double rendering */
+.map-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.map-container .leaflet-container:nth-child(n + 2) {
+  display: none !important;
+}
+
+/* Ensure proper stacking context */
+.property-map-wrapper {
+  position: relative;
+  z-index: 0;
+  contain: layout style paint;
 }
