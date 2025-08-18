@@ -4,7 +4,10 @@ import MainChat from "@chats/MainChat";
 import About from "@pages/About/About";
 import Home from "@pages/Home/Home";
 import ProductScreen from "@pages/Product/Products";
+import AgentApplicationStatusComponent from "@pages/RealEstate/agents/AgentApplicationStatus";
+import AgentDetail from '@pages/RealEstate/agents/AgentDetail';
 import AgentsList from "@pages/RealEstate/agents/AgentsList";
+import BecomeAgentComp from "@pages/RealEstate/agents/BecomeAgent";
 import MainRealEstate from "@pages/RealEstate/MainRealEstate";
 import RealEstateDetail from "@pages/RealEstate/properties/PropertyDetail";
 import Service from "@pages/Service/Service";
@@ -21,7 +24,6 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { useAutoLogout } from "../hooks/useAutoLogout";
-import AgentDetail from '@pages/RealEstate/agents/AgentDetail';
 
 // Component to handle auto-logout for authenticated routes
 const AutoLogoutWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -54,13 +56,15 @@ const Router = () => {
         <Route path="/agents/:id" element={<AgentDetail />} />
         <Route path="/service/:id" element={<ServiceDetail />} />
         <Route path="/properties" element={<MainRealEstate />} />
-                <Route path="/properties/:id" element={<RealEstateDetail />} />
+        <Route path="/properties/:id" element={<RealEstateDetail />} />
 
         <Route element={<ProtectedRoute />}>
           <Route path="/new-product" element={<NewProduct />} />
           <Route path="/new-service" element={<NewService />} />
           <Route path="/myprofile" element={<MainProfile />} />
           <Route path="/my-products" element={<MyProducts />} />
+          <Route path="/become-agent" element={<BecomeAgentComp />} />
+        <Route path="/agent/status" element={<AgentApplicationStatusComponent />} />
           <Route path="/my-services" element={<MyServices />} />
           <Route path="/chat" element={<MainChat />} />
           <Route path="/chat/:chatId" element={<MainChat />} />

@@ -297,18 +297,25 @@ export const realEstateApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Agent", "AgentData"],
     }),
+    checkAgentStatus: builder.query<AgentStatus, { token: string }>({
 
-    checkAgentStatus: builder.query<AgentStatus, void>({
-      query: () => `${AGENT_STATUS_URL}/`,
-      providesTags: ["AgentData"],
-    }),
-
-    getAgentApplicationStatus: builder.query<any, void>({
-      query: () => `${AGENT_APPLICATION_STATUS_URL}/`,
-      providesTags: ["AgentData"],
-    }),
-
-    // Admin endpoints
+      query: ({ token }) => ({
+    url: `${AGENT_STATUS_URL}/`,
+    headers: {
+      Authorization: `Token ${token}`, // Add token to the Authorization header
+    },
+  }),
+  providesTags: ["AgentData"],
+}),
+getAgentApplicationStatus: builder.query<any, { token: string }>({
+  query: ({ token }) => ({
+    url: `${AGENT_APPLICATION_STATUS_URL}/`,
+    headers: {
+      Authorization: `Token ${token}`, // Add token to the Authorization header
+    },
+  }),
+  providesTags: ["AgentData"],
+}),
     getPendingAgentApplications: builder.query<
       PaginatedResponse<RealEstateAgent>,
       void

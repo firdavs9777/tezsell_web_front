@@ -258,6 +258,7 @@
   "deleting": "O'chirilmoqda...",
   "agents": "Agentlar",
   "become_agent": "Agent bo'lish",
+  "agent_status": "Agent holati",
   "search": {
     "placeholder": "Sarlavha yoki joylashuv bo'yicha qidirish...",
     "filters": "Filtrlar",

@@ -258,6 +258,7 @@
   "properties_main": "Properties",
   "agents": "Agents",
   "become_agent": "Become an Agent",
+  "agent_status": "Agent Status",
   "search": {
     "placeholder": "Search by title or location...",
     "filters": "Filters",

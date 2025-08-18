@@ -299,7 +299,9 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                   {t("agents")}
                 </Link>
               </li>
-              <li>
+              {isAuthenticated && (<>
+
+<li>
                 <Link
                   to="/become-agent"
                   onClick={handleNavLinkClick}
@@ -313,6 +315,21 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                   {t("become_agent")}
                 </Link>
               </li>
+              <li>
+                <Link
+                  to="/agent/status"
+                  onClick={handleNavLinkClick}
+                  className={`flex items-center px-4 py-2 transition-colors duration-200 ${
+                    location.pathname === "/agent/status"
+                      ? "bg-blue-100 text-blue-700 font-semibold"
+                      : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
+                  }`}
+                >
+                  <FaUserPlusIcon className="mr-2" size={14} />
+                  {t("agent_status")}
+                </Link>
+              </li>
+              </>)}
             </ul>
           )}
         </li>
