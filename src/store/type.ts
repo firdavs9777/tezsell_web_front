@@ -478,3 +478,48 @@ export interface GetAgentPropertiesResponse {
   previous?: string;
   results: AgentDetailProperty[];
 }
+
+
+// Enhanced Property interface based on the actual API response
+export interface SavedPropertyData {
+  id: string;
+  title: string;
+  property_type: "apartment" | "house" | "townhouse" | "villa" | "commercial" | "office" | "land" | "warehouse";
+  property_type_display: string;
+  listing_type: "sale" | "rent";
+  listing_type_display: string;
+  price: string;
+  price_per_sqm: string;
+  currency: string;
+  square_meters: number;
+  bedrooms: number;
+  bathrooms: number;
+  district: string;
+  city: string;
+  region: string;
+  user_location: PropertyUserLocation;
+  owner: PropertyOwner;
+  agent: AgentDetailAgent;
+  main_image: string | null;
+  is_featured: boolean;
+  views_count: number;
+  created_at: string;
+  latitude: string;
+  longitude: string;
+  address: string;
+}
+
+// Interface for individual saved property item
+export interface SavedProperty {
+  id: number;
+  property: SavedPropertyData;
+  saved_at: string;
+}
+
+// Interface for the saved properties API response
+export interface SavedPropertiesResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: SavedProperty[];
+}
