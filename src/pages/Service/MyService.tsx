@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import { ServiceRes } from "@services/MainProfile";
+import { ServiceRes } from "@pages/Profile/MainProfile";
 import MyServiceEdit from "@services/ServiceEdit";
 import { RootState } from "@store/index";
 import { useGetFavoriteItemsQuery } from "@store/slices/productsApiSlice";

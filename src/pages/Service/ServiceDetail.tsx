@@ -32,7 +32,7 @@ import CommentsMain from "@services/Comments/CommentsMain";
 import MyServiceEdit from "@services/ServiceEdit";
 
 // Types and constants
-import { ServiceRes } from "@services/MainProfile";
+import { ServiceRes } from "@pages/Profile/MainProfile";
 import { BASE_URL } from "@store/constants";
 import { RootState } from "@store/index";
 import { Category, Comment, Service, SingleService } from "@store/type";

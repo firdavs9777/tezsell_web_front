@@ -26,7 +26,7 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { RootState } from "../../store";
 import { Chat, useCreateChatRoomMutation } from "../../store/slices/chatSlice";
-import { ServiceRes } from "../Service/MainProfile";
+import { ServiceRes } from "../Profile/MainProfile";
 import MyProductEdit from "./ProductEdit";
 
 const ProductDetail = () => {

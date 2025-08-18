@@ -1,3 +1,5 @@
+import { ServiceRes } from "@pages/Profile/MainProfile";
+import MyProductEdit from "@products/ProductEdit";
 import { RootState } from "@store/index";
 import {
   useGetFavoriteItemsQuery,
@@ -20,8 +22,6 @@ import { MdDescription } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import MyProductEdit from "@products/ProductEdit";
-import { ServiceRes } from "@services/MainProfile";
 interface SingleProductProps {
   product: Product;
   refresh: () => void;

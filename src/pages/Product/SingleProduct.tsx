@@ -1,4 +1,4 @@
-import { ServiceRes } from "@services/MainProfile";
+import { ServiceRes } from "@pages/Profile/MainProfile";
 import { BASE_URL } from "@store/constants";
 import { RootState } from "@store/index";
 import {
