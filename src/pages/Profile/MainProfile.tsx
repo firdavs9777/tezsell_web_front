@@ -142,13 +142,13 @@ const MainProfile = () => {
     );
 
   const { data: savedPropertyData, isLoading: savedPropertiesLoading } =
-    useGetSavedPropertiesQuery(
-      { token },
-      {
-        skip: !shouldFetchItems,
-        refetchOnMountOrArgChange: true,
-      }
-    );
+  useGetSavedPropertiesQuery(
+    { token: token || "" },
+    {
+      skip: !shouldFetchItems || !token,
+      refetchOnMountOrArgChange: true,
+    }
+  );
 
   const [updateProfile] = useUpdateLoggedUserInfoMutation();
 
@@ -156,7 +156,8 @@ const MainProfile = () => {
   const products = productsData as ProductResponse;
   const services = servicesData as ServiceResponse;
   const likedItems = likedItemsData as ServiceRes;
-  const savedProperties = savedPropertyData as SavedPropertiesResponse;
+  const savedProperties = savedPropertyData ? (savedPropertyData as SavedPropertiesResponse) : undefined;
+
 
   // Handle image preview
   useEffect(() => {
@@ -537,14 +538,12 @@ const MainProfile = () => {
 
   // Tab component
   const TabButton = ({
-    id,
     label,
     icon,
     isActive,
     onClick,
     count
   }: {
-    id: string;
     label: string;
     icon: React.ReactNode;
     isActive: boolean;
@@ -650,7 +649,7 @@ const MainProfile = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {savedProperties.results.map((savedProperty, index) =>
+                {savedProperties?.results.map((savedProperty, index) =>
                   <div key={`saved-property-${index}`}>
                     {renderPropertyCard(savedProperty)}
                   </div>
@@ -743,7 +742,6 @@ const MainProfile = () => {
           {/* Tab Navigation */}
           <div className="flex flex-wrap gap-3 mb-8 p-2 bg-gray-50 rounded-xl">
             <TabButton
-              id="products"
               label="Favorite Products"
               icon={<FaShoppingBag size={18} />}
               isActive={activeTab === 'products'}
@@ -751,7 +749,6 @@ const MainProfile = () => {
               count={likedItems?.liked_products?.length || 0}
             />
             <TabButton
-              id="services"
               label="Favorite Services"
               icon={<FaToolbox size={18} />}
               isActive={activeTab === 'services'}
@@ -759,7 +756,6 @@ const MainProfile = () => {
               count={likedItems?.liked_services?.length || 0}
             />
             <TabButton
-              id="properties"
               label="Saved Properties"
               icon={<FaHome size={18} />}
               isActive={activeTab === 'properties'}

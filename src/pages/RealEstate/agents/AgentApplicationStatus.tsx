@@ -43,7 +43,7 @@ interface ProfileCompletion {
   missing_fields: string[];
 }
 
-interface AgentApplicationStatus {
+interface AgentApplicationStatusResponse {
   success: boolean;
   application_status: 'not_applied' | 'pending' | 'approved' | 'rejected';
   is_verified: boolean;
@@ -52,32 +52,53 @@ interface AgentApplicationStatus {
   requirements?: string[];
 }
 
+interface StatusConfig {
+  icon: React.ComponentType<{ className?: string }>;
+  color: string;
+  bgColor: string;
+  borderColor: string;
+  title: string;
+  description: string;
+}
+
 const AgentApplicationStatusPage = () => {
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
+
   // Fetch agent application status
   const {
     data: applicationStatus,
     isLoading: applicationLoading,
     error: applicationError,
     refetch: refetchApplication
-  } = useGetAgentApplicationStatusQuery({token});
+  } = useGetAgentApplicationStatusQuery(
+    { token: token || '' },
+    {
+      skip: !token
+    }
+  );
 
   // Fetch basic agent status
   const {
-    data: agentStatus,
     isLoading: statusLoading,
     refetch: refetchStatus
-  } = useCheckAgentStatusQuery({token});
+  } = useCheckAgentStatusQuery(
+    { token: token || '' },
+    {
+      skip: !token
+    }
+  );
 
   const isLoading = applicationLoading || statusLoading;
 
   const handleRefresh = () => {
-    refetchApplication();
-    refetchStatus();
+    if (token) {
+      refetchApplication();
+      refetchStatus();
+    }
   };
 
-  const getStatusConfig = (status: string, isVerified: boolean) => {
+  const getStatusConfig = (status: string, isVerified: boolean): StatusConfig => {
     switch (status) {
       case 'not_applied':
         return {
@@ -129,7 +150,7 @@ const AgentApplicationStatusPage = () => {
     }
   };
 
-  const getMissingFieldLabel = (field: string) => {
+  const getMissingFieldLabel = (field: string): string => {
     const fieldLabels: { [key: string]: string } = {
       'agency_name': 'Agency Name',
       'licence_number': 'License Number',
@@ -140,6 +161,19 @@ const AgentApplicationStatusPage = () => {
     };
     return fieldLabels[field] || field.replace('_', ' ').toUpperCase();
   };
+
+  // Handle no token
+  if (!token) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center">
+          <AlertCircle className="w-12 h-12 text-yellow-600 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Authentication Required</h2>
+          <p className="text-gray-600 mb-4">Please log in to view your agent application status.</p>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -170,9 +204,11 @@ const AgentApplicationStatusPage = () => {
     );
   }
 
-  const statusConfig = getStatusConfig(applicationStatus.application_status, applicationStatus.is_verified);
+  // Type assertion with proper checking
+  const typedApplicationStatus = applicationStatus as AgentApplicationStatusResponse;
+  const statusConfig = getStatusConfig(typedApplicationStatus.application_status, typedApplicationStatus.is_verified);
   const StatusIcon = statusConfig.icon;
-  const agentData = applicationStatus.agent_data;
+  const agentData = typedApplicationStatus.agent_data;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 py-12 px-4">
@@ -297,7 +333,7 @@ const AgentApplicationStatusPage = () => {
                       <span>Update Profile</span>
                     </button>
 
-                    {applicationStatus.is_verified && (
+                    {typedApplicationStatus.is_verified && (
                       <button className="inline-flex items-center space-x-2 bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors">
                         <TrendingUp className="w-4 h-4" />
                         <span>Go to Dashboard</span>
@@ -312,7 +348,7 @@ const AgentApplicationStatusPage = () => {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Profile Completion Card */}
-            {applicationStatus.profile_completion && (
+            {typedApplicationStatus.profile_completion && (
               <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Profile Completion</h3>
 
@@ -336,28 +372,28 @@ const AgentApplicationStatusPage = () => {
                       strokeWidth="2"
                       fill="none"
                       strokeDasharray={`${2 * Math.PI * 10}`}
-                      strokeDashoffset={`${2 * Math.PI * 10 * (1 - applicationStatus.profile_completion.percentage / 100)}`}
+                      strokeDashoffset={`${2 * Math.PI * 10 * (1 - typedApplicationStatus.profile_completion.percentage / 100)}`}
                       className="text-indigo-600"
                       strokeLinecap="round"
                     />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-xl font-bold text-gray-900">
-                      {Math.round(applicationStatus.profile_completion.percentage)}%
+                      {Math.round(typedApplicationStatus.profile_completion.percentage)}%
                     </span>
                   </div>
                 </div>
 
                 <p className="text-center text-gray-600 mb-4">
-                  {applicationStatus.profile_completion.completed_fields} of {applicationStatus.profile_completion.total_fields} fields completed
+                  {typedApplicationStatus.profile_completion.completed_fields} of {typedApplicationStatus.profile_completion.total_fields} fields completed
                 </p>
 
                 {/* Missing Fields */}
-                {applicationStatus.profile_completion.missing_fields.length > 0 ? (
+                {typedApplicationStatus.profile_completion.missing_fields.length > 0 ? (
                   <div>
                     <h4 className="font-medium text-gray-900 mb-2">Missing Information:</h4>
                     <ul className="space-y-1">
-                      {applicationStatus.profile_completion.missing_fields.map((field, index) => (
+                      {typedApplicationStatus.profile_completion.missing_fields.map((field: string, index: number) => (
                         <li key={index} className="flex items-center space-x-2 text-sm text-red-600">
                           <AlertCircle className="w-3 h-3" />
                           <span>{getMissingFieldLabel(field)}</span>
@@ -378,13 +414,13 @@ const AgentApplicationStatusPage = () => {
             <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Next Steps</h3>
 
-              {applicationStatus.application_status === 'pending' && (
+              {typedApplicationStatus.application_status === 'pending' && (
                 <div className="space-y-3 text-sm text-gray-600">
                   <div className="flex items-start space-x-3">
                     <div className={`w-2 h-2 rounded-full mt-2 ${
-                      applicationStatus.profile_completion.percentage === 100 ? 'bg-green-500' : 'bg-indigo-600'
+                      typedApplicationStatus.profile_completion?.percentage === 100 ? 'bg-green-500' : 'bg-indigo-600'
                     }`}></div>
-                    <p>Complete profile information {applicationStatus.profile_completion.percentage === 100 && '✓'}</p>
+                    <p>Complete profile information {typedApplicationStatus.profile_completion?.percentage === 100 && '✓'}</p>
                   </div>
                   <div className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
@@ -397,7 +433,7 @@ const AgentApplicationStatusPage = () => {
                 </div>
               )}
 
-              {applicationStatus.is_verified && (
+              {typedApplicationStatus.is_verified && (
                 <div className="text-sm text-green-600">
                   <div className="flex items-center space-x-2 mb-2">
                     <CheckCircle className="w-4 h-4" />
@@ -407,7 +443,7 @@ const AgentApplicationStatusPage = () => {
                 </div>
               )}
 
-              {applicationStatus.application_status === 'rejected' && (
+              {typedApplicationStatus.application_status === 'rejected' && (
                 <div className="text-sm text-red-600">
                   <div className="flex items-center space-x-2 mb-2">
                     <XCircle className="w-4 h-4" />
@@ -419,12 +455,14 @@ const AgentApplicationStatusPage = () => {
             </div>
 
             {/* Application ID Card */}
-            <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200">
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <FileText className="w-4 h-4" />
-                <span>Application ID: #{agentData?.id}</span>
+            {agentData && (
+              <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200">
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <FileText className="w-4 h-4" />
+                  <span>Application ID: #{agentData.id}</span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

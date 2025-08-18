@@ -3,7 +3,6 @@ import { BASE_URL } from "@store/constants";
 import {
   logout,
   selectAgentInfo,
-  selectAuth,
   selectCanAccessAdmin,
   selectCanCreateProperties,
   selectIsAgent,
@@ -11,7 +10,6 @@ import {
   selectIsSuperAdmin,
   selectIsVerifiedAgent,
   selectPermissions,
-  selectProcessedUserInfo,
   selectRawUserInfo,
   selectToken,
   selectUser,
@@ -89,10 +87,8 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
   const [isAgentDropdownOpen, setIsAgentDropdownOpen] = useState(false);
 
-  // Enhanced auth state - using selectors
-  const auth = useSelector(selectAuth);
+
   const userInfo = useSelector(selectRawUserInfo);
-  const processedUserInfo = useSelector(selectProcessedUserInfo);
   const user = useSelector(selectUser);
   const agentInfo = useSelector(selectAgentInfo);
   const permissions = useSelector(selectPermissions);
@@ -257,7 +253,6 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
 
   // Determine authentication state and permissions
   const isPendingAgent = userRole === 'pending_agent';
-  const isStaff = permissions?.is_staff || false;
   const hasProfile = !!(profileInfo?.data);
   const showUserMenu = isAuthenticated && hasProfile;
   const showLogin = !isAuthenticated;
@@ -701,22 +696,22 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
               }}
             >
 
-              {(user as object)?.profile_image?.url || (user as any)?.user_image || profileInfo?.data.profile_image?.image ? (
-                <img
-                  src={
-                    (user as any)?.profile_image?.url ||
-                    (user as any)?.user_image ||
-                    `${BASE_URL}${profileInfo?.data.profile_image?.image}`
-                  }
-                  alt="profile"
-                  className="w-8 h-8 rounded-full object-cover flex-shrink-0"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                    if (fallback) fallback.style.display = 'flex';
-                  }}
-                />
-              ) : null}
+          {((user as any)?.profile_image?.url || (user as any)?.user_image || profileInfo?.data.profile_image?.image) ? (
+  <img
+    src={
+      (user as any)?.profile_image?.url ||
+      (user as any)?.user_image ||
+      `${BASE_URL}${profileInfo?.data.profile_image?.image}`
+    }
+    alt="profile"
+    className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+    onError={(e) => {
+      e.currentTarget.style.display = 'none';
+      const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+      if (fallback) fallback.style.display = 'flex';
+    }}
+  />
+) : null}
               <div
                 className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0"
                 style={{
