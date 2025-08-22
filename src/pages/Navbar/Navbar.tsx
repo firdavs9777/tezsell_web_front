@@ -9,7 +9,7 @@ import {
   selectIsAuthenticated,
   selectIsSuperAdmin,
   selectIsVerifiedAgent,
-  selectPermissions,
+
   selectRawUserInfo,
   selectToken,
   selectUser,
@@ -91,7 +91,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   const userInfo = useSelector(selectRawUserInfo);
   const user = useSelector(selectUser);
   const agentInfo = useSelector(selectAgentInfo);
-  const permissions = useSelector(selectPermissions);
+
   const userRole = useSelector(selectUserRole);
   const token = useSelector(selectToken);
   const isAuthenticated = useSelector(selectIsAuthenticated);

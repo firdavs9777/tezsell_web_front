@@ -1,6 +1,7 @@
+import { useBecomeAgentMutation } from '@store/slices/realEstate';
 import { Award, Building2, Calendar, Check, Send, Target } from 'lucide-react';
 import React, { useState } from 'react';
-
+import { toast } from "react-toastify";
 export interface BecomeAgentRequest {
   agency_name: string;
   licence_number: string;
@@ -20,6 +21,7 @@ const BecomeAgentComp = () => {
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [becomeAgent] = useBecomeAgentMutation({})
 
   const specializations = [
     'Residential Sales',

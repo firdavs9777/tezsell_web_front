@@ -156,8 +156,7 @@ const MainProfile = () => {
   const products = productsData as ProductResponse;
   const services = servicesData as ServiceResponse;
   const likedItems = likedItemsData as ServiceRes;
-  const savedProperties = savedPropertyData ? (savedPropertyData as SavedPropertiesResponse) : undefined;
-
+  const savedProperties = savedPropertyData ? (savedPropertyData as unknown as SavedPropertiesResponse) : undefined;
 
   // Handle image preview
   useEffect(() => {

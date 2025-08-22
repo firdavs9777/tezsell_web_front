@@ -50,6 +50,7 @@ export interface UserPermissions {
   can_access_admin: boolean;
   can_verify_agents: boolean;
   can_manage_users: boolean;
+  user_role?: string; // Add this missing property
 }
 
 export interface EnhancedUser {
@@ -132,7 +133,7 @@ const processAuthResponse = (response: AuthResponse) => {
     // New enhanced response
     return {
       token: response.token!,
-      user: response.user_info as EnhancedUser,
+      user: response.user_info as EnhancedUser | User, // Fix: Allow both types
       agent_info: response.agent_info || null,
       permissions: response.permissions!,
       user_role: response.user_role!,
@@ -329,7 +330,7 @@ export const selectIsAuthenticated = (state: { auth: AuthState }) => !!state.aut
 export const selectAuthLoading = (state: { auth: AuthState }) => state.auth.isLoading;
 export const selectAuthError = (state: { auth: AuthState }) => state.auth.error;
 
-// Permission selectors
+
 export const selectCanCreateProperties = (state: { auth: AuthState }) =>
   state.auth.processedUserInfo?.permissions?.can_create_properties || false;
 export const selectCanAccessAdmin = (state: { auth: AuthState }) =>
