@@ -280,7 +280,7 @@ const MainProfile = () => {
   };
 
   const redirectPropertyHandler = (id: string) => {
-    navigate(`/property/${id}`);
+    navigate(`/properties/${id}`);
   };
 
   // Prepare profile image URL

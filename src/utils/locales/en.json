@@ -565,5 +565,22 @@
   "fallbacks": {
     "agentName": "Agent",
     "defaultProfileImage": "/default-avatar.png"
+  },
+  "savedProperties": {
+    "title": "Saved Properties",
+    "subtitle": "Your favorite properties in one place",
+    "noSavedProperties": "No saved properties yet",
+    "startSaving": "Start exploring and save properties you like",
+    "browseProperties": "Browse Properties",
+    "savedOn": "Saved on"
+  },
+  "auth": {
+    "loginRequired": "Please log in to view saved properties",
+    "login": "Log In"
+  },
+  "success": {
+    "propertyUnsaved": "Property removed from saved list",
+    "propertySaved": "Property saved successfully",
+    "phoneCopied": "Phone number copied!"
   }
 }

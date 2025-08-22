@@ -11,6 +11,7 @@ import AgentsList from "@pages/RealEstate/agents/AgentsList";
 import BecomeAgentComp from "@pages/RealEstate/agents/BecomeAgent";
 import MainRealEstate from "@pages/RealEstate/MainRealEstate";
 import RealEstateDetail from "@pages/RealEstate/properties/PropertyDetail";
+import SavedProperties from "@pages/RealEstate/properties/SavedProperties";
 import Service from "@pages/Service/Service";
 import MyProducts from "@products/MyProducts";
 import NewProduct from "@products/NewProduct";
@@ -57,7 +58,6 @@ const Router = () => {
         <Route path="/service/:id" element={<ServiceDetail />} />
         <Route path="/properties" element={<MainRealEstate />} />
         <Route path="/properties/:id" element={<RealEstateDetail />} />
-
         <Route element={<ProtectedRoute />}>
           <Route path="/new-product" element={<NewProduct />} />
           <Route path="/new-service" element={<NewService />} />
@@ -65,6 +65,9 @@ const Router = () => {
           <Route path="/my-products" element={<MyProducts />} />
           <Route path="/become-agent" element={<BecomeAgentComp />} />
         <Route path="/agent/status" element={<AgentApplicationStatusComponent />} />
+          <Route path="/new-product" element={<NewProduct />} />
+        <Route path="/saved-properties" element={<SavedProperties />} />
+
           <Route path="/my-services" element={<MyServices />} />
           <Route path="/chat" element={<MainChat />} />
           <Route path="/chat/:chatId" element={<MainChat />} />

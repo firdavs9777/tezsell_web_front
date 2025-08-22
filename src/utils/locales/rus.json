@@ -544,5 +544,22 @@
   "fallbacks": {
     "agentName": "Агент",
     "defaultProfileImage": "/default-avatar.png"
+  },
+  "savedProperties": {
+    "title": "Saqlangan Mulklar",
+    "subtitle": "Sevimli mulklaringiz bir joyda",
+    "noSavedProperties": "Hali saqlangan mulklar yo'q",
+    "startSaving": "Mulklarni ko'rib chiqing va yoqtirganlaringizni saqlang",
+    "browseProperties": "Mulklarni Ko'rish",
+    "savedOn": "Saqlangan sana"
+  },
+  "auth": {
+    "loginRequired": "Saqlangan mulklarni ko'rish uchun tizimga kiring",
+    "login": "Kirish"
+  },
+  "success": {
+    "propertyUnsaved": "Объект удалён из сохранённых",
+    "propertySaved": "Объект успешно сохранён",
+    "phoneCopied": "Номер телефона скопирован!"
   }
 }
