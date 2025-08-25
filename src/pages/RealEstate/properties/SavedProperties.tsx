@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 import {
   FaBath,
   FaBed,
+  FaCalendarAlt,
   FaCar,
   FaCopy,
   FaEnvelope,
@@ -15,11 +13,13 @@ import {
   FaInfoCircle,
   FaMapMarkerAlt,
   FaPhone,
-  FaStar,
   FaSpinner,
-  FaCalendarAlt,
+  FaStar,
   FaTrash,
 } from "react-icons/fa";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import { RootState } from "@store/index";
 import {
@@ -80,6 +80,7 @@ interface SavedProperty {
   saved_at: string;
 }
 
+// Update the response interface to match actual API response
 
 
 const SavedProperties: React.FC = () => {
@@ -92,7 +93,7 @@ const SavedProperties: React.FC = () => {
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token || '';
 
-  // Fetch saved properties
+  // Fetch saved properties - properly type the response
   const {
     data: savedPropertiesData,
     isLoading,
@@ -175,8 +176,22 @@ const SavedProperties: React.FC = () => {
     return (rating || 0).toFixed(1);
   };
 
-  // Get saved properties from the response
-  const savedProperties = savedPropertiesData?.results || [];
+  // Get saved properties from the response - handle both possible response types
+  const savedProperties: SavedProperty[] = savedPropertiesData?.results
+    ? (savedPropertiesData.results as any[]).map((item: any) => {
+        // If the item has a 'property' field, it's already a SavedProperty
+        if (item.property) {
+          return item as SavedProperty;
+        }
+        // If the item doesn't have a 'property' field, it's a direct Property, so wrap it
+        return {
+          id: Date.now() + Math.random(), // Generate a temporary ID
+          property: item as Property,
+          saved_at: new Date().toISOString() // Use current date as fallback
+        } as SavedProperty;
+      })
+    : [];
+
   const totalSaved = savedPropertiesData?.count || 0;
 
   // If user is not authenticated

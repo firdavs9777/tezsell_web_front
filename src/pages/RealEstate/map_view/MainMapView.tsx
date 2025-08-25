@@ -2,7 +2,7 @@ import { useGetPropertiesQuery } from "@store/slices/realEstate";
 import { Property, PropertyOwner, RealEstateAgent } from "@store/type";
 import { useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface ExtendedProperty extends Omit<Property, 'owner' | 'agent'> {
   owner?: PropertyOwner;
@@ -10,6 +10,24 @@ interface ExtendedProperty extends Omit<Property, 'owner' | 'agent'> {
   // Add coordinates for map
   latitude?: number;
   longitude?: number;
+  main_image?: string;
+}
+
+interface MapProperty {
+  id: string;
+  title: string;
+  latitude: number;
+  longitude: number;
+  price: number;
+  currency: string;
+  listing_type: 'sale' | 'rent';
+  property_type: string;
+  is_featured?: boolean;
+  district?: string;
+  city?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  square_meters?: number;
   main_image?: string;
 }
 
@@ -27,9 +45,14 @@ const MainMapComp = () => {
     }
   };
 
-  const getPropertyWithCoordinates = (property: ExtendedProperty): ExtendedProperty => {
+  const getPropertyWithCoordinates = (property: Property): ExtendedProperty => {
+    // Check if property already has coordinates
     if (property.latitude && property.longitude) {
-      return property;
+      return {
+        ...property,
+        latitude: typeof property.latitude === 'string' ? parseFloat(property.latitude) : property.latitude,
+        longitude: typeof property.longitude === 'string' ? parseFloat(property.longitude) : property.longitude
+      };
     }
 
     // Mock coordinates based on district (Tashkent districts)
@@ -47,7 +70,7 @@ const MainMapComp = () => {
     };
 
     const districtKey = property.district?.toLowerCase().replace(/\s+/g, '');
-    const coords = districtCoordinates[districtKey] || [41.2995, 69.2401]; // Default to Tashkent center
+    const coords = districtCoordinates[districtKey || ''] || [41.2995, 69.2401]; // Default to Tashkent center
 
     return {
       ...property,
@@ -65,19 +88,21 @@ const MainMapComp = () => {
     page: 1,
     limit: 100 // Adjust as needed
   });
-const navigate = useNavigate();
-const redirectHandler = (id: string) => navigate(`/properties/${id}`);
 
-  const [mapStyle, setMapStyle] = useState('openStreetMap');
+  const navigate = useNavigate();
+  const redirectHandler = (id: string) => navigate(`/properties/${id}`);
 
-  const convertToMapProperty = (property: ExtendedProperty): any => {
+  const [mapStyle, setMapStyle] = useState<'openStreetMap' | 'satellite'>('openStreetMap');
+
+  const convertToMapProperty = (property: Property): MapProperty => {
     const withCoords = getPropertyWithCoordinates(property);
+
     return {
       id: withCoords.id,
       title: withCoords.title,
       latitude: withCoords.latitude || 41.2995,
       longitude: withCoords.longitude || 69.2401,
-      price: withCoords.price,
+      price: typeof withCoords.price === 'string' ? parseFloat(withCoords.price) : withCoords.price,
       currency: withCoords.currency,
       listing_type: withCoords.listing_type,
       property_type: withCoords.property_type,
@@ -91,9 +116,11 @@ const redirectHandler = (id: string) => navigate(`/properties/${id}`);
     };
   };
 
-  // Convert all properties for map display
-  const propertiesForMap = propertiesResponse?.results
+  // Convert all properties for map display - handle both .data and .results
+  const propertiesForMap: MapProperty[] = propertiesResponse?.results
     ? propertiesResponse.results.map(convertToMapProperty)
+    : propertiesResponse?.results
+    ? (propertiesResponse as any).data.map(convertToMapProperty)
     : [];
 
   console.log('Properties for map:', propertiesForMap);
@@ -113,13 +140,36 @@ const redirectHandler = (id: string) => navigate(`/properties/${id}`);
       </div>
     );
   }
- return (
+
+  return (
     <div>
       <h1>Main Map Screen</h1>
       <div className="mb-4">
         <p>Found {propertiesForMap.length} properties</p>
 
-
+        {/* Map Style Toggle */}
+        <div className="flex gap-2 mb-2">
+          <button
+            onClick={() => setMapStyle('openStreetMap')}
+            className={`px-3 py-1 rounded text-sm ${
+              mapStyle === 'openStreetMap'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-200 text-gray-700'
+            }`}
+          >
+            Street Map
+          </button>
+          <button
+            onClick={() => setMapStyle('satellite')}
+            className={`px-3 py-1 rounded text-sm ${
+              mapStyle === 'satellite'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-200 text-gray-700'
+            }`}
+          >
+            Satellite
+          </button>
+        </div>
       </div>
 
       <MapContainer
@@ -133,8 +183,8 @@ const redirectHandler = (id: string) => navigate(`/properties/${id}`);
         closePopupOnClick={true}
       >
         <TileLayer
-          url={tileProviders[mapStyle as keyof typeof tileProviders]?.url || tileProviders.openStreetMap.url}
-          attribution={tileProviders[mapStyle as keyof typeof tileProviders]?.attribution}
+          url={tileProviders[mapStyle]?.url || tileProviders.openStreetMap.url}
+          attribution={tileProviders[mapStyle]?.attribution || tileProviders.openStreetMap.attribution}
           key={mapStyle}
         />
 
@@ -145,7 +195,6 @@ const redirectHandler = (id: string) => navigate(`/properties/${id}`);
             position={[property.latitude, property.longitude]}
           >
             <Popup closeOnClick={false}>
-
               <div className="w-64">
                 <h3 className="font-bold text-lg mb-2">{property.title}</h3>
 
@@ -174,18 +223,18 @@ const redirectHandler = (id: string) => navigate(`/properties/${id}`);
                   {property.square_meters && <span>📐 {property.square_meters}m²</span>}
                 </div>
 
-                <div className="text-xs text-gray-500 capitalize">
+                <div className="text-xs text-gray-500 capitalize mb-3">
                   {property.property_type} • {property.listing_type}
                   {property.is_featured && <span className="text-yellow-600"> ⭐ Featured</span>}
                 </div>
-                <button
-    onClick={() => redirectHandler(property.id)}
-    className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
-  >
-    View Details
-  </button>
-              </div>
 
+                <button
+                  onClick={() => redirectHandler(property.id)}
+                  className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
+                >
+                  View Details
+                </button>
+              </div>
             </Popup>
           </Marker>
         ))}
