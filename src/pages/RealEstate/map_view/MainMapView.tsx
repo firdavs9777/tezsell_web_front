@@ -1,17 +1,8 @@
 import { useGetPropertiesQuery } from "@store/slices/realEstate";
-import { Property, PropertyOwner, RealEstateAgent } from "@store/type";
+import { Property } from "@store/type";
 import { useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import { useNavigate } from "react-router-dom";
-
-interface ExtendedProperty extends Omit<Property, 'owner' | 'agent'> {
-  owner?: PropertyOwner;
-  agent?: RealEstateAgent;
-  // Add coordinates for map
-  latitude?: number;
-  longitude?: number;
-  main_image?: string;
-}
 
 interface MapProperty {
   id: string;
@@ -45,7 +36,7 @@ const MainMapComp = () => {
     }
   };
 
-  const getPropertyWithCoordinates = (property: Property): ExtendedProperty => {
+  const getPropertyWithCoordinates = (property: Property): Property => {
     // Check if property already has coordinates
     if (property.latitude && property.longitude) {
       return {
