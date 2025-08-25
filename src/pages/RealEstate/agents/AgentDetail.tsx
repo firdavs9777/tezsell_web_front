@@ -1,0 +1,722 @@
+import { SerializedError } from '@reduxjs/toolkit';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import {
+  useGetAgentByIdQuery,
+  useGetAgentPropertiesQuery,
+} from "@store/slices/realEstate";
+import {
+  AgentDetailAgent,
+  AgentDetailProperty,
+  AgentDetailResponse,
+  GetAgentPropertiesResponse
+} from "@store/type";
+import {
+  ArrowLeft,
+  Award,
+  Building,
+  Calendar,
+  Clock,
+  Copy,
+  ExternalLink,
+  Loader,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Phone,
+  Shield,
+  Star,
+  User
+} from "lucide-react";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate, useParams } from "react-router-dom";
+
+// Updated interfaces to match your RTK Query response structure
+interface AgentDetailProps {
+  test?: string;
+}
+type ProfileImageType = string | { image: string };
+
+// Helper function to safely get profile image source
+const getProfileImageSrc = (profileImage: ProfileImageType): string => {
+  if (typeof profileImage === 'string') {
+    return profileImage;
+  }
+  if (profileImage && typeof profileImage === 'object' && 'image' in profileImage) {
+    return profileImage.image;
+  }
+  return '/default-avatar.png'; // fallback image path
+};
+
+const AgentDetail: React.FC<AgentDetailProps> = () => {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { id } = useParams<{ id: string }>();
+  const [showPhoneModal, setShowPhoneModal] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "properties" | "reviews"
+  >("overview");
+
+  // Use RTK Query hooks with proper typing
+  const {
+    data: agentResponse,
+    isLoading: agentLoading,
+    error: agentError,
+    isError: isAgentError,
+  } = useGetAgentByIdQuery(id!, {
+    skip: !id, // Skip the query if no ID is provided
+  }) as {
+    data: AgentDetailResponse | undefined;
+    isLoading: boolean;
+    error: unknown;
+    isError: boolean;
+  };
+
+  const {
+    data: agentPropertiesData,
+    isLoading: propertiesLoading,
+    error: propertiesError,
+  } = useGetAgentPropertiesQuery(id!, {
+    skip: !id, // Only skip if no ID is provided
+  }) as {
+    data: GetAgentPropertiesResponse | undefined;
+    isLoading: boolean;
+    error: any;
+  };
+
+  // FIXED: Access agent directly from the response structure
+  const agent: AgentDetailAgent | undefined = agentResponse?.agent;
+  const statistics = agentResponse?.statistics;
+  const recentProperties = agentResponse?.recent_properties || [];
+
+  if (propertiesError) return <div> Error</div>;
+
+  const handlePhoneCall = (phoneNumber: string): void => {
+    window.open(`tel:${phoneNumber}`);
+  };
+
+  const handleCopyPhone = async (phoneNumber: string): Promise<void> => {
+    try {
+      await navigator.clipboard.writeText(phoneNumber);
+      console.log(t('notifications.phoneCopied'));
+    } catch (err) {
+      console.error(t('notifications.copyFailed'), err);
+    }
+  };
+
+  const handleContactClick = (): void => {
+    setShowPhoneModal(true);
+  };
+
+  const getAgentName = () => {
+    return agent?.user?.username || t('fallbacks.agentName');
+  };
+
+  const getPhoneNumber = () => {
+    return agent?.user?.phone_number || "";
+  };
+
+  const formatDate = (dateString: string): string => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  const formatPrice = (price: string | number): string => {
+    const numPrice = typeof price === "string" ? parseFloat(price) : price;
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(numPrice);
+  };
+
+  const StarRating: React.FC<{
+    rating: number | string;
+    size?: number;
+    showNumber?: boolean;
+  }> = ({ rating, size = 20, showNumber = true }) => {
+    const numRating = typeof rating === 'string' ? parseFloat(rating) : (rating || 0);
+    return (
+      <div className="flex items-center space-x-1">
+        {[...Array(5)].map((_, i) => (
+          <Star
+            key={i}
+            size={size}
+            className={
+              i < numRating ? "text-yellow-400 fill-current" : "text-gray-300"
+            }
+          />
+        ))}
+        {showNumber && (
+          <span className="text-sm text-gray-600 ml-2">
+            ({Number(numRating).toFixed(1)})
+          </span>
+        )}
+      </div>
+    );
+  };
+
+  // Handle loading state
+  if (agentLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader className="animate-spin mx-auto mb-4" size={48} />
+          <p className="text-gray-600">{t('loading.loadingDetails')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const isFetchBaseQueryError = (error: unknown): error is FetchBaseQueryError => {
+    return typeof error === 'object' && error != null && 'status' in error;
+  };
+
+  // Helper function to check if it's a SerializedError
+  const isSerializedError = (error: unknown): error is SerializedError => {
+    return typeof error === 'object' && error != null;
+  };
+
+  // Handle error state
+  if (isAgentError && agentError) {
+    let errorMessage = t('error.defaultMessage');
+
+    if (isFetchBaseQueryError(agentError)) {
+      // Handle FetchBaseQueryError (network errors, HTTP errors)
+      errorMessage = `Error ${agentError.status}: ${t('error.defaultMessage')}`;
+    } else if (isSerializedError(agentError)) {
+      // Handle SerializedError (thrown errors)
+      errorMessage = agentError.message || errorMessage;
+    }
+
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
+            <h2 className="text-xl font-semibold text-red-800 mb-2">
+              {t('error.title')}
+            </h2>
+            <p className="text-red-600 mb-4">{errorMessage}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+            >
+              {t('error.tryAgain')}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!agent) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">{t('loading.agentNotFound')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-6xl mx-auto px-6 py-6">
+          <div className="flex items-center mb-6">
+            <button
+              onClick={() => navigate("/agents")}
+              className="flex items-center text-gray-600 hover:text-gray-800 mr-4"
+            >
+              <ArrowLeft size={20} className="mr-2" />
+              {t('navigation.backToAgents')}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Agent Profile Header */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-700 text-white">
+        <div className="max-w-6xl mx-auto px-6 py-12">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-8">
+            {/* Agent Avatar */}
+            <div className="flex-shrink-0">
+              <div className="w-32 h-32 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                {agent.user?.profile_image ? (
+                  <img
+                    src={getProfileImageSrc(agent.user.profile_image)}
+                    alt={getAgentName()}
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                ) : (
+                  <User size={64} className="text-white opacity-80" />
+                )}
+              </div>
+            </div>
+
+            {/* Agent Info */}
+            <div className="flex-1">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h1 className="text-4xl font-bold mb-2">
+                    {agent.user.username}
+                  </h1>
+                  <p className="text-xl text-blue-100 mb-3">
+                    {agent.agency_name}
+                  </p>
+
+                  {agent.is_verified && (
+                    <div className="flex items-center mb-3">
+                      <Shield size={20} className="text-green-400 mr-2" />
+                      <span className="text-green-100 font-medium">
+                        {t('agentProfile.verifiedAgent')}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex items-center mb-4">
+                    <StarRating rating={agent.rating} size={24} />
+                    <span className="text-white ml-3">•</span>
+                    <span className="text-blue-100 ml-3">
+                      {agent.total_sales} {t('agentProfile.sales')}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={handleContactClick}
+                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg flex items-center transition-colors"
+                  >
+                    <Phone size={18} className="mr-2" />
+                    {t('agentProfile.contactAgent')}
+                  </button>
+                  <button className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-3 rounded-lg flex items-center transition-colors">
+                    <Mail size={18} className="mr-2" />
+                    {t('agentProfile.sendMessage')}
+                  </button>
+                </div>
+              </div>
+
+              {/* Quick Stats */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-white bg-opacity-10 rounded-lg p-4">
+                  <div className="text-2xl font-bold">
+                    {agent.years_experience}
+                  </div>
+                  <div className="text-blue-100 text-sm">{t('agentProfile.yearsExperience')}</div>
+                </div>
+                <div className="bg-white bg-opacity-10 rounded-lg p-4">
+                  <div className="text-2xl font-bold">{agent.total_sales}</div>
+                  <div className="text-blue-100 text-sm">{t('agentProfile.propertiesSold')}</div>
+                </div>
+                <div className="bg-white bg-opacity-10 rounded-lg p-4">
+                  <div className="text-2xl font-bold">
+                    {statistics?.active_listings || agentPropertiesData?.count || 0}
+                  </div>
+                  <div className="text-blue-100 text-sm">{t('agentProfile.activeListings')}</div>
+                </div>
+                <div className="bg-white bg-opacity-10 rounded-lg p-4">
+                  <div className="text-2xl font-bold">
+                    {statistics?.total_properties || agentPropertiesData?.count || 0}
+                  </div>
+                  <div className="text-blue-100 text-sm">{t('agentProfile.totalProperties')}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        {/* Tabs */}
+        <div className="border-b border-gray-200 mb-8">
+          <nav className="flex space-x-8">
+            {["overview", "properties", "reviews"].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab as 'overview' | 'properties' | 'reviews')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm capitalize transition-colors ${
+                  activeTab === tab
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                {t(`tabs.${tab}`)}
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === "overview" && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* About */}
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h2 className="text-2xl font-semibold mb-4">
+                  {t('about_agent.title')} {agent.user.username}
+                </h2>
+                <div className="space-y-4">
+                  <div className="flex items-start">
+                    <Building
+                      size={20}
+                      className="text-gray-400 mr-3 mt-1 flex-shrink-0"
+                    />
+                    <div>
+                      <h3 className="font-medium text-gray-900">
+                        {t('about_agent.specialization')}
+                      </h3>
+                      <p className="text-gray-600">{agent.specialization}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start">
+                    <Calendar
+                      size={20}
+                      className="text-gray-400 mr-3 mt-1 flex-shrink-0"
+                    />
+                    <div>
+                      <h3 className="font-medium text-gray-900">
+                        {t('about_agent.memberSince')}
+                      </h3>
+                      <p className="text-gray-600">
+                        {formatDate(agent.created_at)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Performance Metrics */}
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h2 className="text-2xl font-semibold mb-6">
+                  {t('performanceMetrics.title')}
+                </h2>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <div className="text-3xl font-bold text-blue-600">
+                      {Number(agent.rating).toFixed(1)}
+                    </div>
+                    <div className="text-gray-600 mt-1">{t('performanceMetrics.averageRating')}</div>
+                    <StarRating
+                      rating={agent.rating}
+                      size={16}
+                      showNumber={false}
+                    />
+                  </div>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <div className="text-3xl font-bold text-green-600">
+                      {agent.total_sales}
+                    </div>
+                    <div className="text-gray-600 mt-1">{t('performanceMetrics.propertiesSold')}</div>
+                  </div>
+                  <div className="text-center p-4 bg-purple-50 rounded-lg">
+                    <div className="text-3xl font-bold text-purple-600">
+                      {statistics?.active_listings || agentPropertiesData?.count || 0}
+                    </div>
+                    <div className="text-gray-600 mt-1">{t('performanceMetrics.activeListings')}</div>
+                  </div>
+                  <div className="text-center p-4 bg-orange-50 rounded-lg">
+                    <div className="text-3xl font-bold text-orange-600">
+                      {agent.years_experience}
+                    </div>
+                    <div className="text-gray-600 mt-1">{t('performanceMetrics.yearsExperience')}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column */}
+            <div className="space-y-8">
+              {/* Contact Info */}
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h3 className="text-lg font-semibold mb-4">
+                  {t('contactInfo.title')}
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Phone size={16} className="text-gray-400 mr-3" />
+                      <span className="text-gray-600">
+                        {agent.user.phone_number}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => handleCopyPhone(agent.user.phone_number)}
+                      className="text-blue-600 hover:text-blue-700"
+                    >
+                      <Copy size={16} />
+                    </button>
+                  </div>
+                  <div className="flex items-center">
+                    <Mail size={16} className="text-gray-400 mr-3" />
+                    <span className="text-gray-600">{t('contactInfo.contactViaPlatform')}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <MapPin size={16} className="text-gray-400 mr-3" />
+                    <span className="text-gray-600">{agent.agency_name}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Verification Status */}
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h3 className="text-lg font-semibold mb-4">
+                  {t('verificationStatus.title')}
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex items-center">
+                    <Shield
+                      size={16}
+                      className={`mr-3 ${
+                        agent.is_verified ? "text-green-500" : "text-gray-400"
+                      }`}
+                    />
+                    <span
+                      className={
+                        agent.is_verified ? "text-green-600" : "text-gray-600"
+                      }
+                    >
+                      {agent.is_verified
+                        ? t('verificationStatus.verifiedAgent')
+                        : t('verificationStatus.pendingVerification')}
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    <Award size={16} className="text-blue-500 mr-3" />
+                    <span className="text-gray-600">{t('verificationStatus.licensedProfessional')}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Building size={16} className="text-purple-500 mr-3" />
+                    <span className="text-gray-600">{t('verificationStatus.registeredAgency')}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h3 className="text-lg font-semibold mb-4">{t('quickActions.title')}</h3>
+                <div className="space-y-3">
+                  <button
+                    onClick={handleContactClick}
+                    className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center"
+                  >
+                    <Phone size={16} className="mr-2" />
+                    {t('quickActions.callNow')}
+                  </button>
+                  <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
+                    <MessageCircle size={16} className="mr-2" />
+                    {t('quickActions.sendMessage')}
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("properties")}
+                    className="w-full border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center"
+                  >
+                    <ExternalLink size={16} className="mr-2" />
+                    {t('quickActions.viewProperties')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "properties" && (
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-2xl font-semibold mb-6">
+              {t('properties.title')} ({statistics?.total_properties || agentPropertiesData?.count || 0})
+            </h2>
+
+            {propertiesLoading ? (
+              <div className="text-center py-12">
+                <Loader className="animate-spin mx-auto mb-4" size={48} />
+                <p className="text-gray-600">{t('properties.loadingProperties')}</p>
+              </div>
+            ) : (agentPropertiesData?.results && agentPropertiesData.results.length > 0) ||
+               (recentProperties && recentProperties.length > 0) ? (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {/* Show either API properties or recent properties from agent detail */}
+                  {(agentPropertiesData?.results || recentProperties).map((property: AgentDetailProperty) => (
+                    <div
+                      key={property.id}
+                      className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                    >
+                      <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                        {property.title}
+                      </h3>
+                      <p className="text-blue-600 font-bold mb-2">
+                        {formatPrice(property.price)}
+                      </p>
+
+                      <div className="space-y-2 mb-3">
+                        <div className="flex justify-between text-sm text-gray-600">
+                          <span className="capitalize">
+                            {property.property_type_display || property.property_type?.replace("_", " ")}
+                          </span>
+                          <span className="capitalize">
+                            {property.listing_type_display ||
+                             (property.listing_type === 'sale' ? t('properties.forSale') : t('properties.forRent'))}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center text-sm text-gray-500">
+                          <MapPin size={14} className="mr-1" />
+                          <span>
+                            {property.district}, {property.city}
+                          </span>
+                        </div>
+
+                        <div className="flex justify-between text-sm text-gray-600">
+                          <span>{property.square_meters} m²</span>
+                          {property.bedrooms && (
+                            <span>
+                              {property.bedrooms} {t('properties.bed')} • {property.bathrooms} {t('properties.bath')}
+                            </span>
+                          )}
+                        </div>
+
+                        {property.price_per_sqm && (
+                          <div className="text-sm text-gray-500">
+                            ${property.price_per_sqm}/m²
+                          </div>
+                        )}
+                      </div>
+
+                      <p className="text-xs text-gray-500 border-t pt-2">
+                        {t('properties.listed')} {formatDate(property.created_at)} • {property.views_count} {t('properties.views')}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Show recent properties section if available */}
+                {recentProperties.length > 0 && !agentPropertiesData?.results && (
+                  <div className="mt-8 p-4 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-blue-600">
+                      {t('properties.recentPropertiesNote')}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Building size={48} className="mx-auto text-gray-400 mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  {t('properties.noPropertiesTitle')}
+                </h3>
+                <p className="text-gray-600">
+                  {t('properties.noPropertiesMessage')}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "reviews" && (
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-2xl font-semibold mb-6">{t('reviews.title')}</h2>
+            <div className="text-center py-12">
+              <Star size={48} className="mx-auto text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                {t('reviews.noReviewsTitle')}
+              </h3>
+              <p className="text-gray-600">
+                {t('reviews.noReviewsMessage')}
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+      {showPhoneModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-sm w-full p-6">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4">
+                <Phone size={24} />
+              </div>
+
+              <h3 className="text-xl font-semibold mb-2">
+                {t('contactModal.title')} {getAgentName()}
+              </h3>
+
+              <div className="mb-4">
+                <div className="text-gray-600 mb-2">{t('contactModal.realEstateAgent')}</div>
+                <div className="font-medium text-lg">{agent.agency_name}</div>
+                <div className="text-sm text-gray-500">
+                  {t('contactModal.license')} {agent.licence_number}
+                </div>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <div className="text-2xl font-bold text-blue-600 mb-2">
+                  {getPhoneNumber()}
+                </div>
+                <div className="text-sm text-gray-600">{t('contactModal.agentPhoneNumber')}</div>
+              </div>
+
+              <div className="mb-6 grid grid-cols-2 gap-4 text-sm">
+                <div className="bg-blue-50 rounded-lg p-3">
+                  <div className="font-semibold text-blue-600">
+                    {Number(agent.rating).toFixed(1)}
+                  </div>
+                  <div className="text-gray-600">{t('contactModal.rating')}</div>
+                </div>
+                <div className="bg-green-50 rounded-lg p-3">
+                  <div className="font-semibold text-green-600">
+                    {agent.total_sales}
+                  </div>
+                  <div className="text-gray-600">{t('contactModal.sales')}</div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <button
+                  onClick={() => {
+                    handlePhoneCall(getPhoneNumber());
+                    setShowPhoneModal(false);
+                  }}
+                  className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center"
+                >
+                  <Phone className="mr-2" size={16} />
+                  {t('contactModal.callNow')}
+                </button>
+
+                <button
+                  onClick={() => handleCopyPhone(getPhoneNumber())}
+                  className="w-full border border-blue-600 text-blue-600 py-3 px-4 rounded-lg hover:bg-blue-50 transition-colors flex items-center justify-center"
+                >
+                  <Copy className="mr-2" size={16} />
+                  {t('contactModal.copyNumber')}
+                </button>
+
+                <button
+                  onClick={() => setShowPhoneModal(false)}
+                  className="w-full bg-gray-200 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors"
+                >
+                  {t('contactModal.close')}
+                </button>
+              </div>
+
+              <div className="mt-4 text-xs text-gray-500">
+                <div className="flex items-center justify-center">
+                  <Clock className="mr-1" size={12} />
+                  {t('contactModal.contactHours')}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default AgentDetail;
