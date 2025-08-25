@@ -82,7 +82,7 @@ interface MapProperty {
   bedrooms?: number;
   bathrooms?: number;
   square_meters?: number;
-  main_image?: string;
+ main_image?: string | null;
 }
 
 interface PropertyMapProps {

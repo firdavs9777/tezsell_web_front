@@ -72,7 +72,7 @@ interface ExtendedProperty extends Omit<Property, 'owner' | 'agent'> {
   // Add coordinates for map
   latitude?: number;
   longitude?: number;
-  main_image?: string
+ main_image?: string | null;
 }
 
 interface PropertyResponse {

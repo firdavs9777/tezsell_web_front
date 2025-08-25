@@ -230,7 +230,7 @@ export interface Property {
   views_count: number;
   created_at: string;
   updated_at: string;
-  main_image?: string
+ main_image?: string | null;
 }
 
 // CORRECTED: Individual agent type (what you're actually using in the component)
