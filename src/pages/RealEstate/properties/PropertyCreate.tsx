@@ -1,5 +1,5 @@
 import { useGetDistrictsListQuery, useGetRegionsListQuery } from "@store/slices/productsApiSlice";
-import { Camera, ChevronLeft, ChevronRight, DollarSign, Home, Loader2, Map, MapPin, Settings, Upload, X } from "lucide-react";
+import { BadgeDollarSign, Briefcase, Building2, Camera, ChevronLeft, ChevronRight, DollarSign, Home, Hotel, KeyRound, Landmark, LandPlot, Loader2, Map, MapPin, Settings, Upload, Warehouse, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface Region {
@@ -31,8 +31,7 @@ const NewPropertyComp = () => {
   // Get districts query - only call when region is selected
   const {
     data: districtsData,
-    isLoading: loadingDistricts,
-    error: districtsError
+    isLoading: loadingDistricts
   } = useGetDistrictsListQuery(region, {
     skip: !region // Skip the query if no region is selected
   });
@@ -86,21 +85,28 @@ const NewPropertyComp = () => {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
 
-  const propertyTypes: { value: string; label: string; icon: string; }[] = [
-    { value: 'apartment', label: 'Apartment', icon: '🏢' },
-    { value: 'house', label: 'House', icon: '🏠' },
-    { value: 'townhouse', label: 'Townhouse', icon: '🏘️' },
-    { value: 'villa', label: 'Villa', icon: '🏖️' },
-    { value: 'commercial', label: 'Commercial', icon: '🏢' },
-    { value: 'office', label: 'Office', icon: '🏢' },
-    { value: 'land', label: 'Land', icon: '🌍' },
-    { value: 'warehouse', label: 'Warehouse', icon: '🏭' }
-  ];
-
-  const listingTypes: { value: string; label: string; icon: string; }[] = [
-    { value: 'sale', label: 'For Sale', icon: '💰' },
-    { value: 'rent', label: 'For Rent', icon: '🔑' }
-  ];
+const propertyTypes: {
+  value: string;
+  label: string;
+  icon: React.ReactNode;
+}[] = [
+  { value: 'apartment', label: 'Apartment', icon: <Building2 size={20} /> },
+  { value: 'house', label: 'House', icon: <Home size={20} /> },
+  { value: 'townhouse', label: 'Townhouse', icon: <Landmark size={20} /> },
+  { value: 'villa', label: 'Villa', icon: <Hotel size={20} /> },
+  { value: 'commercial', label: 'Commercial', icon: <Building2 size={20} /> },
+  { value: 'office', label: 'Office', icon: <Briefcase size={20} /> },
+  { value: 'land', label: 'Land', icon: <LandPlot size={20} /> },
+  { value: 'warehouse', label: 'Warehouse', icon: <Warehouse size={20} /> }
+];
+const listingTypes: {
+  value: string;
+  label: string;
+  icon: React.ReactNode;
+}[] = [
+  { value: 'sale', label: 'For Sale', icon: <BadgeDollarSign size={20} color="#16a34a"/> },
+  { value: 'rent', label: 'For Rent', icon: <KeyRound size={20} color="#3b82f6" /> }
+];
 
   // Extract regions list from API response
   const regionsList: Region[] = regionsData && (regionsData as RegionsResponse).success ? (regionsData as RegionsResponse).regions : [];
@@ -173,9 +179,9 @@ const NewPropertyComp = () => {
     }
   };
 
-  const handleAddressChange = (e) => {
-    setAddress(e.target.value);
-  };
+const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  setAddress(e.target.value);
+};
 
   const handleGetCoordinates = () => {
     const selectedRegion = regionsList.find(r => r.region === region);
@@ -185,40 +191,42 @@ const NewPropertyComp = () => {
     getCoordinates(fullAddress);
   };
 
-  const handleImageChange = (e) => {
-    const files = e.target.files;
-    if (!files) return;
+ const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const files = e.target.files;
+  if (!files) return;
 
-    const totalImages = imagePreviews.length + files.length;
-    if (totalImages > 10) {
-      alert("Maximum 10 images allowed");
-      return;
-    }
+  const totalImages = imagePreviews.length + files.length;
+  if (totalImages > 10) {
+    alert("Maximum 10 images allowed");
+    return;
+  }
 
-    const previews = [];
-    const fileArray = [];
+  const previews: (string | ArrayBuffer | null)[] = [];
+  const fileArray: File[] = [];
 
-    Array.from(files).forEach((file) => {
-      const reader = new FileReader();
-      fileArray.push(file);
+  Array.from(files).forEach((file) => {
+    const reader = new FileReader();
+    fileArray.push(file);
 
-      reader.onloadend = () => {
-        previews.push(reader.result);
-        if (previews.length === files.length) {
-          setImagePreviews(prev => [...prev, ...previews]);
-          setImageFiles(prev => [...prev, ...fileArray]);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
-  };
+    reader.onloadend = () => {
+      previews.push(reader.result);
+      if (previews.length === files.length) {
+        setImagePreviews((prev) => [...prev, ...previews]);
+        setImageFiles((prev) => [...prev, ...fileArray]);
+      }
+    };
 
-  const handleRemoveImage = (index) => {
+    reader.readAsDataURL(file);
+  });
+};
+
+
+  const handleRemoveImage = (index:number) => {
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
     setImageFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const formatPrice = (value) => {
+  const formatPrice = (value: string): string => {
     const numericValue = value.replace(/[^0-9]/g, "");
     const formattedInt = parseInt(numericValue || "0", 10)
       .toLocaleString("en-US")
@@ -433,11 +441,8 @@ const NewPropertyComp = () => {
               Loading districts...
             </div>
           )}
-          {districtsError && (
-            <div className="mt-2 text-sm text-red-500">
-              Error loading districts. Please try again.
-            </div>
-          )}
+
+
         </div>
       </div>
 
