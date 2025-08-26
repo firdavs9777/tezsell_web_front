@@ -2,6 +2,24 @@ import { useGetDistrictsListQuery, useGetRegionsListQuery } from "@store/slices/
 import { Camera, ChevronLeft, ChevronRight, DollarSign, Home, Loader2, Map, MapPin, Settings, Upload, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
+interface Region {
+  region: string;
+}
+
+interface District {
+  district: string;
+}
+
+interface RegionsResponse {
+  success: boolean;
+  regions: Region[];
+}
+
+interface DistrictsResponse {
+  success: boolean;
+  districts: District[];
+}
+
 const NewPropertyComp = () => {
   // API queries
   const { data: regionsData, isLoading: loadingRegions, error: regionsError } = useGetRegionsListQuery({});
@@ -20,34 +38,41 @@ const NewPropertyComp = () => {
   });
 
   // Basic Information
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [propertyType, setPropertyType] = useState('');
-  const [listingType, setListingType] = useState('');
+  const [title, setTitle] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
+  const [propertyType, setPropertyType] = useState<string>('');
+  const [listingType, setListingType] = useState<string>('');
 
   // Location Information
-  const [address, setAddress] = useState('');
-  const [district, setDistrict] = useState('');
-  const [city, setCity] = useState('');
-  const [latitude, setLatitude] = useState('');
-  const [longitude, setLongitude] = useState('');
-  const [loadingCoordinates, setLoadingCoordinates] = useState(false);
+  const [address, setAddress] = useState<string>('');
+  const [district, setDistrict] = useState<string>('');
+  const [city, setCity] = useState<string>('');
+  const [latitude, setLatitude] = useState<string>('');
+  const [longitude, setLongitude] = useState<string>('');
+  const [loadingCoordinates, setLoadingCoordinates] = useState<boolean>(false);
 
   // Property Details
-  const [bedrooms, setBedrooms] = useState('');
-  const [bathrooms, setBathrooms] = useState('');
-  const [squareMeters, setSquareMeters] = useState('');
-  const [floor, setFloor] = useState('');
-  const [totalFloors, setTotalFloors] = useState('');
-  const [yearBuilt, setYearBuilt] = useState('');
-  const [parkingSpaces, setParkingSpaces] = useState('0');
+  const [bedrooms, setBedrooms] = useState<string>('');
+  const [bathrooms, setBathrooms] = useState<string>('');
+  const [squareMeters, setSquareMeters] = useState<string>('');
+  const [floor, setFloor] = useState<string>('');
+  const [totalFloors, setTotalFloors] = useState<string>('');
+  const [yearBuilt, setYearBuilt] = useState<string>('');
+  const [parkingSpaces, setParkingSpaces] = useState<string>('0');
 
   // Pricing
-  const [price, setPrice] = useState('');
-  const [currency, setCurrency] = useState('UZS');
+  const [price, setPrice] = useState<string>('');
+  const [currency, setCurrency] = useState<string>('UZS');
 
   // Features
-  const [features, setFeatures] = useState({
+  const [features, setFeatures] = useState<{
+    hasBalcony: boolean;
+    hasGarage: boolean;
+    hasGarden: boolean;
+    hasPool: boolean;
+    hasElevator: boolean;
+    isFurnished: boolean;
+  }>({
     hasBalcony: false,
     hasGarage: false,
     hasGarden: false,
@@ -57,11 +82,11 @@ const NewPropertyComp = () => {
   });
 
   // Images
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [imagePreviews, setImagePreviews] = useState([]);
-  const [imageFiles, setImageFiles] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
 
-  const propertyTypes = [
+  const propertyTypes: { value: string; label: string; icon: string; }[] = [
     { value: 'apartment', label: 'Apartment', icon: '🏢' },
     { value: 'house', label: 'House', icon: '🏠' },
     { value: 'townhouse', label: 'Townhouse', icon: '🏘️' },
@@ -72,16 +97,16 @@ const NewPropertyComp = () => {
     { value: 'warehouse', label: 'Warehouse', icon: '🏭' }
   ];
 
-  const listingTypes = [
+  const listingTypes: { value: string; label: string; icon: string; }[] = [
     { value: 'sale', label: 'For Sale', icon: '💰' },
     { value: 'rent', label: 'For Rent', icon: '🔑' }
   ];
 
   // Extract regions list from API response
-  const regionsList = regionsData?.success ? regionsData.regions : [];
+  const regionsList: Region[] = regionsData?.success ? regionsData.regions : [];
 
   // Extract districts list from API response
-  const districtsList = districtsData?.success ? districtsData.districts : [];
+  const districtsList: District[] = districtsData?.success ? districtsData.districts : [];
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -201,13 +226,13 @@ const NewPropertyComp = () => {
     return formattedInt;
   };
 
-  const handlePriceChange = (e) => {
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value;
     const formattedValue = formatPrice(rawValue);
     setPrice(formattedValue);
   };
 
-  const handleFeatureChange = (feature) => {
+  const handleFeatureChange = (feature: keyof typeof features) => {
     setFeatures(prev => ({
       ...prev,
       [feature]: !prev[feature]
@@ -793,4 +818,4 @@ const NewPropertyComp = () => {
   );
 };
 
-export default NewPropertyComp;
+export default NewPropertyComp;w
