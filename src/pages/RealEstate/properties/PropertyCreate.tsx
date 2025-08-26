@@ -32,6 +32,7 @@ const NewPropertyComp = () => {
   const {
     data: districtsData,
     isLoading: loadingDistricts
+    error: districtsError
   } = useGetDistrictsListQuery(region, {
     skip: !region // Skip the query if no region is selected
   });
@@ -125,6 +126,17 @@ const listingTypes: {
     }
   }, [region]);
 
+
+  if(regionsError) {
+    return <div>
+      <p>Error OCcured for the regions</p>
+    </div>
+  }
+   if(districtsError) {
+    return <div>
+      <p>Error OCcured for the districts</p>
+    </div>
+  }
   // Get coordinates using geocoding
   const getCoordinates = async (fullAddress: string) => {
     if (!fullAddress.trim()) return;
@@ -201,7 +213,7 @@ const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     return;
   }
 
-  const previews: (string | ArrayBuffer | null)[] = [];
+ const previews: string[] = [];
   const fileArray: File[] = [];
 
   Array.from(files).forEach((file) => {
@@ -209,12 +221,15 @@ const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     fileArray.push(file);
 
     reader.onloadend = () => {
-      previews.push(reader.result);
-      if (previews.length === files.length) {
-        setImagePreviews((prev) => [...prev, ...previews]);
-        setImageFiles((prev) => [...prev, ...fileArray]);
-      }
-    };
+  if (typeof reader.result === 'string') {
+    previews.push(reader.result);
+  }
+
+  if (previews.length === files.length) {
+    setImagePreviews((prev) => [...prev, ...previews]);
+    setImageFiles((prev) => [...prev, ...fileArray]);
+  }
+};
 
     reader.readAsDataURL(file);
   });
@@ -413,11 +428,7 @@ const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               Loading regions...
             </div>
           )}
-          {regionsError && (
-            <div className="mt-2 text-sm text-red-500">
-              Error loading regions. Please try again.
-            </div>
-          )}
+
         </div>
 
         <div>
