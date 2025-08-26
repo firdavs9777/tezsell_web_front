@@ -31,7 +31,7 @@ const NewPropertyComp = () => {
   // Get districts query - only call when region is selected
   const {
     data: districtsData,
-    isLoading: loadingDistricts
+    isLoading: loadingDistricts,
     error: districtsError
   } = useGetDistrictsListQuery(region, {
     skip: !region // Skip the query if no region is selected
