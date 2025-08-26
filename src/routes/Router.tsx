@@ -10,6 +10,8 @@ import AgentDetail from '@pages/RealEstate/agents/AgentDetail';
 import AgentsList from "@pages/RealEstate/agents/AgentsList";
 import BecomeAgentComp from "@pages/RealEstate/agents/BecomeAgent";
 import MainRealEstate from "@pages/RealEstate/MainRealEstate";
+import MainMapComp from "@pages/RealEstate/map_view/MainMapView";
+import NewPropertyComp from "@pages/RealEstate/properties/PropertyCreate";
 import RealEstateDetail from "@pages/RealEstate/properties/PropertyDetail";
 import SavedProperties from "@pages/RealEstate/properties/SavedProperties";
 import Service from "@pages/Service/Service";
@@ -25,7 +27,6 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { useAutoLogout } from "../hooks/useAutoLogout";
-import MainMapComp from "@pages/RealEstate/map_view/MainMapView";
 
 // Component to handle auto-logout for authenticated routes
 const AutoLogoutWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -69,7 +70,7 @@ const Router = () => {
         <Route path="/agent/status" element={<AgentApplicationStatusComponent />} />
           <Route path="/new-product" element={<NewProduct />} />
         <Route path="/saved-properties" element={<SavedProperties />} />
-
+        <Route path="/agent/create-property" element={<NewPropertyComp />} />
           <Route path="/my-services" element={<MyServices />} />
           <Route path="/chat" element={<MainChat />} />
           <Route path="/chat/:chatId" element={<MainChat />} />

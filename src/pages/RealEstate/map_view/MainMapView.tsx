@@ -606,7 +606,6 @@ const MainMapComp = () => {
           )}
         </div>
 
-        {/* Map */}
         <MapContainer
           center={mapCenter}
           zoom={mapZoom}
@@ -623,8 +622,6 @@ const MainMapComp = () => {
             attribution={tileProviders[mapStyle]?.attribution || tileProviders.openStreetMap.attribution}
             key={mapStyle}
           />
-
-          {/* Display filtered properties */}
           {filteredProperties.map((property) => (
             <Marker
               key={property.id}
