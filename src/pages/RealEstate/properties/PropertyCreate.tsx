@@ -103,10 +103,10 @@ const NewPropertyComp = () => {
   ];
 
   // Extract regions list from API response
-  const regionsList: Region[] = regionsData?.success ? regionsData.regions : [];
+  const regionsList: Region[] = regionsData && (regionsData as RegionsResponse).success ? (regionsData as RegionsResponse).regions : [];
 
   // Extract districts list from API response
-  const districtsList: District[] = districtsData?.success ? districtsData.districts : [];
+  const districtsList: District[] = districtsData && (districtsData as DistrictsResponse).success ? (districtsData as DistrictsResponse).districts : [];
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -120,7 +120,7 @@ const NewPropertyComp = () => {
   }, [region]);
 
   // Get coordinates using geocoding
-  const getCoordinates = async (fullAddress) => {
+  const getCoordinates = async (fullAddress: string) => {
     if (!fullAddress.trim()) return;
 
     setLoadingCoordinates(true);
@@ -149,7 +149,7 @@ const NewPropertyComp = () => {
     }
   };
 
-  const geocodeAddress = async (address) => {
+  const geocodeAddress = async (address: string) => {
     try {
       // Using OpenStreetMap Nominatim (free service)
       const response = await fetch(
@@ -251,7 +251,7 @@ const NewPropertyComp = () => {
     }
   };
 
-  const getStepIcon = (step) => {
+  const getStepIcon = (step: number) => {
     switch (step) {
       case 1: return <Home className="w-5 h-5" />;
       case 2: return <MapPin className="w-5 h-5" />;
@@ -393,7 +393,7 @@ const NewPropertyComp = () => {
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
           >
             <option value="">Select Region</option>
-            {regionsList.map((reg, index) => (
+            {regionsList.map((reg: Region, index: number) => (
               <option key={index} value={reg.region}>
                 {reg.region}
               </option>
@@ -421,7 +421,7 @@ const NewPropertyComp = () => {
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
           >
             <option value="">Select District</option>
-            {districtsList.map((dist, index) => (
+            {districtsList.map((dist: District, index: number) => (
               <option key={index} value={dist.district}>
                 {dist.district}
               </option>
@@ -640,7 +640,7 @@ const NewPropertyComp = () => {
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-4">Features</label>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {Object.keys(features).map((feature) => (
+          {(Object.keys(features) as Array<keyof typeof features>).map((feature) => (
             <label key={feature} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
               <input
                 type="checkbox"
@@ -818,4 +818,4 @@ const NewPropertyComp = () => {
   );
 };
 
-export default NewPropertyComp;w
+export default NewPropertyComp;
