@@ -134,7 +134,6 @@ const RealEstateDetail: React.FC = () => {
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [showMapFullscreen, setShowMapFullscreen] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
-  const [imageError, setImageError] = useState(false);
   const [inquiryData, setInquiryData] = useState({
     inquiry_type: 'info' as 'viewing' | 'info' | 'offer' | 'callback',
     message: '',
@@ -164,7 +163,7 @@ const RealEstateDetail: React.FC = () => {
   useEffect(() => {
     setCurrentImageIndex(0);
     setImageLoading(true);
-    setImageError(false);
+
   }, [property?.id]);
 
   // Mock coordinates for now (you can remove this when your API provides real coordinates)
@@ -349,11 +348,9 @@ const RealEstateDetail: React.FC = () => {
 
   const handleImageLoad = () => {
     setImageLoading(false);
-    setImageError(false);
   };
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    setImageError(true);
     setImageLoading(false);
     e.currentTarget.src = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop';
   };

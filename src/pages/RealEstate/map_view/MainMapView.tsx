@@ -207,7 +207,8 @@ const MainMapComp = () => {
       fetchDistricts();
 
       // Update map center when region is selected
-      const regionCoords = regionCoordinates[selectedRegion];
+      const regionCoords = regionCoordinates[selectedRegion as keyof typeof regionCoordinates];
+
       if (regionCoords) {
         setMapCenter(regionCoords.center);
         setMapZoom(regionCoords.zoom);

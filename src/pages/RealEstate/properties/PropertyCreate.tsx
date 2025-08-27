@@ -294,148 +294,177 @@ const NewPropertyComp = () => {
       default: return null;
     }
   };
-  const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
-    if (isSubmitting) return;
-    setIsSubmitting(true);
+  if (isSubmitting) return;
+  setIsSubmitting(true);
 
-    try {
-      // Validate required fields
-      if (
-        !title ||
-        !description ||
-        !propertyType ||
-        !listingType ||
-        !price ||
-        !address ||
-        !region ||
-        !district ||
-        !squareMeters ||
-        imageFiles.length === 0
-      ) {
-        toast.error(t("please_fill_all_required_fields"), { autoClose: 3000 });
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Validate user authentication
-      const token = userInfo?.token;
-      if (!token) {
-        toast.error(t("authentication_required"), { autoClose: 3000 });
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Validate user info
-      if (!userInfo?.user_info?.id) {
-        toast.error(t("user_info_missing"), { autoClose: 3000 });
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Create FormData with exact Django model field names
-      const formData = new FormData();
-
-      // Basic Information (required fields)
-      formData.append("title", title);
-      formData.append("description", description);
-      formData.append("property_type", propertyType); // Note: snake_case for Django
-      formData.append("listing_type", listingType);   // Note: snake_case for Django
-
-      // Location Information
-      formData.append("address", address);
-      formData.append("region", region);
-      formData.append("district", district);
-      formData.append("city", city);
-
-      // Add coordinates if available
-      if (latitude && longitude) {
-        formData.append("latitude", latitude);
-        formData.append("longitude", longitude);
-      }
-
-      // Link to user location if available
-      if (userInfo?.user_info?.location?.id) {
-        formData.append("user_location", userInfo.user_info.location.id.toString());
-      }
-
-      // Property Details (using exact Django field names)
-      if (bedrooms) formData.append("bedrooms", bedrooms);
-      if (bathrooms) formData.append("bathrooms", bathrooms);
-
-      formData.append("square_meters", squareMeters); // Required field, snake_case
-
-      if (floor) formData.append("floor", floor);
-      if (totalFloors) formData.append("total_floors", totalFloors); // snake_case
-      if (yearBuilt) formData.append("year_built", yearBuilt); // snake_case
-
-      formData.append("parking_spaces", parkingSpaces); // snake_case
-
-      // Pricing (required fields)
-      const cleanedPrice = price.replace(/\./g, "");
-      formData.append("price", cleanedPrice);
-      formData.append("currency", currency);
-
-      // Features (individual boolean fields as Django expects)
-      formData.append("has_balcony", features.hasBalcony.toString());
-      formData.append("has_garage", features.hasGarage.toString());
-      formData.append("has_garden", features.hasGarden.toString());
-      formData.append("has_pool", features.hasPool.toString());
-      formData.append("has_elevator", features.hasElevator.toString());
-      formData.append("is_furnished", features.isFurnished.toString());
-
-      // Images
-      imageFiles.forEach((file) => {
-        formData.append("images", file);
-      });
-
-      // Owner - Django will set this from the authenticated user
-      formData.append("owner", userInfo.user_info.id.toString());
-
-      // Status fields (optional - Django has defaults)
-      formData.append("is_active", "true");
-      formData.append("is_featured", "false");
-      formData.append("is_sold", "false");
-
-      // Submit the form
-      const response = await createProperty({
-        propertyData: formData,
-        token
-      });
-
-      if (response.data) {
-        toast.success(t("propertyCreatedSuccess") || "Property created successfully!", {
-          autoClose: 2000
-        });
-
-        // Redirect to properties list
-        navigate("/properties");
-      } else if (response.error) {
-        // Handle API error response
-        const errorMessage = response.error?.data?.message ||
-          response.error?.data?.detail ||
-          t("errorCreatingProperty") ||
-          "Error creating property";
-        toast.error(errorMessage, { autoClose: 3000 });
-      }
-
-    } catch (error: unknown) {
-      console.error("Error creating property:", error);
-
-      if (error instanceof Error) {
-        toast.error(t("errorCreatingProperty") || "Error creating property", {
-          autoClose: 2000
-        });
-      } else {
-        toast.error(t("unknown_error_message") || "An unknown error occurred", {
-          autoClose: 2000
-        });
-      }
-    } finally {
+  try {
+    // Validate required fields
+    if (
+      !title ||
+      !description ||
+      !propertyType ||
+      !listingType ||
+      !price ||
+      !address ||
+      !region ||
+      !district ||
+      !squareMeters ||
+      imageFiles.length === 0
+    ) {
+      toast.error(t("please_fill_all_required_fields"), { autoClose: 3000 });
       setIsSubmitting(false);
+      return;
     }
-  };
+
+    // Validate user authentication
+    const token = userInfo?.token;
+    if (!token) {
+      toast.error(t("authentication_required"), { autoClose: 3000 });
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Validate user info
+    if (!userInfo?.user_info?.id) {
+      toast.error(t("user_info_missing"), { autoClose: 3000 });
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Create FormData with exact Django model field names
+    const formData = new FormData();
+
+    // Basic Information (required fields)
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("property_type", propertyType); // Note: snake_case for Django
+    formData.append("listing_type", listingType);   // Note: snake_case for Django
+
+    // Location Information
+    formData.append("address", address);
+    formData.append("region", region);
+    formData.append("district", district);
+    formData.append("city", city);
+
+    // Add coordinates if available
+    if (latitude && longitude) {
+      formData.append("latitude", latitude);
+      formData.append("longitude", longitude);
+    }
+
+    // Link to user location if available
+    if (userInfo?.user_info?.location?.id) {
+      formData.append("user_location", userInfo.user_info.location.id.toString());
+    }
+
+    // Property Details (using exact Django field names)
+    if (bedrooms) formData.append("bedrooms", bedrooms);
+    if (bathrooms) formData.append("bathrooms", bathrooms);
+
+    formData.append("square_meters", squareMeters); // Required field, snake_case
+
+    if (floor) formData.append("floor", floor);
+    if (totalFloors) formData.append("total_floors", totalFloors); // snake_case
+    if (yearBuilt) formData.append("year_built", yearBuilt); // snake_case
+
+    formData.append("parking_spaces", parkingSpaces); // snake_case
+
+    // Pricing (required fields)
+    const cleanedPrice = price.replace(/\./g, "");
+    formData.append("price", cleanedPrice);
+    formData.append("currency", currency);
+
+    // Features (individual boolean fields as Django expects)
+    formData.append("has_balcony", features.hasBalcony.toString());
+    formData.append("has_garage", features.hasGarage.toString());
+    formData.append("has_garden", features.hasGarden.toString());
+    formData.append("has_pool", features.hasPool.toString());
+    formData.append("has_elevator", features.hasElevator.toString());
+    formData.append("is_furnished", features.isFurnished.toString());
+
+    // Images
+    imageFiles.forEach((file) => {
+      formData.append("images", file);
+    });
+
+    // Owner - Django will set this from the authenticated user
+    formData.append("owner", userInfo.user_info.id.toString());
+
+    // Status fields (optional - Django has defaults)
+    formData.append("is_active", "true");
+    formData.append("is_featured", "false");
+    formData.append("is_sold", "false");
+
+    // Submit the form
+    const response = await createProperty({
+      propertyData: formData,
+      token
+    });
+
+    if (response.data) {
+      toast.success(t("propertyCreatedSuccess") || "Property created successfully!", {
+        autoClose: 2000
+      });
+
+      // Redirect to properties list
+      navigate("/properties");
+    } else if (response.error) {
+      // Handle API error response with proper type checking
+      let errorMessage = t("errorCreatingProperty") || "Error creating property";
+
+      // Type guard for FetchBaseQueryError
+      if ('data' in response.error) {
+        const errorData = response.error.data as any;
+        errorMessage = errorData?.message ||
+                      errorData?.detail ||
+                      errorData?.error ||
+                      errorData?.non_field_errors?.[0] ||
+                      errorMessage;
+      } else if ('message' in response.error) {
+        // SerializedError case
+        errorMessage = response.error.message || errorMessage;
+      } else if ('status' in response.error) {
+        // Handle status-based errors
+        switch (response.error.status) {
+          case 400:
+            errorMessage = t("validation_error") || "Please check your input data";
+            break;
+          case 401:
+            errorMessage = t("authentication_required") || "Authentication required";
+            break;
+          case 403:
+            errorMessage = t("permission_denied") || "Permission denied";
+            break;
+          case 500:
+            errorMessage = t("server_error") || "Server error occurred";
+            break;
+          default:
+            errorMessage = `Error: ${response.error.status}`;
+        }
+      }
+
+      toast.error(errorMessage, { autoClose: 3000 });
+    }
+
+  } catch (error: unknown) {
+    console.error("Error creating property:", error);
+
+    if (error instanceof Error) {
+      toast.error(t("errorCreatingProperty") || "Error creating property", {
+        autoClose: 2000
+      });
+    } else {
+      toast.error(t("unknown_error_message") || "An unknown error occurred", {
+        autoClose: 2000
+      });
+    }
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   const renderProgressBar = () => (
     <div className="mb-8">
@@ -873,54 +902,7 @@ const NewPropertyComp = () => {
     </div>
   );
 
-  const handleSubmit = () => {
-    // Prepare the data for submission
-    const propertyData = {
-      // Basic Information
-      title,
-      description,
-      propertyType,
-      listingType,
 
-      // Location
-      address,
-      region,
-      district,
-      city,
-      latitude: parseFloat(latitude),
-      longitude: parseFloat(longitude),
-
-      // Property Details
-      bedrooms: parseInt(bedrooms) || 0,
-      bathrooms: parseInt(bathrooms) || 0,
-      squareMeters: parseInt(squareMeters) || 0,
-      floor: parseInt(floor) || 0,
-      totalFloors: parseInt(totalFloors) || 0,
-      yearBuilt: parseInt(yearBuilt) || null,
-      parkingSpaces: parseInt(parkingSpaces) || 0,
-
-      // Pricing
-      price: price.replace(/\./g, ''), // Remove formatting
-      currency,
-
-      // Features
-      features,
-
-      // Images
-      images: imageFiles
-    };
-
-    setIsSubmitting(true);
-
-    // Here you would typically submit to your API
-    console.log('Submitting property:', propertyData);
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      alert('Property submitted successfully!');
-    }, 2000);
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
