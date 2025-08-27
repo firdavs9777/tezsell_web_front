@@ -1,6 +1,12 @@
+import { RootState } from "@store/index";
 import { useGetDistrictsListQuery, useGetRegionsListQuery } from "@store/slices/productsApiSlice";
+import { useCreatePropertyMutation } from "@store/slices/realEstate";
 import { BadgeDollarSign, Briefcase, Building2, Camera, ChevronLeft, ChevronRight, DollarSign, Home, Hotel, KeyRound, Landmark, LandPlot, Loader2, Map, MapPin, Settings, Upload, Warehouse, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 interface Region {
   region: string;
@@ -27,6 +33,7 @@ const NewPropertyComp = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 4;
   const [region, setRegion] = useState('');
+  const { t } = useTranslation();
 
   // Get districts query - only call when region is selected
   const {
@@ -36,6 +43,10 @@ const NewPropertyComp = () => {
   } = useGetDistrictsListQuery(region, {
     skip: !region // Skip the query if no region is selected
   });
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+
+  const [createProperty] = useCreatePropertyMutation()
+  const navigate = useNavigate();
 
   // Basic Information
   const [title, setTitle] = useState<string>('');
@@ -86,28 +97,28 @@ const NewPropertyComp = () => {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
 
-const propertyTypes: {
-  value: string;
-  label: string;
-  icon: React.ReactNode;
-}[] = [
-  { value: 'apartment', label: 'Apartment', icon: <Building2 size={20} /> },
-  { value: 'house', label: 'House', icon: <Home size={20} /> },
-  { value: 'townhouse', label: 'Townhouse', icon: <Landmark size={20} /> },
-  { value: 'villa', label: 'Villa', icon: <Hotel size={20} /> },
-  { value: 'commercial', label: 'Commercial', icon: <Building2 size={20} /> },
-  { value: 'office', label: 'Office', icon: <Briefcase size={20} /> },
-  { value: 'land', label: 'Land', icon: <LandPlot size={20} /> },
-  { value: 'warehouse', label: 'Warehouse', icon: <Warehouse size={20} /> }
-];
-const listingTypes: {
-  value: string;
-  label: string;
-  icon: React.ReactNode;
-}[] = [
-  { value: 'sale', label: 'For Sale', icon: <BadgeDollarSign size={20} color="#16a34a"/> },
-  { value: 'rent', label: 'For Rent', icon: <KeyRound size={20} color="#3b82f6" /> }
-];
+  const propertyTypes: {
+    value: string;
+    label: string;
+    icon: React.ReactNode;
+  }[] = [
+      { value: 'apartment', label: 'Apartment', icon: <Building2 size={20} /> },
+      { value: 'house', label: 'House', icon: <Home size={20} /> },
+      { value: 'townhouse', label: 'Townhouse', icon: <Landmark size={20} /> },
+      { value: 'villa', label: 'Villa', icon: <Hotel size={20} /> },
+      { value: 'commercial', label: 'Commercial', icon: <Building2 size={20} /> },
+      { value: 'office', label: 'Office', icon: <Briefcase size={20} /> },
+      { value: 'land', label: 'Land', icon: <LandPlot size={20} /> },
+      { value: 'warehouse', label: 'Warehouse', icon: <Warehouse size={20} /> }
+    ];
+  const listingTypes: {
+    value: string;
+    label: string;
+    icon: React.ReactNode;
+  }[] = [
+      { value: 'sale', label: 'For Sale', icon: <BadgeDollarSign size={20} color="#16a34a" /> },
+      { value: 'rent', label: 'For Rent', icon: <KeyRound size={20} color="#3b82f6" /> }
+    ];
 
   // Extract regions list from API response
   const regionsList: Region[] = regionsData && (regionsData as RegionsResponse).success ? (regionsData as RegionsResponse).regions : [];
@@ -127,12 +138,12 @@ const listingTypes: {
   }, [region]);
 
 
-  if(regionsError) {
+  if (regionsError) {
     return <div>
       <p>Error OCcured for the regions</p>
     </div>
   }
-   if(districtsError) {
+  if (districtsError) {
     return <div>
       <p>Error OCcured for the districts</p>
     </div>
@@ -191,9 +202,9 @@ const listingTypes: {
     }
   };
 
-const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  setAddress(e.target.value);
-};
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAddress(e.target.value);
+  };
 
   const handleGetCoordinates = () => {
     const selectedRegion = regionsList.find(r => r.region === region);
@@ -203,40 +214,40 @@ const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     getCoordinates(fullAddress);
   };
 
- const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const files = e.target.files;
-  if (!files) return;
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
 
-  const totalImages = imagePreviews.length + files.length;
-  if (totalImages > 10) {
-    alert("Maximum 10 images allowed");
-    return;
-  }
+    const totalImages = imagePreviews.length + files.length;
+    if (totalImages > 10) {
+      alert("Maximum 10 images allowed");
+      return;
+    }
 
- const previews: string[] = [];
-  const fileArray: File[] = [];
+    const previews: string[] = [];
+    const fileArray: File[] = [];
 
-  Array.from(files).forEach((file) => {
-    const reader = new FileReader();
-    fileArray.push(file);
+    Array.from(files).forEach((file) => {
+      const reader = new FileReader();
+      fileArray.push(file);
 
-    reader.onloadend = () => {
-  if (typeof reader.result === 'string') {
-    previews.push(reader.result);
-  }
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          previews.push(reader.result);
+        }
 
-  if (previews.length === files.length) {
-    setImagePreviews((prev) => [...prev, ...previews]);
-    setImageFiles((prev) => [...prev, ...fileArray]);
-  }
-};
+        if (previews.length === files.length) {
+          setImagePreviews((prev) => [...prev, ...previews]);
+          setImageFiles((prev) => [...prev, ...fileArray]);
+        }
+      };
 
-    reader.readAsDataURL(file);
-  });
-};
+      reader.readAsDataURL(file);
+    });
+  };
 
 
-  const handleRemoveImage = (index:number) => {
+  const handleRemoveImage = (index: number) => {
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
     setImageFiles(prev => prev.filter((_, i) => i !== index));
   };
@@ -283,22 +294,162 @@ const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       default: return null;
     }
   };
+  const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    try {
+      // Validate required fields
+      if (
+        !title ||
+        !description ||
+        !propertyType ||
+        !listingType ||
+        !price ||
+        !address ||
+        !region ||
+        !district ||
+        !squareMeters ||
+        imageFiles.length === 0
+      ) {
+        toast.error(t("please_fill_all_required_fields"), { autoClose: 3000 });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Validate user authentication
+      const token = userInfo?.token;
+      if (!token) {
+        toast.error(t("authentication_required"), { autoClose: 3000 });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Validate user info
+      if (!userInfo?.user_info?.id) {
+        toast.error(t("user_info_missing"), { autoClose: 3000 });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Create FormData with exact Django model field names
+      const formData = new FormData();
+
+      // Basic Information (required fields)
+      formData.append("title", title);
+      formData.append("description", description);
+      formData.append("property_type", propertyType); // Note: snake_case for Django
+      formData.append("listing_type", listingType);   // Note: snake_case for Django
+
+      // Location Information
+      formData.append("address", address);
+      formData.append("region", region);
+      formData.append("district", district);
+      formData.append("city", city);
+
+      // Add coordinates if available
+      if (latitude && longitude) {
+        formData.append("latitude", latitude);
+        formData.append("longitude", longitude);
+      }
+
+      // Link to user location if available
+      if (userInfo?.user_info?.location?.id) {
+        formData.append("user_location", userInfo.user_info.location.id.toString());
+      }
+
+      // Property Details (using exact Django field names)
+      if (bedrooms) formData.append("bedrooms", bedrooms);
+      if (bathrooms) formData.append("bathrooms", bathrooms);
+
+      formData.append("square_meters", squareMeters); // Required field, snake_case
+
+      if (floor) formData.append("floor", floor);
+      if (totalFloors) formData.append("total_floors", totalFloors); // snake_case
+      if (yearBuilt) formData.append("year_built", yearBuilt); // snake_case
+
+      formData.append("parking_spaces", parkingSpaces); // snake_case
+
+      // Pricing (required fields)
+      const cleanedPrice = price.replace(/\./g, "");
+      formData.append("price", cleanedPrice);
+      formData.append("currency", currency);
+
+      // Features (individual boolean fields as Django expects)
+      formData.append("has_balcony", features.hasBalcony.toString());
+      formData.append("has_garage", features.hasGarage.toString());
+      formData.append("has_garden", features.hasGarden.toString());
+      formData.append("has_pool", features.hasPool.toString());
+      formData.append("has_elevator", features.hasElevator.toString());
+      formData.append("is_furnished", features.isFurnished.toString());
+
+      // Images
+      imageFiles.forEach((file) => {
+        formData.append("images", file);
+      });
+
+      // Owner - Django will set this from the authenticated user
+      formData.append("owner", userInfo.user_info.id.toString());
+
+      // Status fields (optional - Django has defaults)
+      formData.append("is_active", "true");
+      formData.append("is_featured", "false");
+      formData.append("is_sold", "false");
+
+      // Submit the form
+      const response = await createProperty({
+        propertyData: formData,
+        token
+      });
+
+      if (response.data) {
+        toast.success(t("propertyCreatedSuccess") || "Property created successfully!", {
+          autoClose: 2000
+        });
+
+        // Redirect to properties list
+        navigate("/properties");
+      } else if (response.error) {
+        // Handle API error response
+        const errorMessage = response.error?.data?.message ||
+          response.error?.data?.detail ||
+          t("errorCreatingProperty") ||
+          "Error creating property";
+        toast.error(errorMessage, { autoClose: 3000 });
+      }
+
+    } catch (error: unknown) {
+      console.error("Error creating property:", error);
+
+      if (error instanceof Error) {
+        toast.error(t("errorCreatingProperty") || "Error creating property", {
+          autoClose: 2000
+        });
+      } else {
+        toast.error(t("unknown_error_message") || "An unknown error occurred", {
+          autoClose: 2000
+        });
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const renderProgressBar = () => (
     <div className="mb-8">
       <div className="flex items-center justify-between">
         {[1, 2, 3, 4].map((step) => (
           <div key={step} className="flex flex-col items-center">
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
-              step <= currentStep
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${step <= currentStep
                 ? 'bg-blue-600 text-white shadow-lg'
                 : 'bg-gray-200 text-gray-400'
-            }`}>
+              }`}>
               {getStepIcon(step)}
             </div>
-            <span className={`text-sm mt-2 font-medium ${
-              step <= currentStep ? 'text-blue-600' : 'text-gray-400'
-            }`}>
+            <span className={`text-sm mt-2 font-medium ${step <= currentStep ? 'text-blue-600' : 'text-gray-400'
+              }`}>
               Step {step}
             </span>
           </div>
@@ -330,11 +481,10 @@ const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               key={type.value}
               type="button"
               onClick={() => setPropertyType(type.value)}
-              className={`p-4 rounded-lg border-2 text-center transition-all duration-200 ${
-                propertyType === type.value
+              className={`p-4 rounded-lg border-2 text-center transition-all duration-200 ${propertyType === type.value
                   ? 'border-blue-600 bg-blue-50 text-blue-600'
                   : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-              }`}
+                }`}
             >
               <div className="text-2xl mb-2">{type.icon}</div>
               <div className="text-sm font-medium">{type.label}</div>
@@ -351,11 +501,10 @@ const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               key={type.value}
               type="button"
               onClick={() => setListingType(type.value)}
-              className={`p-6 rounded-lg border-2 text-center transition-all duration-200 ${
-                listingType === type.value
+              className={`p-6 rounded-lg border-2 text-center transition-all duration-200 ${listingType === type.value
                   ? 'border-blue-600 bg-blue-50 text-blue-600'
                   : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-              }`}
+                }`}
             >
               <div className="text-3xl mb-2">{type.icon}</div>
               <div className="text-lg font-semibold">{type.label}</div>
@@ -790,11 +939,10 @@ const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             <button
               onClick={prevStep}
               disabled={currentStep === 1}
-              className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-                currentStep === 1
+              className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all duration-200 ${currentStep === 1
                   ? 'text-gray-400 cursor-not-allowed'
                   : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
-              }`}
+                }`}
             >
               <ChevronLeft className="w-5 h-5 mr-2" />
               Previous
@@ -809,23 +957,25 @@ const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                 <ChevronRight className="w-5 h-5 ml-2" />
               </button>
             ) : (
-              <button
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="flex items-center px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-all duration-200 disabled:opacity-50"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                    Submitting...
-                  </>
-                ) : (
-                  <>
-                    Submit Property
-                    <DollarSign className="w-5 h-5 ml-2" />
-                  </>
-                )}
-              </button>
+              <form onSubmit={submitFormHandler}>
+                <button
+                  disabled={isSubmitting}
+                  className="flex items-center px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-all duration-200 disabled:opacity-50"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      Submit Property
+                      <DollarSign className="w-5 h-5 ml-2" />
+                    </>
+                  )}
+                </button>
+              </form>
+
             )}
           </div>
         </div>

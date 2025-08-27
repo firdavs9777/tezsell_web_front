@@ -186,14 +186,14 @@ export interface Property {
   title: string;
   description: string;
   property_type:
-    | "apartment"
-    | "house"
-    | "townhouse"
-    | "villa"
-    | "commercial"
-    | "office"
-    | "land"
-    | "warehouse";
+  | "apartment"
+  | "house"
+  | "townhouse"
+  | "villa"
+  | "commercial"
+  | "office"
+  | "land"
+  | "warehouse";
   listing_type: "sale" | "rent";
   owner: number;
   agent?: number;
@@ -230,7 +230,12 @@ export interface Property {
   views_count: number;
   created_at: string;
   updated_at: string;
- main_image?: string | null;
+  main_image?: string | null;
+ images?: Array<{
+  id?: number;
+  image?: string;
+  caption?: string;
+}> | null;
 }
 
 // CORRECTED: Individual agent type (what you're actually using in the component)
@@ -399,7 +404,7 @@ export interface AgentDetailAgent {
   created_at: string;
   id: number;
   is_verified: boolean;
-  verified_at? : string;
+  verified_at?: string;
   licence_number: string;
   rating: string; // Note: API returns string, not number
   specialization: string;

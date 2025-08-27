@@ -131,26 +131,26 @@ const MainMapComp = () => {
   const [listingType, setListingType] = useState<string>('');
   const [bedrooms, setBedrooms] = useState<string>('');
 
-  // Region coordinates mapping
-  const regionCoordinates: Record<string, { center: [number, number], zoom: number }> = {
-    'Toshkent shahri': { center: [41.2995, 69.2401], zoom: 11 },
-    'Tashkent': { center: [41.2995, 69.2401], zoom: 11 },
-    'Andijon viloyati': { center: [40.7821, 72.3442], zoom: 10 },
-    'Buxoro viloyati': { center: [39.7747, 64.4286], zoom: 10 },
-    'Farg\'ona viloyati': { center: [40.3897, 71.7864], zoom: 10 },
-    'Jizzax viloyati': { center: [40.1156, 67.8422], zoom: 10 },
-    'Xorazm viloyati': { center: [41.3775, 60.3711], zoom: 10 },
-    'Namangan viloyati': { center: [40.9983, 71.6726], zoom: 10 },
-    'Navoiy viloyati': { center: [40.0844, 65.3792], zoom: 10 },
-    'Qashqadaryo viloyati': { center: [38.8597, 65.7975], zoom: 10 },
-    'Qoraqalpog\'iston Respublikasi': { center: [43.8041, 59.4469], zoom: 9 },
-    'Samarqand viloyati': { center: [39.6270, 66.9750], zoom: 10 },
-    'Sirdaryo viloyati': { center: [40.8375, 68.6658], zoom: 10 },
-    'Surxondaryo viloyati': { center: [37.9414, 67.5514], zoom: 10 },
-    'Toshkent viloyati': { center: [41.0775, 69.7178], zoom: 10 }
-  };
+  // FIXED: Move regionCoordinates outside of component or memoize it
+  const regionCoordinates = useMemo(() => ({
+    'Toshkent shahri': { center: [41.2995, 69.2401] as [number, number], zoom: 11 },
+    'Tashkent': { center: [41.2995, 69.2401] as [number, number], zoom: 11 },
+    'Andijon viloyati': { center: [40.7821, 72.3442] as [number, number], zoom: 10 },
+    'Buxoro viloyati': { center: [39.7747, 64.4286] as [number, number], zoom: 10 },
+    'Farg\'ona viloyati': { center: [40.3897, 71.7864] as [number, number], zoom: 10 },
+    'Jizzax viloyati': { center: [40.1156, 67.8422] as [number, number], zoom: 10 },
+    'Xorazm viloyati': { center: [41.3775, 60.3711] as [number, number], zoom: 10 },
+    'Namangan viloyati': { center: [40.9983, 71.6726] as [number, number], zoom: 10 },
+    'Navoiy viloyati': { center: [40.0844, 65.3792] as [number, number], zoom: 10 },
+    'Qashqadaryo viloyati': { center: [38.8597, 65.7975] as [number, number], zoom: 10 },
+    'Qoraqalpog\'iston Respublikasi': { center: [43.8041, 59.4469] as [number, number], zoom: 9 },
+    'Samarqand viloyati': { center: [39.6270, 66.9750] as [number, number], zoom: 10 },
+    'Sirdaryo viloyati': { center: [40.8375, 68.6658] as [number, number], zoom: 10 },
+    'Surxondaryo viloyati': { center: [37.9414, 67.5514] as [number, number], zoom: 10 },
+    'Toshkent viloyati': { center: [41.0775, 69.7178] as [number, number], zoom: 10 }
+  }), []);
 
-  const tileProviders = {
+  const tileProviders = useMemo(() => ({
     openStreetMap: {
       name: 'Street Map',
       url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -161,7 +161,7 @@ const MainMapComp = () => {
       url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
       attribution: '© Esri'
     }
-  };
+  }), []);
 
   // Fetch regions from API on component mount
   useEffect(() => {
@@ -183,7 +183,7 @@ const MainMapComp = () => {
     fetchRegions();
   }, []);
 
-  // Fetch districts when region is selected
+  // FIXED: Fetch districts when region is selected - removed regionCoordinates dependency
   useEffect(() => {
     if (selectedRegion) {
       const fetchDistricts = async () => {
@@ -210,7 +210,7 @@ const MainMapComp = () => {
       const regionCoords = regionCoordinates[selectedRegion];
       if (regionCoords) {
         setMapCenter(regionCoords.center);
-         setMapZoom(regionCoords.zoom);
+        setMapZoom(regionCoords.zoom);
       }
     } else {
       setDistricts([]);
@@ -219,7 +219,7 @@ const MainMapComp = () => {
       setMapCenter([41.2995, 69.2401]);
       setMapZoom(12);
     }
-  }, [selectedRegion, regionCoordinates]);
+  }, [selectedRegion, regionCoordinates]); // Now regionCoordinates is memoized
 
   // Update map center when district is selected
    const filteredProperties = useMemo(() => {
@@ -286,17 +286,10 @@ const MainMapComp = () => {
     }
   }, [selectedDistrict, filteredProperties]);
 
-
-
-
   const navigate = useNavigate();
   const redirectHandler = (id: string) => navigate(`/properties/${id}`);
 
   const [mapStyle, setMapStyle] = useState<'openStreetMap' | 'satellite'>('openStreetMap');
-
-
-
-
 
   const clearAllFilters = () => {
     setSelectedRegion('');

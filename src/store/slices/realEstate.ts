@@ -75,14 +75,20 @@ export const realEstateApiSlice = apiSlice.injectEndpoints({
       providesTags: (_result, _error, id) => [{ type: "Property", id }],
     }),
 
-    createProperty: builder.mutation<Property, Partial<Property>>({
-      query: (propertyData) => ({
-        url: `${PROPERTIES_URL}/`,
-        method: "POST",
-        body: propertyData,
-      }),
-      invalidatesTags: ["Property"],
-    }),
+createProperty: builder.mutation<Property, { propertyData: FormData; token: string }>({
+  query: ({ propertyData, token }) => {
+    return {
+      url: `${PROPERTIES_URL}/`,
+      method: "POST",
+      body: propertyData,
+      headers: {
+        Authorization: `Token ${token}`, // Add token to the Authorization header
+      },
+      credentials: "include",
+    };
+  },
+  invalidatesTags: ["Property"],
+}),
 
     updateProperty: builder.mutation<
       Property,
