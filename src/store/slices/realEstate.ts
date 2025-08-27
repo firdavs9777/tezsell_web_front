@@ -245,13 +245,18 @@ createProperty: builder.mutation<Property, { propertyData: FormData; token: stri
       query: () => `${TOP_AGENTS_URL}/`,
       providesTags: ["Agent"],
     }),
-
-    // Agent dashboard and management
-    getAgentDashboard: builder.query<any, void>({
-      query: () => `${AGENT_DASHBOARD_URL}/`,
+    getAgentDashboard: builder.query({
+      query: ({ token }: { token: string }) => {
+        return {
+          url: `${AGENT_DASHBOARD_URL}/`,
+          headers: {
+            Authorization: `Token ${token}`, // Pass token in headers
+          },
+          credentials: "include",
+        };
+      },
       providesTags: ["AgentData"],
     }),
-
     getAgentInquiries: builder.query<PaginatedResponse<PropertyInquiry>, void>({
       query: () => `${AGENT_INQUIRIES_URL}/`,
       providesTags: ["Inquiry"],

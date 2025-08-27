@@ -6,6 +6,7 @@ import Home from "@pages/Home/Home";
 import ProductScreen from "@pages/Product/Products";
 import MainProfile from "@pages/Profile/MainProfile";
 import AgentApplicationStatusComponent from "@pages/RealEstate/agents/AgentApplicationStatus";
+import AgentDashboard from "@pages/RealEstate/agents/AgentDashboard";
 import AgentDetail from '@pages/RealEstate/agents/AgentDetail';
 import AgentsList from "@pages/RealEstate/agents/AgentsList";
 import BecomeAgentComp from "@pages/RealEstate/agents/BecomeAgent";
@@ -69,6 +70,7 @@ const Router = () => {
           <Route path="/become-agent" element={<BecomeAgentComp />} />
         <Route path="/agent/status" element={<AgentApplicationStatusComponent />} />
           <Route path="/new-product" element={<NewProduct />} />
+          <Route path="/agent/dashboard" element={<AgentDashboard />} />
         <Route path="/saved-properties" element={<SavedProperties />} />
         <Route path="/agent/create-property" element={<NewPropertyComp />} />
           <Route path="/my-services" element={<MyServices />} />
