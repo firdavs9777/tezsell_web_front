@@ -75,14 +75,20 @@ export const realEstateApiSlice = apiSlice.injectEndpoints({
       providesTags: (_result, _error, id) => [{ type: "Property", id }],
     }),
 
-    createProperty: builder.mutation<Property, Partial<Property>>({
-      query: (propertyData) => ({
-        url: `${PROPERTIES_URL}/`,
-        method: "POST",
-        body: propertyData,
-      }),
-      invalidatesTags: ["Property"],
-    }),
+createProperty: builder.mutation<Property, { propertyData: FormData; token: string }>({
+  query: ({ propertyData, token }) => {
+    return {
+      url: `${PROPERTIES_URL}/`,
+      method: "POST",
+      body: propertyData,
+      headers: {
+        Authorization: `Token ${token}`, // Add token to the Authorization header
+      },
+      credentials: "include",
+    };
+  },
+  invalidatesTags: ["Property"],
+}),
 
     updateProperty: builder.mutation<
       Property,
@@ -239,13 +245,18 @@ export const realEstateApiSlice = apiSlice.injectEndpoints({
       query: () => `${TOP_AGENTS_URL}/`,
       providesTags: ["Agent"],
     }),
-
-    // Agent dashboard and management
-    getAgentDashboard: builder.query<any, void>({
-      query: () => `${AGENT_DASHBOARD_URL}/`,
+    getAgentDashboard: builder.query({
+      query: ({ token }: { token: string }) => {
+        return {
+          url: `${AGENT_DASHBOARD_URL}/`,
+          headers: {
+            Authorization: `Token ${token}`, // Pass token in headers
+          },
+          credentials: "include",
+        };
+      },
       providesTags: ["AgentData"],
     }),
-
     getAgentInquiries: builder.query<PaginatedResponse<PropertyInquiry>, void>({
       query: () => `${AGENT_INQUIRIES_URL}/`,
       providesTags: ["Inquiry"],

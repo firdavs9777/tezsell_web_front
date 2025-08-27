@@ -3,6 +3,7 @@ import {
   useGetPropertyByIdQuery,
   useToggleSavePropertyMutation,
 } from '@store/slices/realEstate';
+import { Property } from '@store/type';
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -33,7 +34,6 @@ import {
   FaUser,
 } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
-import { Property } from '../../../store/type';
 import { PropertyMap } from '../shared/MapComponents';
 
 // Import map styles
@@ -66,13 +66,20 @@ interface RealEstateAgent {
   phone_number?: string;
 }
 
+interface PropertyImage {
+  id?: number;
+  image: string;
+  caption?: string;
+}
+
 interface ExtendedProperty extends Omit<Property, 'owner' | 'agent'> {
   owner?: PropertyOwner;
   agent?: RealEstateAgent;
   // Add coordinates for map
   latitude?: number;
   longitude?: number;
- main_image?: string | null;
+  main_image?: string | null;
+  images?: PropertyImage[] | null;
 }
 
 interface PropertyResponse {
@@ -80,6 +87,39 @@ interface PropertyResponse {
   property: ExtendedProperty;
   related_properties: ExtendedProperty[];
 }
+
+// Helper function to get property images
+const getPropertyImages = (property: ExtendedProperty): string[] => {
+  const images: string[] = [];
+
+  // Add main image if it exists
+  if (property.main_image) {
+    images.push(property.main_image);
+  }
+
+  // Add additional images if they exist
+  if (property.images && Array.isArray(property.images)) {
+    property.images.forEach((imageObj) => {
+      if (imageObj?.image && imageObj.image !== property.main_image) {
+        images.push(imageObj.image);
+      }
+    });
+  }
+
+  // Fallback to placeholder if no images
+  if (images.length === 0) {
+    images.push('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop');
+  }
+
+  return images;
+};
+
+// Helper function to get related property image
+const getRelatedPropertyImage = (relatedProperty: ExtendedProperty): string => {
+  return relatedProperty.main_image ||
+         (relatedProperty.images && relatedProperty.images[0]?.image) ||
+         'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=250&fit=crop';
+};
 
 const RealEstateDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -93,6 +133,7 @@ const RealEstateDetail: React.FC = () => {
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [showMapFullscreen, setShowMapFullscreen] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
   const [inquiryData, setInquiryData] = useState({
     inquiry_type: 'info' as 'viewing' | 'info' | 'offer' | 'callback',
     message: '',
@@ -115,13 +156,15 @@ const RealEstateDetail: React.FC = () => {
   const property = typedResponse?.property;
   const relatedProperties = typedResponse?.related_properties || [];
 
-  // Sample images for display (replace with actual property images)
-  const propertyImages = [
-    'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop',
-    'https://images.unsplash.com/photo-1449844908441-8829872d2607?w=800&h=600&fit=crop',
-    'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop',
-    'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop',
-  ];
+  // Get real property images
+  const propertyImages = property ? getPropertyImages(property) : [];
+
+  // Reset image index when property changes
+  useEffect(() => {
+    setCurrentImageIndex(0);
+    setImageLoading(true);
+
+  }, [property?.id]);
 
   // Mock coordinates for now (you can remove this when your API provides real coordinates)
   const getPropertyWithCoordinates = (property: ExtendedProperty): ExtendedProperty => {
@@ -152,7 +195,6 @@ const RealEstateDetail: React.FC = () => {
       longitude: coords[1]
     };
   };
-
 
   // ESC key handler and body scroll prevention
   useEffect(() => {
@@ -294,12 +336,23 @@ const RealEstateDetail: React.FC = () => {
     setCurrentImageIndex((prev) =>
       prev === propertyImages.length - 1 ? 0 : prev + 1
     );
+    setImageLoading(true);
   };
 
   const prevImage = () => {
     setCurrentImageIndex((prev) =>
       prev === 0 ? propertyImages.length - 1 : prev - 1
     );
+    setImageLoading(true);
+  };
+
+  const handleImageLoad = () => {
+    setImageLoading(false);
+  };
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    setImageLoading(false);
+    e.currentTarget.src = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop';
   };
 
   if (isLoading) {
@@ -348,7 +401,7 @@ const RealEstateDetail: React.FC = () => {
       bedrooms: withCoords.bedrooms,
       bathrooms: withCoords.bathrooms,
       square_meters: withCoords.square_meters,
-      main_image: withCoords.main_image
+      main_image: withCoords.main_image || propertyImages[0]
     };
   };
 
@@ -429,10 +482,17 @@ const RealEstateDetail: React.FC = () => {
             {/* Image Gallery */}
             <div className="relative mb-8">
               <div className="relative h-96 bg-gray-200 rounded-lg overflow-hidden">
+                {imageLoading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                    <FaSpinner className="animate-spin text-gray-400" size={32} />
+                  </div>
+                )}
                 <img
                   src={propertyImages[currentImageIndex]}
                   alt={property.title}
                   className="w-full h-full object-cover"
+                  onLoad={handleImageLoad}
+                  onError={handleImageError}
                 />
                 <button
                   onClick={() => setShowImageModal(true)}
@@ -463,12 +523,22 @@ const RealEstateDetail: React.FC = () => {
                   {propertyImages.map((image, index) => (
                     <button
                       key={index}
-                      onClick={() => setCurrentImageIndex(index)}
+                      onClick={() => {
+                        setCurrentImageIndex(index);
+                        setImageLoading(true);
+                      }}
                       className={`w-20 h-16 rounded-lg overflow-hidden border-2 ${
                         index === currentImageIndex ? 'border-blue-500' : 'border-gray-300'
                       }`}
                     >
-                      <img src={image} alt="" className="w-full h-full object-cover" />
+                      <img
+                        src={image}
+                        alt=""
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=80&h=64&fit=crop';
+                        }}
+                      />
                     </button>
                   ))}
                 </div>
@@ -575,12 +645,16 @@ const RealEstateDetail: React.FC = () => {
                 <div>
                   <h3 className="font-semibold text-lg mb-3">{t('propertyDetails.featuresAmenities')}</h3>
                   <div className="grid grid-cols-2 gap-2">
-                    {features.map((feature, index) => (
-                      <div key={index} className="flex items-center">
-                        <FaCheck className="text-green-500 mr-2" size={12} />
-                        <span className="text-sm">{feature}</span>
-                      </div>
-                    ))}
+                    {features.length > 0 ? (
+                      features.map((feature, index) => (
+                        <div key={index} className="flex items-center">
+                          <FaCheck className="text-green-500 mr-2" size={12} />
+                          <span className="text-sm">{feature}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-sm text-gray-500">No special features listed</div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -726,7 +800,6 @@ const RealEstateDetail: React.FC = () => {
           </div>
         </div>
 
-        {/* Related Properties */}
         {relatedProperties.length > 0 && (
           <div className="mt-12">
             <h2 className="text-2xl font-semibold mb-6">{t('sections.similarProperties')}</h2>
@@ -734,9 +807,12 @@ const RealEstateDetail: React.FC = () => {
               {relatedProperties.slice(0, 3).map((relatedProperty) => (
                 <div key={relatedProperty.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                   <img
-                    src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=250&fit=crop"
+                    src={getRelatedPropertyImage(relatedProperty)}
                     alt={relatedProperty.title}
                     className="w-full h-48 object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=250&fit=crop';
+                    }}
                   />
                   <div className="p-4">
                     <h3 className="font-semibold text-lg mb-2 line-clamp-2">{relatedProperty.title}</h3>
@@ -1013,6 +1089,9 @@ const RealEstateDetail: React.FC = () => {
               src={propertyImages[currentImageIndex]}
               alt={property.title}
               className="max-w-full max-h-full object-contain"
+              onError={(e) => {
+                e.currentTarget.src = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop';
+              }}
             />
             <button
               onClick={() => setShowImageModal(false)}
