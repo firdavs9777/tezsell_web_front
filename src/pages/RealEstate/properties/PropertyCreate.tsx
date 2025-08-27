@@ -294,7 +294,7 @@ const NewPropertyComp = () => {
       default: return null;
     }
   };
- const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
 
   if (isSubmitting) return;
@@ -427,22 +427,40 @@ const NewPropertyComp = () => {
         // SerializedError case
         errorMessage = response.error.message || errorMessage;
       } else if ('status' in response.error) {
-        // Handle status-based errors
-        switch (response.error.status) {
-          case 400:
-            errorMessage = t("validation_error") || "Please check your input data";
-            break;
-          case 401:
-            errorMessage = t("authentication_required") || "Authentication required";
-            break;
-          case 403:
-            errorMessage = t("permission_denied") || "Permission denied";
-            break;
-          case 500:
-            errorMessage = t("server_error") || "Server error occurred";
-            break;
-          default:
-            errorMessage = `Error: ${response.error.status}`;
+        // Handle status-based errors - RTK Query status can be number or string
+        const status = response.error.status;
+        if (typeof status === 'number') {
+          switch (status) {
+            case 400:
+              errorMessage = t("validation_error") || "Please check your input data";
+              break;
+            case 401:
+              errorMessage = t("authentication_required") || "Authentication required";
+              break;
+            case 403:
+              errorMessage = t("permission_denied") || "Permission denied";
+              break;
+            case 500:
+              errorMessage = t("server_error") || "Server error occurred";
+              break;
+            default:
+              errorMessage = `Error: ${status}`;
+          }
+        } else {
+          // Handle string status codes like 'FETCH_ERROR', 'TIMEOUT_ERROR', etc.
+          switch (status) {
+            case 'FETCH_ERROR':
+              errorMessage = t("network_error") || "Network connection error";
+              break;
+            case 'TIMEOUT_ERROR':
+              errorMessage = t("timeout_error") || "Request timed out";
+              break;
+            case 'CUSTOM_ERROR':
+              errorMessage = t("custom_error") || "An error occurred";
+              break;
+            default:
+              errorMessage = `Error: ${status}`;
+          }
         }
       }
 
