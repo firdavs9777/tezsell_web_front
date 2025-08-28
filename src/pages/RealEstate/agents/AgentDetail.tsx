@@ -1,5 +1,6 @@
 import { SerializedError } from '@reduxjs/toolkit';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { RootState } from '@store/index';
 import {
   useGetAgentByIdQuery,
   useGetAgentPropertiesQuery,
@@ -29,6 +30,7 @@ import {
 } from "lucide-react";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from "react-router-dom";
 
 // Updated interfaces to match your RTK Query response structure
@@ -72,18 +74,23 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
     isError: boolean;
   };
 
-  const {
-    data: agentPropertiesData,
-    isLoading: propertiesLoading,
-    error: propertiesError,
-  } = useGetAgentPropertiesQuery(id?.toString()!, {
-    skip: !id, // Only skip if no ID is provided
-  }) as {
-    data: GetAgentPropertiesResponse | undefined;
-    isLoading: boolean;
-    error: any;
-  };
+const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+const token = userInfo?.token || '';
 
+const {
+  data: agentPropertiesData,
+  isLoading: propertiesLoading,
+  error: propertiesError,
+} = useGetAgentPropertiesQuery({
+  token: token,
+  agentId: id?.toString() || ''
+}, {
+  skip: !id || !token, // Skip if no ID or token
+}) as {
+  data: GetAgentPropertiesResponse | undefined;
+  isLoading: boolean;
+  error: any;
+};
   // FIXED: Access agent directly from the response structure
   const agent: AgentDetailAgent | undefined = agentResponse?.agent;
   const statistics = agentResponse?.statistics;
