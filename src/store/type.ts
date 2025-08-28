@@ -195,6 +195,8 @@ export interface Property {
   | "land"
   | "warehouse";
   listing_type: "sale" | "rent";
+  listing_type_display: string;
+  property_type_display: string;
   owner: number;
   agent?: number;
   user_location?: number;
@@ -211,8 +213,8 @@ export interface Property {
   total_floors?: number;
   year_built?: number;
   parking_spaces: number;
-  price: number;
-  price_per_sqm?: number;
+  price: string;
+  price_per_sqm: string;
   currency: string;
   has_balcony: boolean;
   has_garage: boolean;
@@ -442,6 +444,7 @@ export interface AgentDetailProperty {
   latitude: string;
   listing_type: string;
   listing_type_display: string;
+  listing_type_display: string;
   longitude: string;
   main_image: string | null;
   owner: PropertyOwner;
@@ -493,6 +496,7 @@ export interface SavedPropertyData {
   property_type: "apartment" | "house" | "townhouse" | "villa" | "commercial" | "office" | "land" | "warehouse";
   property_type_display: string;
   listing_type: "sale" | "rent";
+  price: string;
   listing_type_display: string;
   price: string;
   price_per_sqm: string;

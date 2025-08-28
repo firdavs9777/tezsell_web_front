@@ -236,10 +236,19 @@ createProperty: builder.mutation<Property, { propertyData: FormData; token: stri
       providesTags: (_result, _error, id) => [{ type: "Agent", id }],
     }),
 
-    getAgentProperties: builder.query<PaginatedResponse<Property>, string>({
-      query: (agentId) => `${AGENTS_URL}/${agentId}/properties/`,
-      providesTags: ["Property"],
-    }),
+   getAgentProperties: builder.query<PaginatedResponse<Property>, { token: string; agentId: string }>({
+
+  query: ({ token, agentId }: { token: string; agentId: string | number }) => {
+    return {
+      url: `${AGENTS_URL}/${agentId}/properties/`,
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+      credentials: "include",
+    };
+  },
+  providesTags: ["Property"],
+}),
 
     getTopAgents: builder.query<RealEstateAgent[], void>({
       query: () => `${TOP_AGENTS_URL}/`,
