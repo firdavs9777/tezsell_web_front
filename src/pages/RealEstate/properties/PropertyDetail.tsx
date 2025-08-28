@@ -443,11 +443,11 @@ const RealEstateDetail: React.FC = () => {
 
             <div className="text-right">
               <div className="text-3xl font-bold text-green-600 mb-2">
-                {formatPrice(property.price, property.currency, property.listing_type)}
+                {formatPrice(Number(property.price), property.currency, property.listing_type)}
               </div>
               {property.listing_type === 'sale' && property.price_per_sqm && (
                 <div className="text-sm text-gray-600">
-                  {Math.round(property.price_per_sqm)} {property.currency}{t('propertyInfo.pricePerSqm')}
+                  {Math.round(Number(property.price_per_sqm))} {property.currency}{t('propertyInfo.pricePerSqm')}
                 </div>
               )}
               <div className="flex items-center space-x-2 mt-4">
@@ -817,7 +817,7 @@ const RealEstateDetail: React.FC = () => {
                   <div className="p-4">
                     <h3 className="font-semibold text-lg mb-2 line-clamp-2">{relatedProperty.title}</h3>
                     <div className="text-blue-600 font-bold text-xl mb-2">
-                      {formatPrice(relatedProperty.price, relatedProperty.currency, relatedProperty.listing_type)}
+                      {formatPrice(Number(relatedProperty.price), relatedProperty.currency, relatedProperty.listing_type)}
                     </div>
                     <div className="flex items-center text-gray-600 text-sm">
                       <FaMapMarkerAlt className="mr-1" />

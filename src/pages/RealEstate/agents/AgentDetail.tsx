@@ -76,7 +76,7 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
     data: agentPropertiesData,
     isLoading: propertiesLoading,
     error: propertiesError,
-  } = useGetAgentPropertiesQuery(id!, {
+  } = useGetAgentPropertiesQuery(id?.toString()!, {
     skip: !id, // Only skip if no ID is provided
   }) as {
     data: GetAgentPropertiesResponse | undefined;
