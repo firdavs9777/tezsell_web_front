@@ -188,17 +188,27 @@ createProperty: builder.mutation<Property, { propertyData: FormData; token: stri
   },
   providesTags: ["SavedProperty"],
 }),
-    createPropertyInquiry: builder.mutation<
-      PropertyInquiry,
-      Omit<PropertyInquiry, "id" | "user" | "is_responded" | "created_at">
-    >({
-      query: (inquiryData) => ({
-        url: `${PROPERTY_INQUIRIES_URL}/`,
-        method: "POST",
-        body: inquiryData,
-      }),
-      invalidatesTags: ["Inquiry"],
-    }),
+    createPropertyInquiry: builder.mutation({
+ query: ({
+   inquiryData,
+   token,
+ }: {
+   inquiryData: PropertyInquiry;
+   token: string;
+ }) => {
+   return {
+     url: `${PROPERTY_INQUIRIES_URL}/`,
+     method: "POST",
+     body: inquiryData,
+     headers: {
+       Authorization: `Token ${token}`,
+       'Content-Type': 'application/json',
+     },
+     credentials: "include",
+   };
+ },
+ invalidatesTags: ["Inquiry"],
+}),
 
     // Analytics
     getPropertyStats: builder.query<PropertyStats, void>({
@@ -266,22 +276,41 @@ createProperty: builder.mutation<Property, { propertyData: FormData; token: stri
       },
       providesTags: ["AgentData"],
     }),
-    getAgentInquiries: builder.query<PaginatedResponse<PropertyInquiry>, void>({
-      query: () => `${AGENT_INQUIRIES_URL}/`,
-      providesTags: ["Inquiry"],
-    }),
-
-    respondToInquiry: builder.mutation<
-      any,
-      { inquiryId: string; response: string }
-    >({
-      query: ({ inquiryId, response }) => ({
-        url: `${AGENT_INQUIRIES_URL}/${inquiryId}/respond/`,
-        method: "POST",
-        body: { response },
-      }),
-      invalidatesTags: ["Inquiry"],
-    }),
+  getAgentInquiries: builder.query<PaginatedResponse<PropertyInquiry>, { token: string }>({
+ query: ({ token }: { token: string }) => {
+   return {
+     url: `${AGENT_INQUIRIES_URL}/`,
+     headers: {
+       Authorization: `Token ${token}`,
+     },
+     credentials: "include",
+   };
+ },
+ providesTags: ["Inquiry"],
+}),
+    respondToInquiry: builder.mutation({
+ query: ({
+   inquiryId,
+   response,
+   token,
+ }: {
+   inquiryId: string;
+   response: string;
+   token: string;
+ }) => {
+   return {
+     url: `${AGENT_INQUIRIES_URL}/${inquiryId}/respond/`,
+     method: "PATCH",
+     body: { response },
+     headers: {
+       Authorization: `Token ${token}`,
+       'Content-Type': 'application/json',
+     },
+     credentials: "include",
+   };
+ },
+ invalidatesTags: ["Inquiry"],
+}),
 
     becomeAgent: builder.mutation<BecomeAgentResponse, BecomeAgentRequest>({
       query: ({

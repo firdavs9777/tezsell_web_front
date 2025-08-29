@@ -8,6 +8,7 @@ import MainProfile from "@pages/Profile/MainProfile";
 import AgentApplicationStatusComponent from "@pages/RealEstate/agents/AgentApplicationStatus";
 import AgentDashboard from "@pages/RealEstate/agents/AgentDashboard";
 import AgentDetail from '@pages/RealEstate/agents/AgentDetail';
+import AgentInquiries from "@pages/RealEstate/agents/AgentInquiries";
 import AgentProperties from "@pages/RealEstate/agents/AgentProperties";
 import AgentsList from "@pages/RealEstate/agents/AgentsList";
 import BecomeAgentComp from "@pages/RealEstate/agents/BecomeAgent";
@@ -70,6 +71,7 @@ const Router = () => {
           <Route path="/my-products" element={<MyProducts />} />
           <Route path="/become-agent" element={<BecomeAgentComp />} />
         <Route path="/agent/status" element={<AgentApplicationStatusComponent />} />
+         <Route path="/agent/inquiries" element={<AgentInquiries />} />
           <Route path="/new-product" element={<NewProduct />} />
           <Route path="/agent/dashboard" element={<AgentDashboard />} />
           <Route path="/agent/properties" element={<AgentProperties />} />
