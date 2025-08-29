@@ -26,6 +26,9 @@ interface PropertyInquiry {
 const AgentInquiries = () => {
   const [filter, setFilter] = useState<'all' | 'pending' | 'responded'>('all');
   const [selectedInquiryType, setSelectedInquiryType] = useState<string>('');
+  const [showResponseModal, setShowResponseModal] = useState(false);
+  const [selectedInquiryId, setSelectedInquiryId] = useState<number | null>(null);
+  const [responseMessage, setResponseMessage] = useState('');
 
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token || '';
@@ -33,20 +36,40 @@ const AgentInquiries = () => {
   const { data, isLoading, error, refetch } = useGetAgentInquiriesQuery({ token });
   const [respondToInquiry, { isLoading: isResponding }] = useRespondToInquiryMutation();
 
-  const handleRespond = async (inquiryId: number) => {
+  const handleRespond = (inquiryId: number) => {
+    setSelectedInquiryId(inquiryId);
+    setShowResponseModal(true);
+    setResponseMessage('');
+  };
+
+  const submitResponse = async () => {
+    if (!selectedInquiryId || !responseMessage.trim()) {
+      alert('Please enter a response message');
+      return;
+    }
+
     try {
       await respondToInquiry({
-        inquiryId: inquiryId.toString(),
-        response: 'Inquiry marked as responded',
+        inquiryId: selectedInquiryId.toString(),
+        response: responseMessage,
         token
       }).unwrap();
 
       refetch();
-      alert('Inquiry marked as responded');
+      setShowResponseModal(false);
+      setSelectedInquiryId(null);
+      setResponseMessage('');
+      alert('Response sent successfully');
     } catch (error) {
       console.error('Error responding to inquiry:', error);
       alert('Error responding to inquiry');
     }
+  };
+
+  const closeModal = () => {
+    setShowResponseModal(false);
+    setSelectedInquiryId(null);
+    setResponseMessage('');
   };
 
   const filteredInquiries = data?.results?.filter((inquiry: PropertyInquiry) => {
@@ -212,10 +235,9 @@ const AgentInquiries = () => {
                 {!inquiry.is_responded && (
                   <button
                     onClick={() => handleRespond(inquiry.id)}
-                    disabled={isResponding}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    {isResponding ? 'Responding...' : 'Mark as Responded'}
+                    Respond to Inquiry
                   </button>
                 )}
               </div>
@@ -223,6 +245,44 @@ const AgentInquiries = () => {
           ))
         )}
       </div>
+
+      {/* Response Modal */}
+      {showResponseModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Respond to Inquiry</h2>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Your Response Message
+              </label>
+              <textarea
+                value={responseMessage}
+                onChange={(e) => setResponseMessage(e.target.value)}
+                placeholder="Type your response to the client..."
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={closeModal}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={submitResponse}
+                disabled={isResponding || !responseMessage.trim()}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isResponding ? 'Sending...' : 'Send Response'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
