@@ -169,7 +169,7 @@ const PropertyPopup: React.FC<{ property: MapProperty; onPropertyClick?: (proper
         </h3>
 
         <div className="text-lg font-bold text-blue-600 mb-2">
-          {formatPrice(property.price, property.currency)}
+          {formatPrice(Number(property.price), property.currency)}
           {property.listing_type === 'rent' && (
             <span className="text-sm">/month</span>
           )}

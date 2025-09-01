@@ -259,10 +259,10 @@ const MainMapComp = () => {
 
     // Price range filter
     if (priceRange.min) {
-      filtered = filtered.filter(property => property.price >= parseInt(priceRange.min));
+      filtered = filtered.filter(property => Number(property.price) >= parseInt(priceRange.min));
     }
     if (priceRange.max) {
-      filtered = filtered.filter(property => property.price <= parseInt(priceRange.max));
+      filtered = filtered.filter(property => Number(property.price) <= parseInt(priceRange.max));
     }
 
     return filtered;

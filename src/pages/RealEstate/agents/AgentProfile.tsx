@@ -75,8 +75,7 @@ const AgentProfile = () => {
     try {
       await updateAgent({
         profileData: formData,
-        token,
-        id: agentData.id.toString()
+        token
       }).unwrap();
       setShowUpdateModal(false);
       // You might want to show a success toast here
