@@ -447,7 +447,7 @@ const AdminDashboard: React.FC = () => {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Most Viewed Properties</h3>
             <div className="space-y-4">
               {dashboardData.engagement.most_viewed.slice(0, 5).map((property, index) => (
-                <div key={property.id} className="flex items-center p-3 bg-gray-50 rounded-lg">
+                <div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg">
                   <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
                     <Home className="w-6 h-6 text-blue-600" />
                   </div>
@@ -472,7 +472,7 @@ const AdminDashboard: React.FC = () => {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Performing Agents</h3>
             <div className="space-y-4">
               {dashboardData.agent_stats.top_agents.slice(0, 5).map((agent, index) => (
-                <div key={agent.id} className="flex items-center p-3 bg-gray-50 rounded-lg">
+                <div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg">
                   <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-3">
                     <UserCheck className="w-6 h-6 text-green-600" />
                   </div>
