@@ -35,6 +35,13 @@ import {
   PropertyStats,
   RealEstateAgent,
 } from "@store/type";
+export interface CreateInquiryRequest {
+  property: string; // property id
+  inquiry_type: "info" | "viewing" | "offer" | "callback";
+  message: string;
+  preferred_contact_time: string;
+  offered_price?: string;
+}
 
 export const realEstateApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -189,27 +196,23 @@ export const realEstateApiSlice = apiSlice.injectEndpoints({
       },
       providesTags: ["SavedProperty"],
     }),
-    createPropertyInquiry: builder.mutation({
-      query: ({
-        inquiryData,
-        token,
-      }: {
-        inquiryData: PropertyInquiry;
-        token: string;
-      }) => {
-        return {
-          url: `${PROPERTY_INQUIRIES_URL}/`,
-          method: "POST",
-          body: inquiryData,
-          headers: {
-            Authorization: `Token ${token}`,
-            'Content-Type': 'application/json',
-          },
-          credentials: "include",
-        };
-      },
-      invalidatesTags: ["Inquiry"],
-    }),
+  createPropertyInquiry: builder.mutation<
+  PropertyInquiry, // Response type (what server sends back)
+  { inquiryData: CreateInquiryRequest; token: string } // Arg type (what you pass in)
+>({
+  query: ({ inquiryData, token }) => ({
+    url: `${PROPERTY_INQUIRIES_URL}/`,
+    method: "POST",
+    body: inquiryData,
+    headers: {
+      Authorization: `Token ${token}`,
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  }),
+  invalidatesTags: ["Inquiry"],
+}),
+
 
     // Analytics
     getPropertyStats: builder.query<PropertyStats, void>({

@@ -33,9 +33,9 @@ interface UpdateFormData {
 
 const AgentProfile = () => {
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
-  const token = userInfo?.token;
+  const token = userInfo?.token || '';
 
-  const { data: profileResponse, isLoading, error } = useGetAgentProfileQuery({token});
+  const { data: profileResponse, isLoading, error } = useGetAgentProfileQuery({token });
   const [updateAgent, { isLoading: isUpdating }] = useUpdateAgentProfileMutation();
 
   const [showUpdateModal, setShowUpdateModal] = useState(false);

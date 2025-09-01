@@ -259,13 +259,16 @@ const RealEstateDetail: React.FC = () => {
     if (!id) return;
 
     try {
-      await createInquiry({
-        property: id,
-        inquiry_type: inquiryData.inquiry_type,
-        message: inquiryData.message,
-        preferred_contact_time: inquiryData.preferred_contact_time,
-        offered_price: inquiryData.offered_price ? parseFloat(inquiryData.offered_price) : undefined,
-      }).unwrap();
+  await createInquiry({
+  inquiryData: {
+    property: id,
+    inquiry_type: inquiryData.inquiry_type,
+    message: inquiryData.message,
+    preferred_contact_time: inquiryData.preferred_contact_time,
+    offered_price: inquiryData.offered_price,
+  },
+  token: userInfo?.token || '',
+}).unwrap();
 
       setShowInquiryForm(false);
       setInquiryData({
@@ -384,7 +387,7 @@ const RealEstateDetail: React.FC = () => {
   }
 
   // Convert ExtendedProperty to MapProperty format for the map component
-  const convertToMapProperty = (property: ExtendedProperty): any => {
+  const convertToMapProperty = (property: ExtendedProperty) => {
     const withCoords = getPropertyWithCoordinates(property);
     return {
       id: withCoords.id,

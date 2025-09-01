@@ -1,5 +1,6 @@
 import { RootState } from '@store/index';
 import { useGetAgentInquiriesQuery, useRespondToInquiryMutation } from '@store/slices/realEstate';
+import { PropertyInquiry } from "@store/type";
 import {
   AlertCircle,
   Calendar,
@@ -19,26 +20,6 @@ import {
 import React, { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
-interface PropertyInquiry {
-  id: number;
-  property: string;
-  property_id: string;
-  property_title: string;
-  user: {
-    id: number;
-    username: string;
-    phone_number: string;
-    user_type: string;
-  };
-  inquiry_type: string;
-  inquiry_type_display: string;
-  message: string;
-  preferred_contact_time?: string;
-  offered_price?: string;
-  is_responded: boolean;
-  response_date?: string;
-  created_at: string;
-}
 
 interface ToastState {
   show: boolean;

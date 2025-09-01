@@ -281,17 +281,30 @@ export interface AgentDetailUser extends Omit<User, 'profile_image'> {
   };
 }
 
+
+
+
 export interface PropertyInquiry {
   id: number;
   property: string;
-  user: number;
+  property_id: string;
+  property_title: string;
+  user: {
+    id: number;
+    username: string;
+    phone_number: string;
+    user_type: string;
+  };
   inquiry_type: "viewing" | "info" | "offer" | "callback";
+  inquiry_type_display: string;
   message: string;
   preferred_contact_time?: string;
-  offered_price?: number;
+  offered_price?: string;
   is_responded: boolean;
+  response_date?: string;
   created_at: string;
 }
+
 
 export interface BecomeAgentRequest {
   agency_name: string;
