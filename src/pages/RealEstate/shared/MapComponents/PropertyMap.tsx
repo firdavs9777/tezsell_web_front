@@ -72,7 +72,7 @@ interface MapProperty {
   title: string;
   latitude: number;
   longitude: number;
-  price: number;
+  price: number | string ;
   currency: string;
   listing_type: 'sale' | 'rent';
   property_type: string;

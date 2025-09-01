@@ -353,12 +353,10 @@ export const realEstateApiSlice = apiSlice.injectEndpoints({
     updateAgentProfile: builder.mutation({
   query: ({
     profileData,
-    token,
-    id,
+    token
   }: {
     profileData: Partial<RealEstateAgent>;
-    token: string;
-    id: string;
+    token: string
   }) => {
     return {
       url: `${AGENT_PROFILE_URL}/`,
