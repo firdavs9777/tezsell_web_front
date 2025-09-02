@@ -208,6 +208,12 @@
     "browseProducts": "Mahsulotlarni ko'rish"
   },
   "features": {
+    "has_balcony": "Balkoni bor",
+    "has_garage": "Garaji bor",
+    "has_garden": "Bog'i bor",
+    "has_pool": "Hovuzi bor",
+    "has_elevator": "Lifti bor",
+    "is_furnished": "Mebel bilan jihozlangan",
     "title": "Nima uchun TezSell ni tanlash kerak?",
     "balcony": "Balkon",
     "garage": "Garaj",
@@ -328,11 +334,30 @@
   "errors": {
     "toggleSaveFailed": "Mulkni saqlash/olib tashlashda xatolik:",
     "copyFailed": "Telefon raqamini nusxalashda xatolik:",
-    "phoneCopied": "Telefon raqami buferga nusxalandi"
+    "phoneCopied": "Telefon raqami buferga nusxalandi",
+    "error_occurred_regions": "Viloyatlar uchun xato yuz berdi",
+    "error_occurred_districts": "Tumanlar uchun xato yuz berdi",
+    "please_fill_all_required_fields": "Iltimos, barcha majburiy maydonlarni to'ldiring",
+    "authentication_required": "Autentifikatsiya talab qilinadi",
+    "user_info_missing": "Foydalanuvchi ma'lumotlari yo'q",
+    "validation_error": "Iltimos, kiritilgan ma'lumotlarni tekshiring",
+    "permission_denied": "Ruxsat berilmadi",
+    "server_error": "Server xatosi yuz berdi",
+    "network_error": "Tarmoq ulanishi xatosi",
+    "timeout_error": "So'rov vaqti tugadi",
+    "custom_error": "Xato yuz berdi",
+    "errorCreatingProperty": "Mulk yaratishda xato",
+    "unknown_error_message": "Noma'lum xato yuz berdi",
+    "coordinates_not_found": "Bu manzil uchun koordinatalar topilmadi. Iltimos, ularni qo'lda kiriting.",
+    "coordinates_error": "Koordinatalarni olishda xato. Iltimos, ularni qo'lda kiriting."
   },
   "navigation": {
     "backToProperties": "Mulklarga qaytish",
-    "backToAgents": "Agentlarga qaytish"
+    "backToAgents": "Agentlarga qaytish",
+    "previous": "Oldingi",
+    "next": "Keyingi",
+    "submit_property": "Mulkni yuborish",
+    "submitting": "Yuborilmoqda..."
   },
   "propertyInfo": {
     "views": "ko'rishlar",
@@ -574,7 +599,79 @@
   "success": {
     "propertyUnsaved": "Mulk saqlangan ro'yxatdan olib tashlandi",
     "propertySaved": "Mulk muvaffaqiyatli saqlandi",
-    "phoneCopied": "Telefon raqami nusxalandi!"
+    "phoneCopied": "Telefon raqami nusxalandi!",
+    "propertyCreatedSuccess": "Mulk muvaffaqiyatli yaratildi!"
   },
-  "map_main": "Xarita va ko‘chmas mulklar"
+  "map_main": "Xarita va ko‘chmas mulklar",
+  "steps": {
+    "step": "Qadam",
+    "basic_information": "Asosiy ma'lumotlar",
+    "location_details": "Joylashuv tafsilotlari",
+    "property_details": "Mulk tafsilotlari",
+    "property_images": "Mulk rasmlari"
+  },
+  "basic_info": {
+    "tell_us_about_property": "Mulkingiz haqida bizga ma'lumot bering",
+    "property_type": "Mulk turi",
+    "listing_type": "E'lon turi",
+    "property_title": "Mulk nomi",
+    "title_placeholder": "Mulkingiz uchun tavsifiy nom kiriting",
+    "description": "Tavsif",
+    "description_placeholder": "Mulkingizni batafsil tasvirlab bering..."
+  },
+  "property_types": {
+    "apartment": "Kvartira",
+    "house": "Uy",
+    "townhouse": "Taunxaus",
+    "villa": "Villa",
+    "commercial": "Tijorat",
+    "office": "Ofis",
+    "land": "Yer maydoni",
+    "warehouse": "Omborxona"
+  },
+  "listing_types": {
+    "for_sale": "Sotish uchun",
+    "for_rent": "Ijara uchun"
+  },
+  "location": {
+    "where_is_property": "Mulkingiz qayerda joylashgan?",
+    "full_address": "To'liq manzil",
+    "address_placeholder": "To'liq manzilni kiriting",
+    "region": "Viloyat",
+    "select_region": "Viloyatni tanlang",
+    "district": "Tuman",
+    "select_district": "Tumanni tanlang",
+    "city": "Shahar",
+    "city_placeholder": "Shahar",
+    "loading_regions": "Viloyatlar yuklanmoqda...",
+    "loading_districts": "Tumanlar yuklanmoqda...",
+    "map_coordinates": "Xarita koordinatalari",
+    "get_coordinates": "Koordinatalarni olish",
+    "latitude": "Kenglik",
+    "longitude": "Uzunlik",
+    "coordinates_set": "Koordinatalar o'rnatildi",
+    "location_tips": "Joylashuv bo'yicha maslahatlar",
+    "location_tip_1": "• Avval manzilni to'ldiring, so'ngra xarita joylashuvini avtomatik olish uchun \"Koordinatalarni olish\"ni bosing",
+    "location_tip_2": "• Agar aniq joylashuvni bilsangiz, koordinatalarni qo'lda ham kiritishingiz mumkin",
+    "location_tip_3": "• Aniq koordinatalar xaridorlarning mulkingizni xaritada topishiga yordam beradi"
+  },
+  "property_details": {
+    "provide_detailed_info": "Mulkingiz haqida batafsil ma'lumot bering",
+    "bedrooms": "Yotoq xonalar",
+    "bathrooms": "Hammom xonalari",
+    "floor": "Qavat",
+    "total_floors": "Jami qavatlar",
+    "area_m2": "Maydon (m²)",
+    "year_built": "Qurilgan yili",
+    "parking_spaces": "Parking joylari",
+    "price": "Narx",
+    "features": "Xususiyatlar"
+  },
+  "images": {
+    "add_photos_showcase": "Mulkingizni namoyish qilish uchun rasmlar qo'shing",
+    "click_to_upload": "Rasmlar yuklash uchun bosing",
+    "max_images_info": "Maksimal 10 ta rasm, JPG, PNG yoki WEBP",
+    "main": "Asosiy",
+    "maximum_images_allowed": "Maksimal 10 ta rasm ruxsat etilgan"
+  }
 }

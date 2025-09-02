@@ -207,6 +207,12 @@
     "browseProducts": "Browse Products"
   },
   "features": {
+       "has_balcony": "Has Balcony",
+    "has_garage": "Has Garage",
+    "has_garden": "Has Garden",
+    "has_pool": "Has Pool",
+    "has_elevator": "Has Elevator",
+    "is_furnished": "Is Furnished",
     "title": "Why Choose TezSell?",
     "balcony": "Balcony",
     "garage": "Garage",
@@ -330,7 +336,22 @@
   "errors": {
     "toggleSaveFailed": "Failed to toggle save property:",
     "copyFailed": "Failed to copy phone number:",
-    "phoneCopied": "Phone number copied to clipboard"
+    "phoneCopied": "Phone number copied to clipboard",
+    "error_occurred_regions": "Error occurred for the regions",
+    "error_occurred_districts": "Error occurred for the districts",
+    "please_fill_all_required_fields": "Please fill all required fields",
+    "authentication_required": "Authentication required",
+    "user_info_missing": "User information missing",
+    "validation_error": "Please check your input data",
+    "permission_denied": "Permission denied",
+    "server_error": "Server error occurred",
+    "network_error": "Network connection error",
+    "timeout_error": "Request timed out",
+    "custom_error": "An error occurred",
+    "errorCreatingProperty": "Error creating property",
+    "unknown_error_message": "An unknown error occurred",
+    "coordinates_not_found": "Could not find coordinates for this address. Please enter them manually.",
+    "coordinates_error": "Error getting coordinates. Please enter them manually."
   },
 
   "propertyInfo": {
@@ -495,6 +516,10 @@
     "defaultPhone": "+998 90 123 45 67"
   },
   "navigation": {
+    "previous": "Previous",
+    "next": "Next",
+    "submit_property": "Submit Property",
+    "submitting": "Submitting...",
     "backToAgents": "Back to Agents"
   },
   "agentProfile": {
@@ -582,6 +607,78 @@
   "success": {
     "propertyUnsaved": "Property removed from saved list",
     "propertySaved": "Property saved successfully",
-    "phoneCopied": "Phone number copied!"
+    "phoneCopied": "Phone number copied!",
+    "propertyCreatedSuccess": "Property created successfully!"
+  },
+  "steps": {
+    "step": "Step",
+    "basic_information": "Basic Information",
+    "location_details": "Location Details",
+    "property_details": "Property Details",
+    "property_images": "Property Images"
+  },
+  "basic_info": {
+    "tell_us_about_property": "Tell us about your property",
+    "property_type": "Property Type",
+    "listing_type": "Listing Type",
+    "property_title": "Property Title",
+    "title_placeholder": "Enter a descriptive title for your property",
+    "description": "Description",
+    "description_placeholder": "Describe your property in detail..."
+  },
+  "property_types": {
+    "apartment": "Apartment",
+    "house": "House",
+    "townhouse": "Townhouse",
+    "villa": "Villa",
+    "commercial": "Commercial",
+    "office": "Office",
+    "land": "Land",
+    "warehouse": "Warehouse"
+  },
+  "listing_types": {
+    "for_sale": "For Sale",
+    "for_rent": "For Rent"
+  },
+  "location": {
+    "where_is_property": "Where is your property located?",
+    "full_address": "Full Address",
+    "address_placeholder": "Enter complete address",
+    "region": "Region",
+    "select_region": "Select Region",
+    "district": "District",
+    "select_district": "Select District",
+    "city": "City",
+    "city_placeholder": "City",
+    "loading_regions": "Loading regions...",
+    "loading_districts": "Loading districts...",
+    "map_coordinates": "Map Coordinates",
+    "get_coordinates": "Get Coordinates",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "coordinates_set": "Coordinates set",
+    "location_tips": "Location Tips",
+    "location_tip_1": "• Fill in the address first, then click \"Get Coordinates\" to automatically fetch map location",
+    "location_tip_2": "• You can also manually enter coordinates if you know the exact location",
+    "location_tip_3": "• Accurate coordinates help buyers find your property on the map"
+  },
+  "property_details": {
+    "provide_detailed_info": "Provide detailed information about your property",
+    "bedrooms": "Bedrooms",
+    "bathrooms": "Bathrooms",
+    "floor": "Floor",
+    "total_floors": "Total Floors",
+    "area_m2": "Area (m²)",
+    "year_built": "Year Built",
+    "parking_spaces": "Parking Spaces",
+    "price": "Price",
+    "features": "Features"
+  },
+  "images": {
+    "add_photos_showcase": "Add photos to showcase your property",
+    "click_to_upload": "Click to upload images",
+    "max_images_info": "Maximum 10 images, JPG, PNG or WEBP",
+    "main": "Main",
+    "maximum_images_allowed": "Maximum 10 images allowed"
   }
 }
