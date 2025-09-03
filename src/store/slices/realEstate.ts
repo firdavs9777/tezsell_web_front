@@ -16,8 +16,7 @@ import {
   PROPERTY_STATS_URL,
   SAVED_PROPERTIES_URL,
   TOP_AGENTS_URL,
-  USER_LOCATIONS_URL,
-  VERIFY_AGENT_URL,
+  USER_LOCATIONS_URL
 } from "@store/constants";
 import { apiSlice } from "@store/slices/apiSlice";
 import {
@@ -389,13 +388,24 @@ export const realEstateApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: ["AgentData"],
     }),
-    getPendingAgentApplications: builder.query<
-      PaginatedResponse<RealEstateAgent>,
-      void
-    >({
-      query: () => `${PENDING_AGENTS_URL}/`,
-      providesTags: ["Agent"],
-    }),
+   getPendingAgentApplications: builder.query<
+  any,
+  { token: string; page?: number }
+>({
+  query: ({ token, page = 1 }) => ({
+    url: `${PENDING_AGENTS_URL}/`,
+    method: "GET",
+    params: {
+      page,
+    },
+    headers: {
+      Authorization: `Token ${token}`,
+    },
+    credentials: "include",
+  }),
+  providesTags: ["AdminData", "Agent"],
+  keepUnusedDataFor: 30,
+}),
  getAdminDashboard: builder.query({
           query: ({ token }: { token: string }) => {
             return {
@@ -408,18 +418,24 @@ export const realEstateApiSlice = apiSlice.injectEndpoints({
           },
        providesTags: ["Admin", "AdminData"],
         }),
-    verifyAgent: builder.mutation<
-      any,
-      { agentId: number; approved: boolean; rejection_reason?: string }
-    >({
-      query: ({ agentId, approved, rejection_reason }) => ({
-        url: `${VERIFY_AGENT_URL}/${agentId}/verify/`,
-        method: "POST",
-        body: { approved, rejection_reason },
-      }),
-      invalidatesTags: ["Agent"],
-    }),
-  }),
+  //   verifyAgent: builder.mutation<
+  //     any,
+  //     { agentId: number; approved: boolean; rejection_reason?: string }
+  //   >({
+  //     query: ({ agentId, approved, rejection_reason }) => ({
+  //       url: `${VERIFY_AGENT_URL}/${agentId}/verify/`,
+  //       method: "POST",
+  //       body: { approved, rejection_reason },
+  //     }),
+  //     invalidatesTags: ["Agent"],
+  //   }),
+
+  // verifyAgent: builder.mutation({
+  //   query: ({
+  //     agentId, action,
+  //   })
+  // })
+          }),
 });
 
 // Export hooks for usage in functional components

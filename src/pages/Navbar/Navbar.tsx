@@ -24,6 +24,7 @@ import { UserInfo } from "@store/type";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  FaUserShield,
   FaBoxOpen,
   FaBuilding,
   FaChartBar,
@@ -499,7 +500,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                     </li>
                     <li>
                       <Link
-                        to="/admin/agents"
+                        to="/admin/pending-agents"
                         onClick={handleNavLinkClick}
                         className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                           location.pathname === "/admin/agents"
@@ -508,9 +509,23 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                         }`}
                       >
                         <FaUserCheck className="mr-3 flex-shrink-0" size={14} />
-                        <span>Verify Agents</span>
+                        <span>Pending Agents</span>
                       </Link>
                     </li>
+                    <li>
+  <Link
+    to="/admin/verified-agents"
+    onClick={handleNavLinkClick}
+    className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
+      location.pathname === "/admin/verified-agents"
+        ? "text-indigo-600 bg-indigo-50"
+        : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+    }`}
+  >
+  <FaUserShield className="mr-3 flex-shrink-0" size={14} />
+    <span>Verified Agents</span>
+  </Link>
+</li>
                   </>
                 )}
 
