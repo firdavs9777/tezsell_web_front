@@ -6,6 +6,8 @@ import Home from "@pages/Home/Home";
 import ProductScreen from "@pages/Product/Products";
 import MainProfile from "@pages/Profile/MainProfile";
 import AdminDashboard from "@pages/RealEstate/admin/AdminDashboard";
+import PendingAgents from "@pages/RealEstate/admin/PendingAgents";
+import VerifiedAgents from "@pages/RealEstate/admin/VerifiedAgents";
 import AgentApplicationStatusComponent from "@pages/RealEstate/agents/AgentApplicationStatus";
 import AgentDashboard from "@pages/RealEstate/agents/AgentDashboard";
 import AgentDetail from '@pages/RealEstate/agents/AgentDetail';
@@ -32,7 +34,6 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { useAutoLogout } from "../hooks/useAutoLogout";
-import PendingAgents from "@pages/RealEstate/admin/PendingAgents";
 
 // Component to handle auto-logout for authenticated routes
 const AutoLogoutWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -80,6 +81,7 @@ const Router = () => {
           <Route path="/agent/dashboard" element={<AgentDashboard />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/pending-agents" element={<PendingAgents/>} />
+                        <Route path="/admin/verified-agents" element={<VerifiedAgents/>} />
           <Route path="/agent/properties" element={<AgentProperties />} />
         <Route path="/saved-properties" element={<SavedProperties />} />
         <Route path="/agent/create-property" element={<NewPropertyComp />} />
