@@ -484,8 +484,7 @@ export const {
 
   // Admin hooks
   useGetAdminDashboardQuery,
-  useGetPendingAgentApplicationsQuery,
-  useVerifyAgentMutation,
+  useGetPendingAgentApplicationsQuery
 } = realEstateApiSlice;
 
 export default realEstateApiSlice.reducer;

@@ -2,7 +2,6 @@ import { RootState } from "@store/index";
 import { useGetPendingAgentApplicationsQuery } from "@store/slices/realEstate";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 
 interface User {
   id: number;
@@ -34,9 +33,7 @@ interface PendingAgentsResponse {
 const AgentVerificationPending = () => {
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token || '';
-  const [currentPage, setCurrentPage] = useState(1);
-   const navigate = useNavigate();
-
+  const [currentPage, setCurrentPage] = useState(1)
   const { data, isLoading, error } = useGetPendingAgentApplicationsQuery({
     token,
     page: currentPage
