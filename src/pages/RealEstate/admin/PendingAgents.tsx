@@ -37,7 +37,7 @@ const AgentVerificationPending = () => {
   const [verify_agent] = useVerifyAgentMutation()
   const token = userInfo?.token || '';
   const [currentPage, setCurrentPage] = useState(1)
-  const { data, refetch, isLoading, error } = useGetPendingAgentApplicationsQuery({
+  const { data,  isLoading, error } = useGetPendingAgentApplicationsQuery({
     token,
     page: currentPage
   });
