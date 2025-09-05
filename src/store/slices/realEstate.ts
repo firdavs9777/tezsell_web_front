@@ -16,7 +16,8 @@ import {
   PROPERTY_STATS_URL,
   SAVED_PROPERTIES_URL,
   TOP_AGENTS_URL,
-  USER_LOCATIONS_URL
+  USER_LOCATIONS_URL,
+  VERIFY_AGENT_URL
 } from "@store/constants";
 import { apiSlice } from "@store/slices/apiSlice";
 import {
@@ -418,17 +419,29 @@ export const realEstateApiSlice = apiSlice.injectEndpoints({
           },
        providesTags: ["Admin", "AdminData"],
         }),
-  //   verifyAgent: builder.mutation<
-  //     any,
-  //     { agentId: number; approved: boolean; rejection_reason?: string }
-  //   >({
-  //     query: ({ agentId, approved, rejection_reason }) => ({
-  //       url: `${VERIFY_AGENT_URL}/${agentId}/verify/`,
-  //       method: "POST",
-  //       body: { approved, rejection_reason },
-  //     }),
-  //     invalidatesTags: ["Agent"],
-  //   }),
+verifyAgent: builder.mutation({
+  query: ({
+    agentId,
+    action,
+    token
+  }: {
+    agentId: number;
+    action?: string;
+    token: string;
+  }) => {
+    return {
+      url: `${VERIFY_AGENT_URL}/${agentId}/verify/`,
+      method: "POST",
+      body: { action },
+      headers: {
+        Authorization: `Token ${token}`, // Changed from Bearer to Token
+        'Content-Type': 'application/json',
+      },
+      credentials: "include",
+    };
+  },
+  invalidatesTags: ["Agent"],
+}),
 
   // verifyAgent: builder.mutation({
   //   query: ({
@@ -481,7 +494,7 @@ export const {
   useUpdateAgentProfileMutation,
   useCheckAgentStatusQuery,
   useGetAgentApplicationStatusQuery,
-
+  useVerifyAgentMutation,
   // Admin hooks
   useGetAdminDashboardQuery,
   useGetPendingAgentApplicationsQuery

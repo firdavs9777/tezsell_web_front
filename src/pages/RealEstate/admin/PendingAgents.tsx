@@ -1,7 +1,9 @@
 import { RootState } from "@store/index";
-import { useGetPendingAgentApplicationsQuery } from "@store/slices/realEstate";
+import { useGetPendingAgentApplicationsQuery, useVerifyAgentMutation } from "@store/slices/realEstate";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 interface User {
   id: number;
@@ -32,13 +34,14 @@ interface PendingAgentsResponse {
 
 const AgentVerificationPending = () => {
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+  const [verify_agent] = useVerifyAgentMutation()
   const token = userInfo?.token || '';
   const [currentPage, setCurrentPage] = useState(1)
-  const { data, isLoading, error } = useGetPendingAgentApplicationsQuery({
+  const { data, refetch, isLoading, error } = useGetPendingAgentApplicationsQuery({
     token,
     page: currentPage
   });
-
+ const { t } = useTranslation();
   const pendingAgents: PendingAgentsResponse | undefined = data;
 
   const formatDate = (dateString: string) => {
@@ -60,6 +63,48 @@ const AgentVerificationPending = () => {
       setCurrentPage(currentPage + 1);
     }
   };
+ const handleApproveAgent = async (agentId: string, action: string) => {
+  const token = userInfo?.token;
+
+  if (!token) {
+    toast.error(t("errors.authentication_required"), { autoClose: 3000 });
+    return;
+  }
+
+  if (agentId === '' || action === '') {
+    toast.error(t("errors.missing_required_fields"), { autoClose: 3000 });
+    return;
+  }
+
+  try {
+    // Convert agentId to number if your API expects it
+    const agentIdNumber = parseInt(agentId, 10);
+
+    if (isNaN(agentIdNumber)) {
+      toast.error(t("errors.invalid_agent_id"), { autoClose: 3000 });
+      return;
+    }
+
+    alert(`Agent ID: ${agentId}, Action: ${action}`);
+
+    await verify_agent({
+      agentId: agentIdNumber,
+      action,
+      token
+    }).unwrap();
+
+    // Handle success
+    // toast.success(t("success.agent_verification_updated"), { autoClose: 3000 });
+
+  } catch (error: any) {
+    // Handle error
+    console.error('Error verifying agent:', error);
+    toast.error(
+      error?.data?.message || t("errors.agent_verification_failed"),
+      { autoClose: 3000 }
+    );
+  }
+};
 
   if (isLoading) {
     return (
@@ -135,10 +180,10 @@ const AgentVerificationPending = () => {
                 </div>
 
                 <div className="flex gap-3">
-                  <button className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 transition-colors">
+                  <button onClick={() => handleApproveAgent(agent.id.toString(),'approve')} className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 transition-colors">
                     Approve
                   </button>
-                  <button className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 transition-colors">
+                  <button onClick={() => handleApproveAgent(agent.id.toString(),'reject')} className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 transition-colors">
                     Reject
                   </button>
                 </div>
