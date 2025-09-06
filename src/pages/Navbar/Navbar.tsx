@@ -14,7 +14,6 @@ import {
   selectUser,
   selectUserRole,
   selectPermissions,
-  refreshPermissions,
   syncWithStorage,
 } from "@store/slices/authSlice";
 import {
@@ -82,71 +81,24 @@ interface NavbarProps {
   chats?: Chat[];
   liveUnreadCount?: number;
 }
-
-// Hook for managing live permission updates
-const useNavbarPermissions = () => {
-  const dispatch = useDispatch();
-  const token = useSelector(selectToken);
-  const isAuthenticated = useSelector(selectIsAuthenticated);
-  const permissions = useSelector(selectPermissions);
-  const [permissionError, setPermissionError] = useState<string | null>(null);
-  const [lastPermissionUpdate, setLastPermissionUpdate] = useState<
-    string | null
-  >(null);
-
-  useEffect(() => {
-    if (!isAuthenticated || !token) return;
-
-    const refreshNavPermissions = async () => {
-      try {
-        const response = await fetch("/api/auth/permissions/", {
-          headers: {
-            Authorization: `Token ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-        console.log(response);
-
-        if (response.ok) {
-          const updatedPermissions = await response.json();
-          dispatch(refreshPermissions(updatedPermissions));
-          setPermissionError(null);
-        } else if (response.status === 401) {
-          console.warn("Permission refresh failed - token might be expired");
-        }
-      } catch (error) {
-        console.error("Failed to refresh navbar permissions:", error);
-        setPermissionError("Failed to update permissions");
-      }
-    };
-
-    refreshNavPermissions();
-    const interval = setInterval(refreshNavPermissions, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [isAuthenticated, token, dispatch]);
-
-  useEffect(() => {
-    if (
-      permissions?.last_updated &&
-      permissions.last_updated !== lastPermissionUpdate
-    ) {
-      setLastPermissionUpdate(permissions.last_updated);
-
-      if (lastPermissionUpdate) {
-        toast.info("Your permissions have been updated", {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-        });
-      }
-    }
-  }, [permissions?.last_updated, lastPermissionUpdate]);
-
-  return { permissionError };
-};
-
+interface PermissionsData {
+  is_agent: boolean;
+  is_verified_agent: boolean;
+  is_staff: boolean;
+  is_superuser: boolean;
+  can_create_properties: boolean;
+  can_manage_inquiries: boolean;
+  can_access_admin: boolean;
+  can_verify_agents: boolean;
+  can_manage_users: boolean;
+  user_role:
+    | "super_admin"
+    | "staff"
+    | "verified_agent"
+    | "pending_agent"
+    | "regular_user";
+  last_updated: string; // ISO 8601 datetime string
+}
 const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
@@ -171,25 +123,25 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   const isVerifiedAgent = useSelector(selectIsVerifiedAgent);
   const isAgent = useSelector(selectIsAgent);
   const canCreateProperties = useSelector(selectCanCreateProperties);
-  const {
-    data: permissionsData,
-    error: permissionError,
-    // refetch: refetchPermissions,
-  } = useGetUserPermissionsQuery(
-    { token: token || "" },
-    {
-      skip: !token || !isAuthenticated,
-      pollingInterval: 5 * 60 * 1000, // Auto-refresh every 5 minutes
-      refetchOnMountOrArgChange: true,
-    }
-  );
-  console.log(permissionsData);
+  const { data: permissionsData, error: permissionError } =
+    useGetUserPermissionsQuery(
+      { token: token || "" },
+      {
+        skip: !token || !isAuthenticated,
+        pollingInterval: 5 * 60 * 1000,
+        refetchOnMountOrArgChange: true,
+      }
+    ) as {
+      data: PermissionsData | undefined;
+      error: any;
+      isLoading: boolean;
+      isError: boolean;
+    };
   const [logoutApiCall] = useLogoutUserMutation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
 
-  // const { permissionError } = useNavbarPermissions();
   const { clearAllStorage } = useAutoLogout();
 
   useEffect(() => {
@@ -406,9 +358,10 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
 
   const PermissionStatusIndicator = () => {
     if (!isAuthenticated || !permissionsData) return null;
+
     const isStale =
       permissionsData?.last_updated &&
-      Date.now() - new Date(permissions.last_updated).getTime() >
+      Date.now() - new Date(permissionsData.last_updated).getTime() >
         10 * 60 * 1000;
 
     return (
@@ -421,8 +374,8 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
         title={`Permissions ${
           isStale ? "may be outdated" : "up to date"
         } - Last updated: ${
-          permissions.last_updated
-            ? new Date(permissions.last_updated).toLocaleTimeString()
+          permissionsData.last_updated
+            ? new Date(permissionsData.last_updated).toLocaleTimeString()
             : "Never"
         }`}
       >
