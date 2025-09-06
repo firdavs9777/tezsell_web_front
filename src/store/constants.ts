@@ -53,5 +53,7 @@ export const PROPERTY_INQUIRIES_URL = "/real_estate/api/inquiries";
 export const PROPERTY_STATS_URL = "/real_estate/api/stats";
 
 // Real Estate Admin URLs
+export const ADMIN_DASHBOARD_URL = "/real_estate/admin/dashboard";
+
 export const PENDING_AGENTS_URL = "/real_estate/api/admin/agents/pending";
 export const VERIFY_AGENT_URL = "/real_estate/api/admin/agents"; // {id}/verify will be appended

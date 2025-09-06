@@ -102,22 +102,23 @@ const NewPropertyComp = () => {
     label: string;
     icon: React.ReactNode;
   }[] = [
-      { value: 'apartment', label: 'Apartment', icon: <Building2 size={20} /> },
-      { value: 'house', label: 'House', icon: <Home size={20} /> },
-      { value: 'townhouse', label: 'Townhouse', icon: <Landmark size={20} /> },
-      { value: 'villa', label: 'Villa', icon: <Hotel size={20} /> },
-      { value: 'commercial', label: 'Commercial', icon: <Building2 size={20} /> },
-      { value: 'office', label: 'Office', icon: <Briefcase size={20} /> },
-      { value: 'land', label: 'Land', icon: <LandPlot size={20} /> },
-      { value: 'warehouse', label: 'Warehouse', icon: <Warehouse size={20} /> }
+      { value: 'apartment', label: t('property_types.apartment'), icon: <Building2 size={20} /> },
+      { value: 'house', label: t('property_types.house'), icon: <Home size={20} /> },
+      { value: 'townhouse', label: t('property_types.townhouse'), icon: <Landmark size={20} /> },
+      { value: 'villa', label: t('property_types.villa'), icon: <Hotel size={20} /> },
+      { value: 'commercial', label: t('property_types.commercial'), icon: <Building2 size={20} /> },
+      { value: 'office', label: t('property_types.office'), icon: <Briefcase size={20} /> },
+      { value: 'land', label: t('property_types.land'), icon: <LandPlot size={20} /> },
+      { value: 'warehouse', label: t('property_types.warehouse'), icon: <Warehouse size={20} /> }
     ];
+
   const listingTypes: {
     value: string;
     label: string;
     icon: React.ReactNode;
   }[] = [
-      { value: 'sale', label: 'For Sale', icon: <BadgeDollarSign size={20} color="#16a34a" /> },
-      { value: 'rent', label: 'For Rent', icon: <KeyRound size={20} color="#3b82f6" /> }
+      { value: 'sale', label: t('listing_types.for_sale'), icon: <BadgeDollarSign size={20} color="#16a34a" /> },
+      { value: 'rent', label: t('listing_types.for_rent'), icon: <KeyRound size={20} color="#3b82f6" /> }
     ];
 
   // Extract regions list from API response
@@ -137,17 +138,17 @@ const NewPropertyComp = () => {
     }
   }, [region]);
 
-
   if (regionsError) {
     return <div>
-      <p>Error OCcured for the regions</p>
+      <p>{t('errors.error_occurred_regions')}</p>
     </div>
   }
   if (districtsError) {
     return <div>
-      <p>Error OCcured for the districts</p>
+      <p>{t('errors.error_occurred_districts')}</p>
     </div>
   }
+
   // Get coordinates using geocoding
   const getCoordinates = async (fullAddress: string) => {
     if (!fullAddress.trim()) return;
@@ -192,11 +193,11 @@ const NewPropertyComp = () => {
       } else {
         // If no results, you might want to show an error or ask user to manually set location
         console.log('No coordinates found for address');
-        alert('Could not find coordinates for this address. Please enter them manually.');
+        alert(t('errors.coordinates_not_found'));
       }
     } catch (error) {
       console.error('Geocoding error:', error);
-      alert('Error getting coordinates. Please enter them manually.');
+      alert(t('errors.coordinates_error'));
     } finally {
       setLoadingCoordinates(false);
     }
@@ -220,7 +221,7 @@ const NewPropertyComp = () => {
 
     const totalImages = imagePreviews.length + files.length;
     if (totalImages > 10) {
-      alert("Maximum 10 images allowed");
+      alert(t("images.maximum_images_allowed"));
       return;
     }
 
@@ -245,7 +246,6 @@ const NewPropertyComp = () => {
       reader.readAsDataURL(file);
     });
   };
-
 
   const handleRemoveImage = (index: number) => {
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
@@ -294,6 +294,19 @@ const NewPropertyComp = () => {
       default: return null;
     }
   };
+
+  const getFeatureLabel = (feature: keyof typeof features) => {
+    const featureMap = {
+      hasBalcony: 'features.has_balcony',
+      hasGarage: 'features.has_garage',
+      hasGarden: 'features.has_garden',
+      hasPool: 'features.has_pool',
+      hasElevator: 'features.has_elevator',
+      isFurnished: 'features.is_furnished'
+    };
+    return t(featureMap[feature]);
+  };
+
 const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
 
@@ -314,7 +327,7 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
       !squareMeters ||
       imageFiles.length === 0
     ) {
-      toast.error(t("please_fill_all_required_fields"), { autoClose: 3000 });
+      toast.error(t("errors.please_fill_all_required_fields"), { autoClose: 3000 });
       setIsSubmitting(false);
       return;
     }
@@ -322,14 +335,14 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     // Validate user authentication
     const token = userInfo?.token;
     if (!token) {
-      toast.error(t("authentication_required"), { autoClose: 3000 });
+      toast.error(t("errors.authentication_required"), { autoClose: 3000 });
       setIsSubmitting(false);
       return;
     }
 
     // Validate user info
     if (!userInfo?.user_info?.id) {
-      toast.error(t("user_info_missing"), { autoClose: 3000 });
+      toast.error(t("errors.user_info_missing"), { autoClose: 3000 });
       setIsSubmitting(false);
       return;
     }
@@ -405,7 +418,7 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     });
 
     if (response.data) {
-      toast.success(t("propertyCreatedSuccess") || "Property created successfully!", {
+      toast.success(t("success.propertyCreatedSuccess"), {
         autoClose: 2000
       });
 
@@ -413,7 +426,7 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
       navigate("/properties");
     } else if (response.error) {
       // Handle API error response with proper type checking
-      let errorMessage = t("errorCreatingProperty") || "Error creating property";
+      let errorMessage = t("errors.errorCreatingProperty");
 
       // Type guard for FetchBaseQueryError
       if ('data' in response.error) {
@@ -432,16 +445,16 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
         if (typeof status === 'number') {
           switch (status) {
             case 400:
-              errorMessage = t("validation_error") || "Please check your input data";
+              errorMessage = t("errors.validation_error");
               break;
             case 401:
-              errorMessage = t("authentication_required") || "Authentication required";
+              errorMessage = t("errors.authentication_required");
               break;
             case 403:
-              errorMessage = t("permission_denied") || "Permission denied";
+              errorMessage = t("errors.permission_denied");
               break;
             case 500:
-              errorMessage = t("server_error") || "Server error occurred";
+              errorMessage = t("errors.server_error");
               break;
             default:
               errorMessage = `Error: ${status}`;
@@ -450,13 +463,13 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
           // Handle string status codes like 'FETCH_ERROR', 'TIMEOUT_ERROR', etc.
           switch (status) {
             case 'FETCH_ERROR':
-              errorMessage = t("network_error") || "Network connection error";
+              errorMessage = t("errors.network_error");
               break;
             case 'TIMEOUT_ERROR':
-              errorMessage = t("timeout_error") || "Request timed out";
+              errorMessage = t("errors.timeout_error");
               break;
             case 'CUSTOM_ERROR':
-              errorMessage = t("custom_error") || "An error occurred";
+              errorMessage = t("errors.custom_error");
               break;
             default:
               errorMessage = `Error: ${status}`;
@@ -471,11 +484,11 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     console.error("Error creating property:", error);
 
     if (error instanceof Error) {
-      toast.error(t("errorCreatingProperty") || "Error creating property", {
+      toast.error(t("errors.errorCreatingProperty"), {
         autoClose: 2000
       });
     } else {
-      toast.error(t("unknown_error_message") || "An unknown error occurred", {
+      toast.error(t("errors.unknown_error_message"), {
         autoClose: 2000
       });
     }
@@ -497,7 +510,7 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
             </div>
             <span className={`text-sm mt-2 font-medium ${step <= currentStep ? 'text-blue-600' : 'text-gray-400'
               }`}>
-              Step {step}
+              {t('steps.step')} {step}
             </span>
           </div>
         ))}
@@ -516,12 +529,12 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
   const renderStep1 = () => (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Basic Information</h2>
-        <p className="text-gray-600">Tell us about your property</p>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">{t('steps.basic_information')}</h2>
+        <p className="text-gray-600">{t('basic_info.tell_us_about_property')}</p>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3">Property Type</label>
+        <label className="block text-sm font-medium text-gray-700 mb-3">{t('basic_info.property_type')}</label>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {propertyTypes.map((type) => (
             <button
@@ -541,7 +554,7 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3">Listing Type</label>
+        <label className="block text-sm font-medium text-gray-700 mb-3">{t('basic_info.listing_type')}</label>
         <div className="grid grid-cols-2 gap-4">
           {listingTypes.map((type) => (
             <button
@@ -561,24 +574,24 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Property Title</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">{t('basic_info.property_title')}</label>
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Enter a descriptive title for your property"
+          placeholder={t('basic_info.title_placeholder')}
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">{t('basic_info.description')}</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={4}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Describe your property in detail..."
+          placeholder={t('basic_info.description_placeholder')}
         />
       </div>
     </div>
@@ -587,31 +600,31 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
   const renderStep2 = () => (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Location Details</h2>
-        <p className="text-gray-600">Where is your property located?</p>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">{t('steps.location_details')}</h2>
+        <p className="text-gray-600">{t('location.where_is_property')}</p>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Full Address</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">{t('location.full_address')}</label>
         <input
           type="text"
           value={address}
           onChange={handleAddressChange}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Enter complete address"
+          placeholder={t('location.address_placeholder')}
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Region</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">{t('location.region')}</label>
           <select
             value={region}
             onChange={(e) => setRegion(e.target.value)}
             disabled={loadingRegions}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
           >
-            <option value="">Select Region</option>
+            <option value="">{t('location.select_region')}</option>
             {regionsList.map((reg: Region, index: number) => (
               <option key={index} value={reg.region}>
                 {reg.region}
@@ -621,21 +634,20 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
           {loadingRegions && (
             <div className="flex items-center mt-2 text-sm text-gray-500">
               <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              Loading regions...
+              {t('location.loading_regions')}
             </div>
           )}
-
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">District</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">{t('location.district')}</label>
           <select
             value={district}
             onChange={(e) => setDistrict(e.target.value)}
             disabled={!region || loadingDistricts}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
           >
-            <option value="">Select District</option>
+            <option value="">{t('location.select_district')}</option>
             {districtsList.map((dist: District, index: number) => (
               <option key={index} value={dist.district}>
                 {dist.district}
@@ -645,29 +657,27 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
           {loadingDistricts && (
             <div className="flex items-center mt-2 text-sm text-gray-500">
               <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              Loading districts...
+              {t('location.loading_districts')}
             </div>
           )}
-
-
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">{t('location.city')}</label>
         <input
           type="text"
           value={city}
           onChange={(e) => setCity(e.target.value)}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="City"
+          placeholder={t('location.city_placeholder')}
         />
       </div>
 
       {/* Coordinates Section */}
       <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-medium text-gray-800">Map Coordinates</h3>
+          <h3 className="text-lg font-medium text-gray-800">{t('location.map_coordinates')}</h3>
           <button
             type="button"
             onClick={handleGetCoordinates}
@@ -679,13 +689,13 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
             ) : (
               <Map className="w-4 h-4 mr-2" />
             )}
-            Get Coordinates
+            {t('location.get_coordinates')}
           </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Latitude</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t('location.latitude')}</label>
             <input
               type="number"
               step="any"
@@ -696,7 +706,7 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Longitude</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t('location.longitude')}</label>
             <input
               type="number"
               step="any"
@@ -713,7 +723,7 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
             <div className="flex items-center">
               <MapPin className="w-4 h-4 text-green-600 mr-2" />
               <span className="text-green-800 text-sm font-medium">
-                Coordinates set: {parseFloat(latitude).toFixed(6)}, {parseFloat(longitude).toFixed(6)}
+                {t('location.coordinates_set')}: {parseFloat(latitude).toFixed(6)}, {parseFloat(longitude).toFixed(6)}
               </span>
             </div>
           </div>
@@ -723,12 +733,12 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <div className="flex items-center">
           <MapPin className="w-5 h-5 text-blue-600 mr-2" />
-          <span className="text-blue-800 font-medium">Location Tips</span>
+          <span className="text-blue-800 font-medium">{t('location.location_tips')}</span>
         </div>
         <div className="text-blue-700 text-sm mt-2 space-y-1">
-          <p>• Fill in the address first, then click "Get Coordinates" to automatically fetch map location</p>
-          <p>• You can also manually enter coordinates if you know the exact location</p>
-          <p>• Accurate coordinates help buyers find your property on the map</p>
+          <p>{t('location.location_tip_1')}</p>
+          <p>{t('location.location_tip_2')}</p>
+          <p>{t('location.location_tip_3')}</p>
         </div>
       </div>
     </div>
@@ -737,13 +747,13 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
   const renderStep3 = () => (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Property Details</h2>
-        <p className="text-gray-600">Provide detailed information about your property</p>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">{t('steps.property_details')}</h2>
+        <p className="text-gray-600">{t('property_details.provide_detailed_info')}</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Bedrooms</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">{t('property_details.bedrooms')}</label>
           <input
             type="number"
             value={bedrooms}
@@ -754,7 +764,7 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Bathrooms</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">{t('property_details.bathrooms')}</label>
           <input
             type="number"
             value={bathrooms}
@@ -765,7 +775,7 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Floor</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">{t('property_details.floor')}</label>
           <input
             type="number"
             value={floor}
@@ -776,7 +786,7 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Total Floors</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">{t('property_details.total_floors')}</label>
           <input
             type="number"
             value={totalFloors}
@@ -790,7 +800,7 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Area (m²)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">{t('property_details.area_m2')}</label>
           <input
             type="number"
             value={squareMeters}
@@ -801,7 +811,7 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Year Built</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">{t('property_details.year_built')}</label>
           <input
             type="number"
             value={yearBuilt}
@@ -813,7 +823,7 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Parking Spaces</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">{t('property_details.parking_spaces')}</label>
           <input
             type="number"
             value={parkingSpaces}
@@ -826,7 +836,7 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-4">Price</label>
+        <label className="block text-sm font-medium text-gray-700 mb-4">{t('property_details.price')}</label>
         <div className="flex space-x-3">
           <div className="flex-1">
             <input
@@ -850,7 +860,7 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-4">Features</label>
+        <label className="block text-sm font-medium text-gray-700 mb-4">{t('property_details.features')}</label>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {(Object.keys(features) as Array<keyof typeof features>).map((feature) => (
             <label key={feature} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
@@ -861,7 +871,7 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
                 className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
               />
               <span className="text-sm font-medium text-gray-700">
-                {feature.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                {getFeatureLabel(feature)}
               </span>
             </label>
           ))}
@@ -873,8 +883,8 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
   const renderStep4 = () => (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Property Images</h2>
-        <p className="text-gray-600">Add photos to showcase your property</p>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">{t('steps.property_images')}</h2>
+        <p className="text-gray-600">{t('images.add_photos_showcase')}</p>
       </div>
 
       <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
@@ -888,8 +898,8 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
         />
         <label htmlFor="image-upload" className="cursor-pointer">
           <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-lg font-medium text-gray-600 mb-2">Click to upload images</p>
-          <p className="text-sm text-gray-400">Maximum 10 images, JPG, PNG or WEBP</p>
+          <p className="text-lg font-medium text-gray-600 mb-2">{t('images.click_to_upload')}</p>
+          <p className="text-sm text-gray-400">{t('images.max_images_info')}</p>
         </label>
       </div>
 
@@ -910,7 +920,7 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
               </button>
               {index === 0 && (
                 <div className="absolute bottom-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
-                  Main
+                  {t('images.main')}
                 </div>
               )}
             </div>
@@ -919,8 +929,6 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
       )}
     </div>
   );
-
-
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -945,7 +953,7 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
                 }`}
             >
               <ChevronLeft className="w-5 h-5 mr-2" />
-              Previous
+              {t('navigation.previous')}
             </button>
 
             {currentStep < totalSteps ? (
@@ -953,7 +961,7 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
                 onClick={nextStep}
                 className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all duration-200"
               >
-                Next
+                {t('navigation.next')}
                 <ChevronRight className="w-5 h-5 ml-2" />
               </button>
             ) : (
@@ -965,23 +973,21 @@ const submitFormHandler = async (e: React.FormEvent<HTMLFormElement>) => {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                      Submitting...
+                      {t('navigation.submitting')}
                     </>
                   ) : (
                     <>
-                      Submit Property
+                      {t('navigation.submit_property')}
                       <DollarSign className="w-5 h-5 ml-2" />
                     </>
                   )}
                 </button>
               </form>
-
             )}
           </div>
         </div>
       </div>
     </div>
   );
-};
-
+}
 export default NewPropertyComp;

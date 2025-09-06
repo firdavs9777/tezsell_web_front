@@ -36,6 +36,8 @@ export const apiSlice = createApi({
     "Agent",
     "AgentData",
     "SavedProperty",
+        "Admin",
+    "AdminData",
     "Inquiry",
     "Location",
     "Stats",

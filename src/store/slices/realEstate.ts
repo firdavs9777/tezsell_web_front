@@ -1,4 +1,5 @@
 import {
+  ADMIN_DASHBOARD_URL,
   AGENTS_URL,
   AGENT_APPLICATION_STATUS_URL,
   AGENT_BECOME_URL,
@@ -34,6 +35,13 @@ import {
   PropertyStats,
   RealEstateAgent,
 } from "@store/type";
+export interface CreateInquiryRequest {
+  property: string; // property id
+  inquiry_type: "info" | "viewing" | "offer" | "callback";
+  message: string;
+  preferred_contact_time: string;
+  offered_price?: string;
+}
 
 export const realEstateApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -200,25 +208,20 @@ export const realEstateApiSlice = apiSlice.injectEndpoints({
       },
       providesTags: ["SavedProperty"],
     }),
-    createPropertyInquiry: builder.mutation({
-      query: ({
-        inquiryData,
-        token,
-      }: {
-        inquiryData: PropertyInquiry;
-        token: string;
-      }) => {
-        return {
-          url: `${PROPERTY_INQUIRIES_URL}/`,
-          method: "POST",
-          body: inquiryData,
-          headers: {
-            Authorization: `Token ${token}`,
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        };
-      },
+    createPropertyInquiry: builder.mutation<
+      PropertyInquiry, // Response type (what server sends back)
+      { inquiryData: CreateInquiryRequest; token: string } // Arg type (what you pass in)
+    >({
+      query: ({ inquiryData, token }) => ({
+        url: `${PROPERTY_INQUIRIES_URL}/`,
+        method: "POST",
+        body: inquiryData,
+        headers: {
+          Authorization: `Token ${token}`,
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      }),
       invalidatesTags: ["Inquiry"],
     }),
 
@@ -357,16 +360,37 @@ export const realEstateApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Agent", "AgentData"],
     }),
-
-    updateAgentProfile: builder.mutation<
-      RealEstateAgent,
-      Partial<RealEstateAgent>
-    >({
-      query: (profileData) => ({
-        url: `${AGENT_PROFILE_URL}/`,
-        method: "PUT",
-        body: profileData,
-      }),
+    getAgentProfile: builder.query({
+      query: ({ token }: { token: string }) => {
+        return {
+          url: `${AGENT_PROFILE_URL}/`,
+          headers: {
+            Authorization: `Token ${token}`, // Pass token in headers
+          },
+          credentials: "include",
+        };
+      },
+      providesTags: ["Agent", "AgentData"],
+    }),
+    updateAgentProfile: builder.mutation({
+      query: ({
+        profileData,
+        token,
+      }: {
+        profileData: Partial<RealEstateAgent>;
+        token: string;
+      }) => {
+        return {
+          url: `${AGENT_PROFILE_URL}/`,
+          method: "PUT",
+          body: profileData,
+          headers: {
+            Authorization: `Token ${token}`, // Changed from Bearer to Token
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        };
+      },
       invalidatesTags: ["Agent", "AgentData"],
     }),
     checkAgentStatus: builder.query<AgentStatus, { token: string }>({
@@ -388,24 +412,64 @@ export const realEstateApiSlice = apiSlice.injectEndpoints({
       providesTags: ["AgentData"],
     }),
     getPendingAgentApplications: builder.query<
-      PaginatedResponse<RealEstateAgent>,
-      void
-    >({
-      query: () => `${PENDING_AGENTS_URL}/`,
-      providesTags: ["Agent"],
-    }),
-
-    verifyAgent: builder.mutation<
       any,
-      { agentId: number; approved: boolean; rejection_reason?: string }
+      { token: string; page?: number }
     >({
-      query: ({ agentId, approved, rejection_reason }) => ({
-        url: `${VERIFY_AGENT_URL}/${agentId}/verify/`,
-        method: "POST",
-        body: { approved, rejection_reason },
+      query: ({ token, page = 1 }) => ({
+        url: `${PENDING_AGENTS_URL}/`,
+        method: "GET",
+        params: {
+          page,
+        },
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+        credentials: "include",
       }),
+      providesTags: ["AdminData", "Agent"],
+      keepUnusedDataFor: 30,
+    }),
+    getAdminDashboard: builder.query({
+      query: ({ token }: { token: string }) => {
+        return {
+          url: `${ADMIN_DASHBOARD_URL}/`,
+          headers: {
+            Authorization: `Token ${token}`, // Pass token in headers
+          },
+          credentials: "include",
+        };
+      },
+      providesTags: ["Admin", "AdminData"],
+    }),
+    verifyAgent: builder.mutation({
+      query: ({
+        agentId,
+        action,
+        token,
+      }: {
+        agentId: number;
+        action?: string;
+        token: string;
+      }) => {
+        return {
+          url: `${VERIFY_AGENT_URL}/${agentId}/verify/`,
+          method: "POST",
+          body: { action },
+          headers: {
+            Authorization: `Token ${token}`, // Changed from Bearer to Token
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        };
+      },
       invalidatesTags: ["Agent"],
     }),
+
+    // verifyAgent: builder.mutation({
+    //   query: ({
+    //     agentId, action,
+    //   })
+    // })
   }),
 });
 
@@ -448,13 +512,14 @@ export const {
   useGetAgentInquiriesQuery,
   useRespondToInquiryMutation,
   useBecomeAgentMutation,
+  useGetAgentProfileQuery,
   useUpdateAgentProfileMutation,
   useCheckAgentStatusQuery,
   useGetAgentApplicationStatusQuery,
-
-  // Admin hooks
-  useGetPendingAgentApplicationsQuery,
   useVerifyAgentMutation,
+  // Admin hooks
+  useGetAdminDashboardQuery,
+  useGetPendingAgentApplicationsQuery,
 } = realEstateApiSlice;
 
 export default realEstateApiSlice.reducer;

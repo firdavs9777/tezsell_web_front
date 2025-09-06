@@ -207,6 +207,12 @@
     "browseProducts": "Просмотреть товары"
   },
   "features": {
+    "has_balcony": "Есть балкон",
+    "has_garage": "Есть гараж",
+    "has_garden": "Есть сад",
+    "has_pool": "Есть бассейн",
+    "has_elevator": "Есть лифт",
+    "is_furnished": "Меблированная",
     "title": "Почему выбирают TezSell?",
     "balcony": "Балкон",
     "garage": "Гараж",
@@ -313,7 +319,22 @@
   "errors": {
     "toggleSaveFailed": "Не удалось сохранить/убрать объект:",
     "copyFailed": "Не удалось скопировать номер телефона:",
-    "phoneCopied": "Номер телефона скопирован в буфер обмена"
+    "phoneCopied": "Номер телефона скопирован в буфер обмена",
+    "error_occurred_regions": "Произошла ошибка с регионами",
+    "error_occurred_districts": "Произошла ошибка с районами",
+    "please_fill_all_required_fields": "Пожалуйста, заполните все обязательные поля",
+    "authentication_required": "Требуется аутентификация",
+    "user_info_missing": "Информация о пользователе отсутствует",
+    "validation_error": "Пожалуйста, проверьте введенные данные",
+    "permission_denied": "Доступ запрещен",
+    "server_error": "Произошла ошибка сервера",
+    "network_error": "Ошибка сетевого подключения",
+    "timeout_error": "Время запроса истекло",
+    "custom_error": "Произошла ошибка",
+    "errorCreatingProperty": "Ошибка создания недвижимости",
+    "unknown_error_message": "Произошла неизвестная ошибка",
+    "coordinates_not_found": "Не удалось найти координаты для этого адреса. Пожалуйста, введите их вручную.",
+    "coordinates_error": "Ошибка получения координат. Пожалуйста, введите их вручную."
   },
   "propertyInfo": {
     "views": "просмотров",
@@ -472,7 +493,11 @@
     "defaultPhone": "+998 90 123 45 67"
   },
   "navigation": {
-    "backToAgents": "Назад к агентам"
+    "backToAgents": "Назад к агентам",
+    "previous": "Назад",
+    "next": "Далее",
+    "submit_property": "Отправить недвижимость",
+    "submitting": "Отправка..."
   },
   "agentProfile": {
     "verifiedAgent": "Проверенный агент",
@@ -560,7 +585,79 @@
   "success": {
     "propertyUnsaved": "Объект удалён из сохранённых",
     "propertySaved": "Объект успешно сохранён",
-    "phoneCopied": "Номер телефона скопирован!"
+    "phoneCopied": "Номер телефона скопирован!",
+    "propertyCreatedSuccess": "Недвижимость успешно создана!"
   },
-  "map_main": "Карта и объекты недвижимости"
+  "map_main": "Карта и объекты недвижимости",
+  "steps": {
+    "step": "Шаг",
+    "basic_information": "Основная информация",
+    "location_details": "Детали местоположения",
+    "property_details": "Детали недвижимости",
+    "property_images": "Изображения недвижимости"
+  },
+  "basic_info": {
+    "tell_us_about_property": "Расскажите нам о вашей недвижимости",
+    "property_type": "Тип недвижимости",
+    "listing_type": "Тип объявления",
+    "property_title": "Название недвижимости",
+    "title_placeholder": "Введите описательное название для вашей недвижимости",
+    "description": "Описание",
+    "description_placeholder": "Опишите вашу недвижимость подробно..."
+  },
+  "property_types": {
+    "apartment": "Квартира",
+    "house": "Дом",
+    "townhouse": "Таунхаус",
+    "villa": "Вилла",
+    "commercial": "Коммерческая",
+    "office": "Офис",
+    "land": "Земельный участок",
+    "warehouse": "Склад"
+  },
+  "listing_types": {
+    "for_sale": "Продажа",
+    "for_rent": "Аренда"
+  },
+  "location": {
+    "where_is_property": "Где находится ваша недвижимость?",
+    "full_address": "Полный адрес",
+    "address_placeholder": "Введите полный адрес",
+    "region": "Регион",
+    "select_region": "Выберите регион",
+    "district": "Район",
+    "select_district": "Выберите район",
+    "city": "Город",
+    "city_placeholder": "Город",
+    "loading_regions": "Загружаются регионы...",
+    "loading_districts": "Загружаются районы...",
+    "map_coordinates": "Координаты на карте",
+    "get_coordinates": "Получить координаты",
+    "latitude": "Широта",
+    "longitude": "Долгота",
+    "coordinates_set": "Координаты установлены",
+    "location_tips": "Советы по местоположению",
+    "location_tip_1": "• Сначала заполните адрес, затем нажмите \"Получить координаты\" для автоматического получения местоположения на карте",
+    "location_tip_2": "• Вы также можете вручную ввести координаты, если знаете точное местоположение",
+    "location_tip_3": "• Точные координаты помогают покупателям найти вашу недвижимость на карте"
+  },
+  "property_details": {
+    "provide_detailed_info": "Предоставьте подробную информацию о вашей недвижимости",
+    "bedrooms": "Спальни",
+    "bathrooms": "Ванные комнаты",
+    "floor": "Этаж",
+    "total_floors": "Всего этажей",
+    "area_m2": "Площадь (м²)",
+    "year_built": "Год постройки",
+    "parking_spaces": "Парковочные места",
+    "price": "Цена",
+    "features": "Особенности"
+  },
+  "images": {
+    "add_photos_showcase": "Добавьте фотографии для демонстрации вашей недвижимости",
+    "click_to_upload": "Нажмите для загрузки изображений",
+    "max_images_info": "Максимум 10 изображений, JPG, PNG или WEBP",
+    "main": "Главное",
+    "maximum_images_allowed": "Разрешено максимум 10 изображений"
+  }
 }
