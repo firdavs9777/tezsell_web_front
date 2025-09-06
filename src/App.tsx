@@ -10,7 +10,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { RootState } from "./store";
-
+import ErrorBoundary from "@pages/Navbar/ErrorBoundary";
 
 function App() {
   const [chats, setChats] = useState<Chat[]>([]);
@@ -19,11 +19,11 @@ function App() {
 
   // Existing RTK Query
   const { data, refetch } = useGetAllChatMessagesQuery(
-    { token: userInfo?.token || '' },
+    { token: userInfo?.token || "" },
     {
       skip: !userInfo?.token,
       refetchOnMountOrArgChange: true,
-    pollingInterval: 10000,
+      pollingInterval: 10000,
     }
   );
 
@@ -34,10 +34,12 @@ function App() {
     const ws = new WebSocket(`wss://api.webtezsell.com/ws/notifications/`);
 
     ws.onopen = () => {
-      ws.send(JSON.stringify({
-        type: "authenticate",
-        token: userInfo.token
-      }));
+      ws.send(
+        JSON.stringify({
+          type: "authenticate",
+          token: userInfo.token,
+        })
+      );
     };
 
     ws.onmessage = (event) => {
@@ -47,7 +49,7 @@ function App() {
         setGlobalUnreadCount(data.total_unread);
       } else if (data.type === "new_message") {
         // Increment unread count
-        setGlobalUnreadCount(prev => prev + 1);
+        setGlobalUnreadCount((prev) => prev + 1);
         // Also refresh the full chat list
         refetch();
       }
@@ -62,28 +64,29 @@ function App() {
       setChats(data.results as Chat[]);
       // Update global count from fresh data
       const totalUnread = (data.results as Chat[]).reduce(
-        (total, chat) => total + chat.unread_count, 0
+        (total, chat) => total + chat.unread_count,
+        0
       );
       setGlobalUnreadCount(totalUnread);
     }
   }, [data]);
 
   return (
-    <I18nextProvider i18n={i18n}>
-      <div className="page-container">
-        <Router>
-          {/* Pass both chats and live unread count */}
-          <Navbar chats={chats} liveUnreadCount={globalUnreadCount} />
-          <div className="content">
-            <RouterPage
-
-            />
-          </div>
-          <Footer />
-        </Router>
-        <ToastContainer />
-      </div>
-    </I18nextProvider>
+    <ErrorBoundary>
+      <I18nextProvider i18n={i18n}>
+        <div className="page-container">
+          <Router>
+            {/* Pass both chats and live unread count */}
+            <Navbar chats={chats} liveUnreadCount={globalUnreadCount} />
+            <div className="content">
+              <RouterPage />
+            </div>
+            <Footer />
+          </Router>
+          <ToastContainer />
+        </div>
+      </I18nextProvider>
+    </ErrorBoundary>
   );
 }
 
