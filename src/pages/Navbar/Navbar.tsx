@@ -28,7 +28,6 @@ import {
   FaUserShield,
   FaBoxOpen,
   FaBuilding,
-  FaChartBar,
   FaCheckCircle,
   FaChevronDown,
   FaClock,
@@ -359,40 +358,40 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
     );
   };
 
-  const PermissionStatusIndicator = () => {
-    if (!isAuthenticated || !permissionsData) return null;
+  // const PermissionStatusIndicator = () => {
+  //   if (!isAuthenticated || !permissionsData) return null;
 
-    const isStale =
-      permissionsData?.last_updated &&
-      Date.now() - new Date(permissionsData.last_updated).getTime() >
-        10 * 60 * 1000;
+  //   const isStale =
+  //     permissionsData?.last_updated &&
+  //     Date.now() - new Date(permissionsData.last_updated).getTime() >
+  //       10 * 60 * 1000;
 
-    return (
-      <div
-        className={`hidden lg:flex items-center text-xs px-2 py-1 rounded ${
-          isStale
-            ? "text-yellow-600 bg-yellow-50"
-            : "text-green-600 bg-green-50"
-        }`}
-        title={`${
-          isStale
-            ? t("permissions_may_be_outdated")
-            : t("permissions_up_to_date")
-        } - ${t("last_updated")} ${
-          permissionsData.last_updated
-            ? new Date(permissionsData.last_updated).toLocaleTimeString()
-            : t("never")
-        }`}
-      >
-        <div
-          className={`w-2 h-2 rounded-full mr-1 ${
-            isStale ? "bg-yellow-400" : "bg-green-400"
-          }`}
-        />
-        <span>{t("live")}</span>
-      </div>
-    );
-  };
+  //   return (
+  //     <div
+  //       className={`hidden lg:flex items-center text-xs px-2 py-1 rounded ${
+  //         isStale
+  //           ? "text-yellow-600 bg-yellow-50"
+  //           : "text-green-600 bg-green-50"
+  //       }`}
+  //       title={`${
+  //         isStale
+  //           ? t("permissions_may_be_outdated")
+  //           : t("permissions_up_to_date")
+  //       } - ${t("last_updated")} ${
+  //         permissionsData.last_updated
+  //           ? new Date(permissionsData.last_updated).toLocaleTimeString()
+  //           : t("never")
+  //       }`}
+  //     >
+  //       <div
+  //         className={`w-2 h-2 rounded-full mr-1 ${
+  //           isStale ? "bg-yellow-400" : "bg-green-400"
+  //         }`}
+  //       />
+  //       <span>{t("live")}</span>
+  //     </div>
+  //   );
+  // };
 
   function renderNavItems() {
     return (
