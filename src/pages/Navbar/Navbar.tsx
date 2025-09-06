@@ -81,6 +81,7 @@ interface NavbarProps {
   chats?: Chat[];
   liveUnreadCount?: number;
 }
+
 interface PermissionsData {
   is_agent: boolean;
   is_verified_agent: boolean;
@@ -97,8 +98,9 @@ interface PermissionsData {
     | "verified_agent"
     | "pending_agent"
     | "regular_user";
-  last_updated: string; // ISO 8601 datetime string
+  last_updated: string;
 }
+
 const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
@@ -123,6 +125,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   const isVerifiedAgent = useSelector(selectIsVerifiedAgent);
   const isAgent = useSelector(selectIsAgent);
   const canCreateProperties = useSelector(selectCanCreateProperties);
+
   const { data: permissionsData, error: permissionError } =
     useGetUserPermissionsQuery(
       { token: token || "" },
@@ -137,11 +140,11 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
       isLoading: boolean;
       isError: boolean;
     };
+
   const [logoutApiCall] = useLogoutUserMutation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-
   const { clearAllStorage } = useAutoLogout();
 
   useEffect(() => {
@@ -225,13 +228,13 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
       dispatch(logout(undefined));
       clearAllStorage();
       navigate("/login");
-      toast.success("Logged out successfully", { autoClose: 2000 });
+      toast.success(t("logged_out_successfully"), { autoClose: 2000 });
     } catch (error) {
       console.error("Logout error:", error);
       dispatch(logout(undefined));
       clearAllStorage();
       navigate("/login");
-      toast.error("Logout completed (with errors)", { autoClose: 2000 });
+      toast.error(t("logout_completed_with_errors"), { autoClose: 2000 });
     }
   };
 
@@ -296,27 +299,27 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   function getRoleBadge() {
     const badges = {
       super_admin: {
-        label: "Super Admin",
+        label: t("super_admin"),
         color: "bg-red-100 text-red-800",
         icon: FaShieldAlt,
       },
       staff: {
-        label: "Staff",
+        label: t("staff"),
         color: "bg-orange-100 text-orange-800",
         icon: FaCog,
       },
       verified_agent: {
-        label: "Verified Agent",
+        label: t("verified_agent"),
         color: "bg-green-100 text-green-800",
         icon: FaUserCheck,
       },
       pending_agent: {
-        label: "Pending Agent",
+        label: t("pending_agent"),
         color: "bg-yellow-100 text-yellow-800",
         icon: FaClock,
       },
       regular_user: {
-        label: "User",
+        label: t("regular_user"),
         color: "bg-gray-100 text-gray-800",
         icon: FaUser,
       },
@@ -335,7 +338,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
         {permissionsData?.last_updated && (
           <span
             className="ml-1 w-2 h-2 bg-green-400 rounded-full"
-            title={`Last updated: ${new Date(
+            title={`${t("last_updated")} ${new Date(
               permissionsData?.last_updated
             ).toLocaleTimeString()}`}
           />
@@ -371,12 +374,14 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
             ? "text-yellow-600 bg-yellow-50"
             : "text-green-600 bg-green-50"
         }`}
-        title={`Permissions ${
-          isStale ? "may be outdated" : "up to date"
-        } - Last updated: ${
+        title={`${
+          isStale
+            ? t("permissions_may_be_outdated")
+            : t("permissions_up_to_date")
+        } - ${t("last_updated")} ${
           permissionsData.last_updated
             ? new Date(permissionsData.last_updated).toLocaleTimeString()
-            : "Never"
+            : t("never")
         }`}
       >
         <div
@@ -384,7 +389,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
             isStale ? "bg-yellow-400" : "bg-green-400"
           }`}
         />
-        <span>Live</span>
+        <span>{t("live")}</span>
       </div>
     );
   };
@@ -392,7 +397,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   function renderNavItems() {
     return (
       <>
-        <li className=" md:w-auto">
+        <li className="md:w-auto">
           <Link
             to="/products"
             onClick={handleNavLinkClick}
@@ -455,7 +460,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                 <Link
                   to="/properties"
                   onClick={handleNavLinkClick}
-                  className={`flex items-center px-4 py-3 text-sm rounded-full transition-colors duration-200 ${
+                  className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                     location.pathname === "/properties" ||
                     location.pathname.startsWith("/properties/")
                       ? "text-indigo-600 bg-indigo-50"
@@ -466,14 +471,15 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                   <span>{t("properties_main")}</span>
                 </Link>
               </li>
+
               <li>
                 <Link
                   to="/properties-map-view"
                   onClick={handleNavLinkClick}
-                  className={`flex items-center px-4 py-3 text-sm  rounded-full transition-colors duration-200 ${
+                  className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                     location.pathname === "/properties-map-view" ||
                     location.pathname.startsWith("/properties-map-view/")
-                      ? "text-indigo-600 bg-indigo-50 rounded-full"
+                      ? "text-indigo-600 bg-indigo-50"
                       : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                   }`}
                 >
@@ -481,13 +487,14 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                   <span>{t("map_main")}</span>
                 </Link>
               </li>
+
               <li>
                 <Link
                   to="/agents"
                   onClick={handleNavLinkClick}
-                  className={`flex items-center px-4 py-3 text-sm transition-colors rounded-full duration-200 ${
+                  className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                     location.pathname === "/agents"
-                      ? "text-indigo-600 bg-indigo-50 rounded-full"
+                      ? "text-indigo-600 bg-indigo-50"
                       : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                   }`}
                 >
@@ -505,7 +512,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                         onClick={handleNavLinkClick}
                         className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                           location.pathname === "/become-agent"
-                            ? "text-indigo-600 bg-indigo-50 rounded-full"
+                            ? "text-indigo-600 bg-indigo-50"
                             : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                         }`}
                       >
@@ -525,7 +532,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                         onClick={handleNavLinkClick}
                         className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                           location.pathname === "/agent/status"
-                            ? "text-indigo-600 bg-indigo-50 rounded-full"
+                            ? "text-indigo-600 bg-indigo-50"
                             : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                         }`}
                       >
@@ -546,14 +553,14 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                     <Link
                       to="/saved-properties"
                       onClick={handleNavLinkClick}
-                      className={`flex items-center rounded-full px-4 py-3 text-sm transition-colors duration-200 ${
+                      className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                         location.pathname === "/saved-properties"
-                          ? "bg-blue-50 text-blue-700 font-semibold rounded-full"
+                          ? "bg-blue-50 text-blue-700 font-semibold"
                           : "text-gray-700 hover:text-blue-600 hover:bg-blue-50"
                       }`}
                     >
                       <FaHeart className="mr-3 flex-shrink-0" size={14} />
-                      <span>Saved Properties</span>
+                      <span>{t("saved_properties")}</span>
                     </Link>
                   </li>
                 </>
@@ -566,9 +573,9 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           <li className="relative w-full md:w-auto">
             <button
               onClick={handleDropdownToggle("admin")}
-              className={`flex items-center rounded-full gap-2 font-medium text-sm px-3 py-2 rounded transition-colors w-full ${
+              className={`flex items-center gap-2 font-medium text-sm px-3 py-2 rounded-full transition-colors w-full ${
                 isAdminActive
-                  ? "text-indigo-600 bg-indigo-50 rounded-full"
+                  ? "text-indigo-600 bg-indigo-50"
                   : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
               }`}
             >
@@ -578,7 +585,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                 <FaCog className="flex-shrink-0" size={16} />
               )}
               <span className="flex-1 text-left md:flex-initial">
-                {isSuperAdmin ? "Admin" : "Staff"}
+                {isSuperAdmin ? t("admin") : t("staff")}
               </span>
               <FaChevronDown
                 className={`transition-transform duration-200 flex-shrink-0 ${
@@ -592,7 +599,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
               <ul
                 className={`mt-1 bg-white rounded-lg shadow-xl py-2 z-50 border border-gray-200 ${
                   isMenuOpen
-                    ? "w-full ml-4 mr-2 rounded-full"
+                    ? "w-full ml-4 mr-2"
                     : "absolute left-0 top-full w-56 min-w-max"
                 }`}
               >
@@ -600,14 +607,14 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                   <Link
                     to={isSuperAdmin ? "/admin/dashboard" : "/staff/dashboard"}
                     onClick={handleNavLinkClick}
-                    className={`flex items-center rounded-full px-4 py-3 text-sm transition-colors duration-200 ${
+                    className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                       location.pathname.includes("/dashboard")
-                        ? "text-indigo-600 bg-indigo-50 rounded-full"
+                        ? "text-indigo-600 bg-indigo-50"
                         : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                     }`}
                   >
                     <FaTachometerAlt className="mr-3 flex-shrink-0" size={14} />
-                    <span>Dashboard</span>
+                    <span>{t("dashboard")}</span>
                   </Link>
                 </li>
 
@@ -616,14 +623,14 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                     <Link
                       to="/admin/users"
                       onClick={handleNavLinkClick}
-                      className={`flex items-center rounded-full px-4 py-3 text-sm transition-colors duration-200 ${
+                      className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                         location.pathname === "/admin/users"
-                          ? "text-indigo-600 bg-indigo-50 rounded-full"
+                          ? "text-indigo-600 bg-indigo-50"
                           : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                       }`}
                     >
                       <FaUsers className="mr-3 flex-shrink-0" size={14} />
-                      <span>Manage Users</span>
+                      <span>{t("manage_users")}</span>
                     </Link>
                   </li>
                 )}
@@ -634,23 +641,23 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                       <Link
                         to="/admin/pending-agents"
                         onClick={handleNavLinkClick}
-                        className={`flex items-center rounded-full px-4 py-3 text-sm transition-colors duration-200 ${
+                        className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                           location.pathname === "/admin/pending-agents"
-                            ? "text-indigo-600 bg-indigo-50 rounded-full"
+                            ? "text-indigo-600 bg-indigo-50"
                             : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                         }`}
                       >
                         <FaUserCheck className="mr-3 flex-shrink-0" size={14} />
-                        <span>Pending Agents</span>
+                        <span>{t("pending_agents")}</span>
                       </Link>
                     </li>
                     <li>
                       <Link
                         to="/admin/verified-agents"
                         onClick={handleNavLinkClick}
-                        className={`flex items-center rounded-full px-4 py-3 text-sm transition-colors duration-200 ${
+                        className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                           location.pathname === "/admin/verified-agents"
-                            ? "text-indigo-600 bg-indigo-50 rounded-full"
+                            ? "text-indigo-600 bg-indigo-50"
                             : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                         }`}
                       >
@@ -658,7 +665,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                           className="mr-3 flex-shrink-0"
                           size={14}
                         />
-                        <span>Verified Agents</span>
+                        <span>{t("verified_agents")}</span>
                       </Link>
                     </li>
                   </>
@@ -672,15 +679,15 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           <li className="relative w-full md:w-auto">
             <button
               onClick={handleDropdownToggle("agent")}
-              className={`flex items-center rounded-full gap-2 font-medium text-sm px-3 py-2 rounded transition-colors w-full ${
+              className={`flex items-center gap-2 font-medium text-sm px-3 py-2 rounded-full transition-colors w-full ${
                 isAgentActive
-                  ? "text-indigo-600 bg-indigo-50 rounded-full"
+                  ? "text-indigo-600 bg-indigo-50"
                   : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
               }`}
             >
               <FaTachometerAlt className="flex-shrink-0" size={16} />
               <span className="flex-1 text-left md:flex-initial">
-                Agent Panel
+                {t("agent_panel")}
               </span>
               <FaChevronDown
                 className={`transition-transform duration-200 flex-shrink-0 ${
@@ -702,14 +709,14 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                   <Link
                     to="/agent/dashboard"
                     onClick={handleNavLinkClick}
-                    className={`flex items-center rounded-full px-4 py-3 text-sm transition-colors duration-200 ${
+                    className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                       location.pathname === "/agent/dashboard"
-                        ? "text-indigo-600 bg-indigo-50 rounded-full"
+                        ? "text-indigo-600 bg-indigo-50"
                         : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                     }`}
                   >
                     <FaTachometerAlt className="mr-3 flex-shrink-0" size={14} />
-                    <span>Dashboard</span>
+                    <span>{t("dashboard")}</span>
                   </Link>
                 </li>
 
@@ -718,14 +725,14 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                     <Link
                       to="/agent/create-property"
                       onClick={handleNavLinkClick}
-                      className={`flex items-center rounded-full px-4 py-3 text-sm transition-colors duration-200 ${
+                      className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                         location.pathname === "/agent/create-property"
-                          ? "text-indigo-600 bg-indigo-50 rounded-full"
+                          ? "text-indigo-600 bg-indigo-50"
                           : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                       }`}
                     >
                       <FaPlus className="mr-3 flex-shrink-0" size={14} />
-                      <span>Create Property</span>
+                      <span>{t("create_property")}</span>
                     </Link>
                   </li>
                 )}
@@ -734,14 +741,14 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                   <Link
                     to="/agent/properties"
                     onClick={handleNavLinkClick}
-                    className={`flex items-center  rounded-full px-4 py-3 text-sm transition-colors duration-200 ${
+                    className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                       location.pathname === "/agent/properties"
-                        ? "text-indigo-600 bg-indigo-50 rounded-full"
+                        ? "text-indigo-600 bg-indigo-50"
                         : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                     }`}
                   >
                     <FaBuilding className="mr-3 flex-shrink-0" size={14} />
-                    <span>My Properties</span>
+                    <span>{t("my_properties")}</span>
                   </Link>
                 </li>
 
@@ -750,9 +757,9 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                     <Link
                       to="/agent/inquiries"
                       onClick={handleNavLinkClick}
-                      className={`flex items-center rounded-full px-4 py-3 text-sm transition-colors duration-200 ${
+                      className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                         location.pathname === "/agent/inquiries"
-                          ? "text-indigo-600 bg-indigo-50 rounded-full"
+                          ? "text-indigo-600 bg-indigo-50"
                           : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                       }`}
                     >
@@ -760,7 +767,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                         className="mr-3 flex-shrink-0"
                         size={14}
                       />
-                      <span>Inquiries</span>
+                      <span>{t("inquiries")}</span>
                     </Link>
                   </li>
                 )}
@@ -769,14 +776,14 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                   <Link
                     to="/agent/profile"
                     onClick={handleNavLinkClick}
-                    className={`flex items-center rounded-full px-4 py-3 text-sm transition-colors duration-200 ${
+                    className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                       location.pathname === "/agent/profile"
-                        ? "text-indigo-600 bg-indigo-50 rounded-full"
+                        ? "text-indigo-600 bg-indigo-50"
                         : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                     }`}
                   >
                     <FaFileAlt className="mr-3 flex-shrink-0" size={14} />
-                    <span>Agent Profile</span>
+                    <span>{t("agent_profile")}</span>
                   </Link>
                 </li>
               </ul>
@@ -784,14 +791,14 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           </li>
         )}
 
-        <li className="w-full md:w-auto ">
+        <li className="w-full md:w-auto">
           <Link
             to="/about"
             onClick={handleNavLinkClick}
-            className={`flex items-center rounded-full gap-2 font-medium text-sm px-3 py-2 rounded transition-colors w-full ${
+            className={`flex items-center gap-2 font-medium text-sm px-3 py-2 rounded-full transition-colors w-full ${
               location.pathname === "/about"
-                ? "text-indigo-600 bg-indigo-50 rounded-full"
-                : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50 "
+                ? "text-indigo-600 bg-indigo-50"
+                : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
             }`}
           >
             <FaInfoCircle className="flex-shrink-0" size={16} />
@@ -800,13 +807,13 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
         </li>
 
         {isAuthenticated && (
-          <li className="w-full md:w-auto rounded-full">
+          <li className="w-full md:w-auto">
             <Link
               to="/chat"
               onClick={handleNavLinkClick}
-              className={`flex items-center rounded-full gap-2 font-medium text-sm px-3 py-2 rounded transition-colors w-full ${
+              className={`flex items-center gap-2 font-medium text-sm px-3 py-2 rounded-full transition-colors w-full ${
                 location.pathname === "/chat"
-                  ? "text-indigo-600 bg-indigo-50 rounded-full"
+                  ? "text-indigo-600 bg-indigo-50"
                   : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
               }`}
             >
@@ -894,7 +901,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
               <ul
                 className={`mt-1 bg-white rounded-lg shadow-xl py-2 z-50 border border-gray-200 ${
                   isMenuOpen
-                    ? "w-full ml-4 mr-2 rounded-full"
+                    ? "w-full ml-4 mr-2"
                     : "absolute right-0 top-full w-48 min-w-max"
                 }`}
               >
@@ -905,9 +912,9 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                       handleNavLinkClick();
                       setIsProfileDropDownOpen(false);
                     }}
-                    className={`flex items-center rounded-full px-4 py-3 text-sm transition-colors duration-200 ${
+                    className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                       location.pathname === "/myprofile"
-                        ? "text-indigo-600 bg-indigo-50 rounded-full"
+                        ? "text-indigo-600 bg-indigo-50"
                         : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                     }`}
                   >
@@ -923,9 +930,9 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                       handleNavLinkClick();
                       setIsProfileDropDownOpen(false);
                     }}
-                    className={`flex items-center rounded-full px-4 py-3 text-sm transition-colors duration-200 ${
+                    className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                       location.pathname === "/my-services"
-                        ? "text-indigo-600 bg-indigo-50 rounded-full"
+                        ? "text-indigo-600 bg-indigo-50"
                         : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                     }`}
                   >
@@ -941,9 +948,9 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                       handleNavLinkClick();
                       setIsProfileDropDownOpen(false);
                     }}
-                    className={`flex items-center rounded-full px-4 py-3 text-sm transition-colors duration-200 ${
+                    className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                       location.pathname === "/my-products"
-                        ? "text-indigo-600 bg-indigo-50 rounded-full"
+                        ? "text-indigo-600 bg-indigo-50"
                         : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                     }`}
                   >
@@ -974,7 +981,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
               onClick={handleNavLinkClick}
               className={`flex items-center justify-center gap-1 font-medium text-sm px-4 py-2 rounded-lg transition-colors w-full md:w-auto ${
                 location.pathname === "/login"
-                  ? "text-indigo-600 bg-indigo-50 rounded-full"
+                  ? "text-indigo-600 bg-indigo-50"
                   : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
               }`}
             >
@@ -986,7 +993,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           <li className="w-full md:w-auto">
             <div className="flex items-center gap-2 text-gray-500 px-3 py-2">
               <FaUser className="flex-shrink-0" size={16} />
-              <span className="text-sm">Loading...</span>
+              <span className="text-sm">{t("loading")}</span>
             </div>
           </li>
         )}
@@ -1023,25 +1030,25 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
               <li>
                 <button
                   onClick={() => changeLanguage("uz")}
-                  className={`block w-full rounded-full text-left px-4 py-3 text-sm transition-colors duration-200 ${
+                  className={`block w-full text-left px-4 py-3 text-sm transition-colors duration-200 ${
                     i18n.language === "uz"
-                      ? "text-indigo-600 bg-indigo-50 rounded-full"
-                      : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50 rounded-full"
+                      ? "text-indigo-600 bg-indigo-50"
+                      : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                   }`}
                 >
-                  {t("language-uz")}
+                  {t("language_uz")}
                 </button>
               </li>
               <li>
                 <button
                   onClick={() => changeLanguage("ru")}
-                  className={`block w-full rounded-full text-left px-4 py-3 text-sm rounded-full transition-colors duration-200 ${
+                  className={`block w-full text-left px-4 py-3 text-sm transition-colors duration-200 ${
                     i18n.language === "ru"
-                      ? "text-indigo-600 bg-indigo-50 rounded-full"
-                      : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50 "
+                      ? "text-indigo-600 bg-indigo-50"
+                      : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                   }`}
                 >
-                  {t("language-ru")}
+                  {t("language_ru")}
                 </button>
               </li>
               <li>
@@ -1049,11 +1056,11 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                   onClick={() => changeLanguage("en")}
                   className={`block w-full text-left px-4 py-3 text-sm transition-colors duration-200 ${
                     i18n.language === "en"
-                      ? "text-indigo-600 bg-indigo-50 rounded-full"
+                      ? "text-indigo-600 bg-indigo-50"
                       : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                   }`}
                 >
-                  {t("language-en")}
+                  {t("language_en")}
                 </button>
               </li>
             </ul>
@@ -1084,14 +1091,14 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
             <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
               <div className="flex items-center text-sm text-yellow-800">
                 <FaClock className="mr-2 flex-shrink-0" size={12} />
-                <span>Application under review</span>
+                <span>{t("application_under_review")}</span>
               </div>
               <Link
                 to="/agent/status"
                 onClick={handleNavLinkClick}
                 className="text-xs text-yellow-600 hover:underline mt-1 block font-medium"
               >
-                Check status →
+                {t("check_status")}
               </Link>
             </div>
           </li>
@@ -1113,19 +1120,14 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           TezSell
         </Link>
 
-        {/* <div className="hidden xl:flex items-center gap-2 mx-2">
-          {isAuthenticated && userRole && getRoleBadge()}
-          <PermissionStatusIndicator />
-        </div> */}
-
         <button
-          className="text-blue-900 text-2xl md:hidden flex-shrink-0 w-10 h-10 flex items-center justify-center hover:bg-white/20 rounded"
+          className="text-blue-900 text-2xl md:hidden flex-shrink-0 w-10 h-10 flex items-center justify-center hover:bg-white/20 rounded ml-auto"
           onClick={handleMenuToggle}
         >
           {isMenuOpen ? "✕" : "☰"}
         </button>
 
-        <nav className="hidden md:block">
+        <nav className="hidden md:block ml-auto">
           <ul className="flex flex-row gap-1 lg:gap-2 xl:gap-3 items-center">
             {renderNavItems()}
           </ul>
