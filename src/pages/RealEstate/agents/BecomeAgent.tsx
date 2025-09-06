@@ -1,6 +1,9 @@
-import { useBecomeAgentMutation } from '@store/slices/realEstate';
-import { Award, Building2, Calendar, Check, Send, Target } from 'lucide-react';
-import React, { useState } from 'react';
+import { RootState } from "@store/index";
+import { useBecomeAgentMutation } from "@store/slices/realEstate";
+import { Award, Building2, Calendar, Check, Send, Target } from "lucide-react";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 export interface BecomeAgentRequest {
   agency_name: string;
@@ -12,38 +15,47 @@ export interface BecomeAgentRequest {
 
 const BecomeAgentComp = () => {
   const [formData, setFormData] = useState<BecomeAgentRequest>({
-    agency_name: '',
-    licence_number: '',
+    agency_name: "",
+    licence_number: "",
     years_experience: 0,
-    specialization: '',
-    token: ''
+    specialization: "",
+    token: "",
   });
+  const { t } = useTranslation();
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [becomeAgent] = useBecomeAgentMutation({})
+  const [becomeAgent] = useBecomeAgentMutation({});
 
   const specializations = [
-    'Residential Sales',
-    'Commercial Real Estate',
-    'Property Management',
-    'Real Estate Investment',
-    'Luxury Properties',
-    'Land Development',
-    'Industrial Real Estate',
-    'Retail Leasing'
+    "Residential Sales",
+    "Commercial Real Estate",
+    "Property Management",
+    "Real Estate Investment",
+    "Luxury Properties",
+    "Land Development",
+    "Industrial Real Estate",
+    "Retail Leasing",
   ];
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: name === 'years_experience' ? parseInt(value) || 0 : value
+      [name]: name === "years_experience" ? parseInt(value) || 0 : value,
     }));
   };
 
   const handleSubmit = async () => {
     setIsLoading(true);
+    const token = userInfo?.token;
+    if (!token) {
+      toast.error(t("authentication_required"), { autoClose: 3000 });
+      return;
+    }
 
     try {
       // Replace with your actual API call
@@ -52,22 +64,26 @@ const BecomeAgentComp = () => {
         agency_name: formData.agency_name,
         licence_number: formData.licence_number,
         specialization: formData.specialization,
-        token: formData.token
+        token: token,
       });
 
       if (response.data) {
         // Success! Navigate to status page
-        toast.success("Application submitted successfully!", { autoClose: 2000 });
+        toast.success("Application submitted successfully!", {
+          autoClose: 2000,
+        });
         // Navigate to agent status page - replace with your actual router
         // navigate("/agent/status");
 
         // For demo purposes, we'll show the success screen
         setIsSubmitted(true);
       } else {
-        toast.error("Failed to submit application. Please try again.", { autoClose: 3000 });
+        toast.error("Failed to submit application. Please try again.", {
+          autoClose: 3000,
+        });
       }
     } catch (error) {
-      console.error('Submission error:', error);
+      console.error("Submission error:", error);
       toast.error("An error occurred. Please try again.", { autoClose: 3000 });
     } finally {
       setIsLoading(false);
@@ -81,13 +97,20 @@ const BecomeAgentComp = () => {
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <Check className="w-10 h-10 text-green-600" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Application Submitted!</h2>
-          <p className="text-gray-600 mb-6">Thank you for your interest in becoming an agent. We'll review your application and get back to you within 2-3 business days.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            Application Submitted!
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Thank you for your interest in becoming an agent. We'll review your
+            application and get back to you within 2-3 business days.
+          </p>
           <div className="space-y-3">
             <button
               onClick={() => {
                 // Navigate to agent status page
-                alert('Redirecting to /agent/status - implement with your router');
+                alert(
+                  "Redirecting to /agent/status - implement with your router"
+                );
                 // navigate('/agent/status');
               }}
               className="w-full bg-indigo-600 text-white px-6 py-3 rounded-xl hover:bg-indigo-700 transition-colors font-medium"
@@ -115,10 +138,14 @@ const BecomeAgentComp = () => {
             <Building2 className="w-8 h-8 text-indigo-600" />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Become an <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-cyan-600">Agent</span>
+            Become an{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-cyan-600">
+              Agent
+            </span>
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Join our network of professional real estate agents and take your career to the next level
+            Join our network of professional real estate agents and take your
+            career to the next level
           </p>
         </div>
 
@@ -126,7 +153,9 @@ const BecomeAgentComp = () => {
         <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
           <div className="bg-gradient-to-r from-indigo-600 to-cyan-600 px-8 py-6">
             <h2 className="text-2xl font-bold text-white">Application Form</h2>
-            <p className="text-indigo-100 mt-2">Fill in your professional details below</p>
+            <p className="text-indigo-100 mt-2">
+              Fill in your professional details below
+            </p>
           </div>
 
           <div className="p-8 md:p-12">
@@ -198,7 +227,9 @@ const BecomeAgentComp = () => {
                 >
                   <option value="">Select your specialization</option>
                   {specializations.map((spec) => (
-                    <option key={spec} value={spec}>{spec}</option>
+                    <option key={spec} value={spec}>
+                      {spec}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -207,7 +238,8 @@ const BecomeAgentComp = () => {
             {/* Token (Optional) */}
             <div className="mt-8 space-y-2">
               <label className="text-sm font-semibold text-gray-700">
-                Referral Token <span className="text-gray-400 font-normal">(Optional)</span>
+                Referral Token{" "}
+                <span className="text-gray-400 font-normal">(Optional)</span>
               </label>
               <input
                 type="text"
@@ -248,24 +280,32 @@ const BecomeAgentComp = () => {
             {
               icon: Award,
               title: "Professional Growth",
-              description: "Access to advanced training programs and certification opportunities"
+              description:
+                "Access to advanced training programs and certification opportunities",
             },
             {
               icon: Building2,
               title: "Network Access",
-              description: "Connect with top-tier clients and industry professionals"
+              description:
+                "Connect with top-tier clients and industry professionals",
             },
             {
               icon: Target,
               title: "Marketing Support",
-              description: "Comprehensive marketing tools and lead generation support"
-            }
+              description:
+                "Comprehensive marketing tools and lead generation support",
+            },
           ].map((benefit, index) => (
-            <div key={index} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
+            <div
+              key={index}
+              className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow"
+            >
               <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mb-4">
                 <benefit.icon className="w-6 h-6 text-indigo-600" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">{benefit.title}</h3>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">
+                {benefit.title}
+              </h3>
               <p className="text-gray-600">{benefit.description}</p>
             </div>
           ))}

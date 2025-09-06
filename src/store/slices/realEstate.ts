@@ -75,20 +75,23 @@ export const realEstateApiSlice = apiSlice.injectEndpoints({
       providesTags: (_result, _error, id) => [{ type: "Property", id }],
     }),
 
-createProperty: builder.mutation<Property, { propertyData: FormData; token: string }>({
-  query: ({ propertyData, token }) => {
-    return {
-      url: `${PROPERTIES_URL}/`,
-      method: "POST",
-      body: propertyData,
-      headers: {
-        Authorization: `Token ${token}`, // Add token to the Authorization header
+    createProperty: builder.mutation<
+      Property,
+      { propertyData: FormData; token: string }
+    >({
+      query: ({ propertyData, token }) => {
+        return {
+          url: `${PROPERTIES_URL}/`,
+          method: "POST",
+          body: propertyData,
+          headers: {
+            Authorization: `Token ${token}`, // Add token to the Authorization header
+          },
+          credentials: "include",
+        };
       },
-      credentials: "include",
-    };
-  },
-  invalidatesTags: ["Property"],
-}),
+      invalidatesTags: ["Property"],
+    }),
 
     updateProperty: builder.mutation<
       Property,
@@ -156,59 +159,68 @@ createProperty: builder.mutation<Property, { propertyData: FormData; token: stri
     }),
 
     // Saved properties endpoints
-    toggleSaveProperty: builder.mutation<{ saved: boolean }, { propertyId: string; token: string }>({
-      query: ({propertyId, token}) => ({
+    toggleSaveProperty: builder.mutation<
+      { saved: boolean },
+      { propertyId: string; token: string }
+    >({
+      query: ({ propertyId, token }) => ({
         url: `${PROPERTIES_URL}/${propertyId}/save/`,
-       headers: {
-            Authorization: `Token ${token}`, // Pass token in headers
-          },
+        headers: {
+          Authorization: `Token ${token}`, // Pass token in headers
+        },
         method: "POST",
       }),
       invalidatesTags: ["SavedProperty"],
     }),
-     toggleUnsaveProperty: builder.mutation<{ saved: boolean }, { propertyId: string; token: string }>({
-      query: ({propertyId, token}) => ({
+    toggleUnsaveProperty: builder.mutation<
+      { saved: boolean },
+      { propertyId: string; token: string }
+    >({
+      query: ({ propertyId, token }) => ({
         url: `${PROPERTIES_URL}/${propertyId}/save/`,
-       headers: {
-            Authorization: `Token ${token}`, // Pass token in headers
-          },
+        headers: {
+          Authorization: `Token ${token}`, // Pass token in headers
+        },
         method: "DELETE",
       }),
       invalidatesTags: ["SavedProperty"],
     }),
-    getSavedProperties: builder.query<PaginatedResponse<Property>, { token: string }>({
+    getSavedProperties: builder.query<
+      PaginatedResponse<Property>,
+      { token: string }
+    >({
       query: ({ token }: { token: string }) => {
         return {
-      url: `${SAVED_PROPERTIES_URL}/`,
-      headers: {
-        Authorization: `Token ${token}`, // Pass token in headers
+          url: `${SAVED_PROPERTIES_URL}/`,
+          headers: {
+            Authorization: `Token ${token}`, // Pass token in headers
+          },
+          credentials: "include",
+        };
       },
-      credentials: "include",
-    };
-  },
-  providesTags: ["SavedProperty"],
-}),
+      providesTags: ["SavedProperty"],
+    }),
     createPropertyInquiry: builder.mutation({
- query: ({
-   inquiryData,
-   token,
- }: {
-   inquiryData: PropertyInquiry;
-   token: string;
- }) => {
-   return {
-     url: `${PROPERTY_INQUIRIES_URL}/`,
-     method: "POST",
-     body: inquiryData,
-     headers: {
-       Authorization: `Token ${token}`,
-       'Content-Type': 'application/json',
-     },
-     credentials: "include",
-   };
- },
- invalidatesTags: ["Inquiry"],
-}),
+      query: ({
+        inquiryData,
+        token,
+      }: {
+        inquiryData: PropertyInquiry;
+        token: string;
+      }) => {
+        return {
+          url: `${PROPERTY_INQUIRIES_URL}/`,
+          method: "POST",
+          body: inquiryData,
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        };
+      },
+      invalidatesTags: ["Inquiry"],
+    }),
 
     // Analytics
     getPropertyStats: builder.query<PropertyStats, void>({
@@ -246,19 +258,27 @@ createProperty: builder.mutation<Property, { propertyData: FormData; token: stri
       providesTags: (_result, _error, id) => [{ type: "Agent", id }],
     }),
 
-   getAgentProperties: builder.query<PaginatedResponse<Property>, { token: string; agentId: string }>({
-
-  query: ({ token, agentId }: { token: string; agentId: string | number }) => {
-    return {
-      url: `${AGENTS_URL}/${agentId}/properties/`,
-      headers: {
-        Authorization: `Token ${token}`,
+    getAgentProperties: builder.query<
+      PaginatedResponse<Property>,
+      { token: string; agentId: string }
+    >({
+      query: ({
+        token,
+        agentId,
+      }: {
+        token: string;
+        agentId: string | number;
+      }) => {
+        return {
+          url: `${AGENTS_URL}/${agentId}/properties/`,
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+          credentials: "include",
+        };
       },
-      credentials: "include",
-    };
-  },
-  providesTags: ["Property"],
-}),
+      providesTags: ["Property"],
+    }),
 
     getTopAgents: builder.query<RealEstateAgent[], void>({
       query: () => `${TOP_AGENTS_URL}/`,
@@ -276,41 +296,44 @@ createProperty: builder.mutation<Property, { propertyData: FormData; token: stri
       },
       providesTags: ["AgentData"],
     }),
-  getAgentInquiries: builder.query<PaginatedResponse<PropertyInquiry>, { token: string }>({
- query: ({ token }: { token: string }) => {
-   return {
-     url: `${AGENT_INQUIRIES_URL}/`,
-     headers: {
-       Authorization: `Token ${token}`,
-     },
-     credentials: "include",
-   };
- },
- providesTags: ["Inquiry"],
-}),
+    getAgentInquiries: builder.query<
+      PaginatedResponse<PropertyInquiry>,
+      { token: string }
+    >({
+      query: ({ token }: { token: string }) => {
+        return {
+          url: `${AGENT_INQUIRIES_URL}/`,
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+          credentials: "include",
+        };
+      },
+      providesTags: ["Inquiry"],
+    }),
     respondToInquiry: builder.mutation({
- query: ({
-   inquiryId,
-   response,
-   token,
- }: {
-   inquiryId: string;
-   response: string;
-   token: string;
- }) => {
-   return {
-     url: `${AGENT_INQUIRIES_URL}/${inquiryId}/respond/`,
-     method: "PATCH",
-     body: { response },
-     headers: {
-       Authorization: `Token ${token}`,
-       'Content-Type': 'application/json',
-     },
-     credentials: "include",
-   };
- },
- invalidatesTags: ["Inquiry"],
-}),
+      query: ({
+        inquiryId,
+        response,
+        token,
+      }: {
+        inquiryId: string;
+        response: string;
+        token: string;
+      }) => {
+        return {
+          url: `${AGENT_INQUIRIES_URL}/${inquiryId}/respond/`,
+          method: "PATCH",
+          body: { response },
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        };
+      },
+      invalidatesTags: ["Inquiry"],
+    }),
 
     becomeAgent: builder.mutation<BecomeAgentResponse, BecomeAgentRequest>({
       query: ({
@@ -347,24 +370,23 @@ createProperty: builder.mutation<Property, { propertyData: FormData; token: stri
       invalidatesTags: ["Agent", "AgentData"],
     }),
     checkAgentStatus: builder.query<AgentStatus, { token: string }>({
-
       query: ({ token }) => ({
-    url: `${AGENT_STATUS_URL}/`,
-    headers: {
-      Authorization: `Token ${token}`, // Add token to the Authorization header
-    },
-  }),
-  providesTags: ["AgentData"],
-}),
-getAgentApplicationStatus: builder.query<any, { token: string }>({
-  query: ({ token }) => ({
-    url: `${AGENT_APPLICATION_STATUS_URL}/`,
-    headers: {
-      Authorization: `Token ${token}`, // Add token to the Authorization header
-    },
-  }),
-  providesTags: ["AgentData"],
-}),
+        url: `${AGENT_STATUS_URL}/`,
+        headers: {
+          Authorization: `Token ${token}`, // Add token to the Authorization header
+        },
+      }),
+      providesTags: ["AgentData"],
+    }),
+    getAgentApplicationStatus: builder.query<any, { token: string }>({
+      query: ({ token }) => ({
+        url: `${AGENT_APPLICATION_STATUS_URL}/`,
+        headers: {
+          Authorization: `Token ${token}`, // Add token to the Authorization header
+        },
+      }),
+      providesTags: ["AgentData"],
+    }),
     getPendingAgentApplications: builder.query<
       PaginatedResponse<RealEstateAgent>,
       void
