@@ -28,6 +28,7 @@ export const apiSlice = createApi({
   tagTypes: [
     "Product",
     "Auth",
+    "Users",
     "Service",
     "Comment",
     "Message",
@@ -36,12 +37,12 @@ export const apiSlice = createApi({
     "Agent",
     "AgentData",
     "SavedProperty",
-        "Admin",
+    "Admin",
     "AdminData",
     "Inquiry",
     "Location",
     "Stats",
-    "RealEstate"
+    "RealEstate",
   ],
   endpoints: () => ({}),
   keepUnusedDataFor: 60,

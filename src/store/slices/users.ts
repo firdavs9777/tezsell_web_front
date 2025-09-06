@@ -9,6 +9,7 @@ import {
   USER_SERVICE,
   VERIFY_SMS,
   USER_PERMISSIONS,
+  USERS_URL,
 } from "@store/constants";
 import { apiSlice } from "@store/slices/apiSlice";
 import { LoginInfo, RegisterInfo } from "@store/type";
@@ -43,6 +44,45 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       }),
       keepUnusedDataFor: 5,
       provideTags: ["Auth"],
+    }),
+    getRegisteredUsers: builder.query({
+      query: ({
+        token,
+        page = 1,
+        pageSize = 20,
+        search = "",
+        userType = "",
+        isActive = "",
+        isStaff = "",
+        region = "",
+      }: {
+        token: string;
+        page?: number;
+        pageSize?: number;
+        search?: string;
+        userType?: string;
+        isActive?: string;
+        isStaff?: string;
+        region?: string;
+      }) => {
+        return {
+          url: `${USERS_URL}/`,
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+          params: {
+            page,
+            page_size: pageSize,
+            search,
+            user_type: userType,
+            is_active: isActive,
+            is_staff: isStaff,
+            region,
+          },
+          credentials: "include",
+        };
+      },
+      providesTags: ["Users"], // Changed from "Auth" to "Users" for better cache management
     }),
     getLoggedinUserInfo: builder.query({
       query: ({ token }: { token: string }) => {
@@ -195,4 +235,5 @@ export const {
   useUpdateLoggedUserInfoMutation,
   useDeleteUserServiceMutation,
   useGetUserPermissionsQuery,
+  useGetRegisteredUsersQuery,
 } = usersApiSlice;

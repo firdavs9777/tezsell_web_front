@@ -10,7 +10,7 @@ import PendingAgents from "@pages/RealEstate/admin/PendingAgents";
 import VerifiedAgents from "@pages/RealEstate/admin/VerifiedAgents";
 import AgentApplicationStatusComponent from "@pages/RealEstate/agents/AgentApplicationStatus";
 import AgentDashboard from "@pages/RealEstate/agents/AgentDashboard";
-import AgentDetail from '@pages/RealEstate/agents/AgentDetail';
+import AgentDetail from "@pages/RealEstate/agents/AgentDetail";
 import AgentInquiries from "@pages/RealEstate/agents/AgentInquiries";
 import AgentProfile from "@pages/RealEstate/agents/AgentProfile";
 import AgentProperties from "@pages/RealEstate/agents/AgentProperties";
@@ -29,6 +29,7 @@ import ProtectedRoute from "@routes/ProtectRoute";
 import MyServices from "@services/MyServices";
 import NewService from "@services/NewService";
 import ServiceDetail from "@services/ServiceDetail";
+import TotalUsersList from "@pages/RealEstate/admin/TotalUsersList";
 import { RootState } from "@store/index";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
@@ -74,17 +75,22 @@ const Router = () => {
           <Route path="/myprofile" element={<MainProfile />} />
           <Route path="/my-products" element={<MyProducts />} />
           <Route path="/become-agent" element={<BecomeAgentComp />} />
-        <Route path="/agent/status" element={<AgentApplicationStatusComponent />} />
-         <Route path="/agent/inquiries" element={<AgentInquiries />} />
+          <Route
+            path="/agent/status"
+            element={<AgentApplicationStatusComponent />}
+          />
+          <Route path="/agent/inquiries" element={<AgentInquiries />} />
           <Route path="/agent/profile" element={<AgentProfile />} />
           <Route path="/new-product" element={<NewProduct />} />
           <Route path="/agent/dashboard" element={<AgentDashboard />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/pending-agents" element={<PendingAgents/>} />
-                        <Route path="/admin/verified-agents" element={<VerifiedAgents/>} />
+          <Route path="/admin/users" element={<TotalUsersList />} />
+
+          <Route path="/admin/pending-agents" element={<PendingAgents />} />
+          <Route path="/admin/verified-agents" element={<VerifiedAgents />} />
           <Route path="/agent/properties" element={<AgentProperties />} />
-        <Route path="/saved-properties" element={<SavedProperties />} />
-        <Route path="/agent/create-property" element={<NewPropertyComp />} />
+          <Route path="/saved-properties" element={<SavedProperties />} />
+          <Route path="/agent/create-property" element={<NewPropertyComp />} />
           <Route path="/my-services" element={<MyServices />} />
           <Route path="/chat" element={<MainChat />} />
           <Route path="/chat/:chatId" element={<MainChat />} />

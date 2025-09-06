@@ -6,6 +6,7 @@ export const COMMENTS_URL = "/services/api/comments";
 export const SERVICES_CATEGORY = "/services/api/categories";
 export const REGISTER_URL = "/accounts/register/";
 export const LOGIN_URL = "/accounts/login/";
+export const USERS_URL = "/accounts/users";
 export const LOGOUT_URL = "/accounts/logout/";
 export const CATEGORY_URL = "/products/api/categories";
 export const REGIONS_URL = "/accounts/regions";
