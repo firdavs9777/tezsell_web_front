@@ -28,7 +28,6 @@ import {
   FaUserShield,
   FaBoxOpen,
   FaBuilding,
-  FaChartBar,
   FaCheckCircle,
   FaChevronDown,
   FaClock,
@@ -55,7 +54,6 @@ import {
   FaUserTie,
   FaUsers,
   FaBell,
-  FaExclamationTriangle,
 } from "react-icons/fa";
 import { FaUserPlus } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
@@ -127,20 +125,20 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   const isAgent = useSelector(selectIsAgent);
   const canCreateProperties = useSelector(selectCanCreateProperties);
 
-  // Safe API calls with proper error handling
-  const {
-    data: permissionsData,
-    error: permissionError,
-    isLoading: permissionsLoading,
-    isError: permissionsIsError,
-  } = useGetUserPermissionsQuery(
-    { token: token || "" },
-    {
-      skip: !token || !isAuthenticated,
-      pollingInterval: 5 * 60 * 1000,
-      refetchOnMountOrArgChange: true,
-    }
-  );
+  const { data: permissionsData, error: permissionError } =
+    useGetUserPermissionsQuery(
+      { token: token || "" },
+      {
+        skip: !token || !isAuthenticated,
+        pollingInterval: 5 * 60 * 1000,
+        refetchOnMountOrArgChange: true,
+      }
+    ) as {
+      data: PermissionsData | undefined;
+      error: any;
+      isLoading: boolean;
+      isError: boolean;
+    };
 
   const [logoutApiCall] = useLogoutUserMutation();
   const dispatch = useDispatch();
@@ -148,11 +146,24 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   const { t, i18n } = useTranslation();
   const { clearAllStorage } = useAutoLogout();
 
+  useEffect(() => {
+    if (!userInfo) {
+      dispatch(syncWithStorage());
+    }
+  }, [userInfo, dispatch]);
+
+  const calculatedUnread = chats.reduce(
+    (total, chat) => total + chat.unread_count,
+    0
+  );
+  const totalUnread = liveUnreadCount ?? calculatedUnread;
+  const hasUnread = totalUnread > 0;
+  const formattedCount = totalUnread > 99 ? "99+" : totalUnread.toString();
+
   const {
     data: loggedUserInfo,
     refetch: refresh,
     isError: userInfoError,
-    error: userInfoErrorData,
   } = useGetLoggedinUserInfoQuery(
     { token: token || "" },
     {
@@ -161,53 +172,11 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
     }
   );
 
-  // Handle authentication errors
   useEffect(() => {
-    const handleAuthError = (error: any) => {
-      if (
-        error &&
-        typeof error === "object" &&
-        "status" in error &&
-        error.status === 401
-      ) {
-        console.log("Authentication failed - redirecting to login");
-        dispatch(logout(undefined));
-        clearAllStorage();
-        navigate("/login");
-        toast.error("Session expired. Please log in again.");
-      }
-    };
-
-    if (permissionsIsError && permissionError) {
-      handleAuthError(permissionError);
+    if (userInfoError && token) {
+      console.log("User info fetch failed, possibly expired token");
     }
-
-    if (userInfoError && userInfoErrorData) {
-      handleAuthError(userInfoErrorData);
-    }
-  }, [
-    permissionsIsError,
-    permissionError,
-    userInfoError,
-    userInfoErrorData,
-    dispatch,
-    clearAllStorage,
-    navigate,
-  ]);
-
-  useEffect(() => {
-    if (!userInfo) {
-      dispatch(syncWithStorage());
-    }
-  }, [userInfo, dispatch]);
-
-  // Safe calculation of unread count
-  const calculatedUnread = Array.isArray(chats)
-    ? chats.reduce((total, chat) => total + (chat?.unread_count || 0), 0)
-    : 0;
-  const totalUnread = liveUnreadCount ?? calculatedUnread;
-  const hasUnread = totalUnread > 0;
-  const formattedCount = totalUnread > 99 ? "99+" : totalUnread.toString();
+  }, [userInfoError, token, dispatch, navigate]);
 
   useEffect(() => {
     if (token) {
@@ -242,11 +211,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
     isAgentDropdownOpen,
   ]);
 
-  // Safe profile info extraction
-  const profileInfo: UserInfo | undefined =
-    loggedUserInfo && typeof loggedUserInfo === "object"
-      ? (loggedUserInfo as UserInfo)
-      : undefined;
+  const profileInfo: UserInfo | undefined = loggedUserInfo as UserInfo;
 
   const changeLanguage = (lang: string) => {
     i18n.changeLanguage(lang);
@@ -331,8 +296,6 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   const showLogin = !isAuthenticated;
 
   function getRoleBadge() {
-    if (!userRole) return null;
-
     const badges = {
       super_admin: {
         label: t("super_admin"),
@@ -385,77 +348,50 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
 
   const PermissionErrorNotification = () => {
     if (!permissionError) return null;
-
-    // Safe error message extraction
-    let errorMessage = "Permission error occurred";
-    if (
-      typeof permissionError === "object" &&
-      permissionError &&
-      "data" in permissionError
-    ) {
-      errorMessage = (permissionError as any).data?.message || errorMessage;
-    } else if (typeof permissionError === "string") {
-      errorMessage = permissionError;
-    }
-
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-2 mx-2 mb-2">
         <div className="flex items-center text-red-700 text-sm">
           <FaBell className="mr-2 flex-shrink-0" size={12} />
-          <span>{errorMessage}</span>
+          <span>{permissionError}</span>
         </div>
       </div>
     );
   };
 
-  const PermissionStatusIndicator = () => {
-    if (!isAuthenticated || !permissionsData) return null;
+  // const PermissionStatusIndicator = () => {
+  //   if (!isAuthenticated || !permissionsData) return null;
 
-    const isStale =
-      permissionsData?.last_updated &&
-      Date.now() - new Date(permissionsData.last_updated).getTime() >
-        10 * 60 * 1000;
+  //   const isStale =
+  //     permissionsData?.last_updated &&
+  //     Date.now() - new Date(permissionsData.last_updated).getTime() >
+  //       10 * 60 * 1000;
 
-    return (
-      <div
-        className={`hidden lg:flex items-center text-xs px-2 py-1 rounded ${
-          isStale
-            ? "text-yellow-600 bg-yellow-50"
-            : "text-green-600 bg-green-50"
-        }`}
-        title={`${
-          isStale
-            ? t("permissions_may_be_outdated")
-            : t("permissions_up_to_date")
-        } - ${t("last_updated")} ${
-          permissionsData.last_updated
-            ? new Date(permissionsData.last_updated).toLocaleTimeString()
-            : t("never")
-        }`}
-      >
-        <div
-          className={`w-2 h-2 rounded-full mr-1 ${
-            isStale ? "bg-yellow-400" : "bg-green-400"
-          }`}
-        />
-        <span>{t("live")}</span>
-      </div>
-    );
-  };
-
-  // Show loading state if critical data is loading
-  if (permissionsLoading && isAuthenticated) {
-    return (
-      <header className="sticky top-0 z-50 bg-yellow-300/90 backdrop-blur-md shadow-md">
-        <div className="h-16 px-2 sm:px-4 flex justify-center items-center max-w-7xl mx-auto">
-          <div className="flex items-center gap-2 text-blue-900">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-900"></div>
-            <span>Loading...</span>
-          </div>
-        </div>
-      </header>
-    );
-  }
+  //   return (
+  //     <div
+  //       className={`hidden lg:flex items-center text-xs px-2 py-1 rounded ${
+  //         isStale
+  //           ? "text-yellow-600 bg-yellow-50"
+  //           : "text-green-600 bg-green-50"
+  //       }`}
+  //       title={`${
+  //         isStale
+  //           ? t("permissions_may_be_outdated")
+  //           : t("permissions_up_to_date")
+  //       } - ${t("last_updated")} ${
+  //         permissionsData.last_updated
+  //           ? new Date(permissionsData.last_updated).toLocaleTimeString()
+  //           : t("never")
+  //       }`}
+  //     >
+  //       <div
+  //         className={`w-2 h-2 rounded-full mr-1 ${
+  //           isStale ? "bg-yellow-400" : "bg-green-400"
+  //         }`}
+  //       />
+  //       <span>{t("live")}</span>
+  //     </div>
+  //   );
+  // };
 
   function renderNavItems() {
     return (
@@ -490,7 +426,6 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           </Link>
         </li>
 
-        {/* Real Estate Dropdown */}
         <li className="relative w-full md:w-auto">
           <button
             onClick={handleDropdownToggle("realEstate")}
@@ -633,7 +568,6 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           )}
         </li>
 
-        {/* Admin Panel */}
         {canAccessAdmin && (
           <li className="relative w-full md:w-auto">
             <button
@@ -740,7 +674,6 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           </li>
         )}
 
-        {/* Agent Panel */}
         {isVerifiedAgent && (
           <li className="relative w-full md:w-auto">
             <button
@@ -872,7 +805,6 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           </Link>
         </li>
 
-        {/* Chat */}
         {isAuthenticated && (
           <li className="w-full md:w-auto">
             <Link
@@ -897,7 +829,6 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           </li>
         )}
 
-        {/* Support */}
         <li className="w-full md:w-auto">
           <a
             href="https://t.me/tezsell_menejer"
@@ -911,7 +842,6 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           </a>
         </li>
 
-        {/* User Profile Menu */}
         {showUserMenu ? (
           <li className="relative w-full md:w-auto">
             <button
@@ -925,52 +855,43 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                 setIsProfileDropDownOpen(!isProfileDropDownOpen);
               }}
             >
-              {/* Safe profile image rendering */}
-              {(() => {
-                const userImageUrl =
-                  (user as any)?.profile_image?.url ||
-                  (user as any)?.user_image ||
-                  (profileInfo?.data?.profile_image?.image
-                    ? `${BASE_URL}${profileInfo.data.profile_image.image}`
-                    : null);
-
-                return userImageUrl ? (
-                  <img
-                    src={userImageUrl}
-                    alt="profile"
-                    className="w-8 h-8 rounded-full object-cover flex-shrink-0"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                      const fallback = e.currentTarget
-                        .nextElementSibling as HTMLElement;
-                      if (fallback) fallback.style.display = "flex";
-                    }}
-                  />
-                ) : null;
-              })()}
+              {(user as any)?.profile_image?.url ||
+              (user as any)?.user_image ||
+              profileInfo?.data.profile_image?.image ? (
+                <img
+                  src={
+                    (user as any)?.profile_image?.url ||
+                    (user as any)?.user_image ||
+                    `${BASE_URL}${profileInfo?.data.profile_image?.image}`
+                  }
+                  alt="profile"
+                  className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                    const fallback = e.currentTarget
+                      .nextElementSibling as HTMLElement;
+                    if (fallback) fallback.style.display = "flex";
+                  }}
+                />
+              ) : null}
               <div
                 className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0"
                 style={{
-                  display: !(
+                  display:
                     (user as any)?.profile_image?.url ||
                     (user as any)?.user_image ||
-                    profileInfo?.data?.profile_image?.image
-                  )
-                    ? "flex"
-                    : "none",
+                    profileInfo?.data.profile_image?.image
+                      ? "none"
+                      : "flex",
                 }}
               >
-                {(() => {
-                  const username =
-                    (user as any)?.username ||
-                    profileInfo?.data?.username ||
-                    "User";
-                  return username.charAt(0).toUpperCase();
-                })()}
+                {(user as any)?.username?.charAt(0).toUpperCase() ||
+                  profileInfo?.data.username?.charAt(0).toUpperCase() ||
+                  "U"}
               </div>
               <span className="text-gray-800 font-medium text-sm flex-1 text-left md:flex-initial truncate">
                 {(user as any)?.username ||
-                  profileInfo?.data?.username ||
+                  profileInfo?.data.username ||
                   "User"}
               </span>
             </button>
@@ -1076,7 +997,6 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           </li>
         )}
 
-        {/* Language Selector */}
         <li className="relative w-full md:w-auto">
           <button
             className="flex items-center gap-2 text-cyan-600 hover:text-blue-600 hover:bg-white/50 md:hover:bg-white/30 font-medium text-sm px-3 py-2 rounded transition-colors w-full"
@@ -1146,14 +1066,12 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           )}
         </li>
 
-        {/* Mobile role badge */}
         {isMenuOpen && isAuthenticated && userRole && (
           <li className="md:hidden mt-4 pt-4 border-t border-yellow-300/50">
             <div className="flex justify-center">{getRoleBadge()}</div>
           </li>
         )}
 
-        {/* Mobile agent info */}
         {isMenuOpen && isVerifiedAgent && agentInfo && (
           <li className="md:hidden mt-3">
             <div className="bg-green-50 rounded-lg p-3 border border-green-200">
@@ -1167,7 +1085,6 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           </li>
         )}
 
-        {/* Mobile pending agent status */}
         {isMenuOpen && isPendingAgent && (
           <li className="md:hidden mt-3">
             <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
