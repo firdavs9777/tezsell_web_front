@@ -50,14 +50,15 @@ export interface UserPermissions {
   can_access_admin: boolean;
   can_verify_agents: boolean;
   can_manage_users: boolean;
-  user_role?: string; // Add this missing property
+  user_role?: string;
+  last_updated?: string; // Track when permissions were last updated
 }
 
 export interface EnhancedUser {
   id: number;
   username: string;
   phone_number: string;
-  user_type: 'regular' | 'business';
+  user_type: "regular" | "business";
   is_active: boolean;
   is_staff: boolean;
   is_superuser: boolean;
@@ -86,6 +87,13 @@ export interface AuthResponse {
   user_role?: string;
 }
 
+// Permission validation state
+export interface PermissionValidation {
+  isValidating: boolean;
+  lastValidated: string | null;
+  validationErrors: Record<string, string>;
+}
+
 // Enhanced AuthState that includes processed data
 export interface AuthState {
   userInfo: AuthResponse | null;
@@ -97,8 +105,10 @@ export interface AuthState {
     permissions: UserPermissions;
     user_role: string;
   } | null;
+  permissionValidation: PermissionValidation;
   isLoading: boolean;
   error: string | null;
+  permissionRefreshInterval: number | null; // Store interval ID
 }
 
 // Default permissions for backward compatibility
@@ -112,6 +122,7 @@ const defaultPermissions: UserPermissions = {
   can_access_admin: false,
   can_verify_agents: false,
   can_manage_users: false,
+  last_updated: new Date().toISOString(),
 };
 
 // Helper function to determine user role
@@ -121,21 +132,26 @@ const getUserRole = (user: any, permissions?: UserPermissions): string => {
   if (user?.is_superuser || user?.isAdmin) return "super_admin";
   if (user?.is_staff) return "staff";
   if (permissions?.is_verified_agent) return "verified_agent";
-  if (permissions?.is_agent && !permissions?.is_verified_agent) return "pending_agent";
+  if (permissions?.is_agent && !permissions?.is_verified_agent)
+    return "pending_agent";
   return "regular_user";
 };
 
 // Helper function to process and normalize auth response
 const processAuthResponse = (response: AuthResponse) => {
-  const isEnhanced = response.success !== undefined && response.permissions !== undefined;
+  const isEnhanced =
+    response.success !== undefined && response.permissions !== undefined;
 
   if (isEnhanced) {
     // New enhanced response
     return {
       token: response.token!,
-      user: response.user_info as EnhancedUser | User, // Fix: Allow both types
+      user: response.user_info as EnhancedUser | User,
       agent_info: response.agent_info || null,
-      permissions: response.permissions!,
+      permissions: {
+        ...response.permissions!,
+        last_updated: new Date().toISOString(),
+      },
       user_role: response.user_role!,
     };
   } else {
@@ -146,10 +162,15 @@ const processAuthResponse = (response: AuthResponse) => {
     const permissions: UserPermissions = {
       ...defaultPermissions,
       is_staff: (user as any)?.is_staff || (user as any)?.isAdmin || false,
-      is_superuser: (user as any)?.is_superuser || (user as any)?.isAdmin || false,
-      can_access_admin: (user as any)?.is_staff || (user as any)?.isAdmin || false,
-      can_verify_agents: (user as any)?.is_superuser || (user as any)?.isAdmin || false,
-      can_manage_users: (user as any)?.is_staff || (user as any)?.isAdmin || false,
+      is_superuser:
+        (user as any)?.is_superuser || (user as any)?.isAdmin || false,
+      can_access_admin:
+        (user as any)?.is_staff || (user as any)?.isAdmin || false,
+      can_verify_agents:
+        (user as any)?.is_superuser || (user as any)?.isAdmin || false,
+      can_manage_users:
+        (user as any)?.is_staff || (user as any)?.isAdmin || false,
+      last_updated: new Date().toISOString(),
     };
 
     const user_role = getUserRole(user, permissions);
@@ -190,8 +211,14 @@ const getStoredProcessedInfo = () => {
 const initialState: AuthState = {
   userInfo: getStoredUserInfo(),
   processedUserInfo: getStoredProcessedInfo(),
+  permissionValidation: {
+    isValidating: false,
+    lastValidated: null,
+    validationErrors: {},
+  },
   isLoading: false,
   error: null,
+  permissionRefreshInterval: null,
 };
 
 const authSlice = createSlice({
@@ -212,6 +239,80 @@ const authSlice = createSlice({
       }
     },
 
+    // In your authSlice.ts, add this to the reducers:
+    refreshPermissions: (state, action: PayloadAction<UserPermissions>) => {
+      if (state.processedUserInfo) {
+        const updatedPermissions = {
+          ...action.payload,
+          last_updated: new Date().toISOString(),
+        };
+
+        state.processedUserInfo.permissions = updatedPermissions;
+        state.processedUserInfo.user_role = getUserRole(
+          state.processedUserInfo.user,
+          updatedPermissions
+        );
+
+        // Update stored info
+        if (state.userInfo) {
+          state.userInfo.permissions = updatedPermissions;
+          state.userInfo.user_role = state.processedUserInfo.user_role;
+          localStorage.setItem("userInfo", JSON.stringify(state.userInfo));
+        }
+      }
+    },
+
+    // Start permission validation
+    startPermissionValidation: (state) => {
+      state.permissionValidation.isValidating = true;
+    },
+
+    // Complete permission validation
+    completePermissionValidation: (
+      state,
+      action: PayloadAction<{
+        isValid: boolean;
+        errors?: Record<string, string>;
+        updatedPermissions?: UserPermissions;
+      }>
+    ) => {
+      state.permissionValidation.isValidating = false;
+      state.permissionValidation.lastValidated = new Date().toISOString();
+      state.permissionValidation.validationErrors = action.payload.errors || {};
+
+      // If permissions were updated during validation, apply them
+      if (action.payload.updatedPermissions && state.processedUserInfo) {
+        state.processedUserInfo.permissions = {
+          ...action.payload.updatedPermissions,
+          last_updated: new Date().toISOString(),
+        };
+        state.processedUserInfo.user_role = getUserRole(
+          state.processedUserInfo.user,
+          action.payload.updatedPermissions
+        );
+
+        // Update stored info
+        if (state.userInfo) {
+          state.userInfo.permissions = action.payload.updatedPermissions;
+          state.userInfo.user_role = state.processedUserInfo.user_role;
+          localStorage.setItem("userInfo", JSON.stringify(state.userInfo));
+        }
+      }
+    },
+
+    // Set permission refresh interval
+    setPermissionRefreshInterval: (state, action: PayloadAction<number>) => {
+      state.permissionRefreshInterval = action.payload;
+    },
+
+    // Clear permission refresh interval
+    clearPermissionRefreshInterval: (state) => {
+      if (state.permissionRefreshInterval) {
+        clearInterval(state.permissionRefreshInterval);
+        state.permissionRefreshInterval = null;
+      }
+    },
+
     // Set loading state
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
@@ -225,10 +326,22 @@ const authSlice = createSlice({
 
     logout: (state, action?: PayloadAction<AuthResponse | undefined>) => {
       console.log(action);
+
+      // Clear permission refresh interval
+      if (state.permissionRefreshInterval) {
+        clearInterval(state.permissionRefreshInterval);
+      }
+
       state.userInfo = null;
       state.processedUserInfo = null;
+      state.permissionValidation = {
+        isValidating: false,
+        lastValidated: null,
+        validationErrors: {},
+      };
       state.error = null;
       state.isLoading = false;
+      state.permissionRefreshInterval = null;
 
       try {
         localStorage.removeItem("userInfo");
@@ -272,8 +385,11 @@ const authSlice = createSlice({
           is_verified_agent: action.payload.is_verified,
           can_create_properties: action.payload.is_verified,
           can_manage_inquiries: action.payload.is_verified,
+          last_updated: new Date().toISOString(),
         };
-        state.processedUserInfo.user_role = action.payload.is_verified ? "verified_agent" : "pending_agent";
+        state.processedUserInfo.user_role = action.payload.is_verified
+          ? "verified_agent"
+          : "pending_agent";
 
         try {
           localStorage.setItem("userInfo", JSON.stringify(state.userInfo));
@@ -284,10 +400,21 @@ const authSlice = createSlice({
     },
 
     clearAuth: (state) => {
+      // Clear permission refresh interval
+      if (state.permissionRefreshInterval) {
+        clearInterval(state.permissionRefreshInterval);
+      }
+
       state.userInfo = null;
       state.processedUserInfo = null;
+      state.permissionValidation = {
+        isValidating: false,
+        lastValidated: null,
+        validationErrors: {},
+      };
       state.error = null;
       state.isLoading = false;
+      state.permissionRefreshInterval = null;
 
       try {
         localStorage.removeItem("userInfo");
@@ -299,38 +426,130 @@ const authSlice = createSlice({
     syncWithStorage: (state) => {
       const storedInfo = getStoredUserInfo();
       state.userInfo = storedInfo;
-      state.processedUserInfo = storedInfo ? processAuthResponse(storedInfo) : null;
+      state.processedUserInfo = storedInfo
+        ? processAuthResponse(storedInfo)
+        : null;
+    },
+
+    // Handle real-time permission updates (e.g., from WebSocket)
+    handlePermissionUpdate: (
+      state,
+      action: PayloadAction<{
+        type: "permission_changed" | "role_updated" | "agent_verified";
+        permissions?: UserPermissions;
+        agentInfo?: AgentInfo;
+        message?: string;
+      }>
+    ) => {
+      const { type, permissions, agentInfo, message } = action.payload;
+
+      if (state.processedUserInfo) {
+        switch (type) {
+          case "permission_changed":
+            if (permissions) {
+              state.processedUserInfo.permissions = {
+                ...permissions,
+                last_updated: new Date().toISOString(),
+              };
+              state.processedUserInfo.user_role = getUserRole(
+                state.processedUserInfo.user,
+                permissions
+              );
+            }
+            break;
+
+          case "agent_verified":
+            if (agentInfo) {
+              state.processedUserInfo.agent_info = agentInfo;
+              state.processedUserInfo.permissions = {
+                ...state.processedUserInfo.permissions,
+                is_verified_agent: agentInfo.is_verified,
+                can_create_properties: agentInfo.is_verified,
+                can_manage_inquiries: agentInfo.is_verified,
+                last_updated: new Date().toISOString(),
+              };
+              state.processedUserInfo.user_role = agentInfo.is_verified
+                ? "verified_agent"
+                : "pending_agent";
+            }
+            break;
+
+          case "role_updated":
+            if (permissions) {
+              state.processedUserInfo.permissions = {
+                ...permissions,
+                last_updated: new Date().toISOString(),
+              };
+              state.processedUserInfo.user_role = getUserRole(
+                state.processedUserInfo.user,
+                permissions
+              );
+            }
+            break;
+        }
+
+        // Update stored info
+        if (state.userInfo) {
+          state.userInfo.permissions = state.processedUserInfo.permissions;
+          state.userInfo.user_role = state.processedUserInfo.user_role;
+          state.userInfo.agent_info = state.processedUserInfo.agent_info;
+          localStorage.setItem("userInfo", JSON.stringify(state.userInfo));
+        }
+      }
+
+      // Show notification if message provided
+      if (message) {
+        console.info("Permission Update:", message);
+        // You can dispatch a notification action here if you have a notification system
+      }
     },
   },
 });
 
 export const {
   setCredentials,
+  refreshPermissions,
+  startPermissionValidation,
+  completePermissionValidation,
+  setPermissionRefreshInterval,
+  clearPermissionRefreshInterval,
   setLoading,
   setError,
   logout,
   updateUserInfo,
   updateAgentInfo,
   clearAuth,
-  syncWithStorage
+  syncWithStorage,
+  handlePermissionUpdate,
 } = authSlice.actions;
 
 export default authSlice.reducer;
 
 // Enhanced selectors for easy access
 export const selectAuth = (state: { auth: AuthState }) => state.auth;
-export const selectRawUserInfo = (state: { auth: AuthState }) => state.auth.userInfo;
-export const selectProcessedUserInfo = (state: { auth: AuthState }) => state.auth.processedUserInfo;
-export const selectUser = (state: { auth: AuthState }) => state.auth.processedUserInfo?.user;
-export const selectAgentInfo = (state: { auth: AuthState }) => state.auth.processedUserInfo?.agent_info;
-export const selectPermissions = (state: { auth: AuthState }) => state.auth.processedUserInfo?.permissions;
-export const selectUserRole = (state: { auth: AuthState }) => state.auth.processedUserInfo?.user_role;
-export const selectToken = (state: { auth: AuthState }) => state.auth.processedUserInfo?.token;
-export const selectIsAuthenticated = (state: { auth: AuthState }) => !!state.auth.processedUserInfo?.token;
-export const selectAuthLoading = (state: { auth: AuthState }) => state.auth.isLoading;
+export const selectRawUserInfo = (state: { auth: AuthState }) =>
+  state.auth.userInfo;
+export const selectProcessedUserInfo = (state: { auth: AuthState }) =>
+  state.auth.processedUserInfo;
+export const selectUser = (state: { auth: AuthState }) =>
+  state.auth.processedUserInfo?.user;
+export const selectAgentInfo = (state: { auth: AuthState }) =>
+  state.auth.processedUserInfo?.agent_info;
+export const selectPermissions = (state: { auth: AuthState }) =>
+  state.auth.processedUserInfo?.permissions;
+export const selectUserRole = (state: { auth: AuthState }) =>
+  state.auth.processedUserInfo?.user_role;
+export const selectToken = (state: { auth: AuthState }) =>
+  state.auth.processedUserInfo?.token;
+export const selectIsAuthenticated = (state: { auth: AuthState }) =>
+  !!state.auth.processedUserInfo?.token;
+export const selectAuthLoading = (state: { auth: AuthState }) =>
+  state.auth.isLoading;
 export const selectAuthError = (state: { auth: AuthState }) => state.auth.error;
+export const selectPermissionValidation = (state: { auth: AuthState }) =>
+  state.auth.permissionValidation;
 
-
+// Permission-specific selectors
 export const selectCanCreateProperties = (state: { auth: AuthState }) =>
   state.auth.processedUserInfo?.permissions?.can_create_properties || false;
 export const selectCanAccessAdmin = (state: { auth: AuthState }) =>
@@ -341,3 +560,19 @@ export const selectIsVerifiedAgent = (state: { auth: AuthState }) =>
   state.auth.processedUserInfo?.permissions?.is_verified_agent || false;
 export const selectIsAgent = (state: { auth: AuthState }) =>
   state.auth.processedUserInfo?.permissions?.is_agent || false;
+
+// Permission freshness selectors
+export const selectPermissionsLastUpdated = (state: { auth: AuthState }) =>
+  state.auth.processedUserInfo?.permissions?.last_updated;
+export const selectPermissionsAge = (state: { auth: AuthState }) => {
+  const lastUpdated = state.auth.processedUserInfo?.permissions?.last_updated;
+  if (!lastUpdated) return null;
+  return Date.now() - new Date(lastUpdated).getTime();
+};
+export const selectArePermissionsStale = (
+  state: { auth: AuthState },
+  maxAgeMs: number = 5 * 60 * 1000
+) => {
+  const age = selectPermissionsAge(state);
+  return age ? age > maxAgeMs : true;
+};

@@ -9,16 +9,18 @@ import {
   selectIsAuthenticated,
   selectIsSuperAdmin,
   selectIsVerifiedAgent,
-
   selectRawUserInfo,
   selectToken,
   selectUser,
   selectUserRole,
-  syncWithStorage
+  selectPermissions,
+  refreshPermissions,
+  syncWithStorage,
 } from "@store/slices/authSlice";
 import {
   useGetLoggedinUserInfoQuery,
   useLogoutUserMutation,
+  useGetUserPermissionsQuery,
 } from "@store/slices/users";
 import { UserInfo } from "@store/type";
 import { useEffect, useState } from "react";
@@ -53,6 +55,7 @@ import {
   FaUserPlus as FaUserPlusIcon,
   FaUserTie,
   FaUsers,
+  FaBell,
 } from "react-icons/fa";
 import { FaUserPlus } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
@@ -80,40 +83,115 @@ interface NavbarProps {
   liveUnreadCount?: number;
 }
 
+// Hook for managing live permission updates
+const useNavbarPermissions = () => {
+  const dispatch = useDispatch();
+  const token = useSelector(selectToken);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const permissions = useSelector(selectPermissions);
+  const [permissionError, setPermissionError] = useState<string | null>(null);
+  const [lastPermissionUpdate, setLastPermissionUpdate] = useState<
+    string | null
+  >(null);
+
+  useEffect(() => {
+    if (!isAuthenticated || !token) return;
+
+    const refreshNavPermissions = async () => {
+      try {
+        const response = await fetch("/api/auth/permissions/", {
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        console.log(response);
+
+        if (response.ok) {
+          const updatedPermissions = await response.json();
+          dispatch(refreshPermissions(updatedPermissions));
+          setPermissionError(null);
+        } else if (response.status === 401) {
+          console.warn("Permission refresh failed - token might be expired");
+        }
+      } catch (error) {
+        console.error("Failed to refresh navbar permissions:", error);
+        setPermissionError("Failed to update permissions");
+      }
+    };
+
+    refreshNavPermissions();
+    const interval = setInterval(refreshNavPermissions, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated, token, dispatch]);
+
+  useEffect(() => {
+    if (
+      permissions?.last_updated &&
+      permissions.last_updated !== lastPermissionUpdate
+    ) {
+      setLastPermissionUpdate(permissions.last_updated);
+
+      if (lastPermissionUpdate) {
+        toast.info("Your permissions have been updated", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+        });
+      }
+    }
+  }, [permissions?.last_updated, lastPermissionUpdate]);
+
+  return { permissionError };
+};
+
 const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isProfileDropDownOpen, setIsProfileDropDownOpen] = useState(false);
-  const [isRealEstateDropdownOpen, setIsRealEstateDropdownOpen] = useState(false);
+  const [isRealEstateDropdownOpen, setIsRealEstateDropdownOpen] =
+    useState(false);
   const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
   const [isAgentDropdownOpen, setIsAgentDropdownOpen] = useState(false);
-
 
   const userInfo = useSelector(selectRawUserInfo);
   const user = useSelector(selectUser);
   const agentInfo = useSelector(selectAgentInfo);
+  const permissions = useSelector(selectPermissions);
 
   const userRole = useSelector(selectUserRole);
   const token = useSelector(selectToken);
   const isAuthenticated = useSelector(selectIsAuthenticated);
 
-  // Permission selectors
   const canAccessAdmin = useSelector(selectCanAccessAdmin);
   const isSuperAdmin = useSelector(selectIsSuperAdmin);
   const isVerifiedAgent = useSelector(selectIsVerifiedAgent);
   const isAgent = useSelector(selectIsAgent);
   const canCreateProperties = useSelector(selectCanCreateProperties);
-
+  const {
+    data: permissionsData,
+    error: permissionError,
+    // refetch: refetchPermissions,
+  } = useGetUserPermissionsQuery(
+    { token: token || "" },
+    {
+      skip: !token || !isAuthenticated,
+      pollingInterval: 5 * 60 * 1000, // Auto-refresh every 5 minutes
+      refetchOnMountOrArgChange: true,
+    }
+  );
+  console.log(permissionsData);
   const [logoutApiCall] = useLogoutUserMutation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
 
-  // Initialize auto-logout hook
+  // const { permissionError } = useNavbarPermissions();
   const { clearAllStorage } = useAutoLogout();
 
-  // Sync Redux with localStorage on mount
   useEffect(() => {
     if (!userInfo) {
       dispatch(syncWithStorage());
@@ -131,7 +209,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   const {
     data: loggedUserInfo,
     refetch: refresh,
-    isError: userInfoError
+    isError: userInfoError,
   } = useGetLoggedinUserInfoQuery(
     { token: token || "" },
     {
@@ -140,21 +218,18 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
     }
   );
 
-  // Handle API errors (e.g., token expired)
   useEffect(() => {
     if (userInfoError && token) {
       console.log("User info fetch failed, possibly expired token");
     }
   }, [userInfoError, token, dispatch, navigate]);
 
-  // Refresh user info when token is available
   useEffect(() => {
     if (token) {
       refresh();
     }
   }, [token, refresh]);
 
-  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = () => {
       setIsMenuOpen(false);
@@ -163,14 +238,24 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
       setIsAgentDropdownOpen(false);
     };
 
-    if (isMenuOpen || isRealEstateDropdownOpen || isAdminDropdownOpen || isAgentDropdownOpen) {
+    if (
+      isMenuOpen ||
+      isRealEstateDropdownOpen ||
+      isAdminDropdownOpen ||
+      isAgentDropdownOpen
+    ) {
       document.addEventListener("click", handleClickOutside);
     }
 
     return () => {
       document.removeEventListener("click", handleClickOutside);
     };
-  }, [isMenuOpen, isRealEstateDropdownOpen, isAdminDropdownOpen, isAgentDropdownOpen]);
+  }, [
+    isMenuOpen,
+    isRealEstateDropdownOpen,
+    isAdminDropdownOpen,
+    isAgentDropdownOpen,
+  ]);
 
   const profileInfo: UserInfo | undefined = loggedUserInfo as UserInfo;
 
@@ -180,13 +265,11 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
     setIsMenuOpen(false);
   };
 
-  // Improved logout handler
   const logoutHandler = async () => {
     try {
       if (token) {
         await logoutApiCall(token).unwrap();
       }
-
       dispatch(logout(undefined));
       clearAllStorage();
       navigate("/login");
@@ -218,17 +301,17 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
     setIsProfileDropDownOpen(false);
 
     switch (dropdown) {
-      case 'realEstate':
+      case "realEstate":
         setIsRealEstateDropdownOpen(!isRealEstateDropdownOpen);
         setIsAdminDropdownOpen(false);
         setIsAgentDropdownOpen(false);
         break;
-      case 'admin':
+      case "admin":
         setIsAdminDropdownOpen(!isAdminDropdownOpen);
         setIsRealEstateDropdownOpen(false);
         setIsAgentDropdownOpen(false);
         break;
-      case 'agent':
+      case "agent":
         setIsAgentDropdownOpen(!isAgentDropdownOpen);
         setIsRealEstateDropdownOpen(false);
         setIsAdminDropdownOpen(false);
@@ -236,77 +319,149 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
     }
   };
 
-  // Check if current path is real estate related
-  const isRealEstateActive = location.pathname === "/properties" ||
-                            location.pathname.startsWith("/properties/") ||
-                            location.pathname === "/agents" ||
-                            location.pathname === "/become-agent" ||
-                            location.pathname === "/agent/status";
+  const isRealEstateActive =
+    location.pathname === "/properties" ||
+    location.pathname.startsWith("/properties/") ||
+    location.pathname === "/agents" ||
+    location.pathname === "/become-agent" ||
+    location.pathname === "/agent/status";
 
-  // Check if current path is admin related
-  const isAdminActive = location.pathname.startsWith("/admin") ||
-                       location.pathname.startsWith("/staff");
+  const isAdminActive =
+    location.pathname.startsWith("/admin") ||
+    location.pathname.startsWith("/staff");
 
-  // Check if current path is agent dashboard related
-  const isAgentActive = location.pathname.startsWith("/agent/dashboard") ||
-                       location.pathname.startsWith("/agent/properties") ||
-                       location.pathname.startsWith("/agent/inquiries") ||
-                       location.pathname === "/agent/create-property";
+  const isAgentActive =
+    location.pathname.startsWith("/agent/dashboard") ||
+    location.pathname.startsWith("/agent/properties") ||
+    location.pathname.startsWith("/agent/inquiries") ||
+    location.pathname === "/agent/create-property";
 
-  // Determine authentication state and permissions
-  const isPendingAgent = userRole === 'pending_agent';
-  const hasProfile = !!(profileInfo?.data);
+  const isPendingAgent = userRole === "pending_agent";
+  const hasProfile = !!profileInfo?.data;
   const showUserMenu = isAuthenticated && hasProfile;
   const showLogin = !isAuthenticated;
 
   function getRoleBadge() {
     const badges = {
-      super_admin: { label: 'Super Admin', color: 'bg-red-100 text-red-800', icon: FaShieldAlt },
-      staff: { label: 'Staff', color: 'bg-orange-100 text-orange-800', icon: FaCog },
-      verified_agent: { label: 'Verified Agent', color: 'bg-green-100 text-green-800', icon: FaUserCheck },
-      pending_agent: { label: 'Pending Agent', color: 'bg-yellow-100 text-yellow-800', icon: FaClock },
-      regular_user: { label: 'User', color: 'bg-gray-100 text-gray-800', icon: FaUser },
+      super_admin: {
+        label: "Super Admin",
+        color: "bg-red-100 text-red-800",
+        icon: FaShieldAlt,
+      },
+      staff: {
+        label: "Staff",
+        color: "bg-orange-100 text-orange-800",
+        icon: FaCog,
+      },
+      verified_agent: {
+        label: "Verified Agent",
+        color: "bg-green-100 text-green-800",
+        icon: FaUserCheck,
+      },
+      pending_agent: {
+        label: "Pending Agent",
+        color: "bg-yellow-100 text-yellow-800",
+        icon: FaClock,
+      },
+      regular_user: {
+        label: "User",
+        color: "bg-gray-100 text-gray-800",
+        icon: FaUser,
+      },
     };
 
-    const badge = badges[userRole as keyof typeof badges] || badges.regular_user;
+    const badge =
+      badges[userRole as keyof typeof badges] || badges.regular_user;
     const Icon = badge.icon;
 
     return (
-      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${badge.color} whitespace-nowrap`}>
+      <span
+        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${badge.color} whitespace-nowrap`}
+      >
         <Icon className="w-3 h-3 mr-1 flex-shrink-0" />
         {badge.label}
+        {permissionsData?.last_updated && (
+          <span
+            className="ml-1 w-2 h-2 bg-green-400 rounded-full"
+            title={`Last updated: ${new Date(
+              permissionsData?.last_updated
+            ).toLocaleTimeString()}`}
+          />
+        )}
       </span>
     );
   }
 
+  const PermissionErrorNotification = () => {
+    if (!permissionError) return null;
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-2 mx-2 mb-2">
+        <div className="flex items-center text-red-700 text-sm">
+          <FaBell className="mr-2 flex-shrink-0" size={12} />
+          <span>{permissionError}</span>
+        </div>
+      </div>
+    );
+  };
+
+  const PermissionStatusIndicator = () => {
+    if (!isAuthenticated || !permissionsData) return null;
+    const isStale =
+      permissionsData?.last_updated &&
+      Date.now() - new Date(permissions.last_updated).getTime() >
+        10 * 60 * 1000;
+
+    return (
+      <div
+        className={`hidden lg:flex items-center text-xs px-2 py-1 rounded ${
+          isStale
+            ? "text-yellow-600 bg-yellow-50"
+            : "text-green-600 bg-green-50"
+        }`}
+        title={`Permissions ${
+          isStale ? "may be outdated" : "up to date"
+        } - Last updated: ${
+          permissions.last_updated
+            ? new Date(permissions.last_updated).toLocaleTimeString()
+            : "Never"
+        }`}
+      >
+        <div
+          className={`w-2 h-2 rounded-full mr-1 ${
+            isStale ? "bg-yellow-400" : "bg-green-400"
+          }`}
+        />
+        <span>Live</span>
+      </div>
+    );
+  };
+
   function renderNavItems() {
     return (
       <>
-        {/* Products */}
         <li className=" md:w-auto">
           <Link
             to="/products"
             onClick={handleNavLinkClick}
-          className={`flex items-center gap-2 font-medium text-sm px-3 py-2 rounded-full transition-all duration-200 ${
-  location.pathname === "/products"
-    ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
-}`}
+            className={`flex items-center gap-2 font-medium text-sm px-3 py-2 rounded-full transition-all duration-200 ${
+              location.pathname === "/products"
+                ? "text-indigo-600 bg-indigo-50"
+                : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+            }`}
           >
             <FaProductHunt className="flex-shrink-0" size={16} />
             <span>{t("products_title")}</span>
           </Link>
         </li>
 
-        {/* Service */}
         <li className="w-full md:w-auto">
           <Link
             to="/service"
             onClick={handleNavLinkClick}
             className={`flex items-center gap-2 font-medium text-sm px-3 py-2 rounded transition-colors w-full ${
               location.pathname === "/service"
-                  ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                ? "text-indigo-600 bg-indigo-50"
+                : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
             }`}
           >
             <FaServicestack className="flex-shrink-0" size={16} />
@@ -314,18 +469,19 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           </Link>
         </li>
 
-        {/* Real Estate Dropdown */}
         <li className="relative w-full md:w-auto">
           <button
-            onClick={handleDropdownToggle('realEstate')}
+            onClick={handleDropdownToggle("realEstate")}
             className={`flex items-center gap-2 font-medium text-sm px-3 py-2 rounded transition-colors w-full ${
               isRealEstateActive
-                   ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                ? "text-indigo-600 bg-indigo-50"
+                : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
             }`}
           >
             <FaHome className="flex-shrink-0" size={16} />
-            <span className="flex-1 text-left md:flex-initial">{t("real_estate")}</span>
+            <span className="flex-1 text-left md:flex-initial">
+              {t("real_estate")}
+            </span>
             <FaChevronDown
               className={`transition-transform duration-200 flex-shrink-0 ${
                 isRealEstateDropdownOpen ? "rotate-180" : ""
@@ -335,33 +491,37 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           </button>
 
           {isRealEstateDropdownOpen && (
-            <ul className={`mt-1 bg-white rounded-lg shadow-xl py-2 z-50 border border-gray-200 ${
-              isMenuOpen
-                ? "w-full ml-4 mr-2"
-                : "absolute left-0 top-full w-56 min-w-max"
-            }`}>
+            <ul
+              className={`mt-1 bg-white rounded-lg shadow-xl py-2 z-50 border border-gray-200 ${
+                isMenuOpen
+                  ? "w-full ml-4 mr-2"
+                  : "absolute left-0 top-full w-56 min-w-max"
+              }`}
+            >
               <li>
                 <Link
                   to="/properties"
                   onClick={handleNavLinkClick}
                   className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
-                    location.pathname === "/properties" || location.pathname.startsWith("/properties/")
-                    ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                    location.pathname === "/properties" ||
+                    location.pathname.startsWith("/properties/")
+                      ? "text-indigo-600 bg-indigo-50"
+                      : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                   }`}
                 >
                   <FaBuilding className="mr-3 flex-shrink-0" size={14} />
                   <span>{t("properties_main")}</span>
                 </Link>
               </li>
-               <li>
+              <li>
                 <Link
                   to="/properties-map-view"
                   onClick={handleNavLinkClick}
                   className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
-                    location.pathname === "/properties-map-view" || location.pathname.startsWith("/properties-map-view/")
-                        ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                    location.pathname === "/properties-map-view" ||
+                    location.pathname.startsWith("/properties-map-view/")
+                      ? "text-indigo-600 bg-indigo-50"
+                      : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                   }`}
                 >
                   <FaMap className="mr-3 flex-shrink-0" size={14} />
@@ -374,8 +534,8 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                   onClick={handleNavLinkClick}
                   className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                     location.pathname === "/agents"
-                       ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                      ? "text-indigo-600 bg-indigo-50"
+                      : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                   }`}
                 >
                   <FaUserTie className="mr-3 flex-shrink-0" size={14} />
@@ -383,7 +543,6 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                 </Link>
               </li>
 
-              {/* Real Estate Actions based on user role */}
               {isAuthenticated && (
                 <>
                   {!isAgent && (
@@ -393,11 +552,14 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                         onClick={handleNavLinkClick}
                         className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                           location.pathname === "/become-agent"
-                              ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                            ? "text-indigo-600 bg-indigo-50"
+                            : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                         }`}
                       >
-                        <FaUserPlusIcon className="mr-3 flex-shrink-0" size={14} />
+                        <FaUserPlusIcon
+                          className="mr-3 flex-shrink-0"
+                          size={14}
+                        />
                         <span>{t("become_agent")}</span>
                       </Link>
                     </li>
@@ -410,11 +572,18 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                         onClick={handleNavLinkClick}
                         className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                           location.pathname === "/agent/status"
-                             ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                            ? "text-indigo-600 bg-indigo-50"
+                            : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                         }`}
                       >
-                        {isPendingAgent ? <FaClock className="mr-3 flex-shrink-0" size={14} /> : <FaCheckCircle className="mr-3 flex-shrink-0" size={14} />}
+                        {isPendingAgent ? (
+                          <FaClock className="mr-3 flex-shrink-0" size={14} />
+                        ) : (
+                          <FaCheckCircle
+                            className="mr-3 flex-shrink-0"
+                            size={14}
+                          />
+                        )}
                         <span>{t("agent_status")}</span>
                       </Link>
                     </li>
@@ -440,19 +609,24 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           )}
         </li>
 
-        {/* Admin/Staff Dropdown */}
         {canAccessAdmin && (
           <li className="relative w-full md:w-auto">
             <button
-              onClick={handleDropdownToggle('admin')}
+              onClick={handleDropdownToggle("admin")}
               className={`flex items-center gap-2 font-medium text-sm px-3 py-2 rounded transition-colors w-full ${
                 isAdminActive
                   ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                  : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
               }`}
             >
-              {isSuperAdmin ? <FaShieldAlt className="flex-shrink-0" size={16} /> : <FaCog className="flex-shrink-0" size={16} />}
-              <span className="flex-1 text-left md:flex-initial">{isSuperAdmin ? "Admin" : "Staff"}</span>
+              {isSuperAdmin ? (
+                <FaShieldAlt className="flex-shrink-0" size={16} />
+              ) : (
+                <FaCog className="flex-shrink-0" size={16} />
+              )}
+              <span className="flex-1 text-left md:flex-initial">
+                {isSuperAdmin ? "Admin" : "Staff"}
+              </span>
               <FaChevronDown
                 className={`transition-transform duration-200 flex-shrink-0 ${
                   isAdminDropdownOpen ? "rotate-180" : ""
@@ -462,19 +636,21 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
             </button>
 
             {isAdminDropdownOpen && (
-              <ul className={`mt-1 bg-white rounded-lg shadow-xl py-2 z-50 border border-gray-200 ${
-                isMenuOpen
-                  ? "w-full ml-4 mr-2"
-                  : "absolute left-0 top-full w-56 min-w-max"
-              }`}>
+              <ul
+                className={`mt-1 bg-white rounded-lg shadow-xl py-2 z-50 border border-gray-200 ${
+                  isMenuOpen
+                    ? "w-full ml-4 mr-2"
+                    : "absolute left-0 top-full w-56 min-w-max"
+                }`}
+              >
                 <li>
                   <Link
                     to={isSuperAdmin ? "/admin/dashboard" : "/staff/dashboard"}
                     onClick={handleNavLinkClick}
                     className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                       location.pathname.includes("/dashboard")
-                           ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                        ? "text-indigo-600 bg-indigo-50"
+                        : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                     }`}
                   >
                     <FaTachometerAlt className="mr-3 flex-shrink-0" size={14} />
@@ -482,30 +658,33 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                   </Link>
                 </li>
 
-                {isSuperAdmin && (
+                {permissions?.can_manage_users && (
+                  <li>
+                    <Link
+                      to="/admin/users"
+                      onClick={handleNavLinkClick}
+                      className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
+                        location.pathname === "/admin/users"
+                          ? "text-indigo-600 bg-indigo-50"
+                          : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                      }`}
+                    >
+                      <FaUsers className="mr-3 flex-shrink-0" size={14} />
+                      <span>Manage Users</span>
+                    </Link>
+                  </li>
+                )}
+
+                {permissions?.can_verify_agents && (
                   <>
-                    <li>
-                      <Link
-                        to="/admin/users"
-                        onClick={handleNavLinkClick}
-                        className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
-                          location.pathname === "/admin/users"
-                               ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
-                        }`}
-                      >
-                        <FaUsers className="mr-3 flex-shrink-0" size={14} />
-                        <span>Manage Users</span>
-                      </Link>
-                    </li>
                     <li>
                       <Link
                         to="/admin/pending-agents"
                         onClick={handleNavLinkClick}
                         className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                           location.pathname === "/admin/agents"
-                             ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                            ? "text-indigo-600 bg-indigo-50"
+                            : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                         }`}
                       >
                         <FaUserCheck className="mr-3 flex-shrink-0" size={14} />
@@ -513,19 +692,22 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                       </Link>
                     </li>
                     <li>
-  <Link
-    to="/admin/verified-agents"
-    onClick={handleNavLinkClick}
-    className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
-      location.pathname === "/admin/verified-agents"
-        ? "text-indigo-600 bg-indigo-50"
-        : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
-    }`}
-  >
-  <FaUserShield className="mr-3 flex-shrink-0" size={14} />
-    <span>Verified Agents</span>
-  </Link>
-</li>
+                      <Link
+                        to="/admin/verified-agents"
+                        onClick={handleNavLinkClick}
+                        className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
+                          location.pathname === "/admin/verified-agents"
+                            ? "text-indigo-600 bg-indigo-50"
+                            : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                        }`}
+                      >
+                        <FaUserShield
+                          className="mr-3 flex-shrink-0"
+                          size={14}
+                        />
+                        <span>Verified Agents</span>
+                      </Link>
+                    </li>
                   </>
                 )}
 
@@ -535,8 +717,8 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                     onClick={handleNavLinkClick}
                     className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                       location.pathname.includes("/analytics")
-                          ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                        ? "text-indigo-600 bg-indigo-50"
+                        : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                     }`}
                   >
                     <FaChartBar className="mr-3 flex-shrink-0" size={14} />
@@ -548,19 +730,20 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           </li>
         )}
 
-        {/* Agent Dashboard Dropdown */}
         {isVerifiedAgent && (
           <li className="relative w-full md:w-auto">
             <button
-              onClick={handleDropdownToggle('agent')}
+              onClick={handleDropdownToggle("agent")}
               className={`flex items-center gap-2 font-medium text-sm px-3 py-2 rounded transition-colors w-full ${
                 isAgentActive
-            ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                  ? "text-indigo-600 bg-indigo-50"
+                  : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
               }`}
             >
               <FaTachometerAlt className="flex-shrink-0" size={16} />
-              <span className="flex-1 text-left md:flex-initial">Agent Panel</span>
+              <span className="flex-1 text-left md:flex-initial">
+                Agent Panel
+              </span>
               <FaChevronDown
                 className={`transition-transform duration-200 flex-shrink-0 ${
                   isAgentDropdownOpen ? "rotate-180" : ""
@@ -570,19 +753,21 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
             </button>
 
             {isAgentDropdownOpen && (
-              <ul className={`mt-1 bg-white rounded-lg shadow-xl py-2 z-50 border border-gray-200 ${
-                isMenuOpen
-                  ? "w-full ml-4 mr-2"
-                  : "absolute left-0 top-full w-56 min-w-max"
-              }`}>
+              <ul
+                className={`mt-1 bg-white rounded-lg shadow-xl py-2 z-50 border border-gray-200 ${
+                  isMenuOpen
+                    ? "w-full ml-4 mr-2"
+                    : "absolute left-0 top-full w-56 min-w-max"
+                }`}
+              >
                 <li>
                   <Link
                     to="/agent/dashboard"
                     onClick={handleNavLinkClick}
                     className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                       location.pathname === "/agent/dashboard"
-                          ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                        ? "text-indigo-600 bg-indigo-50"
+                        : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                     }`}
                   >
                     <FaTachometerAlt className="mr-3 flex-shrink-0" size={14} />
@@ -597,8 +782,8 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                       onClick={handleNavLinkClick}
                       className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                         location.pathname === "/agent/create-property"
-                            ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                          ? "text-indigo-600 bg-indigo-50"
+                          : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                       }`}
                     >
                       <FaPlus className="mr-3 flex-shrink-0" size={14} />
@@ -613,8 +798,8 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                     onClick={handleNavLinkClick}
                     className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                       location.pathname === "/agent/properties"
-                         ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                        ? "text-indigo-600 bg-indigo-50"
+                        : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                     }`}
                   >
                     <FaBuilding className="mr-3 flex-shrink-0" size={14} />
@@ -622,20 +807,25 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                   </Link>
                 </li>
 
-                <li>
-                  <Link
-                    to="/agent/inquiries"
-                    onClick={handleNavLinkClick}
-                    className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
-                      location.pathname === "/agent/inquiries"
-                         ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
-                    }`}
-                  >
-                    <FaEnvelopeOpen className="mr-3 flex-shrink-0" size={14} />
-                    <span>Inquiries</span>
-                  </Link>
-                </li>
+                {permissions?.can_manage_inquiries && (
+                  <li>
+                    <Link
+                      to="/agent/inquiries"
+                      onClick={handleNavLinkClick}
+                      className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
+                        location.pathname === "/agent/inquiries"
+                          ? "text-indigo-600 bg-indigo-50"
+                          : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                      }`}
+                    >
+                      <FaEnvelopeOpen
+                        className="mr-3 flex-shrink-0"
+                        size={14}
+                      />
+                      <span>Inquiries</span>
+                    </Link>
+                  </li>
+                )}
 
                 <li>
                   <Link
@@ -643,8 +833,8 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                     onClick={handleNavLinkClick}
                     className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                       location.pathname === "/agent/profile"
-                           ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                        ? "text-indigo-600 bg-indigo-50"
+                        : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                     }`}
                   >
                     <FaFileAlt className="mr-3 flex-shrink-0" size={14} />
@@ -656,15 +846,14 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           </li>
         )}
 
-        {/* About */}
         <li className="w-full md:w-auto">
           <Link
             to="/about"
             onClick={handleNavLinkClick}
             className={`flex items-center gap-2 font-medium text-sm px-3 py-2 rounded transition-colors w-full ${
               location.pathname === "/about"
-                  ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                ? "text-indigo-600 bg-indigo-50"
+                : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
             }`}
           >
             <FaInfoCircle className="flex-shrink-0" size={16} />
@@ -672,7 +861,6 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           </Link>
         </li>
 
-        {/* Chat */}
         {isAuthenticated && (
           <li className="w-full md:w-auto">
             <Link
@@ -680,8 +868,8 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
               onClick={handleNavLinkClick}
               className={`flex items-center gap-2 font-medium text-sm px-3 py-2 rounded transition-colors w-full ${
                 location.pathname === "/chat"
-                    ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                  ? "text-indigo-600 bg-indigo-50"
+                  : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
               }`}
             >
               <div className="relative flex-shrink-0">
@@ -697,7 +885,6 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           </li>
         )}
 
-        {/* Support */}
         <li className="w-full md:w-auto">
           <a
             href="https://t.me/tezsell_menejer"
@@ -711,7 +898,6 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           </a>
         </li>
 
-        {/* User Menu */}
         {showUserMenu ? (
           <li className="relative w-full md:w-auto">
             <button
@@ -725,37 +911,44 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                 setIsProfileDropDownOpen(!isProfileDropDownOpen);
               }}
             >
-
-          {((user as any)?.profile_image?.url || (user as any)?.user_image || profileInfo?.data.profile_image?.image) ? (
-  <img
-    src={
-      (user as any)?.profile_image?.url ||
-      (user as any)?.user_image ||
-      `${BASE_URL}${profileInfo?.data.profile_image?.image}`
-    }
-    alt="profile"
-    className="w-8 h-8 rounded-full object-cover flex-shrink-0"
-    onError={(e) => {
-      e.currentTarget.style.display = 'none';
-      const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-      if (fallback) fallback.style.display = 'flex';
-    }}
-  />
-) : null}
+              {(user as any)?.profile_image?.url ||
+              (user as any)?.user_image ||
+              profileInfo?.data.profile_image?.image ? (
+                <img
+                  src={
+                    (user as any)?.profile_image?.url ||
+                    (user as any)?.user_image ||
+                    `${BASE_URL}${profileInfo?.data.profile_image?.image}`
+                  }
+                  alt="profile"
+                  className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                    const fallback = e.currentTarget
+                      .nextElementSibling as HTMLElement;
+                    if (fallback) fallback.style.display = "flex";
+                  }}
+                />
+              ) : null}
               <div
                 className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0"
                 style={{
-                  display: (
+                  display:
                     (user as any)?.profile_image?.url ||
                     (user as any)?.user_image ||
                     profileInfo?.data.profile_image?.image
-                  ) ? 'none' : 'flex'
+                      ? "none"
+                      : "flex",
                 }}
               >
-                {(user as any)?.username?.charAt(0).toUpperCase() || profileInfo?.data.username?.charAt(0).toUpperCase() || 'U'}
+                {(user as any)?.username?.charAt(0).toUpperCase() ||
+                  profileInfo?.data.username?.charAt(0).toUpperCase() ||
+                  "U"}
               </div>
               <span className="text-gray-800 font-medium text-sm flex-1 text-left md:flex-initial truncate">
-                {(user as any)?.username || profileInfo?.data.username || 'User'}
+                {(user as any)?.username ||
+                  profileInfo?.data.username ||
+                  "User"}
               </span>
             </button>
 
@@ -776,8 +969,8 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                     }}
                     className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                       location.pathname === "/myprofile"
-                           ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                        ? "text-indigo-600 bg-indigo-50"
+                        : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                     }`}
                   >
                     <FaUser className="mr-3 flex-shrink-0" size={14} />
@@ -795,7 +988,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                     className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                       location.pathname === "/my-services"
                         ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                        : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                     }`}
                   >
                     <FaThList className="mr-3 flex-shrink-0" size={14} />
@@ -812,8 +1005,8 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                     }}
                     className={`flex items-center px-4 py-3 text-sm transition-colors duration-200 ${
                       location.pathname === "/my-products"
-                         ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                        ? "text-indigo-600 bg-indigo-50"
+                        : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                     }`}
                   >
                     <FaBoxOpen className="mr-3 flex-shrink-0" size={14} />
@@ -844,8 +1037,8 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
               onClick={handleNavLinkClick}
               className={`flex items-center justify-center gap-2 font-medium text-sm px-4 py-2 rounded-lg transition-colors w-full md:w-auto ${
                 location.pathname === "/login"
-                    ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                  ? "text-indigo-600 bg-indigo-50"
+                  : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
               }`}
             >
               <FaUserPlus className="flex-shrink-0" size={16} />
@@ -861,7 +1054,6 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           </li>
         )}
 
-        {/* Language Selector */}
         <li className="relative w-full md:w-auto">
           <button
             className="flex items-center gap-2 text-cyan-600 hover:text-blue-600 hover:bg-white/50 md:hover:bg-white/30 font-medium text-sm px-3 py-2 rounded transition-colors w-full"
@@ -875,7 +1067,9 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
             }}
           >
             <FaGlobe className="flex-shrink-0" size={16} />
-            <span className="flex-1 text-left md:flex-initial">{t("language")}</span>
+            <span className="flex-1 text-left md:flex-initial">
+              {t("language")}
+            </span>
             <FaChevronDown
               className={`transition-transform duration-200 flex-shrink-0 md:hidden ${
                 isDropdownOpen ? "rotate-180" : ""
@@ -897,8 +1091,8 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                   onClick={() => changeLanguage("uz")}
                   className={`block w-full text-left px-4 py-3 text-sm transition-colors duration-200 ${
                     i18n.language === "uz"
-                  ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                      ? "text-indigo-600 bg-indigo-50"
+                      : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                   }`}
                 >
                   {t("language-uz")}
@@ -910,7 +1104,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                   className={`block w-full text-left px-4 py-3 text-sm transition-colors duration-200 ${
                     i18n.language === "ru"
                       ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                      : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                   }`}
                 >
                   {t("language-ru")}
@@ -922,7 +1116,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                   className={`block w-full text-left px-4 py-3 text-sm transition-colors duration-200 ${
                     i18n.language === "en"
                       ? "text-indigo-600 bg-indigo-50"
-    : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
+                      : "text-gray-700 hover:text-indigo-500 hover:bg-indigo-50"
                   }`}
                 >
                   {t("language-en")}
@@ -932,16 +1126,12 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           )}
         </li>
 
-        {/* Mobile Role Badge */}
         {isMenuOpen && isAuthenticated && userRole && (
           <li className="md:hidden mt-4 pt-4 border-t border-yellow-300/50">
-            <div className="flex justify-center">
-              {getRoleBadge()}
-            </div>
+            <div className="flex justify-center">{getRoleBadge()}</div>
           </li>
         )}
 
-        {/* Agent Info Banner (Mobile) */}
         {isMenuOpen && isVerifiedAgent && agentInfo && (
           <li className="md:hidden mt-3">
             <div className="bg-green-50 rounded-lg p-3 border border-green-200">
@@ -955,7 +1145,6 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           </li>
         )}
 
-        {/* Pending Agent Banner (Mobile) */}
         {isMenuOpen && isPendingAgent && (
           <li className="md:hidden mt-3">
             <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
@@ -979,9 +1168,9 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
 
   return (
     <header className="sticky top-0 z-50 bg-yellow-300/90 backdrop-blur-md shadow-md">
-      {/* Main navbar container with fixed height */}
+      <PermissionErrorNotification />
+
       <div className="h-16 px-2 sm:px-4 flex justify-between items-center max-w-7xl mx-auto">
-        {/* Logo */}
         <Link
           to="/"
           onClick={handleNavLinkClick}
@@ -990,14 +1179,11 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           TezSell
         </Link>
 
-        {/* Role Badge - Only shown on desktop */}
-        {isAuthenticated && userRole && (
-          <div className="hidden xl:flex items-center mx-2">
-            {getRoleBadge()}
-          </div>
-        )}
+        <div className="hidden xl:flex items-center gap-2 mx-2">
+          {isAuthenticated && userRole && getRoleBadge()}
+          <PermissionStatusIndicator />
+        </div>
 
-        {/* Mobile menu toggle */}
         <button
           className="text-blue-900 text-2xl md:hidden flex-shrink-0 w-10 h-10 flex items-center justify-center hover:bg-white/20 rounded"
           onClick={handleMenuToggle}
@@ -1005,7 +1191,6 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
           {isMenuOpen ? "✕" : "☰"}
         </button>
 
-        {/* Desktop navigation - more compact */}
         <nav className="hidden md:block">
           <ul className="flex flex-row gap-1 lg:gap-2 xl:gap-3 items-center">
             {renderNavItems()}
@@ -1013,13 +1198,10 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
         </nav>
       </div>
 
-      {/* Mobile menu */}
       {isMenuOpen && (
         <div className="md:hidden border-t border-yellow-400/50 bg-yellow-200/95 backdrop-blur-sm">
           <nav className="max-h-[calc(100vh-4rem)] overflow-y-auto">
-            <ul className="flex flex-col gap-1 p-3">
-              {renderNavItems()}
-            </ul>
+            <ul className="flex flex-col gap-1 p-3">{renderNavItems()}</ul>
           </nav>
         </div>
       )}

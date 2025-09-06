@@ -8,6 +8,7 @@ import {
   USER_PRODUCT,
   USER_SERVICE,
   VERIFY_SMS,
+  USER_PERMISSIONS,
 } from "@store/constants";
 import { apiSlice } from "@store/slices/apiSlice";
 import { LoginInfo, RegisterInfo } from "@store/type";
@@ -47,6 +48,18 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       query: ({ token }: { token: string }) => {
         return {
           url: `${LOGGED_USER}/`,
+          headers: {
+            Authorization: `Token ${token}`, // Pass token in headers
+          },
+          credentials: "include",
+        };
+      },
+      invalidatesTags: ["Auth"],
+    }),
+    getUserPermissions: builder.query({
+      query: ({ token }: { token: string }) => {
+        return {
+          url: `${USER_PERMISSIONS}/`,
           headers: {
             Authorization: `Token ${token}`, // Pass token in headers
           },
@@ -181,4 +194,5 @@ export const {
   useGetLoggedinUserInfoQuery,
   useUpdateLoggedUserInfoMutation,
   useDeleteUserServiceMutation,
+  useGetUserPermissionsQuery,
 } = usersApiSlice;

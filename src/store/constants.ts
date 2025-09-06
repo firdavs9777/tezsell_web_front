@@ -1,6 +1,5 @@
 export const BASE_URL = "https://api.webtezsell.com";
 
-
 export const PRODUCTS_URL = "/products/api/products";
 export const SERVICES_URL = "/services/api/services";
 export const COMMENTS_URL = "/services/api/comments";
@@ -15,6 +14,7 @@ export const DISTRICTS_URL = "/accounts/districts/";
 export const SEND_SMS = "/accounts/send-sms/";
 export const VERIFY_SMS = "/accounts/verify-code/";
 export const LOGGED_USER = "/accounts/user/info";
+export const USER_PERMISSIONS = "/accounts/user/permissions";
 export const USER_PRODUCT = "/products/api/user/products";
 export const USER_SERVICE = "/services/api/user/services";
 export const USER_FAV_PRODS = "/global/liked-items/";
