@@ -1,13 +1,136 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/jpg" href="/public/logo.jpg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tezsell Web</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<html lang="uz" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  
+  <!-- Viewport and Mobile Optimization -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  
+  <!-- Content Security Policy -->
+  <meta http-equiv="Content-Security-Policy" 
+        content="default-src 'self' http: https: data: blob: 'unsafe-inline'; 
+                 connect-src 'self' https://api.webtezsell.com wss://api.webtezsell.com http: https:; 
+                 img-src 'self' data: https: http:; 
+                 font-src 'self' data: https: http:;">
+  
+  <!-- Primary Meta Tags -->
+  <title>TezSell - Ko'chmas Mulk va Xizmatlar Platformasi | Uzbekiston</title>
+  <meta name="title" content="TezSell - Ko'chmas Mulk va Xizmatlar Platformasi | Uzbekiston" />
+  <meta name="description" content="TezSell - Uzbekistondagi eng katta ko'chmas mulk va xizmatlar platformasi. Uy, kvartira, ofis sotish va ijaraga berish. Ishonchli agentlar bilan." />
+  <meta name="keywords" content="ko'chmas mulk, uy sotish, kvartira, ofis, ijara, Uzbekiston, Toshkent, TezSell, mulk, xizmatlar" />
+  <meta name="author" content="TezSell Team" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="googlebot" content="index, follow" />
+  
+  <!-- Language and Localization -->
+  <meta name="language" content="Uzbek" />
+  <meta name="geo.region" content="UZ" />
+  <meta name="geo.country" content="Uzbekistan" />
+  <meta name="geo.placename" content="Tashkent" />
+  <link rel="alternate" hreflang="uz" href="https://webtezsell.com/" />
+  <link rel="alternate" hreflang="ru" href="https://webtezsell.com/ru" />
+  <link rel="alternate" hreflang="en" href="https://webtezsell.com/en" />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://webtezsell.com/" />
+  <meta property="og:title" content="TezSell - Ko'chmas Mulk va Xizmatlar Platformasi" />
+  <meta property="og:description" content="Uzbekistondagi eng katta ko'chmas mulk va xizmatlar platformasi. Uy, kvartira, ofis sotish va ijaraga berish." />
+  <meta property="og:image" content="https://webtezsell.com/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="uz_UZ" />
+  <meta property="og:locale:alternate" content="ru_RU" />
+  <meta property="og:locale:alternate" content="en_US" />
+  <meta property="og:site_name" content="TezSell" />
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://webtezsell.com/" />
+  <meta property="twitter:title" content="TezSell - Ko'chmas Mulk va Xizmatlar Platformasi" />
+  <meta property="twitter:description" content="Uzbekistondagi eng katta ko'chmas mulk va xizmatlar platformasi. Uy, kvartira, ofis sotish va ijaraga berish." />
+  <meta property="twitter:image" content="https://webtezsell.com/twitter-image.jpg" />
+  
+  <!-- Favicons -->
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#3B82F6" />
+  <meta name="msapplication-TileColor" content="#3B82F6" />
+  
+  <!-- DNS Prefetch and Preconnect -->
+  <link rel="dns-prefetch" href="//api.webtezsell.com" />
+  <link rel="preconnect" href="https://api.webtezsell.com" crossorigin />
+  <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "TezSell",
+    "url": "https://webtezsell.com",
+    "logo": "https://webtezsell.com/logo.jpg",
+    "description": "Uzbekistondagi ko'chmas mulk va xizmatlar platformasi",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "UZ",
+      "addressRegion": "Toshkent",
+      "addressLocality": "Toshkent"
+    },
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "customer service",
+      "url": "https://t.me/tezsell_menejer"
+    },
+    "sameAs": [
+      "https://t.me/tezsell_menejer"
+    ]
+  }
+  </script>
+  
+  <!-- Performance Optimization -->
+  <link rel="preload" href="/src/main.tsx" as="script" />
+  <meta http-equiv="x-dns-prefetch-control" content="on" />
+  
+  <!-- Security Headers -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta http-equiv="X-Frame-Options" content="DENY" />
+  <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+  
+  <!-- Regional Search Optimization -->
+  <meta name="geo.position" content="41.2995;69.2401" />
+  <meta name="ICBM" content="41.2995, 69.2401" />
+  <meta name="distribution" content="local" />
+  <meta name="coverage" content="Uzbekistan" />
+  
+  <!-- PWA Enhancement -->
+  <meta name="application-name" content="TezSell" />
+  <meta name="apple-mobile-web-app-title" content="TezSell" />
+  <meta name="format-detection" content="telephone=yes" />
+  
+  <!-- Cache Control -->
+  <meta http-equiv="Cache-Control" content="public, max-age=31536000" />
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+  
+  <!-- Fallback for users with JavaScript disabled -->
+  <noscript>
+    <div style="text-align: center; padding: 50px;">
+      <h1>TezSell - Ko'chmas Mulk Platformasi</h1>
+      <p>Ushbu sayt to'liq ishlashi uchun JavaScript yoqilgan bo'lishi kerak.</p>
+      <p>Для полной работы сайта необходимо включить JavaScript.</p>
+      <p>This website requires JavaScript to be enabled for full functionality.</p>
+    </div>
+  </noscript>
+</body>
 </html>
