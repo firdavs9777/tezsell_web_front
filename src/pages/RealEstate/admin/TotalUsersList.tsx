@@ -1,4 +1,3 @@
-import { BASE_URL } from "@store/constants";
 import { RootState } from "@store/index";
 import { useDeleteRegisteredUserMutation, useGetRegisteredUsersQuery, useUpdateRegisteredUserMutation } from "@store/slices/users";
 import { User, UsersResponse } from "@store/type";
@@ -426,8 +425,8 @@ const TotalUsersList: React.FC = () => {
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token || "";
   const navigate = useNavigate();
-  const [updateUser] = useUpdateRegisteredUserMutation()
-  const [deleteUser] = useDeleteRegisteredUserMutation()
+
+  // Filter and pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [searchTerm, setSearchTerm] = useState("");
@@ -443,6 +442,8 @@ const TotalUsersList: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isEditLoading, setIsEditLoading] = useState(false);
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
+  const [updateUser] = useUpdateRegisteredUserMutation();
+  const [deleteUser] = useDeleteRegisteredUserMutation();
 
   // Debounce search term
   useEffect(() => {
@@ -501,6 +502,7 @@ const TotalUsersList: React.FC = () => {
         is_superuser: updatedData.is_superuser,
         is_verified_agent: updatedData.is_verified_agent,
         // Add password only if provided
+        ...(updatedData.password && { password: updatedData.password }),
         // Add location data if provided
         ...(updatedData.location && {
           location_country: updatedData.location.country,
@@ -522,16 +524,15 @@ const TotalUsersList: React.FC = () => {
         data: requestData,
       }).unwrap();
 
-       if (result && 'success' in result && result.success) {
-
+      if (result.success) {
         alert(`User ${user.username} updated successfully`);
         setEditModalOpen(false);
         setSelectedUser(null);
         // No need to call refetch() - RTK Query will auto-refetch due to invalidatesTags
       } else {
-        throw new Error(result?.error || 'Update failed');
+        throw new Error(result.error || 'Update failed');
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Failed to update user:', error);
 
       // Handle RTK Query error format
@@ -551,7 +552,7 @@ const TotalUsersList: React.FC = () => {
         id: user.id,
       }).unwrap();
 
-    if (result && 'success' in result && result.success && 'message' in result && result.message) {
+      if (result.success) {
         alert(result.message || `User ${user.username} deleted successfully`);
         setDeleteModalOpen(false);
         setSelectedUser(null);
@@ -952,7 +953,7 @@ const TotalUsersList: React.FC = () => {
                         {user.profile_image_url ? (
                           <img
                             className="h-10 w-10 rounded-full object-cover"
-                            src={`${BASE_URL}${user.profile_image_url}`}
+                            src={user.profile_image_url}
                             alt={user.username}
                           />
                         ) : (
