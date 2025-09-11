@@ -101,7 +101,7 @@ export interface User {
     region: string;
     district: string;
   };
-  profile_image?: string | {
+  profile_image:  {
     image: string;
     alt_text: string | null;
   };
