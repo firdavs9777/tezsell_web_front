@@ -1,3 +1,4 @@
+import { BASE_URL } from "@store/constants";
 import { RootState } from "@store/index";
 import { useGetUserDetailQuery } from "@store/slices/users";
 import {
@@ -226,7 +227,7 @@ const SingleUserItem: React.FC = () => {
                 <div className="w-24 h-24 sm:w-32 sm:h-32 bg-white rounded-xl shadow-lg border-4 border-white flex items-center justify-center overflow-hidden">
                   {user.profile_image?.url ? (
                     <img
-                      src={user.profile_image.url}
+                      src={`${BASE_URL}${user.profile_image.url}`}
                       alt={user.profile_image.alt_text || user.username}
                       className="w-full h-full object-cover"
                     />
