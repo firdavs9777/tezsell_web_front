@@ -101,6 +101,10 @@ export interface User {
     region: string;
     district: string;
   };
+  profile_image?: string | {
+    image: string;
+    alt_text: string | null;
+  };
   profile_image_url: string | null;
   created_at: string;
   updated_at: string;
