@@ -102,6 +102,57 @@ getUserDetail: builder.query({
   },
   providesTags: ["Users"],
 }),
+updateRegisteredUser: builder.mutation({
+  query: ({
+    token,
+    id,
+    data,
+  }: {
+    token: string;
+    id: string | number;
+    data: {
+      username?: string;
+      user_type?: string;
+      is_active?: boolean;
+      is_staff?: boolean;
+      is_superuser?: boolean;
+      is_verified_agent?: boolean;
+      password?: string;
+      location_id?: number;
+    };
+  }) => {
+    return {
+      url: `${USERS_URL}/${id}/`,
+      method: 'PUT',
+      headers: {
+        Authorization: `Token ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: data,
+      credentials: "include",
+    };
+  },
+  invalidatesTags: ["Users"],
+}),
+deleteRegisteredUser: builder.mutation({
+  query: ({
+    token,
+    id,
+  }: {
+    token: string;
+    id: string | number;
+  }) => {
+    return {
+      url: `${USERS_URL}/${id}/`,
+      method: 'DELETE',
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+      credentials: "include",
+    };
+  },
+  invalidatesTags: ["Users"],
+}),
     getLoggedinUserInfo: builder.query({
       query: ({ token }: { token: string }) => {
         return {
@@ -254,5 +305,7 @@ export const {
   useDeleteUserServiceMutation,
   useGetUserPermissionsQuery,
   useGetRegisteredUsersQuery,
-  useGetUserDetailQuery
+  useGetUserDetailQuery,
+  useDeleteRegisteredUserMutation,
+  useUpdateRegisteredUserMutation
 } = usersApiSlice;
