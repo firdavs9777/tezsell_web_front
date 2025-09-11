@@ -27,6 +27,17 @@ import {
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
+// Type definitions for API responses
+interface ApiResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+}
+
+interface UpdateUserData extends Partial<User> {
+  password?: string;
+}
+
 // Delete Confirmation Modal
 const DeleteModal: React.FC<{
   user: User | null;
@@ -138,7 +149,7 @@ const EditModal: React.FC<{
   user: User | null;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (user: User, updatedData: Partial<User>) => void;
+  onSave: (user: User, updatedData: UpdateUserData) => void;
   isLoading?: boolean;
 }> = ({ user, isOpen, onClose, onSave, isLoading = false }) => {
   const [formData, setFormData] = useState({
@@ -489,7 +500,7 @@ const TotalUsersList: React.FC = () => {
     navigate(`/admin/user/${user.id}`);
   };
 
-  const handleEditSave = async (user: User, updatedData: Partial<User>) => {
+  const handleEditSave = async (user: User, updatedData: UpdateUserData) => {
     setIsEditLoading(true);
     try {
       // Prepare the request data according to your API structure
@@ -522,7 +533,7 @@ const TotalUsersList: React.FC = () => {
         token,
         id: user.id,
         data: requestData,
-      }).unwrap();
+      }).unwrap() as ApiResponse;
 
       if (result.success) {
         alert(`User ${user.username} updated successfully`);
@@ -532,11 +543,11 @@ const TotalUsersList: React.FC = () => {
       } else {
         throw new Error(result.error || 'Update failed');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to update user:', error);
 
       // Handle RTK Query error format
-      const errorMessage = error?.data?.error || error?.message || 'Failed to update user';
+      const errorMessage = 'Failed to update user';
       alert(`Failed to update user: ${errorMessage}`);
     } finally {
       setIsEditLoading(false);
@@ -550,7 +561,7 @@ const TotalUsersList: React.FC = () => {
       const result = await deleteUser({
         token,
         id: user.id,
-      }).unwrap();
+      }).unwrap() as ApiResponse;
 
       if (result.success) {
         alert(result.message || `User ${user.username} deleted successfully`);
@@ -560,13 +571,19 @@ const TotalUsersList: React.FC = () => {
       } else {
         throw new Error(result.error || 'Deletion failed');
       }
-    } catch (error: any) {
-      console.error('Failed to delete user:', error);
+    } catch (error: unknown) {
+  console.error('Failed to delete user:', error);
 
-      // Handle RTK Query error format
-      const errorMessage = error?.data?.error || error?.message || 'Failed to delete user';
-      alert(`Failed to delete user: ${errorMessage}`);
-    } finally {
+  let errorMessage = 'Failed to delete user';
+
+  if (error instanceof Error) {
+    errorMessage = error.message;
+  } else if (typeof error === 'object' && error !== null && 'message' in error) {
+    errorMessage = String((error as Error).message);
+  }
+
+  alert(`Failed to delete user: ${errorMessage}`);
+} finally {
       setIsDeleteLoading(false);
     }
   };
