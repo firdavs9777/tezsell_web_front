@@ -1,3 +1,4 @@
+import { BASE_URL } from "@store/constants";
 import { RootState } from "@store/index";
 import { useDeleteRegisteredUserMutation, useGetRegisteredUsersQuery, useUpdateRegisteredUserMutation } from "@store/slices/users";
 import { User, UsersResponse } from "@store/type";
@@ -951,7 +952,7 @@ const TotalUsersList: React.FC = () => {
                         {user.profile_image_url ? (
                           <img
                             className="h-10 w-10 rounded-full object-cover"
-                            src={user.profile_image_url}
+                            src={`${BASE_URL}${user.profile_image_url}`}
                             alt={user.username}
                           />
                         ) : (

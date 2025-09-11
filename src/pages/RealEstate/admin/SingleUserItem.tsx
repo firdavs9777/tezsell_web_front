@@ -1,20 +1,19 @@
 import { RootState } from "@store/index";
 import { useGetUserDetailQuery } from "@store/slices/users";
+import {
+  AlertCircle,
+  Calendar,
+  CheckCircle,
+  Crown,
+  MapPin,
+  Settings,
+  Shield,
+  Star,
+  User,
+  XCircle
+} from 'lucide-react';
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import {
-  User,
-  MapPin,
-  Calendar,
-  Clock,
-  Shield,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Settings,
-  Crown,
-  Star
-} from 'lucide-react';
 
 // Type definitions
 interface Location {
@@ -447,25 +446,6 @@ const SingleUserItem: React.FC = () => {
               </div>
             </div>
 
-            {/* Quick Actions */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-              <div className="space-y-3">
-                <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
-                  Edit User
-                </button>
-                <button className={`w-full py-2 px-4 rounded-lg transition-colors text-sm font-medium ${
-                  user.is_active
-                    ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                    : 'bg-green-100 text-green-700 hover:bg-green-200'
-                }`}>
-                  {user.is_active ? 'Deactivate User' : 'Activate User'}
-                </button>
-                <button className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
-                  View Activity Log
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
