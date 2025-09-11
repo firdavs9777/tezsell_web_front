@@ -39,17 +39,82 @@ export interface UserInfo {
   data: User;
 }
 
+// export interface User {
+//   id: number;
+//   username: string;
+//   phone_number: string;
+//   user_type: string;
+//   location: Location;
+//   profile_image: {
+//     image: string;
+//     alt_text: string | null | "";
+//   };
+//   is_active: boolean;
+// }
+
+export interface UsersResponse {
+  success: boolean;
+  message: string;
+  data: {
+    users: User[];
+    pagination: {
+      current_page: number;
+      total_pages: number;
+      total_users: number;
+      users_per_page: number;
+      has_next: boolean;
+      has_previous: boolean;
+      next_page: number | null;
+      previous_page: number | null;
+    };
+    statistics: {
+      total_users: number;
+      active_users: number;
+      inactive_users: number;
+      staff_users: number;
+      super_admins: number;
+      total_agents: number;
+      verified_agents: number;
+      pending_agents: number;
+    };
+    filters_applied: {
+      search: string;
+      user_type: string;
+      is_active: string;
+      is_staff: string;
+      region: string;
+    };
+  };
+}
+
 export interface User {
   id: number;
   username: string;
   phone_number: string;
   user_type: string;
-  location: Location;
-  profile_image: {
-    image: string;
-    alt_text: string | null | "";
-  };
   is_active: boolean;
+  is_staff: boolean;
+  is_superuser: boolean;
+  location: {
+    id: number;
+    country: string;
+    region: string;
+    district: string;
+  };
+  profile_image_url: string | null;
+  created_at: string;
+  updated_at: string;
+  last_login: string | null;
+  is_agent: boolean;
+  is_verified_agent: boolean;
+  agent_info: {
+    id: number;
+    agency_name: string;
+    is_verified: boolean;
+    rating: string;
+    total_sales: number;
+  } | null;
+  user_role: string;
 }
 
 export interface Category {

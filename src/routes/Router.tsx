@@ -7,6 +7,8 @@ import ProductScreen from "@pages/Product/Products";
 import MainProfile from "@pages/Profile/MainProfile";
 import AdminDashboard from "@pages/RealEstate/admin/AdminDashboard";
 import PendingAgents from "@pages/RealEstate/admin/PendingAgents";
+import SingleUserItem from "@pages/RealEstate/admin/SingleUserItem";
+import TotalUsersList from "@pages/RealEstate/admin/TotalUsersList";
 import VerifiedAgents from "@pages/RealEstate/admin/VerifiedAgents";
 import AgentApplicationStatusComponent from "@pages/RealEstate/agents/AgentApplicationStatus";
 import AgentDashboard from "@pages/RealEstate/agents/AgentDashboard";
@@ -29,7 +31,6 @@ import ProtectedRoute from "@routes/ProtectRoute";
 import MyServices from "@services/MyServices";
 import NewService from "@services/NewService";
 import ServiceDetail from "@services/ServiceDetail";
-import TotalUsersList from "@pages/RealEstate/admin/TotalUsersList";
 import { RootState } from "@store/index";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
@@ -42,7 +43,6 @@ const AutoLogoutWrapper = ({ children }: { children: React.ReactNode }) => {
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const { resetTimer } = useAutoLogout();
 
-  // Reset timer on route changes for authenticated users
   useEffect(() => {
     if (userInfo?.token) {
       resetTimer();
@@ -85,7 +85,7 @@ const Router = () => {
           <Route path="/agent/dashboard" element={<AgentDashboard />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/users" element={<TotalUsersList />} />
-
+          <Route path="/admin/user/:id" element={<SingleUserItem />} />
           <Route path="/admin/pending-agents" element={<PendingAgents />} />
           <Route path="/admin/verified-agents" element={<VerifiedAgents />} />
           <Route path="/agent/properties" element={<AgentProperties />} />
@@ -95,7 +95,6 @@ const Router = () => {
           <Route path="/chat" element={<MainChat />} />
           <Route path="/chat/:chatId" element={<MainChat />} />
         </Route>
-
         <Route path="*" element={<Home />} />
       </Routes>
     </AutoLogoutWrapper>

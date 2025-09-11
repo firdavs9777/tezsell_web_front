@@ -5,11 +5,11 @@ import {
   REGISTER_URL,
   SEND_SMS,
   SERVICES_URL,
+  USER_PERMISSIONS,
   USER_PRODUCT,
   USER_SERVICE,
-  VERIFY_SMS,
-  USER_PERMISSIONS,
   USERS_URL,
+  VERIFY_SMS,
 } from "@store/constants";
 import { apiSlice } from "@store/slices/apiSlice";
 import { LoginInfo, RegisterInfo } from "@store/type";
@@ -84,6 +84,24 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       },
       providesTags: ["Users"], // Changed from "Auth" to "Users" for better cache management
     }),
+getUserDetail: builder.query({
+  query: ({
+    token,
+    id,
+  }: {
+    token: string;
+    id: string | number;
+  }) => {
+    return {
+      url: `${USERS_URL}/${id}/`,
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+      credentials: "include",
+    };
+  },
+  providesTags: ["Users"],
+}),
     getLoggedinUserInfo: builder.query({
       query: ({ token }: { token: string }) => {
         return {
@@ -236,4 +254,5 @@ export const {
   useDeleteUserServiceMutation,
   useGetUserPermissionsQuery,
   useGetRegisteredUsersQuery,
+  useGetUserDetailQuery
 } = usersApiSlice;
