@@ -1,7 +1,15 @@
 import { RootState } from "@store/index";
-import { useDeleteRegisteredUserMutation, useGetRegisteredUsersQuery, useUpdateRegisteredUserMutation } from "@store/slices/users";
-import { User, UsersResponse } from "@store/type";
-import React, { useEffect, useState } from "react";
+import {
+  useGetDistrictsListQuery,
+  useGetRegionsListQuery,
+} from "@store/slices/productsApiSlice";
+import {
+  useDeleteRegisteredUserMutation,
+  useGetRegisteredUsersQuery,
+  useUpdateRegisteredUserMutation
+} from "@store/slices/users";
+import { DistrictsList, RegionsList, User, UsersResponse } from "@store/type";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   FaBuilding,
   FaCalendarAlt,
@@ -36,6 +44,7 @@ interface ApiResponse {
 
 interface UpdateUserData extends Partial<User> {
   password?: string;
+  districtId?: number; // Add district ID for location updates
 }
 
 // Delete Confirmation Modal
@@ -144,7 +153,7 @@ const DeleteModal: React.FC<{
   );
 };
 
-// Edit User Modal
+// Edit User Modal with Location Update Logic
 const EditModal: React.FC<{
   user: User | null;
   isOpen: boolean;
@@ -152,6 +161,9 @@ const EditModal: React.FC<{
   onSave: (user: User, updatedData: UpdateUserData) => void;
   isLoading?: boolean;
 }> = ({ user, isOpen, onClose, onSave, isLoading = false }) => {
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+  const token = userInfo?.token;
+
   const [formData, setFormData] = useState({
     username: '',
     phone_number: '',
@@ -163,6 +175,29 @@ const EditModal: React.FC<{
     is_agent: false,
     is_verified_agent: false,
   });
+
+  // Location state (similar to MainProfile)
+  const [currentRegion, setCurrentRegion] = useState("");
+  const [currentDistrict, setCurrentDistrict] = useState("");
+
+  // Fetch regions and districts (similar to MainProfile)
+  const { data: regions, isLoading: regionsLoading } = useGetRegionsListQuery(
+    {},
+    {
+      skip: !token || !isOpen,
+      refetchOnMountOrArgChange: 86400, // Cache for 24 hours
+    }
+  );
+
+  const { data: districts, isLoading: districtsLoading } =
+    useGetDistrictsListQuery(currentRegion, {
+      skip: !currentRegion || !token || !isOpen,
+      refetchOnMountOrArgChange: 86400, // Cache for 24 hours
+    });
+
+  // Memoize the formatted data to prevent unnecessary re-renders
+  const regionsList = useMemo(() => regions as RegionsList, [regions]);
+  const districtsList = useMemo(() => districts as DistrictsList, [districts]);
 
   useEffect(() => {
     if (user) {
@@ -177,14 +212,36 @@ const EditModal: React.FC<{
         is_agent: user.is_agent,
         is_verified_agent: user.is_verified_agent,
       });
+
+      // Set location data
+      setCurrentRegion(user.location?.region || "");
+      setCurrentDistrict(user.location?.district || "");
     }
   }, [user]);
 
   if (!isOpen || !user) return null;
 
+  // Handle region change (similar to MainProfile)
+  const handleRegionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newRegion = e.target.value;
+    setCurrentRegion(newRegion);
+    setCurrentDistrict(""); // Reset district when region changes
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(user, formData);
+
+    // Prepare updated data including location
+    const updatedData: UpdateUserData = {
+      ...formData,
+      location: {
+        ...user.location,
+        region: currentRegion,
+        district: currentDistrict,
+      }
+    };
+
+    onSave(user, updatedData);
   };
 
   return (
@@ -192,7 +249,7 @@ const EditModal: React.FC<{
       {/* Backdrop */}
       <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
         {/* Modal */}
-        <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b">
             <div className="flex items-center space-x-3">
@@ -215,7 +272,7 @@ const EditModal: React.FC<{
 
           {/* Content */}
           <form onSubmit={handleSubmit} className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Basic Information */}
               <div className="space-y-4">
                 <h4 className="text-sm font-medium text-gray-900 uppercase tracking-wide">Basic Information</h4>
@@ -278,6 +335,71 @@ const EditModal: React.FC<{
                 </div>
               </div>
 
+              {/* Location Section */}
+              <div className="space-y-4">
+                <h4 className="text-sm font-medium text-gray-900 uppercase tracking-wide flex items-center">
+                  <FaMapMarkerAlt className="mr-2 text-blue-500" />
+                  Location
+                </h4>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Region
+                  </label>
+                  <select
+                    value={currentRegion}
+                    onChange={handleRegionChange}
+                    disabled={regionsLoading}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50"
+                  >
+                    <option value="">Select Region</option>
+                    {regionsLoading ? (
+                      <option disabled>Loading regions...</option>
+                    ) : (
+                      regionsList?.regions?.map((region, index) => (
+                        <option key={`region-${index}`} value={region.region}>
+                          {region.region}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    District
+                  </label>
+                  <select
+                    value={currentDistrict}
+                    onChange={(e) => setCurrentDistrict(e.target.value)}
+                    disabled={districtsLoading || !currentRegion}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50"
+                  >
+                    <option value="">Select District</option>
+                    {districtsLoading ? (
+                      <option disabled>Loading districts...</option>
+                    ) : (
+                      districtsList?.districts?.map((district, index) => (
+                        <option
+                          key={`district-${index}`}
+                          value={district.district}
+                        >
+                          {district.district}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                </div>
+
+                {/* Current Location Display */}
+                <div className="p-3 bg-gray-50 rounded-lg border">
+                  <p className="text-xs text-gray-500 mb-1">Current Location</p>
+                  <p className="text-sm text-gray-900">
+                    {user.location?.region || 'No region'}, {user.location?.district || 'No district'}
+                  </p>
+                </div>
+              </div>
+
               {/* Permissions */}
               <div className="space-y-4">
                 <h4 className="text-sm font-medium text-gray-900 uppercase tracking-wide">Permissions</h4>
@@ -337,13 +459,13 @@ const EditModal: React.FC<{
                   </label>
                 </div>
 
-                {/* Current User Preview */}
+                {/* User Info Summary */}
                 <div className="mt-6 p-4 bg-gray-50 rounded-lg border">
-                  <h5 className="text-sm font-medium text-gray-700 mb-2">Current User Info</h5>
+                  <h5 className="text-sm font-medium text-gray-700 mb-2">User Summary</h5>
                   <div className="text-xs text-gray-600 space-y-1">
                     <p><strong>Created:</strong> {new Date(user.created_at).toLocaleDateString()}</p>
                     <p><strong>Last Login:</strong> {user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Never'}</p>
-                    <p><strong>Location:</strong> {user.location?.region}, {user.location?.district}</p>
+                    <p><strong>Agent:</strong> {user.agent_info ? `${user.agent_info.agency_name} (${user.agent_info.rating}⭐)` : 'No'}</p>
                   </div>
                 </div>
               </div>
@@ -500,9 +622,18 @@ const TotalUsersList: React.FC = () => {
     navigate(`/admin/user/${user.id}`);
   };
 
+  // Updated handleEditSave with location logic
   const handleEditSave = async (user: User, updatedData: UpdateUserData) => {
     setIsEditLoading(true);
     try {
+      // Find the district ID if location is being updated
+      let locationId = undefined;
+      if (updatedData.location && updatedData.location.district && updatedData.location.region) {
+        // You might need to implement a way to get district ID by name
+        // For now, we'll send the district name and let the backend handle it
+        locationId = updatedData.location.id;
+      }
+
       // Prepare the request data according to your API structure
       const requestData = {
         username: updatedData.username,
@@ -512,14 +643,10 @@ const TotalUsersList: React.FC = () => {
         is_staff: updatedData.is_staff,
         is_superuser: updatedData.is_superuser,
         is_verified_agent: updatedData.is_verified_agent,
+        // Add location_id if location is being updated
+        ...(locationId && { location_id: locationId }),
         // Add password only if provided
         ...(updatedData.password && { password: updatedData.password }),
-        // Add location data if provided
-        ...(updatedData.location && {
-          location_country: updatedData.location.country,
-          location_region: updatedData.location.region,
-          location_district: updatedData.location.district,
-        }),
         // Add agent info if user is an agent
         ...(updatedData.is_agent && updatedData.agent_info && {
           agent_agency_name: updatedData.agent_info.agency_name,
@@ -572,18 +699,18 @@ const TotalUsersList: React.FC = () => {
         throw new Error(result.error || 'Deletion failed');
       }
     } catch (error: unknown) {
-  console.error('Failed to delete user:', error);
+      console.error('Failed to delete user:', error);
 
-  let errorMessage = 'Failed to delete user';
+      let errorMessage = 'Failed to delete user';
 
-  if (error instanceof Error) {
-    errorMessage = error.message;
-  } else if (typeof error === 'object' && error !== null && 'message' in error) {
-    errorMessage = String((error as Error).message);
-  }
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'object' && error !== null && 'message' in error) {
+        errorMessage = String((error as Error).message);
+      }
 
-  alert(`Failed to delete user: ${errorMessage}`);
-} finally {
+      alert(`Failed to delete user: ${errorMessage}`);
+    } finally {
       setIsDeleteLoading(false);
     }
   };

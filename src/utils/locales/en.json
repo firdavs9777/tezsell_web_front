@@ -207,7 +207,7 @@
     "browseProducts": "Browse Products"
   },
   "features": {
-       "has_balcony": "Has Balcony",
+    "has_balcony": "Has Balcony",
     "has_garage": "Has Garage",
     "has_garden": "Has Garden",
     "has_pool": "Has Pool",
@@ -721,26 +721,26 @@
   "admin_views": "views",
   "admin_sales": "sales",
   "loading_pending_applications": "Loading pending applications...",
-"error_loading_applications": "Error loading applications",
-"pending_agents": "Pending Agents",
-"total_pending_applications": "Total pending applications: ",
-"pending_verification": "Pending Verification",
-"applied_date": "Applied: ",
-"contact_info": "Contact Info",
-"license_number": "License Number",
-"years_experience": "Years of Experience",
-"years_suffix": " years",
-"total_sales": "Total Sales",
-"specialization": "Specialization",
-"approve": "Approve",
-"reject": "Reject",
-"previous": "Previous",
-"page": "Page ",
-"next": "Next",
-"no_pending_applications": "No pending applications found",
-"all_applications_processed": "All agent applications have been processed",
+  "error_loading_applications": "Error loading applications",
+  "pending_agents": "Pending Agents",
+  "total_pending_applications": "Total pending applications: ",
+  "pending_verification": "Pending Verification",
+  "applied_date": "Applied: ",
+  "contact_info": "Contact Info",
+  "license_number": "License Number",
+  "years_experience": "Years of Experience",
+  "years_suffix": " years",
+  "total_sales": "Total Sales",
+  "specialization": "Specialization",
+  "approve": "Approve",
+  "reject": "Reject",
+  "previous": "Previous",
+  "page": "Page ",
+  "next": "Next",
+  "no_pending_applications": "No pending applications found",
+  "all_applications_processed": "All agent applications have been processed",
   "success.agent_approved": "Agent has been successfully approved",
-    "success.agent_rejected": "Agent has been successfully rejected",
+  "success.agent_rejected": "Agent has been successfully rejected",
   "language_uz": "O'zbekcha",
   "language_ru": "Русский",
   "language_en": "English",
@@ -766,5 +766,66 @@
   "last_updated": "Last updated:",
   "permissions_may_be_outdated": "Permissions may be outdated",
   "permissions_up_to_date": "Permissions up to date",
-  "never": "Never"
+  "never": "Never",
+  "singleUserItem": {
+    "loading": "Loading user details...",
+    "errorLoading": "Error Loading User",
+    "errorMessage": "We encountered an error while loading the user details. Please try again later.",
+    "tryAgain": "Try Again",
+    "userNotFound": "User Not Found",
+    "userNotFoundMessage": "The requested user could not be found. Please check the user ID and try again.",
+    "userTypes": {
+      "regularUser": "Regular User",
+      "premiumUser": "Premium User",
+      "agent": "Agent"
+    },
+    "userRoles": {
+      "superAdmin": "Super Admin",
+      "admin": "Admin",
+      "moderator": "Moderator",
+      "user": "User"
+    },
+    "stats": {
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "userId": "User ID",
+      "staff": "Staff",
+      "agent": "Agent",
+      "yes": "Yes",
+      "no": "No"
+    },
+    "location": {
+      "title": "Location",
+      "country": "Country",
+      "region": "Region",
+      "district": "District",
+      "noLocationInfo": "No location information available"
+    },
+    "permissions": {
+      "title": "Permissions",
+      "agent": "Agent",
+      "verifiedAgent": "Verified Agent",
+      "staff": "Staff",
+      "superuser": "Superuser",
+      "createProperties": "Create Properties",
+      "manageInquiries": "Manage Inquiries",
+      "accessAdmin": "Access Admin",
+      "verifyAgents": "Verify Agents",
+      "manageUsers": "Manage Users"
+    },
+    "agentInfo": {
+      "title": "Agent Information",
+      "verifiedAgent": "Verified Agent",
+      "pendingVerification": "Pending Verification",
+      "additionalInformation": "Additional Information"
+    },
+    "timeline": {
+      "title": "Timeline",
+      "accountCreated": "Account Created",
+      "lastUpdated": "Last Updated",
+      "lastLogin": "Last Login",
+      "neverLoggedIn": "Never logged in"
+    }
+  }
 }

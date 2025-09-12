@@ -668,7 +668,7 @@
   "admin_dashboard_total_users": "Всего пользователей",
   "admin_dashboard_total_views": "Всего просмотров",
   "verification_error": "Повторить",
-  
+
   "admin_error_loading_dashboard": "Ошибка загрузки панели",
   "admin_failed_to_load_data": "Не удалось загрузить данные панели",
   "admin_avg_sale_price": "Средняя цена продажи",
@@ -677,12 +677,12 @@
   "admin_total_portfolio_value_subtitle": "Общая стоимость недвижимости",
   "admin_avg_price_per_sqm": "Средняя цена за кв.м",
   "admin_avg_price_per_sqm_subtitle": "Индикатор рыночной цены",
-  
+
   "admin_property_types_distribution": "Распределение типов недвижимости",
   "admin_properties_by_city": "Объекты по городам",
   "admin_properties_by_district": "Объекты по районам",
   "admin_inquiry_types_distribution": "Распределение типов запросов",
-  
+
   "admin_agent_verification_rate": "Процент верификации агентов",
   "admin_agent_verification_rate_subtitle": "Контроль качества",
   "admin_inquiry_response_rate": "Процент ответов на запросы",
@@ -691,15 +691,15 @@
   "admin_avg_views_per_property_subtitle": "Популярность объектов",
   "admin_featured_properties": "Рекомендуемые объекты",
   "admin_featured_properties_subtitle": "Премиум объявления",
-  
+
   "admin_most_viewed_properties": "Самые просматриваемые объекты",
   "admin_top_performing_agents": "Лучшие агенты",
-  
+
   "admin_system_health": "Состояние системы",
   "admin_properties_without_images": "Объекты без изображений",
   "admin_missing_location_data": "Отсутствуют данные о местоположении",
   "admin_pending_agent_verification": "Агенты ожидают верификации",
-  
+
   "admin_active": "активных",
   "admin_verified": "верифицированных",
   "admin_active_7d": "активных (7 дней)",
@@ -725,33 +725,94 @@
   "next": "Следующая",
   "no_pending_applications": "Заявки на рассмотрении не найдены",
   "all_applications_processed": "Все заявки агентов обработаны",
-     "success.agent_approved": "Агент успешно одобрен",
-    "success.agent_rejected": "Агент успешно отклонен",
-    "saved_properties": "Сохраненные объекты",
-    "language_uz": "O'zbekcha",
-    "language_ru": "Русский",
-    "language_en": "English",
-    "super_admin": "Супер администратор",
-    "staff": "Персонал",
-    "verified_agent": "Верифицированный агент",
-    "pending_agent": "Ожидающий агент",
-    "regular_user": "Пользователь",
-    "admin": "Админис",
-    "dashboard": "Панель управления",
-    "manage_users": "Управление пользователями",
-    "verified_agents": "Верифицированные агенты",
-    "agent_panel": "Панель агента",
-    "create_property": "Создать объект",
-    "my_properties": "Мои объекты",
-    "inquiries": "Запросы",
-    "agent_profile": "Профиль агента",
-    "live": "В реальном времени",
-    "logged_out_successfully": "Успешно вышли",
-    "logout_completed_with_errors": "Выход завершен (с ошибками)",
-    "application_under_review": "Заявка рассматривается",
-    "check_status": "Проверить статус →",
-    "last_updated": "Последнее обновление:",
-    "permissions_may_be_outdated": "Разрешения могут быть устаревшими",
-    "permissions_up_to_date": "Разрешения обновлены",
-    "never": "Никогда"
+  "success.agent_approved": "Агент успешно одобрен",
+  "success.agent_rejected": "Агент успешно отклонен",
+  "saved_properties": "Сохраненные объекты",
+  "language_uz": "O'zbekcha",
+  "language_ru": "Русский",
+  "language_en": "English",
+  "super_admin": "Супер администратор",
+  "staff": "Персонал",
+  "verified_agent": "Верифицированный агент",
+  "pending_agent": "Ожидающий агент",
+  "regular_user": "Пользователь",
+  "admin": "Админис",
+  "dashboard": "Панель управления",
+  "manage_users": "Управление пользователями",
+  "verified_agents": "Верифицированные агенты",
+  "agent_panel": "Панель агента",
+  "create_property": "Создать объект",
+  "my_properties": "Мои объекты",
+  "inquiries": "Запросы",
+  "agent_profile": "Профиль агента",
+  "live": "В реальном времени",
+  "logged_out_successfully": "Успешно вышли",
+  "logout_completed_with_errors": "Выход завершен (с ошибками)",
+  "application_under_review": "Заявка рассматривается",
+  "check_status": "Проверить статус →",
+  "last_updated": "Последнее обновление:",
+  "permissions_may_be_outdated": "Разрешения могут быть устаревшими",
+  "permissions_up_to_date": "Разрешения обновлены",
+  "never": "Никогда",
+  "singleUserItem": {
+    "loading": "Загрузка данных пользователя...",
+    "errorLoading": "Ошибка загрузки пользователя",
+    "errorMessage": "При загрузке данных пользователя произошла ошибка. Пожалуйста, попробуйте позже.",
+    "tryAgain": "Попробовать снова",
+    "userNotFound": "Пользователь не найден",
+    "userNotFoundMessage": "Запрашиваемый пользователь не найден. Пожалуйста, проверьте ID пользователя и попробуйте снова.",
+    "userTypes": {
+      "regularUser": "Обычный пользователь",
+      "premiumUser": "Премиум пользователь",
+      "agent": "Агент"
+    },
+    "userRoles": {
+      "superAdmin": "Супер админ",
+      "admin": "Админ",
+      "moderator": "Модератор",
+      "user": "Пользователь"
+    },
+    "stats": {
+      "status": "Статус",
+      "active": "Активен",
+      "inactive": "Неактивен",
+      "userId": "ID пользователя",
+      "staff": "Персонал",
+      "agent": "Агент",
+      "yes": "Да",
+      "no": "Нет"
+    },
+    "location": {
+      "title": "Местоположение",
+      "country": "Страна",
+      "region": "Регион",
+      "district": "Район",
+      "noLocationInfo": "Информация о местоположении недоступна"
+    },
+    "permissions": {
+      "title": "Разрешения",
+      "agent": "Агент",
+      "verifiedAgent": "Подтвержденный агент",
+      "staff": "Персонал",
+      "superuser": "Суперпользователь",
+      "createProperties": "Создавать недвижимость",
+      "manageInquiries": "Управлять запросами",
+      "accessAdmin": "Доступ к админ панели",
+      "verifyAgents": "Подтверждать агентов",
+      "manageUsers": "Управлять пользователями"
+    },
+    "agentInfo": {
+      "title": "Информация об агенте",
+      "verifiedAgent": "Подтвержденный агент",
+      "pendingVerification": "Ожидает подтверждения",
+      "additionalInformation": "Дополнительная информация"
+    },
+    "timeline": {
+      "title": "Временная шкала",
+      "accountCreated": "Аккаунт создан",
+      "lastUpdated": "Последнее обновление",
+      "lastLogin": "Последний вход",
+      "neverLoggedIn": "Никогда не входил"
+    }
+  }
 }

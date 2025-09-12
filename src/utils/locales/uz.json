@@ -682,7 +682,7 @@
   "admin_dashboard_total_users": "Jami foydalanuvchilar",
   "admin_dashboard_total_views": "Jami ko'rishlar",
   "verification_error": "Qayta urinish",
-  
+
   "admin_error_loading_dashboard": "Panelni yuklashda xatolik",
   "admin_failed_to_load_data": "Panel ma'lumotlarini yuklab bo'lmadi",
   "admin_avg_sale_price": "O'rtacha sotuv narxi",
@@ -691,12 +691,12 @@
   "admin_total_portfolio_value_subtitle": "Umumiy mulk qiymati",
   "admin_avg_price_per_sqm": "Kv.m uchun o'rtacha narx",
   "admin_avg_price_per_sqm_subtitle": "Bozor narxi ko'rsatkichi",
-  
+
   "admin_property_types_distribution": "Mulk turlarining taqsimoti",
   "admin_properties_by_city": "Shaharlar bo'yicha mulklar",
   "admin_properties_by_district": "Tumanlar bo'yicha mulklar",
   "admin_inquiry_types_distribution": "So'rov turlarining taqsimoti",
-  
+
   "admin_agent_verification_rate": "Agentlarni tasdiqlash foizi",
   "admin_agent_verification_rate_subtitle": "Sifat nazorati",
   "admin_inquiry_response_rate": "So'rovlarga javob foizi",
@@ -705,15 +705,15 @@
   "admin_avg_views_per_property_subtitle": "Mulk mashhurligi",
   "admin_featured_properties": "Tavsiya etilgan mulklar",
   "admin_featured_properties_subtitle": "Premium e'lonlar",
-  
+
   "admin_most_viewed_properties": "Eng ko'p ko'rilgan mulklar",
   "admin_top_performing_agents": "Eng yaxshi agentlar",
-  
+
   "admin_system_health": "Tizim holati",
   "admin_properties_without_images": "Rasmsiz mulklar",
   "admin_missing_location_data": "Joylashuv ma'lumotlari yo'q",
   "admin_pending_agent_verification": "Tasdiqlashni kutayotgan agentlar",
-  
+
   "admin_active": "faol",
   "admin_verified": "tasdiqlangan",
   "admin_active_7d": "faol (7 kun)",
@@ -741,31 +741,92 @@
   "all_applications_processed": "Barcha agent arizalari qayta ishlangan",
   "success.agent_approved": "Agent muvaffaqiyatli tasdiqlandi",
   "success.agent_rejected": "Agent muvaffaqiyatli rad etildi",
-    "saved_properties": "Saqlangan mulklar",
-    "language_uz": "O'zbekcha",
-    "language_ru": "Русский",
-    "language_en": "English",
-    "super_admin": "Super administrator",
-    "staff": "Xodim",
-    "verified_agent": "Tasdiqlangan agent",
-    "pending_agent": "Kutilayotgan agent",
-    "regular_user": "Foydalanuvchi",
-    "admin": "Admin",
-    "dashboard": "Boshqaruv paneli",
-    "manage_users": "Foydalanuvchilarni boshqarish",
-    "verified_agents": "Tasdiqlangan agentlar",
-    "agent_panel": "Agent paneli",
-    "create_property": "Mulk yaratish",
-    "my_properties": "Mening mulklarim",
-    "inquiries": "So'rovlar",
-    "agent_profile": "Agent profili",
-    "live": "Jonli",
-    "logged_out_successfully": "Muvaffaqiyatli chiqildi",
-    "logout_completed_with_errors": "Chiqish tugallandi (xatoliklar bilan)",
-    "application_under_review": "Ariza ko'rib chiqilmoqda",
-    "check_status": "Holatni tekshirish →",
-    "last_updated": "Oxirgi yangilanish:",
-    "permissions_may_be_outdated": "Ruxsatlar eskirgan bo'lishi mumkin",
-    "permissions_up_to_date": "Ruxsatlar yangilangan",
-    "never": "Hech qachon"
+  "saved_properties": "Saqlangan mulklar",
+  "language_uz": "O'zbekcha",
+  "language_ru": "Русский",
+  "language_en": "English",
+  "super_admin": "Super administrator",
+  "staff": "Xodim",
+  "verified_agent": "Tasdiqlangan agent",
+  "pending_agent": "Kutilayotgan agent",
+  "regular_user": "Foydalanuvchi",
+  "admin": "Admin",
+  "dashboard": "Boshqaruv paneli",
+  "manage_users": "Foydalanuvchilarni boshqarish",
+  "verified_agents": "Tasdiqlangan agentlar",
+  "agent_panel": "Agent paneli",
+  "create_property": "Mulk yaratish",
+  "my_properties": "Mening mulklarim",
+  "inquiries": "So'rovlar",
+  "agent_profile": "Agent profili",
+  "live": "Jonli",
+  "logged_out_successfully": "Muvaffaqiyatli chiqildi",
+  "logout_completed_with_errors": "Chiqish tugallandi (xatoliklar bilan)",
+  "application_under_review": "Ariza ko'rib chiqilmoqda",
+  "check_status": "Holatni tekshirish →",
+  "last_updated": "Oxirgi yangilanish:",
+  "permissions_may_be_outdated": "Ruxsatlar eskirgan bo'lishi mumkin",
+  "permissions_up_to_date": "Ruxsatlar yangilangan",
+  "never": "Hech qachon",
+  "singleUserItem": {
+    "loading": "Foydalanuvchi ma'lumotlari yuklanmoqda...",
+    "errorLoading": "Foydalanuvchini yuklashda xato",
+    "errorMessage": "Foydalanuvchi ma'lumotlarini yuklashda xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko'ring.",
+    "tryAgain": "Qayta urinish",
+    "userNotFound": "Foydalanuvchi topilmadi",
+    "userNotFoundMessage": "So'ralgan foydalanuvchi topilmadi. Iltimos, foydalanuvchi ID sini tekshirib, qayta urinib ko'ring.",
+    "userTypes": {
+      "regularUser": "Oddiy foydalanuvchi",
+      "premiumUser": "Premium foydalanuvchi",
+      "agent": "Agent"
+    },
+    "userRoles": {
+      "superAdmin": "Super admin",
+      "admin": "Admin",
+      "moderator": "Moderator",
+      "user": "Foydalanuvchi"
+    },
+    "stats": {
+      "status": "Holat",
+      "active": "Faol",
+      "inactive": "Nofaol",
+      "userId": "Foydalanuvchi ID si",
+      "staff": "Xodim",
+      "agent": "Agent",
+      "yes": "Ha",
+      "no": "Yo'q"
+    },
+    "location": {
+      "title": "Joylashuv",
+      "country": "Mamlakat",
+      "region": "Viloyat",
+      "district": "Tuman",
+      "noLocationInfo": "Joylashuv haqida ma'lumot mavjud emas"
+    },
+    "permissions": {
+      "title": "Ruxsatlar",
+      "agent": "Agent",
+      "verifiedAgent": "Tasdiqlangan agent",
+      "staff": "Xodim",
+      "superuser": "Super foydalanuvchi",
+      "createProperties": "Mulk yaratish",
+      "manageInquiries": "So'rovlarni boshqarish",
+      "accessAdmin": "Admin panelga kirish",
+      "verifyAgents": "Agentlarni tasdiqlash",
+      "manageUsers": "Foydalanuvchilarni boshqarish"
+    },
+    "agentInfo": {
+      "title": "Agent haqida ma'lumot",
+      "verifiedAgent": "Tasdiqlangan agent",
+      "pendingVerification": "Tasdiq kutilmoqda",
+      "additionalInformation": "Qo'shimcha ma'lumot"
+    },
+    "timeline": {
+      "title": "Vaqt jadvali",
+      "accountCreated": "Hisob yaratildi",
+      "lastUpdated": "Oxirgi yangilanish",
+      "lastLogin": "Oxirgi kirish",
+      "neverLoggedIn": "Hech qachon kirmagan"
+    }
+  }
 }
