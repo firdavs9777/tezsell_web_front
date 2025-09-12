@@ -431,7 +431,7 @@ const SingleUserItem: React.FC = () => {
                   <div>
                     <p className="text-sm font-medium text-gray-900">{t('timeline.lastLogin')}</p>
                     <p className="text-sm text-gray-600">
-                      {user.last_login ? formatDate(user.last_login) : 'Never logged in'}
+                        {user.last_login ? formatDate(user.last_login) : t("timeline.neverLoggedIn")}
                     </p>
                   </div>
                 </div>
