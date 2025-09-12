@@ -106,17 +106,17 @@ const SingleUserItem: React.FC = () => {
       regular: {
         color: 'bg-blue-100 text-blue-800 border-blue-200',
         icon: User,
-        label: `${t('userTypes.regularUser')}`
+        label: `${t('singleUserItem.userTypes.regularUser')}`
       },
       premium: {
         color: 'bg-purple-100 text-purple-800 border-purple-200',
         icon: Star,
-        label: `${t('userTypes.premiumUser')}`
+        label: `${t('singleUserItem.userTypes.premiumUser')}`
       },
       agent: {
         color: 'bg-emerald-100 text-emerald-800 border-emerald-200',
         icon: Shield,
-        label:`${t('userTypes.agent')}`
+        label:`${t('singleUserItem.userTypes.agent')}`
       }
     };
     return configs[userType as keyof typeof configs] || configs.regular;
@@ -127,22 +127,22 @@ const SingleUserItem: React.FC = () => {
       super_admin: {
         color: 'bg-red-100 text-red-800 border-red-200',
         icon: Crown,
-        label:`${t('userRoles.superAdmin')}`
+        label:`${t('singleUserItem.userRoles.superAdmin')}`
       },
       admin: {
         color: 'bg-orange-100 text-orange-800 border-orange-200',
         icon: Settings,
-        label:`${t('userRoles.admin')}`
+        label:`${t('singleUserItem.userRoles.admin')}`
       },
       moderator: {
         color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
         icon: AlertCircle,
-        label:`${t('userRoles.moderator')}`
+        label:`${t('singleUserItem.userRoles.moderator')}`
       },
       user: {
         color: 'bg-blue-100 text-blue-800 border-blue-200',
         icon: User,
-        label:`${t('userRoles.user')}`
+        label:`${t('singleUserItem.userRoles.user')}`
       }
     };
     return configs[role as keyof typeof configs] || configs.user;
@@ -163,7 +163,7 @@ const SingleUserItem: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="bg-white rounded-lg shadow-sm p-8 flex flex-col items-center space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
-          <p className="text-gray-600 font-medium">{t('singleUserItem.loading')}</p>
+          <p className="text-gray-600 font-medium">{t('singleUserItem.singleUserItem.loading')}</p>
         </div>
       </div>
     );
@@ -176,16 +176,16 @@ const SingleUserItem: React.FC = () => {
         <div className="max-w-md w-full bg-white rounded-lg shadow-sm border border-red-200 p-6">
           <div className="flex items-center space-x-3 mb-4">
             <XCircle className="h-8 w-8 text-red-500" />
-            <h2 className="text-xl font-semibold text-red-800">{t('singleUserItem.errorLoading')}</h2>
+            <h2 className="text-xl font-semibold text-red-800">{t('singleUserItem.singleUserItem.errorLoading')}</h2>
           </div>
           <p className="text-red-600 mb-4">
-           {t('singleUserItem.errorMessage')}
+           {t('singleUserItem.singleUserItem.errorMessage')}
           </p>
           <button
             onClick={() => window.location.reload()}
             className="w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors"
           >
-           {t('singleUserItem.tryAgain')}
+           {t('singleUserItem.singleUserItem.tryAgain')}
           </button>
         </div>
       </div>
@@ -197,10 +197,10 @@ const SingleUserItem: React.FC = () => {
         <div className="max-w-md w-full bg-white rounded-lg shadow-sm border border-yellow-200 p-6">
           <div className="flex items-center space-x-3 mb-4">
             <AlertCircle className="h-8 w-8 text-yellow-500" />
-            <h2 className="text-xl font-semibold text-yellow-800">{t('singleUserItem.userNotFound')}</h2>
+            <h2 className="text-xl font-semibold text-yellow-800">{t('singleUserItem.singleUserItem.userNotFound')}</h2>
           </div>
           <p className="text-yellow-600">
-            {t('singleUserItem.userNotFoundMessage')}
+            {t('singleUserItem.singleUserItem.userNotFoundMessage')}
           </p>
         </div>
       </div>
@@ -280,9 +280,9 @@ const SingleUserItem: React.FC = () => {
                 )}
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-500">{t('stats.status')}</p>
+                <p className="text-sm font-medium text-gray-500">{t('singleUserItem.stats.status')}</p>
                 <p className={`text-lg font-semibold ${user.is_active ? 'text-green-600' : 'text-red-600'}`}>
-                  {user.is_active ?`${t('stats.active')}` : `${t('stats.inactive')}`}
+                  {user.is_active ?`${t('singleUserItem.stats.active')}` : `${t('singleUserItem.stats.inactive')}`}
                 </p>
               </div>
             </div>
@@ -294,7 +294,7 @@ const SingleUserItem: React.FC = () => {
                 <User className="h-6 w-6 text-blue-600" />
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-500">{t('stats.userId')}</p>
+                <p className="text-sm font-medium text-gray-500">{t('singleUserItem.stats.userId')}</p>
                 <p className="text-lg font-semibold text-gray-900">#{user.id}</p>
               </div>
             </div>
@@ -306,9 +306,9 @@ const SingleUserItem: React.FC = () => {
                 <Settings className={`h-6 w-6 ${user.is_staff ? 'text-purple-600' : 'text-gray-400'}`} />
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-500">{t('stats.staff')}</p>
+                <p className="text-sm font-medium text-gray-500">{t('singleUserItem.stats.staff')}</p>
                 <p className={`text-lg font-semibold ${user.is_staff ? 'text-purple-600' : 'text-gray-400'}`}>
-                  {user.is_staff ? `${t('stats.yes')}` : `${t('stats.no')}`}
+                  {user.is_staff ? `${t('singleUserItem.stats.yes')}` : `${t('singleUserItem.stats.no')}`}
                 </p>
               </div>
             </div>
@@ -320,9 +320,9 @@ const SingleUserItem: React.FC = () => {
                 <Shield className={`h-6 w-6 ${user.is_agent ? 'text-emerald-600' : 'text-gray-400'}`} />
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-500">{t('stats.agent')}</p>
+                <p className="text-sm font-medium text-gray-500">{t('singleUserItem.stats.agent')}</p>
                 <p className={`text-lg font-semibold ${user.is_agent ? 'text-emerald-600' : 'text-gray-400'}`}>
-                  {user.is_agent ? `${t('stats.yes')}` : `${t('stats.no')}`}
+                  {user.is_agent ? `${t('singleUserItem.stats.yes')}` : `${t('singleUserItem.stats.no')}`}
                 </p>
               </div>
             </div>
@@ -333,25 +333,25 @@ const SingleUserItem: React.FC = () => {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center space-x-2 mb-4">
                 <MapPin className="h-5 w-5 text-gray-600" />
-                <h2 className="text-lg font-semibold text-gray-900">{t('location.title')}</h2>
+                <h2 className="text-lg font-semibold text-gray-900">{t('singleUserItem.location.title')}</h2>
               </div>
               {user.location ? (
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-gray-500">{t('location.country')}</label>
+                    <label className="text-sm font-medium text-gray-500">{t('singleUserItem.location.country')}</label>
                     <p className="text-gray-900 font-medium">{user.location.country}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-500">{t('location.region')}</label>
+                    <label className="text-sm font-medium text-gray-500">{t('singleUserItem.location.region')}</label>
                     <p className="text-gray-900 font-medium">{user.location.region}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-500">{t('location.district')}</label>
+                    <label className="text-sm font-medium text-gray-500">{t('singleUserItem.location.district')}</label>
                     <p className="text-gray-900 font-medium">{user.location.district}</p>
                   </div>
                 </div>
               ) : (
-                <p className="text-gray-500 italic">{t('location.noLocationInfo')}</p>
+                <p className="text-gray-500 italic">{t('singleUserItem.location.noLocationInfo')}</p>
               )}
             </div>
 
@@ -359,7 +359,7 @@ const SingleUserItem: React.FC = () => {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center space-x-2 mb-6">
                 <Shield className="h-5 w-5 text-gray-600" />
-                <h2 className="text-lg font-semibold text-gray-900">{t('permissions.title')}</h2>
+                <h2 className="text-lg font-semibold text-gray-900">{t('singleUserItem.permissions.title')}</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {Object.entries(user.permissions).map(([key, value]) => (
@@ -376,7 +376,7 @@ const SingleUserItem: React.FC = () => {
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div className="flex items-center space-x-2 mb-4">
                   <Shield className="h-5 w-5 text-emerald-600" />
-                  <h2 className="text-lg font-semibold text-gray-900">{t('agentInfo.title')}</h2>
+                  <h2 className="text-lg font-semibold text-gray-900">{t('singleUserItem.agentInfo.title')}</h2>
                 </div>
                 <div className="flex items-center space-x-4 mb-4">
                   <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
@@ -389,12 +389,12 @@ const SingleUserItem: React.FC = () => {
                     ) : (
                       <AlertCircle className="w-4 h-4 mr-1" />
                     )}
-                    {user.is_verified_agent ?  `${t('agentInfo.verifiedAgent')}` : `${t('agentInfo.pendingVerification')}`}
+                    {user.is_verified_agent ?  `${t('singleUserItem.agentInfo.verifiedAgent')}` : `${t('singleUserItem.agentInfo.pendingVerification')}`}
                   </div>
                 </div>
                 {user.agent_info && (
                   <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <h3 className="text-sm font-medium text-gray-700 mb-2">{t('agentInfo.verifiedAgent')}</h3>
+                    <h3 className="text-sm font-medium text-gray-700 mb-2">{t('singleUserItem.agentInfo.verifiedAgent')}</h3>
                     <pre className="text-xs text-gray-600 whitespace-pre-wrap overflow-x-auto">
                       {JSON.stringify(user.agent_info, null, 2)}
                     </pre>
@@ -409,29 +409,29 @@ const SingleUserItem: React.FC = () => {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center space-x-2 mb-4">
                 <Calendar className="h-5 w-5 text-gray-600" />
-                <h2 className="text-lg font-semibold text-gray-900">{t('timeline.title')}</h2>
+                <h2 className="text-lg font-semibold text-gray-900">{t('singleUserItem.timeline.title')}</h2>
               </div>
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{t('timeline.accountCreted')}</p>
+                    <p className="text-sm font-medium text-gray-900">{t('singleUserItem.timeline.accountCreated')}</p>
                     <p className="text-sm text-gray-600">{formatDate(user.created_at)}</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{t('timeline.lastUpdated')}</p>
+                    <p className="text-sm font-medium text-gray-900">{t('singleUserItem.timeline.lastUpdated')}</p>
                     <p className="text-sm text-gray-600">{formatDate(user.updated_at)}</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <div className={`w-2 h-2 rounded-full mt-2 ${user.last_login ? 'bg-green-500' : 'bg-gray-300'}`}></div>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{t('timeline.lastLogin')}</p>
+                    <p className="text-sm font-medium text-gray-900">{t('singleUserItem.timeline.lastLogin')}</p>
                     <p className="text-sm text-gray-600">
-                        {user.last_login ? formatDate(user.last_login) : t("timeline.neverLoggedIn")}
+                        {user.last_login ? formatDate(user.last_login) : t('singleUserItem.timeline.neverLoggedIn')}
                     </p>
                   </div>
                 </div>
