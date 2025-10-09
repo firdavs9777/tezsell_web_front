@@ -828,5 +828,83 @@
       "lastLogin": "Oxirgi kirish",
       "neverLoggedIn": "Hech qachon kirmagan"
     }
+  },
+  "privacy": {
+    "title": "Maxfiylik siyosati",
+    "lastUpdated": "Oxirgi yangilanish",
+    "contactInfo": "Aloqa ma'lumotlari",
+    "section1": {
+      "title": "1. KIRISH",
+      "para1": "TezSell'ga xush kelibsiz. Biz sizning maxfiyligingizni hurmat qilamiz va shaxsiy ma'lumotlaringizni himoya qilishga intilamiz. Ushbu Maxfiylik siyosati biz ma'lumotlarni qanday yig'ishimiz, ishlatishimiz va himoya qilishimizni tushuntiradi.",
+      "para2": "TezSell'dan foydalanish orqali siz ushbu siyosatga muvofiq ma'lumotlarni yig'ish va ishlatishga rozilik bildirasiz."
+    },
+    "section2": {
+      "title": "2. TO'PLANADIGAN MA'LUMOTLAR",
+      "intro": "Biz bir nechta turdagi ma'lumot to'playmiz:",
+      "personalInfo": {
+        "title": "A. Siz taqdim etgan ma'lumotlar:",
+        "account": "Hisob ma'lumotlari: Ism, email, telefon, parol",
+        "profile": "Profil: Rasm, tavsif, sozlamalar",
+        "listing": "E'lonlar: Mahsulot tavsiflari, rasmlar, narxlar, joylashuv",
+        "communication": "Xabarlar: Platforma orqali yuborilgan xabarlar",
+        "payment": "To'lov ma'lumotlari: Hozirda to'planmaydi"
+      },
+      "autoCollected": {
+        "title": "B. Avtomatik to'plangan ma'lumotlar:",
+        "device": "Qurilma ma'lumotlari: Turi, OS, identifikatorlar",
+        "usage": "Foydalanish ma'lumotlari: Funksiyalar, vaqt, qidiruvlar",
+        "location": "Joylashuv: GPS (ruxsatingiz bilan)",
+        "cookies": "Cookies: Sozlamalarni eslab qolish uchun"
+      }
+    },
+    "section3": {
+      "title": "3. MA'LUMOTLARDAN FOYDALANISH",
+      "intro": "Biz ma'lumotlarni quyidagilar uchun ishlatamiz:",
+      "provision": "Xizmat ko'rsatish: Hisob yaratish, e'lonlar joylashtirish",
+      "improvement": "Yaxshilash: Platformani takomillashtirish uchun tahlil",
+      "communication": "Aloqa: Bildirishnomalar yuborish va savollarga javob berish",
+      "safety": "Xavfsizlik: Firibgarlikni aniqlash, suiiste'molning oldini olish",
+      "legal": "Qonuniy majburiyatlar: Qonunlarga rioya qilish",
+      "marketing": "Marketing: Reklama materiallari yuborish (sizning roziligingiz bilan)"
+    },
+    "section4": {
+      "title": "4. MA'LUMOTLARNI ULASHISH",
+      "intro": "Biz ma'lumotlaringizni quyidagilar bilan ulashishimiz mumkin:",
+      "users": "Boshqa foydalanuvchilar: Ochiq e'lonlar",
+      "providers": "Xizmat ko'rsatuvchilar: Hosting, tahlil, qo'llab-quvvatlash",
+      "legal": "Qonuniy talablar: Sud qarori yoki hukumat talabi bo'yicha",
+      "business": "Biznes o'tkazmalar: Qo'shilish yoki aktivlarni sotish holatida",
+      "consent": "Sizning roziligingiz bilan: Aniq ruxsatingiz bilan boshqa ulashish",
+      "noSell": "Biz ma'lumotlaringizni uchinchi shaxslarga SOTMAYmiz."
+    },
+    "section5": {
+      "title": "5. MA'LUMOTLAR XAVFSIZLIGI",
+      "intro": "Biz ma'lumotlaringizni himoya qilish uchun tegishli choralarni ko'ramiz:",
+      "encryption": "Ma'lumotlarni shifrlash (HTTPS/TLS)",
+      "password": "Xavfsiz parol saqlash",
+      "assessment": "Muntazam xavfsizlik tekshiruvlari",
+      "access": "Kirish nazorati va autentifikatsiya",
+      "disclaimer": "Biroq, internet orqali uzatishning hech bir usuli 100% xavfsiz emas."
+    },
+    "section6": {
+      "title": "6. SIZNING HUQUQLARINGIZ",
+      "intro": "Joylashuvingizga qarab, siz quyidagi huquqlarga ega bo'lishingiz mumkin:",
+      "access": "Kirish: Shaxsiy ma'lumotlaringiz nusxasini so'rash",
+      "correction": "Tuzatish: Noto'g'ri ma'lumotlarni yangilash",
+      "deletion": "O'chirish: Ma'lumotlaringizni o'chirishni so'rash",
+      "restriction": "Cheklash: Ma'lumotlaringizni qayta ishlashni cheklash",
+      "portability": "Ko'chirish: Ma'lumotlaringizni tuzilgan formatda olish",
+      "objection": "E'tiroz: Ma'lum turdagi qayta ishlashga e'tiroz bildirish",
+      "withdraw": "Rozilikni qaytarib olish: Rozilikka asoslangan qayta ishlash uchun",
+      "contact": "Huquqlarni amalga oshirish uchun: privacy@tezsell.uz"
+    },
+    "section7": {
+      "title": "7. BOLALAR MAXFIYLIGI",
+      "content": "TezSell 13 yoshdan kichik foydalanuvchilar uchun mo'ljallanmagan. Biz 13 yoshdan kichik bolalardan ma'lumot to'plamaymiz."
+    },
+    "section8": {
+      "title": "8. BIZ BILAN BOG'LANING",
+      "content": "Savollar uchun murojaat qiling: privacy@tezsell.uz yoki support@tezsell.uz"
+    }
   }
 }

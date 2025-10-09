@@ -827,5 +827,83 @@
       "lastLogin": "Last Login",
       "neverLoggedIn": "Never logged in"
     }
+  },
+   "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last Updated",
+    "contactInfo": "Contact Information",
+    "section1": {
+      "title": "1. INTRODUCTION",
+      "para1": "Welcome to TezSell. We respect your privacy and are committed to protecting your personal data. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application and website.",
+      "para2": "By using TezSell, you agree to the collection and use of information in accordance with this policy. If you do not agree with our policies and practices, please do not use our services."
+    },
+    "section2": {
+      "title": "2. INFORMATION WE COLLECT",
+      "intro": "We collect several types of information:",
+      "personalInfo": {
+        "title": "A. Personal Information You Provide:",
+        "account": "Account Information: Name, email address, phone number, password",
+        "profile": "Profile Information: Profile photo, bio, preferences",
+        "listing": "Listing Information: Product descriptions, photos, prices, location",
+        "communication": "Communication Data: Messages sent through our platform",
+        "payment": "Payment Information: Currently not collected (direct transactions only)"
+      },
+      "autoCollected": {
+        "title": "B. Automatically Collected Information:",
+        "device": "Device Information: Device type, operating system, unique device identifiers",
+        "usage": "Usage Data: App features used, time spent, clicks, searches",
+        "location": "Location Data: GPS location (with your permission) for location-based listings",
+        "cookies": "Cookies & Similar Technologies: To remember preferences and analyze usage"
+      }
+    },
+    "section3": {
+      "title": "3. HOW WE USE YOUR INFORMATION",
+      "intro": "We use collected information for:",
+      "provision": "Service Provision: Creating and managing your account, posting listings, facilitating communication",
+      "improvement": "Improvement: Analyzing usage to improve features and user experience",
+      "communication": "Communication: Sending notifications, updates, and responding to inquiries",
+      "safety": "Safety & Security: Detecting fraud, preventing abuse, enforcing terms",
+      "legal": "Legal Compliance: Complying with legal obligations",
+      "marketing": "Marketing: Sending promotional materials (with your consent, opt-out available)"
+    },
+    "section4": {
+      "title": "4. INFORMATION SHARING",
+      "intro": "We may share your information with:",
+      "users": "Other Users: Public listings (product details, location, contact info you choose to share)",
+      "providers": "Service Providers: Third parties helping us operate (hosting, analytics, customer support)",
+      "legal": "Legal Requirements: When required by law, court order, or government request",
+      "business": "Business Transfers: In case of merger, acquisition, or asset sale",
+      "consent": "With Your Consent: Any other sharing with your explicit permission",
+      "noSell": "We DO NOT sell your personal data to third parties."
+    },
+    "section5": {
+      "title": "5. DATA SECURITY",
+      "intro": "We implement appropriate technical and organizational measures to protect your data, including:",
+      "encryption": "Encryption of data in transit (HTTPS/TLS)",
+      "password": "Secure password storage (hashed and salted)",
+      "assessment": "Regular security assessments",
+      "access": "Access controls and authentication",
+      "disclaimer": "However, no method of transmission over the internet is 100% secure. We cannot guarantee absolute security."
+    },
+    "section6": {
+      "title": "6. YOUR PRIVACY RIGHTS",
+      "intro": "Depending on your location, you may have rights to:",
+      "access": "Access: Request a copy of your personal data",
+      "correction": "Correction: Update inaccurate or incomplete data",
+      "deletion": "Deletion: Request deletion of your data (Right to be Forgotten)",
+      "restriction": "Restriction: Limit how we process your data",
+      "portability": "Portability: Receive your data in a structured format",
+      "objection": "Objection: Object to certain types of processing",
+      "withdraw": "Withdraw Consent: For consent-based processing",
+      "contact": "To exercise these rights, contact us at: privacy@tezsell.uz"
+    },
+    "section7": {
+      "title": "7. CHILDREN'S PRIVACY",
+      "content": "TezSell is not intended for users under 13 years old. We do not knowingly collect data from children under 13. If we discover we have collected such data, we will delete it promptly."
+    },
+    "section8": {
+      "title": "8. CONTACT US",
+      "content": "For questions, concerns, or to exercise your privacy rights, contact us at: privacy@tezsell.uz or support@tezsell.uz"
+    }
   }
 }
