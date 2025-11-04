@@ -4,7 +4,7 @@ import { RootState } from "@store/index";
 import { SingleChat } from "@store/slices/chatSlice";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import React, { useEffect, useRef, useState } from "react";
-import { FiPaperclip, FiSend, FiSmile } from "react-icons/fi";
+import { FiPaperclip, FiSend, FiSmile, FiX } from "react-icons/fi";
 import { useSelector } from "react-redux";
 
 interface MainChatWindowProps {
@@ -13,7 +13,7 @@ interface MainChatWindowProps {
   chatId: number;
   error?: FetchBaseQueryError | SerializedError | undefined;
   onSendMessage: (content: string) => void;
-  isConnected?: boolean; // Add this prop
+  isConnected?: boolean;
 }
 
 const MainChatWindow: React.FC<MainChatWindowProps> = ({
@@ -21,7 +21,7 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
   isLoading,
   error,
   onSendMessage,
-  isConnected = false, // Default to false
+  isConnected = false,
 }) => {
   const userId = useSelector(
     (state: RootState) => state.auth.userInfo?.user_info?.id || ""
@@ -40,25 +40,36 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const emojiPickerRef = useRef<HTMLDivElement | null>(null);
 
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Close emoji picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        emojiPickerRef.current &&
+        !emojiPickerRef.current.contains(event.target as Node)
+      ) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleSendMessage = async () => {
-    if (!newMessage.trim() && !filePreview) {
-      return;
-    }
+    if (!newMessage.trim() && !filePreview) return;
 
     try {
-      // Send message via the parent component's handler
       await onSendMessage(newMessage);
-
-      // Clear input after successful send
       setNewMessage("");
       setFilePreview(null);
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
     }
   };
@@ -67,7 +78,6 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check file size (e.g., 5MB limit)
     if (file.size > 5 * 1024 * 1024) {
       alert("File size should be less than 5MB");
       return;
@@ -87,7 +97,6 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
       file: file,
     });
 
-    // Clear the input to allow selecting the same file again
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -105,27 +114,31 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
     }
   };
 
-  // Get all messages from props (already combined in MainChat)
   const allMessages = messages?.messages || [];
 
   return (
-    <div className="flex flex-col h-full p-4 border-l border-gray-300">
-      {/* Connection Status Indicator */}
-      <div className="mb-2 flex items-center gap-2">
-        <div
-          className={`w-2 h-2 rounded-full ${
-            isConnected ? "bg-green-500" : "bg-red-500"
-          }`}
-        ></div>
-        <span className="text-xs text-gray-600">
-          {isConnected ? "Connected" : "Disconnected"}
-        </span>
-      </div>
-
+    <div className="flex flex-col h-full bg-gradient-to-b from-gray-50 to-white">
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto space-y-3 pr-2">
-        {isLoading && <p className="text-gray-400">Loading messages...</p>}
-        {error && <p className="text-red-500">Error loading chat</p>}
+      <div className="flex-1 overflow-y-auto px-4 py-6 md:px-6 lg:px-8 space-y-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+        {isLoading && (
+          <div className="flex justify-center items-center h-full">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+              <p className="text-sm text-gray-500">Loading messages...</p>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="flex justify-center items-center h-full">
+            <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center max-w-sm">
+              <p className="text-red-600 font-semibold">Error loading chat</p>
+              <p className="text-sm text-gray-600 mt-1">
+                Please try again later
+              </p>
+            </div>
+          </div>
+        )}
 
         {allMessages.map((msg, index) => {
           let isMyMessage = false;
@@ -143,13 +156,13 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
               key={msg.id || `msg-${index}`}
               className={`flex ${
                 isMyMessage ? "justify-end" : "justify-start"
-              }`}
+              } animate-fadeIn`}
             >
               <div
-                className={`max-w-[300px] sm:max-w-md px-4 py-2 rounded-lg text-sm shadow ${
+                className={`group max-w-[85%] sm:max-w-md md:max-w-lg px-4 py-3 rounded-2xl shadow-md transition-all hover:shadow-lg ${
                   isMyMessage
-                    ? "bg-blue-100 text-right"
-                    : "bg-green-200 text-left"
+                    ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-br-md"
+                    : "bg-white text-gray-800 rounded-bl-md border border-gray-200"
                 }`}
               >
                 {msg.file && (
@@ -158,37 +171,48 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
                       <img
                         src={msg.file.url}
                         alt="Uploaded content"
-                        className="max-w-full h-auto rounded"
+                        className="max-w-full h-auto rounded-lg"
                       />
                     ) : msg.file.type === "audio" ? (
-                      <div className="bg-gray-100 p-2 rounded">
-                        <audio controls className="w-full">
-                          <source src={msg.file.url} type="audio/*" />
-                          Your browser does not support the audio element.
-                        </audio>
-                      </div>
+                      <audio controls className="w-full">
+                        <source src={msg.file.url} type="audio/*" />
+                      </audio>
                     ) : (
                       <a
                         href={msg.file.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-500 underline"
+                        className="text-blue-300 hover:underline"
                       >
                         Download file
                       </a>
                     )}
                   </div>
                 )}
-                <div className="mb-1">{msg.content}</div>
-                <div className="text-xs text-gray-600 flex justify-between gap-2">
-                  <span>
+
+                <div className="text-sm md:text-base leading-relaxed break-words">
+                  {msg.content}
+                </div>
+
+                <div
+                  className={`flex items-center gap-2 mt-2 text-xs ${
+                    isMyMessage ? "text-blue-100" : "text-gray-500"
+                  }`}
+                >
+                  <span className="font-medium">
                     {isMyMessage
                       ? "You"
                       : typeof msg.sender === "object"
                       ? msg.sender.username
-                      : "Other user"}
+                      : "User"}
                   </span>
-                  <span>{new Date(msg.timestamp).toLocaleTimeString()}</span>
+                  <span>•</span>
+                  <span>
+                    {new Date(msg.timestamp).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
                 </div>
               </div>
             </div>
@@ -197,119 +221,140 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* File preview */}
+      {/* File Preview */}
       {filePreview && (
-        <div className="relative mb-2 p-2 bg-gray-100 rounded-lg">
-          {filePreview.type === "image" ? (
-            <img
-              src={filePreview.url}
-              alt="Preview"
-              className="max-w-[200px] h-auto rounded"
-            />
-          ) : filePreview.type === "audio" ? (
-            <audio controls className="w-full">
-              <source src={filePreview.url} type="audio/*" />
-              Your browser does not support the audio element.
-            </audio>
-          ) : (
-            <div className="flex items-center gap-2">
-              <span className="truncate max-w-[200px]">
-                {filePreview.file.name}
-              </span>
-            </div>
-          )}
-          <button
-            onClick={removeFilePreview}
-            className="absolute top-1 right-1 bg-white rounded-full p-1 shadow"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4 text-red-500"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                clipRule="evenodd"
+        <div className="mx-4 md:mx-6 lg:mx-8 mb-2">
+          <div className="relative inline-block bg-white border-2 border-blue-500 rounded-xl p-3 shadow-lg">
+            {filePreview.type === "image" ? (
+              <img
+                src={filePreview.url}
+                alt="Preview"
+                className="max-w-[200px] max-h-[200px] rounded-lg"
               />
-            </svg>
-          </button>
+            ) : filePreview.type === "audio" ? (
+              <audio controls className="max-w-[300px]">
+                <source src={filePreview.url} type="audio/*" />
+              </audio>
+            ) : (
+              <div className="flex items-center gap-2 px-2">
+                <FiPaperclip className="text-gray-600" />
+                <span className="truncate max-w-[200px] text-sm">
+                  {filePreview.file.name}
+                </span>
+              </div>
+            )}
+            <button
+              onClick={removeFilePreview}
+              className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 shadow-lg transition-all"
+            >
+              <FiX className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       )}
 
-      {/* Message Input Area */}
-      <div className="mt-4 flex gap-2 border-t pt-4 relative">
-        <button
-          onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-          className="p-2 text-gray-600 hover:text-blue-500"
-          disabled={!isConnected}
-        >
-          <FiSmile size={20} />
-        </button>
-
-        {showEmojiPicker && (
-          <div className="absolute bottom-12 left-0 z-10">
-            <EmojiPicker onEmojiClick={onEmojiClick} width={300} height={350} />
+      {/* Input Area */}
+      <div className="border-t border-gray-200 bg-white px-4 py-4 md:px-6 lg:px-8 shadow-lg">
+        {/* Connection Warning */}
+        {!isConnected && (
+          <div className="mb-3 flex items-center gap-2 text-sm text-amber-600 bg-amber-50 px-3 py-2 rounded-lg animate-pulse">
+            <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+            <span>Reconnecting to chat server...</span>
           </div>
         )}
 
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          className="p-2 text-gray-600 hover:text-blue-500"
-          disabled={!isConnected}
-        >
-          <FiPaperclip size={20} />
-        </button>
+        {/* Input Container */}
+        <div className="flex items-end gap-2 relative">
+          {/* Emoji Picker */}
+          {showEmojiPicker && (
+            <div
+              ref={emojiPickerRef}
+              className="absolute bottom-14 left-0 z-50 shadow-2xl rounded-xl overflow-hidden"
+            >
+              <EmojiPicker
+                onEmojiClick={onEmojiClick}
+                width={window.innerWidth < 640 ? 280 : 350}
+                height={400}
+              />
+            </div>
+          )}
 
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          accept="image/*,audio/*,video/*"
-          className="hidden"
-        />
-
-        <input
-          type="text"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          onKeyDown={(e) => {
-            if (
-              e.key === "Enter" &&
-              (newMessage.trim() || filePreview) &&
+          {/* Emoji Button */}
+          <button
+            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            className={`p-3 rounded-full transition-all ${
               isConnected
-            ) {
-              e.preventDefault();
-              handleSendMessage();
+                ? "text-gray-600 hover:text-yellow-500 hover:bg-yellow-50"
+                : "text-gray-300 cursor-not-allowed"
+            }`}
+            disabled={!isConnected}
+            title="Add emoji"
+          >
+            <FiSmile size={22} />
+          </button>
+
+          {/* File Button */}
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className={`p-3 rounded-full transition-all ${
+              isConnected
+                ? "text-gray-600 hover:text-blue-500 hover:bg-blue-50"
+                : "text-gray-300 cursor-not-allowed"
+            }`}
+            disabled={!isConnected}
+            title="Attach file"
+          >
+            <FiPaperclip size={22} />
+          </button>
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept="image/*,audio/*,video/*"
+            className="hidden"
+          />
+
+          {/* Message Input */}
+          <div className="flex-1 relative">
+            <input
+              type="text"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyDown={(e) => {
+                if (
+                  e.key === "Enter" &&
+                  !e.shiftKey &&
+                  (newMessage.trim() || filePreview) &&
+                  isConnected
+                ) {
+                  e.preventDefault();
+                  handleSendMessage();
+                }
+              }}
+              placeholder={isConnected ? "Type a message..." : "Connecting..."}
+              className="w-full px-4 py-3 pr-12 rounded-full border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-all text-sm md:text-base disabled:bg-gray-100 disabled:cursor-not-allowed"
+              disabled={isLoading || !isConnected}
+            />
+          </div>
+
+          {/* Send Button */}
+          <button
+            onClick={handleSendMessage}
+            className={`p-3 rounded-full transition-all shadow-md ${
+              (newMessage.trim() || filePreview) && isConnected
+                ? "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg scale-100 hover:scale-105"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
+            disabled={
+              (!newMessage.trim() && !filePreview) || isLoading || !isConnected
             }
-          }}
-          placeholder={isConnected ? "Type a message..." : "Connecting..."}
-          className="flex-1 px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300"
-          disabled={isLoading || !isConnected}
-        />
-
-        <button
-          onClick={handleSendMessage}
-          className={`p-2 text-white rounded transition-colors ${
-            (newMessage.trim() || filePreview) && isConnected
-              ? "bg-blue-500 hover:bg-blue-600"
-              : "bg-gray-400 cursor-not-allowed"
-          }`}
-          disabled={
-            (!newMessage.trim() && !filePreview) || isLoading || !isConnected
-          }
-        >
-          <FiSend size={20} />
-        </button>
-      </div>
-
-      {/* Not connected warning */}
-      {!isConnected && (
-        <div className="mt-2 text-xs text-amber-600 bg-amber-50 p-2 rounded">
-          ⚠️ Reconnecting to chat server...
+            title="Send message"
+          >
+            <FiSend size={20} />
+          </button>
         </div>
-      )}
+      </div>
     </div>
   );
 };

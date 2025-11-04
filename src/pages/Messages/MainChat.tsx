@@ -15,6 +15,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import MainChatRoom from "./ChatRoom";
 import { useChatListWebSocket } from "@hooks/useChatListWebSocket";
+import { FiArrowLeft } from "react-icons/fi";
 
 interface MessageData {
   id: number;
@@ -30,6 +31,7 @@ interface MessageData {
 const MainChat = () => {
   const navigate = useNavigate();
   const { chatId } = useParams();
+  const [showSidebar, setShowSidebar] = useState(true);
 
   const [selectedChatId, setSelectedChatId] = useState<number | null>(
     chatId ? parseInt(chatId) : null
@@ -56,13 +58,26 @@ const MainChat = () => {
   const [deleteChat] = useDeleteSingleChatRoomMutation();
 
   const chats: Chat[] = (data?.results as Chat[]) || [];
+
   const [realTimeMessages, setRealTimeMessages] = useState<
     Record<number, MessageData[]>
   >({});
 
-  // Chat List WebSocket (always connected)
+  // Sort chats by last message timestamp
+  const sortedChats = useMemo(() => {
+    return [...chats].sort((a, b) => {
+      const timeA = a.last_message?.timestamp
+        ? new Date(a.last_message.timestamp).getTime()
+        : 0;
+      const timeB = b.last_message?.timestamp
+        ? new Date(b.last_message.timestamp).getTime()
+        : 0;
+      return timeB - timeA;
+    });
+  }, [chats]);
+
+  // Chat List WebSocket
   const handleChatListUpdate = useCallback(() => {
-    ("🔄 Chat list update received, refetching...");
     refetch();
   }, [refetch]);
 
@@ -71,14 +86,14 @@ const MainChat = () => {
     onUpdate: handleChatListUpdate,
     enabled: !!token,
   });
+
   const handleNewMessage = useCallback(
     (data: MessageData) => {
-      if (!data.room_id) {
-        return;
-      }
+      if (!data.room_id) return;
+
       setRealTimeMessages((prev: any) => {
         const chatId = data.room_id;
-        if (!chatId) return prev; // Prevents undefined key
+        if (!chatId) return prev;
 
         const prevMessages = prev[chatId] || [];
         const exists = prevMessages.some(
@@ -92,14 +107,12 @@ const MainChat = () => {
         };
       });
 
-      // Refetch chat list to update last_message and unread_count
       refetch();
     },
     [refetch]
   );
 
   const handleSocketError = useCallback((error: string) => {
-    // Only show toast for critical errors, not during reconnection attempts
     if (error.includes("Failed to connect after multiple attempts")) {
       toast.error(error, { toastId: "websocket-error" });
     }
@@ -120,16 +133,23 @@ const MainChat = () => {
   // Handle chat selection
   const handleSelectChat = useCallback(
     (chatId: number) => {
-      // Clear real-time messages when switching chats
       setRealTimeMessages([]);
       setSelectedChatId(chatId);
       navigate(`/chat/${chatId}`);
+      setShowSidebar(false); // Hide sidebar on mobile when chat selected
       setTimeout(() => {
         refetch();
-      }, 500); // Small delay to let Django mark messages as read
+      }, 500);
     },
     [navigate, refetch]
   );
+
+  // Handle back to chat list (mobile)
+  const handleBackToList = useCallback(() => {
+    setShowSidebar(true);
+    setSelectedChatId(null);
+    navigate("/chat");
+  }, [navigate]);
 
   // Handle chat deletion
   const handleDelete = async (chatId: number) => {
@@ -156,6 +176,7 @@ const MainChat = () => {
       if (selectedChatId === chatId) {
         setSelectedChatId(null);
         navigate("/chat");
+        setShowSidebar(true);
       }
     } catch (error: any) {
       toast.error(
@@ -202,15 +223,17 @@ const MainChat = () => {
       const parsedChatId = parseInt(chatId);
       if (parsedChatId !== selectedChatId) {
         setSelectedChatId(parsedChatId);
-        setRealTimeMessages([]); // Clear messages when chat changes
+        setRealTimeMessages([]);
+        setShowSidebar(false);
       }
     } else {
       setSelectedChatId(null);
       setRealTimeMessages([]);
+      setShowSidebar(true);
     }
   }, [chatId, selectedChatId]);
 
-  // Cleanup WebSocket on unmount or when chat changes
+  // Cleanup WebSocket on unmount
   useEffect(() => {
     return () => {
       disconnect();
@@ -236,7 +259,6 @@ const MainChat = () => {
     );
   }, [single_room, realTimeMessages, selectedChatId]);
 
-  // Create properly typed SingleChat object
   const chatData: SingleChat | null = useMemo(() => {
     if (!selectedChatId || !single_room) return null;
 
@@ -255,11 +277,15 @@ const MainChat = () => {
   }, [selectedChatId, single_room, combinedMessages]);
 
   return (
-    <div className="flex flex-row h-screen">
+    <div className="flex flex-col md:flex-row h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
       {/* Chat List Sidebar */}
-      <div className="w-[30%] border-r border-gray-300 overflow-y-auto bg-white">
+      <div
+        className={`${
+          showSidebar ? "flex" : "hidden"
+        } md:flex w-full md:w-96 lg:w-[400px] flex-col bg-white border-r border-gray-200 shadow-lg`}
+      >
         <MainChatRoom
-          chats={chats}
+          chats={sortedChats}
           selectedChatId={selectedChatId}
           onSelectChat={handleSelectChat}
           onDeleteChat={handleDelete}
@@ -269,37 +295,78 @@ const MainChat = () => {
       </div>
 
       {/* Chat Window */}
-      <div className="w-[70%] overflow-y-auto bg-gray-50">
+      <div
+        className={`${
+          !showSidebar || selectedChatId ? "flex" : "hidden"
+        } md:flex flex-1 flex-col bg-gray-50 relative`}
+      >
         {selectedChatId && chatData ? (
-          <MainChatWindow
-            chatId={selectedChatId}
-            messages={chatData}
-            isLoading={load_room}
-            error={singleRoomError}
-            onSendMessage={handleSendMessage}
-            isConnected={isConnected}
-          />
+          <>
+            {/* Mobile Back Button */}
+            <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3 shadow-sm">
+              <button
+                onClick={handleBackToList}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <FiArrowLeft className="w-5 h-5 text-gray-700" />
+              </button>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold shadow-md">
+                  {chatData.chat.name?.[0]?.toUpperCase() || "C"}
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-800">
+                    {chatData.chat.name || `Chat ${selectedChatId}`}
+                  </h3>
+                  <span
+                    className={`text-xs ${
+                      isConnected ? "text-green-600" : "text-gray-400"
+                    }`}
+                  >
+                    {isConnected ? "● Online" : "○ Offline"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <MainChatWindow
+              chatId={selectedChatId}
+              messages={chatData}
+              isLoading={load_room}
+              error={singleRoomError}
+              onSendMessage={handleSendMessage}
+              isConnected={isConnected}
+            />
+          </>
         ) : (
-          <div className="flex flex-col items-center justify-center h-full text-gray-500">
-            <svg
-              className="w-24 h-24 mb-4 text-gray-300"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-              />
-            </svg>
-            <p className="text-xl font-medium">
-              Select a chat to start messaging
+          <div className="flex flex-col items-center justify-center h-full text-gray-500 px-6">
+            <div className="relative mb-6">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full blur-2xl opacity-20 animate-pulse"></div>
+              <svg
+                className="w-32 h-32 text-gray-300 relative z-10"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+              Welcome to Messages
+            </h2>
+            <p className="text-center text-gray-500 max-w-sm">
+              Select a conversation from the list to start messaging and connect
+              with others
             </p>
-            <p className="mt-2 text-sm text-gray-400">
-              Choose a conversation from the list to view messages
-            </p>
+            <div className="mt-8 hidden md:flex items-center gap-2 text-sm text-gray-400">
+              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+              <span>{isConnected ? "Connected" : "Connecting..."}</span>
+            </div>
           </div>
         )}
       </div>
