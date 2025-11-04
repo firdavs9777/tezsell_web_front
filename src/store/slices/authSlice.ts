@@ -346,7 +346,7 @@ const authSlice = createSlice({
       try {
         localStorage.removeItem("userInfo");
       } catch (error) {
-        console.erorr("Error clearing storage:", error);
+        console.error("Error clearing storage:", error);
       }
     },
 

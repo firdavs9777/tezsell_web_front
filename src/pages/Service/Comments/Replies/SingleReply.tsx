@@ -128,7 +128,7 @@ const SingleReply: React.FC<SingleReplyProps> = ({
         onReplyUpdate();
       }
     } catch (error: unknown) {
-      "Update reply error:", error;
+      console.error("Update reply error:", error);
       const errorMessage = getErrorMessage(error, "reply_update_error");
       toast.error(errorMessage);
     }
@@ -156,7 +156,7 @@ const SingleReply: React.FC<SingleReplyProps> = ({
         onReplyDelete();
       }
     } catch (error: unknown) {
-      "Delete reply error:", error;
+      console.error("Delete reply error:", error);
       const errorMessage = getErrorMessage(error, "reply_delete_error");
       toast.error(errorMessage);
     }

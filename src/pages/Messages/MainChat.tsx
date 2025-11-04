@@ -158,7 +158,6 @@ const MainChat = () => {
         navigate("/chat");
       }
     } catch (error: any) {
-      "Delete error:", error;
       toast.error(
         error?.data?.error || "Error occurred while deleting the chat"
       );

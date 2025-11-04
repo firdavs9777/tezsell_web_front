@@ -114,7 +114,7 @@ const SavedProperties: React.FC = () => {
         t("success.propertyUnsaved") || "Property removed from saved list"
       );
     } catch (error) {
-      "Failed to unsave property:", error;
+      console.error("Failed to unsave property:", error);
       toast.error(
         t("errors.unsaveFailed") || "Failed to remove property from saved list"
       );
@@ -136,7 +136,7 @@ const SavedProperties: React.FC = () => {
       await navigator.clipboard.writeText(phoneNumber);
       toast.success(t("success.phoneCopied") || "Phone number copied!");
     } catch (err) {
-      "Failed to copy phone number:", err;
+      console.error("Failed to copy phone number:", err);
       toast.error(t("errors.copyFailed") || "Failed to copy phone number");
     }
   };

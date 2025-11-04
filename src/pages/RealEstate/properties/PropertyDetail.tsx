@@ -241,7 +241,7 @@ const RealEstateDetail: React.FC = () => {
       await toggleSaveProperty({ propertyId: id, token }).unwrap();
       setIsSaved(!isSaved);
     } catch (error) {
-      t("alerts.savePropertyFailed"), error;
+      console.error(t("alerts.savePropertyFailed"), error);
     }
   };
 
@@ -254,7 +254,7 @@ const RealEstateDetail: React.FC = () => {
           url: window.location.href,
         });
       } catch (error: unknown) {
-        error;
+        console.error(error);
         // Fallback to copying URL
         navigator.clipboard.writeText(window.location.href);
         toast.success(t("alerts.linkCopied"));
@@ -290,7 +290,7 @@ const RealEstateDetail: React.FC = () => {
       });
       alert(t("inquiry.inquirySentSuccess"));
     } catch (error) {
-      "Failed to send inquiry:", error;
+      console.error("Failed to send inquiry:", error);
       alert(t("inquiry.inquirySentError"));
     }
   };
@@ -304,7 +304,7 @@ const RealEstateDetail: React.FC = () => {
       await navigator.clipboard.writeText(phoneNumber);
       alert(t("alerts.phoneCopied"));
     } catch (error: unknown) {
-      error;
+      console.error(error);
       // Fallback for older browsers
       const textArea = document.createElement("textarea");
       textArea.value = phoneNumber;

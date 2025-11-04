@@ -241,7 +241,7 @@ const NewPropertyComp = () => {
             setLoadingCoordinates(false);
           },
           async (error) => {
-            "Geolocation error:", error;
+            console.error("Geolocation error:", error);
             // Fallback to geocoding service
             await geocodeAddress(fullAddress);
           }
@@ -251,7 +251,7 @@ const NewPropertyComp = () => {
         await geocodeAddress(fullAddress);
       }
     } catch (error) {
-      "Error getting coordinates:", error;
+      console.error("Error getting coordinates:", error);
       setLoadingCoordinates(false);
     }
   };
@@ -271,11 +271,11 @@ const NewPropertyComp = () => {
         setLongitude(data[0].lon);
       } else {
         // If no results, you might want to show an error or ask user to manually set location
-        ("No coordinates found for address");
+        console.error("No coordinates found for address");
         alert(t("errors.coordinates_not_found"));
       }
     } catch (error) {
-      "Geocoding error:", error;
+      console.error("Geocoding error:", error);
       alert(t("errors.coordinates_error"));
     } finally {
       setLoadingCoordinates(false);
@@ -572,7 +572,7 @@ const NewPropertyComp = () => {
         toast.error(errorMessage, { autoClose: 3000 });
       }
     } catch (error: unknown) {
-      "Error creating property:", error;
+      console.error("Error creating property:", error);
 
       if (error instanceof Error) {
         toast.error(t("errors.errorCreatingProperty"), {

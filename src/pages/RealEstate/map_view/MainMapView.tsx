@@ -241,7 +241,7 @@ const MainMapComp = () => {
           setRegions(data.regions);
         }
       } catch (error) {
-        "Error fetching regions:", error;
+        console.error("Error fetching regions:", error);
       } finally {
         setLoadingRegions(false);
       }
@@ -267,7 +267,7 @@ const MainMapComp = () => {
             setDistricts(data.districts);
           }
         } catch (error) {
-          "Error fetching districts:", error;
+          console.error("Error fetching districts:", error);
         } finally {
           setLoadingDistricts(false);
         }
