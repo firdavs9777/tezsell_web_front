@@ -36,7 +36,7 @@ export function useChatListWebSocket({
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const isDevelopment = import.meta.env.DEV;
     const wsBaseUrl = isDevelopment
-      ? import.meta.env.VITE_WS_URL || "ws://localhost:8000"
+      ? import.meta.env.VITE_WS_URL || "ws://api.webtezsell.com"
       : `${protocol}//${window.location.host}`;
 
     const url = `${wsBaseUrl}/ws/chatlist/?token=${token}`;

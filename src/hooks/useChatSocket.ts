@@ -105,7 +105,9 @@ export function useChatSocket({
 
     if (isDevelopment) {
       // Development: Connect to Django backend on localhost:8000
-      const wsBaseUrl = import.meta.env.VITE_WS_URL || "ws://127.0.0.1:8000";
+      const wsBaseUrl =
+        import.meta.env.VITE_WS_URL || "ws://api.webtezsell.com";
+      // const wsBaseUrl = import.meta.env.VITE_WS_URL || "ws://127.0.0.1:8000";
       // const wsBaseUrl = process.env.REACT_APP_WS_URL || 'ws://localhost:8000'; // For CRA
       socketUrl = `${wsBaseUrl}/ws/chat/${chatId}/?token=${token}`;
     } else {
