@@ -6,7 +6,7 @@ import {
 import {
   useDeleteRegisteredUserMutation,
   useGetRegisteredUsersQuery,
-  useUpdateRegisteredUserMutation
+  useUpdateRegisteredUserMutation,
 } from "@store/slices/users";
 import { DistrictsList, RegionsList, User, UsersResponse } from "@store/type";
 import React, { useEffect, useMemo, useState } from "react";
@@ -69,7 +69,9 @@ const DeleteModal: React.FC<{
               <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
                 <FaExclamationTriangle className="w-5 h-5 text-red-600" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">Delete User</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Delete User
+              </h3>
             </div>
             <button
               onClick={onClose}
@@ -84,7 +86,8 @@ const DeleteModal: React.FC<{
           <div className="p-6">
             <div className="mb-4">
               <p className="text-gray-600 mb-3">
-                Are you sure you want to delete this user? This action cannot be undone.
+                Are you sure you want to delete this user? This action cannot be
+                undone.
               </p>
 
               {/* User Info */}
@@ -165,10 +168,10 @@ const EditModal: React.FC<{
   const token = userInfo?.token;
 
   const [formData, setFormData] = useState({
-    username: '',
-    phone_number: '',
-    user_type: '',
-    user_role: '',
+    username: "",
+    phone_number: "",
+    user_type: "",
+    user_role: "",
     is_active: false,
     is_staff: false,
     is_superuser: false,
@@ -238,7 +241,7 @@ const EditModal: React.FC<{
         ...user.location,
         region: currentRegion,
         district: currentDistrict,
-      }
+      },
     };
 
     onSave(user, updatedData);
@@ -257,7 +260,9 @@ const EditModal: React.FC<{
                 <FaEdit className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Edit User</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Edit User
+                </h3>
                 <p className="text-sm text-gray-600">ID: {user.id}</p>
               </div>
             </div>
@@ -275,7 +280,9 @@ const EditModal: React.FC<{
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Basic Information */}
               <div className="space-y-4">
-                <h4 className="text-sm font-medium text-gray-900 uppercase tracking-wide">Basic Information</h4>
+                <h4 className="text-sm font-medium text-gray-900 uppercase tracking-wide">
+                  Basic Information
+                </h4>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -284,7 +291,9 @@ const EditModal: React.FC<{
                   <input
                     type="text"
                     value={formData.username}
-                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, username: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />
@@ -297,7 +306,9 @@ const EditModal: React.FC<{
                   <input
                     type="tel"
                     value={formData.phone_number}
-                    onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phone_number: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />
@@ -309,7 +320,9 @@ const EditModal: React.FC<{
                   </label>
                   <select
                     value={formData.user_type}
-                    onChange={(e) => setFormData({ ...formData, user_type: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, user_type: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="regular">Regular</option>
@@ -324,7 +337,9 @@ const EditModal: React.FC<{
                   </label>
                   <select
                     value={formData.user_role}
-                    onChange={(e) => setFormData({ ...formData, user_role: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, user_role: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="user">User</option>
@@ -395,31 +410,43 @@ const EditModal: React.FC<{
                 <div className="p-3 bg-gray-50 rounded-lg border">
                   <p className="text-xs text-gray-500 mb-1">Current Location</p>
                   <p className="text-sm text-gray-900">
-                    {user.location?.region || 'No region'}, {user.location?.district || 'No district'}
+                    {user.location?.region || "No region"},{" "}
+                    {user.location?.district || "No district"}
                   </p>
                 </div>
               </div>
 
               {/* Permissions */}
               <div className="space-y-4">
-                <h4 className="text-sm font-medium text-gray-900 uppercase tracking-wide">Permissions</h4>
+                <h4 className="text-sm font-medium text-gray-900 uppercase tracking-wide">
+                  Permissions
+                </h4>
 
                 <div className="space-y-3">
                   <label className="flex items-center space-x-3">
                     <input
                       type="checkbox"
                       checked={formData.is_active}
-                      onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          is_active: e.target.checked,
+                        })
+                      }
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
-                    <span className="text-sm text-gray-700">Active Account</span>
+                    <span className="text-sm text-gray-700">
+                      Active Account
+                    </span>
                   </label>
 
                   <label className="flex items-center space-x-3">
                     <input
                       type="checkbox"
                       checked={formData.is_staff}
-                      onChange={(e) => setFormData({ ...formData, is_staff: e.target.checked })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, is_staff: e.target.checked })
+                      }
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
                     <span className="text-sm text-gray-700">Staff Member</span>
@@ -429,7 +456,12 @@ const EditModal: React.FC<{
                     <input
                       type="checkbox"
                       checked={formData.is_superuser}
-                      onChange={(e) => setFormData({ ...formData, is_superuser: e.target.checked })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          is_superuser: e.target.checked,
+                        })
+                      }
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
                     <span className="text-sm text-gray-700">Super User</span>
@@ -439,7 +471,9 @@ const EditModal: React.FC<{
                     <input
                       type="checkbox"
                       checked={formData.is_agent}
-                      onChange={(e) => setFormData({ ...formData, is_agent: e.target.checked })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, is_agent: e.target.checked })
+                      }
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
                     <span className="text-sm text-gray-700">Agent</span>
@@ -449,11 +483,20 @@ const EditModal: React.FC<{
                     <input
                       type="checkbox"
                       checked={formData.is_verified_agent}
-                      onChange={(e) => setFormData({ ...formData, is_verified_agent: e.target.checked })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          is_verified_agent: e.target.checked,
+                        })
+                      }
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                       disabled={!formData.is_agent}
                     />
-                    <span className={`text-sm ${!formData.is_agent ? 'text-gray-400' : 'text-gray-700'}`}>
+                    <span
+                      className={`text-sm ${
+                        !formData.is_agent ? "text-gray-400" : "text-gray-700"
+                      }`}
+                    >
                       Verified Agent
                     </span>
                   </label>
@@ -461,11 +504,26 @@ const EditModal: React.FC<{
 
                 {/* User Info Summary */}
                 <div className="mt-6 p-4 bg-gray-50 rounded-lg border">
-                  <h5 className="text-sm font-medium text-gray-700 mb-2">User Summary</h5>
+                  <h5 className="text-sm font-medium text-gray-700 mb-2">
+                    User Summary
+                  </h5>
                   <div className="text-xs text-gray-600 space-y-1">
-                    <p><strong>Created:</strong> {new Date(user.created_at).toLocaleDateString()}</p>
-                    <p><strong>Last Login:</strong> {user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Never'}</p>
-                    <p><strong>Agent:</strong> {user.agent_info ? `${user.agent_info.agency_name} (${user.agent_info.rating}⭐)` : 'No'}</p>
+                    <p>
+                      <strong>Created:</strong>{" "}
+                      {new Date(user.created_at).toLocaleDateString()}
+                    </p>
+                    <p>
+                      <strong>Last Login:</strong>{" "}
+                      {user.last_login
+                        ? new Date(user.last_login).toLocaleDateString()
+                        : "Never"}
+                    </p>
+                    <p>
+                      <strong>Agent:</strong>{" "}
+                      {user.agent_info
+                        ? `${user.agent_info.agency_name} (${user.agent_info.rating}⭐)`
+                        : "No"}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -628,7 +686,11 @@ const TotalUsersList: React.FC = () => {
     try {
       // Find the district ID if location is being updated
       let locationId = undefined;
-      if (updatedData.location && updatedData.location.district && updatedData.location.region) {
+      if (
+        updatedData.location &&
+        updatedData.location.district &&
+        updatedData.location.region
+      ) {
         // You might need to implement a way to get district ID by name
         // For now, we'll send the district name and let the backend handle it
         locationId = updatedData.location.id;
@@ -648,19 +710,20 @@ const TotalUsersList: React.FC = () => {
         // Add password only if provided
         ...(updatedData.password && { password: updatedData.password }),
         // Add agent info if user is an agent
-        ...(updatedData.is_agent && updatedData.agent_info && {
-          agent_agency_name: updatedData.agent_info.agency_name,
-          agent_rating: updatedData.agent_info.rating,
-          agent_total_sales: updatedData.agent_info.total_sales,
-        }),
+        ...(updatedData.is_agent &&
+          updatedData.agent_info && {
+            agent_agency_name: updatedData.agent_info.agency_name,
+            agent_rating: updatedData.agent_info.rating,
+            agent_total_sales: updatedData.agent_info.total_sales,
+          }),
       };
 
       // Use RTK Query mutation
-      const result = await updateUser({
+      const result = (await updateUser({
         token,
         id: user.id,
         data: requestData,
-      }).unwrap() as ApiResponse;
+      }).unwrap()) as ApiResponse;
 
       if (result.success) {
         alert(`User ${user.username} updated successfully`);
@@ -668,13 +731,13 @@ const TotalUsersList: React.FC = () => {
         setSelectedUser(null);
         // No need to call refetch() - RTK Query will auto-refetch due to invalidatesTags
       } else {
-        throw new Error(result.error || 'Update failed');
+        throw new Error(result.error || "Update failed");
       }
     } catch (error: unknown) {
-      console.error('Failed to update user:', error);
+      "Failed to update user:", error;
 
       // Handle RTK Query error format
-      const errorMessage = 'Failed to update user';
+      const errorMessage = "Failed to update user";
       alert(`Failed to update user: ${errorMessage}`);
     } finally {
       setIsEditLoading(false);
@@ -685,10 +748,10 @@ const TotalUsersList: React.FC = () => {
     setIsDeleteLoading(true);
     try {
       // Use RTK Query mutation
-      const result = await deleteUser({
+      const result = (await deleteUser({
         token,
         id: user.id,
-      }).unwrap() as ApiResponse;
+      }).unwrap()) as ApiResponse;
 
       if (result.success) {
         alert(result.message || `User ${user.username} deleted successfully`);
@@ -696,16 +759,20 @@ const TotalUsersList: React.FC = () => {
         setSelectedUser(null);
         // No need to call refetch() - RTK Query will auto-refetch due to invalidatesTags
       } else {
-        throw new Error(result.error || 'Deletion failed');
+        throw new Error(result.error || "Deletion failed");
       }
     } catch (error: unknown) {
-      console.error('Failed to delete user:', error);
+      "Failed to delete user:", error;
 
-      let errorMessage = 'Failed to delete user';
+      let errorMessage = "Failed to delete user";
 
       if (error instanceof Error) {
         errorMessage = error.message;
-      } else if (typeof error === 'object' && error !== null && 'message' in error) {
+      } else if (
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error
+      ) {
         errorMessage = String((error as Error).message);
       }
 
@@ -772,11 +839,14 @@ const TotalUsersList: React.FC = () => {
       },
     };
 
-    const badge = badges[user.user_role as keyof typeof badges] || badges.regular_user;
+    const badge =
+      badges[user.user_role as keyof typeof badges] || badges.regular_user;
     const Icon = badge.icon;
 
     return (
-      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${badge.color}`}>
+      <span
+        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${badge.color}`}
+      >
         <Icon className="w-3 h-3 mr-1" />
         {badge.label}
       </span>
@@ -785,11 +855,13 @@ const TotalUsersList: React.FC = () => {
 
   const getStatusBadge = (isActive: boolean) => {
     return (
-      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-        isActive
-          ? "bg-green-100 text-green-800 border border-green-200"
-          : "bg-red-100 text-red-800 border border-red-200"
-      }`}>
+      <span
+        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+          isActive
+            ? "bg-green-100 text-green-800 border border-green-200"
+            : "bg-red-100 text-red-800 border border-red-200"
+        }`}
+      >
         {isActive ? "Active" : "Inactive"}
       </span>
     );
@@ -814,7 +886,10 @@ const TotalUsersList: React.FC = () => {
         <div className="flex items-center text-sm text-gray-500">
           <span>
             Showing {(current_page - 1) * pageSize + 1} to{" "}
-            {Math.min(current_page * pageSize, typedUsersList.data.pagination.total_users)}{" "}
+            {Math.min(
+              current_page * pageSize,
+              typedUsersList.data.pagination.total_users
+            )}{" "}
             of {typedUsersList.data.pagination.total_users} users
           </span>
         </div>
@@ -1148,11 +1223,14 @@ const TotalUsersList: React.FC = () => {
                         </div>
                         <div className="flex items-center text-gray-500 text-xs">
                           <FaStar className="w-3 h-3 mr-1 text-yellow-400" />
-                          {user.agent_info.rating} • {user.agent_info.total_sales} sales
+                          {user.agent_info.rating} •{" "}
+                          {user.agent_info.total_sales} sales
                         </div>
                       </div>
                     ) : (
-                      <span className="text-sm text-gray-400">Not an agent</span>
+                      <span className="text-sm text-gray-400">
+                        Not an agent
+                      </span>
                     )}
                   </td>
 

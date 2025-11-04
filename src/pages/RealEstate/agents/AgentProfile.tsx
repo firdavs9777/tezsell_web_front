@@ -1,7 +1,21 @@
 import { RootState } from "@store/index";
-import { useGetAgentProfileQuery, useUpdateAgentProfileMutation } from "@store/slices/realEstate";
-import { Award, Briefcase, Building2, Calendar, Edit3, Phone, Save, Star, User, X } from 'lucide-react';
-import React, { useState } from 'react';
+import {
+  useGetAgentProfileQuery,
+  useUpdateAgentProfileMutation,
+} from "@store/slices/realEstate";
+import {
+  Award,
+  Briefcase,
+  Building2,
+  Calendar,
+  Edit3,
+  Phone,
+  Save,
+  Star,
+  User,
+  X,
+} from "lucide-react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 
 interface UserInfo {
@@ -33,17 +47,22 @@ interface UpdateFormData {
 
 const AgentProfile = () => {
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
-  const token = userInfo?.token || '';
+  const token = userInfo?.token || "";
 
-  const { data: profileResponse, isLoading, error } = useGetAgentProfileQuery({token });
-  const [updateAgent, { isLoading: isUpdating }] = useUpdateAgentProfileMutation();
+  const {
+    data: profileResponse,
+    isLoading,
+    error,
+  } = useGetAgentProfileQuery({ token });
+  const [updateAgent, { isLoading: isUpdating }] =
+    useUpdateAgentProfileMutation();
 
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [formData, setFormData] = useState<UpdateFormData>({
-    agency_name: '',
-    licence_number: '',
+    agency_name: "",
+    licence_number: "",
     years_experience: 0,
-    specialization: ''
+    specialization: "",
   });
 
   const agentData: AgentProfileData | null = profileResponse?.data || null;
@@ -55,17 +74,19 @@ const AgentProfile = () => {
         agency_name: agentData.agency_name,
         licence_number: agentData.licence_number,
         years_experience: agentData.years_experience,
-        specialization: agentData.specialization
+        specialization: agentData.specialization,
       });
     }
     setShowUpdateModal(true);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: name === 'years_experience' ? parseInt(value) || 0 : value
+      [name]: name === "years_experience" ? parseInt(value) || 0 : value,
     }));
   };
 
@@ -75,12 +96,12 @@ const AgentProfile = () => {
     try {
       await updateAgent({
         profileData: formData,
-        token
+        token,
       }).unwrap();
       setShowUpdateModal(false);
       // You might want to show a success toast here
     } catch (error) {
-      console.error('Failed to update profile:', error);
+      "Failed to update profile:", error;
       // You might want to show an error toast here
     }
   };
@@ -97,7 +118,9 @@ const AgentProfile = () => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Profile</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Error Loading Profile
+          </h2>
           <p className="text-gray-600">Please try again later</p>
         </div>
       </div>
@@ -113,7 +136,9 @@ const AgentProfile = () => {
             <User className="w-10 h-10 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">{agentData.user.username}</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {agentData.user.username}
+            </h1>
             <p className="text-gray-600">Real Estate Agent</p>
             <div className="flex items-center mt-1">
               {agentData.is_verified && (
@@ -142,22 +167,30 @@ const AgentProfile = () => {
       <div className="grid md:grid-cols-2 gap-6">
         {/* Contact Information */}
         <div className="bg-gray-50 rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Contact Information</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            Contact Information
+          </h2>
           <div className="space-y-3">
             <div className="flex items-center">
               <Phone className="w-5 h-5 text-gray-400 mr-3" />
-              <span className="text-gray-700">{agentData.user.phone_number}</span>
+              <span className="text-gray-700">
+                {agentData.user.phone_number}
+              </span>
             </div>
             <div className="flex items-center">
               <User className="w-5 h-5 text-gray-400 mr-3" />
-              <span className="text-gray-700">User Type: {agentData.user.user_type}</span>
+              <span className="text-gray-700">
+                User Type: {agentData.user.user_type}
+              </span>
             </div>
           </div>
         </div>
 
         {/* Professional Details */}
         <div className="bg-gray-50 rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Professional Details</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            Professional Details
+          </h2>
           <div className="space-y-3">
             <div className="flex items-center">
               <Building2 className="w-5 h-5 text-gray-400 mr-3" />
@@ -165,39 +198,52 @@ const AgentProfile = () => {
             </div>
             <div className="flex items-center">
               <Award className="w-5 h-5 text-gray-400 mr-3" />
-              <span className="text-gray-700">License: {agentData.licence_number}</span>
+              <span className="text-gray-700">
+                License: {agentData.licence_number}
+              </span>
             </div>
           </div>
         </div>
 
         {/* Performance Stats */}
         <div className="bg-gray-50 rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Performance</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            Performance
+          </h2>
           <div className="space-y-3">
             <div className="flex items-center">
               <Briefcase className="w-5 h-5 text-gray-400 mr-3" />
-              <span className="text-gray-700">Total Sales: {agentData.total_sales}</span>
+              <span className="text-gray-700">
+                Total Sales: {agentData.total_sales}
+              </span>
             </div>
             <div className="flex items-center">
               <Calendar className="w-5 h-5 text-gray-400 mr-3" />
-              <span className="text-gray-700">Experience: {agentData.years_experience} years</span>
+              <span className="text-gray-700">
+                Experience: {agentData.years_experience} years
+              </span>
             </div>
           </div>
         </div>
 
         {/* Specialization */}
         <div className="bg-gray-50 rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Specialization</h2>
-          <p className="text-gray-700 leading-relaxed">{agentData.specialization}</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            Specialization
+          </h2>
+          <p className="text-gray-700 leading-relaxed">
+            {agentData.specialization}
+          </p>
         </div>
       </div>
 
       {/* Member Since */}
       <div className="mt-6 text-center text-gray-500">
-        Member since {new Date(agentData.created_at).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
+        Member since{" "}
+        {new Date(agentData.created_at).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
         })}
       </div>
 

@@ -190,7 +190,7 @@ const getStoredUserInfo = (): AuthResponse | null => {
     const storedInfo = localStorage.getItem("userInfo");
     return storedInfo ? JSON.parse(storedInfo) : null;
   } catch (error) {
-    console.error("Error parsing stored user info:", error);
+    "Error parsing stored user info:", error;
     localStorage.removeItem("userInfo");
     return null;
   }
@@ -203,7 +203,7 @@ const getStoredProcessedInfo = () => {
   try {
     return processAuthResponse(storedInfo);
   } catch (error) {
-    console.error("Error processing stored user info:", error);
+    "Error processing stored user info:", error;
     return null;
   }
 };
@@ -234,7 +234,7 @@ const authSlice = createSlice({
       try {
         localStorage.setItem("userInfo", JSON.stringify(action.payload));
       } catch (error) {
-        console.error("Error storing user info:", error);
+        "Error storing user info:", error;
         state.error = "Failed to store user information";
       }
     },
@@ -325,7 +325,7 @@ const authSlice = createSlice({
     },
 
     logout: (state, action?: PayloadAction<AuthResponse | undefined>) => {
-      console.log(action);
+      action;
 
       // Clear permission refresh interval
       if (state.permissionRefreshInterval) {
@@ -346,7 +346,7 @@ const authSlice = createSlice({
       try {
         localStorage.removeItem("userInfo");
       } catch (error) {
-        console.error("Error clearing storage:", error);
+        "Error clearing storage:", error;
       }
     },
 
@@ -359,13 +359,13 @@ const authSlice = createSlice({
         try {
           state.processedUserInfo = processAuthResponse(state.userInfo);
         } catch (error) {
-          console.error("Error processing updated user info:", error);
+          "Error processing updated user info:", error;
         }
 
         try {
           localStorage.setItem("userInfo", JSON.stringify(state.userInfo));
         } catch (error) {
-          console.error("Error updating stored user info:", error);
+          "Error updating stored user info:", error;
           state.error = "Failed to update user information";
         }
       }
@@ -394,7 +394,7 @@ const authSlice = createSlice({
         try {
           localStorage.setItem("userInfo", JSON.stringify(state.userInfo));
         } catch (error) {
-          console.error("Error updating stored agent info:", error);
+          "Error updating stored agent info:", error;
         }
       }
     },
@@ -419,7 +419,7 @@ const authSlice = createSlice({
       try {
         localStorage.removeItem("userInfo");
       } catch (error) {
-        console.error("Error clearing auth:", error);
+        "Error clearing auth:", error;
       }
     },
 
@@ -499,7 +499,7 @@ const authSlice = createSlice({
 
       // Show notification if message provided
       if (message) {
-        console.info("Permission Update:", message);
+        "Permission Update:", message;
         // You can dispatch a notification action here if you have a notification system
       }
     },

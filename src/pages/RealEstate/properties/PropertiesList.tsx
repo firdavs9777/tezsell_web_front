@@ -100,11 +100,12 @@ const PropertiesList: React.FC = () => {
   } as GetPropertiesQueryParams);
 
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
-  const token = userInfo?.token || '';
-  const { data: savedPropertiesData, refetch: refetchSavedProperties } = useGetSavedPropertiesQuery({token});
-  console.log(savedPropertiesData)
+  const token = userInfo?.token || "";
+  const { data: savedPropertiesData, refetch: refetchSavedProperties } =
+    useGetSavedPropertiesQuery({ token });
+  savedPropertiesData;
   const [toggleSaveProperty] = useToggleSavePropertyMutation();
-  const [toggleUnsaveProperty] = useToggleUnsavePropertyMutation()
+  const [toggleUnsaveProperty] = useToggleUnsavePropertyMutation();
 
   // Update saved properties when data changes
   useEffect(() => {
@@ -121,9 +122,7 @@ const PropertiesList: React.FC = () => {
   // Fake unsave property function (replace with actual API call when ready)
   const handleUnsaveProperty = async (propertyId: string): Promise<void> => {
     try {
-
-
-     await toggleUnsaveProperty({propertyId, token}).unwrap();
+      await toggleUnsaveProperty({ propertyId, token }).unwrap();
       // Update local state
       setSavedPropertyIds((prev) => {
         const newSet = new Set(prev);
@@ -134,9 +133,9 @@ const PropertiesList: React.FC = () => {
       // Optionally refetch saved properties to ensure consistency
       refetchSavedProperties();
 
-      console.log(t('success.propertyUnsaved') || 'Property removed from saved list');
+      t("success.propertyUnsaved") || "Property removed from saved list";
     } catch (error) {
-      console.error(t('errors.unsaveFailed') || 'Failed to unsave property', error);
+      t("errors.unsaveFailed") || "Failed to unsave property", error;
     }
   };
 
@@ -149,7 +148,7 @@ const PropertiesList: React.FC = () => {
         await handleUnsaveProperty(propertyId);
       } else {
         // If not saved, save it
-        await toggleSaveProperty({propertyId, token}).unwrap();
+        await toggleSaveProperty({ propertyId, token }).unwrap();
 
         setSavedPropertyIds((prev) => {
           const newSet = new Set(prev);
@@ -157,10 +156,10 @@ const PropertiesList: React.FC = () => {
           return newSet;
         });
 
-        console.log(t('success.propertySaved') || 'Property saved successfully');
+        t("success.propertySaved") || "Property saved successfully";
       }
     } catch (error) {
-      console.error(t('errors.toggleSaveFailed'), error);
+      t("errors.toggleSaveFailed"), error;
     }
   };
 
@@ -176,10 +175,10 @@ const PropertiesList: React.FC = () => {
   const handleCopyPhone = async (phoneNumber: string): Promise<void> => {
     try {
       await navigator.clipboard.writeText(phoneNumber);
-      console.log(t('errors.phoneCopied'));
+      t("errors.phoneCopied");
       // You could add a toast notification here
     } catch (err) {
-      console.error(t('errors.copyFailed'), err);
+      t("errors.copyFailed"), err;
     }
   };
 
@@ -193,7 +192,7 @@ const PropertiesList: React.FC = () => {
     const symbol =
       currency === "USD" ? "$" : currency === "UZS" ? "so'm" : currency;
     return listingType === "rent"
-      ? `${symbol}${formatted}${t('pricing.month')}`
+      ? `${symbol}${formatted}${t("pricing.month")}`
       : `${symbol}${formatted}`;
   };
 
@@ -217,12 +216,12 @@ const PropertiesList: React.FC = () => {
 
   const getPropertyFeatures = (property: ExtendedProperty): string[] => {
     const features: string[] = [];
-    if (property.has_balcony) features.push(t('propertyCard.balcony'));
-    if (property.has_garage) features.push(t('propertyCard.garage'));
-    if (property.has_garden) features.push(t('propertyCard.garden'));
-    if (property.has_pool) features.push(t('propertyCard.pool'));
-    if (property.has_elevator) features.push(t('propertyCard.elevator'));
-    if (property.is_furnished) features.push(t('propertyCard.furnished'));
+    if (property.has_balcony) features.push(t("propertyCard.balcony"));
+    if (property.has_garage) features.push(t("propertyCard.garage"));
+    if (property.has_garden) features.push(t("propertyCard.garden"));
+    if (property.has_pool) features.push(t("propertyCard.pool"));
+    if (property.has_elevator) features.push(t("propertyCard.elevator"));
+    if (property.is_furnished) features.push(t("propertyCard.furnished"));
     return features;
   };
 
@@ -251,10 +250,9 @@ const PropertiesList: React.FC = () => {
 
       // Show appropriate message based on current state
       const message = isSaved
-        ? t('success.propertyUnsaved') || 'Property removed from saved list'
-        : t('success.propertySaved') || 'Property saved successfully';
-     toast.success(message, {autoClose: 2000});
-
+        ? t("success.propertyUnsaved") || "Property removed from saved list"
+        : t("success.propertySaved") || "Property saved successfully";
+      toast.success(message, { autoClose: 2000 });
     };
 
     const handleContactClick = (e: React.MouseEvent) => {
@@ -278,15 +276,19 @@ const PropertiesList: React.FC = () => {
           />
           {property.is_featured && (
             <span className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded text-sm font-semibold">
-              {t('propertyCard.featured')}
+              {t("propertyCard.featured")}
             </span>
           )}
           <button
             onClick={handleSaveClick}
             className={`absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-all duration-200 ${
-              isSaved ? 'scale-110' : 'hover:scale-105'
+              isSaved ? "scale-110" : "hover:scale-105"
             }`}
-            title={isSaved ? t('propertyCard.unsave') || 'Remove from saved' : t('propertyCard.save') || 'Save property'}
+            title={
+              isSaved
+                ? t("propertyCard.unsave") || "Remove from saved"
+                : t("propertyCard.save") || "Save property"
+            }
           >
             {isSaved ? (
               <FaHeart className="text-red-500 animate-pulse" />
@@ -298,7 +300,11 @@ const PropertiesList: React.FC = () => {
             {getPropertyDisplayValue(
               property,
               "listing_type_display",
-              `${property.listing_type === 'sale' ? t('filterOptions.forSale') : t('filterOptions.forRent')}`
+              `${
+                property.listing_type === "sale"
+                  ? t("filterOptions.forSale")
+                  : t("filterOptions.forRent")
+              }`
             )}
           </span>
           <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs flex items-center">
@@ -332,18 +338,24 @@ const PropertiesList: React.FC = () => {
             {property.bedrooms && (
               <div className="flex items-center">
                 <FaBed className="mr-1" />
-                <span>{property.bedrooms} {t('propertyCard.bed')}</span>
+                <span>
+                  {property.bedrooms} {t("propertyCard.bed")}
+                </span>
               </div>
             )}
             {property.bathrooms && (
               <div className="flex items-center">
                 <FaBath className="mr-1" />
-                <span>{property.bathrooms} {t('propertyCard.bath')}</span>
+                <span>
+                  {property.bathrooms} {t("propertyCard.bath")}
+                </span>
               </div>
             )}
             <div className="flex items-center">
               <FaCar className="mr-1" />
-              <span>{property.parking_spaces} {t('propertyCard.parking')}</span>
+              <span>
+                {property.parking_spaces} {t("propertyCard.parking")}
+              </span>
             </div>
             <div className="flex items-center">
               <FaHome className="mr-1" />
@@ -357,7 +369,8 @@ const PropertiesList: React.FC = () => {
               {getPropertyDisplayValue(
                 property,
                 "property_type_display",
-                t(`filterOptions.${property.property_type}`) || property.property_type.replace("_", " ")
+                t(`filterOptions.${property.property_type}`) ||
+                  property.property_type.replace("_", " ")
               )}
             </span>
             {getPropertyFeatures(property)
@@ -387,7 +400,7 @@ const PropertiesList: React.FC = () => {
                     <FaStar className="text-yellow-400 text-xs mr-1" />
                     <span className="text-xs text-gray-600">
                       {formatAgentRating(agent.rating)} ({agent.total_sales}{" "}
-                      {t('propertyCard.sales')})
+                      {t("propertyCard.sales")})
                     </span>
                   </div>
                 </div>
@@ -412,13 +425,13 @@ const PropertiesList: React.FC = () => {
               className="flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors text-sm"
               onClick={() => redirectHandler(property.id)}
             >
-              {t('propertyCard.viewDetails')}
+              {t("propertyCard.viewDetails")}
             </button>
             <button
               className="flex-1 border border-blue-600 text-blue-600 py-2 px-4 rounded hover:bg-blue-50 transition-colors text-sm"
               onClick={handleContactClick}
             >
-              {t('propertyCard.contact')}
+              {t("propertyCard.contact")}
             </button>
           </div>
         </div>
@@ -458,10 +471,10 @@ const PropertiesList: React.FC = () => {
         <div className="relative max-w-7xl mx-auto px-4 py-12">
           <div className="text-center mb-8">
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              {t('header.property')}
+              {t("header.property")}
             </h1>
             <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-              {t('header.sub_property')}
+              {t("header.sub_property")}
             </p>
           </div>
 
@@ -474,7 +487,7 @@ const PropertiesList: React.FC = () => {
               />
               <input
                 type="text"
-                placeholder={t('search.placeholder')}
+                placeholder={t("search.placeholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -487,9 +500,9 @@ const PropertiesList: React.FC = () => {
                 onChange={(e) => setFilterType(e.target.value)}
                 className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
               >
-                <option value="all">{t('filterOptions.saleAndRent')}</option>
-                <option value="sale">{t('filterOptions.forSale')}</option>
-                <option value="rent">{t('filterOptions.forRent')}</option>
+                <option value="all">{t("filterOptions.saleAndRent")}</option>
+                <option value="sale">{t("filterOptions.forSale")}</option>
+                <option value="rent">{t("filterOptions.forRent")}</option>
               </select>
 
               <select
@@ -497,18 +510,24 @@ const PropertiesList: React.FC = () => {
                 onChange={(e) => setPropertyType(e.target.value)}
                 className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
               >
-                <option value="all">{t('filterOptions.allTypes')}</option>
-                <option value="apartment">{t('filterOptions.apartment')}</option>
-                <option value="house">{t('filterOptions.house')}</option>
-                <option value="townhouse">{t('filterOptions.townhouse')}</option>
-                <option value="villa">{t('filterOptions.villa')}</option>
-                <option value="commercial">{t('filterOptions.commercial')}</option>
-                <option value="office">{t('filterOptions.office')}</option>
+                <option value="all">{t("filterOptions.allTypes")}</option>
+                <option value="apartment">
+                  {t("filterOptions.apartment")}
+                </option>
+                <option value="house">{t("filterOptions.house")}</option>
+                <option value="townhouse">
+                  {t("filterOptions.townhouse")}
+                </option>
+                <option value="villa">{t("filterOptions.villa")}</option>
+                <option value="commercial">
+                  {t("filterOptions.commercial")}
+                </option>
+                <option value="office">{t("filterOptions.office")}</option>
               </select>
 
               <button className="px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2 bg-white">
                 <FaFilter size={16} />
-                {t('search.filters')}
+                {t("search.filters")}
               </button>
             </div>
           </div>
@@ -523,23 +542,23 @@ const PropertiesList: React.FC = () => {
             {propertiesLoading ? (
               <div className="flex items-center">
                 <FaSpinner className="animate-spin mr-2" />
-                <span>{t('results.loadingProperties')}</span>
+                <span>{t("results.loadingProperties")}</span>
               </div>
             ) : (
               <h2 className="text-xl font-semibold">
-                {totalProperties} {t('results.propertiesFound')}
+                {totalProperties} {t("results.propertiesFound")}
               </h2>
             )}
           </div>
           <div className="text-sm text-gray-600">
-            {savedCount} {t('results.propertiesSaved')}
+            {savedCount} {t("results.propertiesSaved")}
           </div>
         </div>
 
         {/* Error State */}
         {propertiesError && (
           <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6">
-            <p>{t('results.failedToLoad')}</p>
+            <p>{t("results.failedToLoad")}</p>
           </div>
         )}
 
@@ -572,9 +591,9 @@ const PropertiesList: React.FC = () => {
               <FaSearch size={48} className="mx-auto" />
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {t('results.noPropertiesFound')}
+              {t("results.noPropertiesFound")}
             </h3>
-            <p className="text-gray-600">{t('results.tryAdjusting')}</p>
+            <p className="text-gray-600">{t("results.tryAdjusting")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -599,17 +618,17 @@ const PropertiesList: React.FC = () => {
                 disabled={currentPage === 1}
                 className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
               >
-                {t('pagination.previous')}
+                {t("pagination.previous")}
               </button>
               <span className="px-4 py-2 bg-blue-600 text-white rounded-lg">
-                {t('pagination.page')} {currentPage}
+                {t("pagination.page")} {currentPage}
               </span>
               <button
                 onClick={() => setCurrentPage((prev) => prev + 1)}
                 disabled={!propertiesData.next}
                 className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
               >
-                {t('pagination.next')}
+                {t("pagination.next")}
               </button>
             </div>
           </div>
@@ -619,7 +638,7 @@ const PropertiesList: React.FC = () => {
         {savedCount > 0 && (
           <div className="fixed bottom-6 right-6 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg">
             <FaHeart className="inline mr-2" />
-            {savedCount} {t('results.saved')}
+            {savedCount} {t("results.saved")}
           </div>
         )}
       </div>
@@ -634,33 +653,43 @@ const PropertiesList: React.FC = () => {
               </div>
 
               <h3 className="text-xl font-semibold mb-2">
-                {t('contactModal.title')}
+                {t("contactModal.title")}
               </h3>
 
               {selectedProperty.agent ? (
                 <div className="mb-4">
-                  <div className="text-gray-600 mb-2">{t('contactModal.agentContact')}</div>
+                  <div className="text-gray-600 mb-2">
+                    {t("contactModal.agentContact")}
+                  </div>
                   <div className="font-medium text-lg">
                     {selectedProperty.agent.agency_name}
                   </div>
                   <div className="text-sm text-gray-500">
-                    {t('contactModal.agent')}: {selectedProperty.agent.user.username}
+                    {t("contactModal.agent")}:{" "}
+                    {selectedProperty.agent.user.username}
                   </div>
                   <div className="text-sm text-gray-500">
-                    {t('contactModal.license')}: {selectedProperty.agent.licence_number}
+                    {t("contactModal.license")}:{" "}
+                    {selectedProperty.agent.licence_number}
                   </div>
                 </div>
               ) : selectedProperty.owner ? (
                 <div className="mb-4">
-                  <div className="text-gray-600 mb-2">{t('contactModal.propertyOwner')}</div>
+                  <div className="text-gray-600 mb-2">
+                    {t("contactModal.propertyOwner")}
+                  </div>
                   <div className="font-medium text-lg">
                     {selectedProperty.owner.username}
                   </div>
                 </div>
               ) : (
                 <div className="mb-4">
-                  <div className="text-gray-600 mb-2">{t('contactModal.propertyOwner')}</div>
-                  <div className="font-medium text-lg">{t('contactModal.propertyOwner')}</div>
+                  <div className="text-gray-600 mb-2">
+                    {t("contactModal.propertyOwner")}
+                  </div>
+                  <div className="font-medium text-lg">
+                    {t("contactModal.propertyOwner")}
+                  </div>
                 </div>
               )}
 
@@ -673,8 +702,8 @@ const PropertiesList: React.FC = () => {
                 </div>
                 <div className="text-sm text-gray-600">
                   {selectedProperty.agent
-                    ? t('contactModal.agentPhoneNumber')
-                    : t('contactModal.ownerPhoneNumber')}
+                    ? t("contactModal.agentPhoneNumber")
+                    : t("contactModal.ownerPhoneNumber")}
                 </div>
               </div>
 
@@ -685,13 +714,17 @@ const PropertiesList: React.FC = () => {
                     <div className="font-semibold text-blue-600">
                       {formatAgentRating(selectedProperty.agent.rating)}
                     </div>
-                    <div className="text-gray-600">{t('contactModal.rating')}</div>
+                    <div className="text-gray-600">
+                      {t("contactModal.rating")}
+                    </div>
                   </div>
                   <div className="bg-green-50 rounded-lg p-3">
                     <div className="font-semibold text-green-600">
                       {selectedProperty.agent.total_sales}
                     </div>
-                    <div className="text-gray-600">{t('propertyCard.sales')}</div>
+                    <div className="text-gray-600">
+                      {t("propertyCard.sales")}
+                    </div>
                   </div>
                 </div>
               )}
@@ -710,7 +743,7 @@ const PropertiesList: React.FC = () => {
                   className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center"
                 >
                   <FaPhone className="mr-2" />
-                  {t('contactModal.callNow')}
+                  {t("contactModal.callNow")}
                 </button>
 
                 <button
@@ -724,14 +757,14 @@ const PropertiesList: React.FC = () => {
                   className="w-full border border-blue-600 text-blue-600 py-3 px-4 rounded-lg hover:bg-blue-50 transition-colors flex items-center justify-center"
                 >
                   <FaCopy className="mr-2" />
-                  {t('contactModal.copyNumber')}
+                  {t("contactModal.copyNumber")}
                 </button>
 
                 <button
                   onClick={() => setShowPhoneModal(false)}
                   className="w-full bg-gray-200 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors"
                 >
-                  {t('contactModal.close')}
+                  {t("contactModal.close")}
                 </button>
               </div>
 
@@ -739,7 +772,7 @@ const PropertiesList: React.FC = () => {
               <div className="mt-4 text-xs text-gray-500">
                 <div className="flex items-center justify-center">
                   <FaInfoCircle className="mr-1" />
-                  {t('contactModal.contactHours')}
+                  {t("contactModal.contactHours")}
                 </div>
               </div>
             </div>

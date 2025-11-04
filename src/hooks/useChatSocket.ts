@@ -8,12 +8,12 @@ interface MessageData {
     username: string;
   };
   timestamp: string;
-  room_id: number;
+  room_id?: number;
 }
 
 interface ChatSocketProps {
-  chatId: number | null;  // Made non-optional to be explicit about requirements
-  token: string | null;   // Made non-optional
+  chatId: number | null;
+  token: string | null;
   onMessage?: (data: MessageData) => void;
   onError?: (error: string) => void;
 }
@@ -22,14 +22,14 @@ export function useChatSocket({
   chatId,
   token,
   onMessage = () => {},
-  onError = () => {}
+  onError = () => {},
 }: ChatSocketProps) {
   const socketRef = useRef<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const messageQueue = useRef<Array<string>>([]);
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
-const reconnectInterval = useRef<ReturnType<typeof setTimeout>>();
+  const reconnectInterval = useRef<ReturnType<typeof setTimeout>>();
   const isConnecting = useRef(false);
 
   const processQueue = useCallback(() => {
@@ -43,138 +43,185 @@ const reconnectInterval = useRef<ReturnType<typeof setTimeout>>();
     }
   }, []);
 
-  const handleMessage = useCallback((event: MessageEvent) => {
-    try {
-      const data = JSON.parse(event.data);
-      if (data.type === "connection_established") {
-        console.log("WebSocket connection confirmed by server");
-        return;
+  const handleMessage = useCallback(
+    (event: MessageEvent) => {
+      try {
+        const data = JSON.parse(event.data);
+
+        if (data.type === "connection_established") {
+          setIsConnected(true);
+          processQueue(); // Process queued messages after connection is confirmed
+          return;
+        }
+
+        // Handle regular chat messages
+        if (data.type === "message") {
+          const messageData: MessageData = {
+            id:
+              data.id ||
+              parseInt(`${Date.now()}${Math.random()}`.replace(".", "")),
+            content: data.message,
+            sender: data.sender,
+            timestamp: data.timestamp,
+            room_id: chatId || undefined,
+          };
+
+          onMessage(messageData);
+        } else if (data.type === "error") {
+          onError(data.error || "Unknown error occurred");
+        }
+      } catch (error) {
+        onError("Failed to parse message");
       }
-      if (data.type === "message" && data.data) {
-        onMessage(data.data);
-      } else if (data.type === "error") {
-        onError(data.error || "Unknown error occurred");
-      }
-    } catch (error) {
-      onError("Failed to parse message");
-      console.error("Message parsing error:", error);
-    }
-  }, [onMessage, onError]);
+    },
+    [onMessage, onError, chatId, processQueue]
+  );
 
   const connect = useCallback(() => {
-    // Don't connect if already connecting or missing required params
     if (isConnecting.current || !chatId || !token) {
       return;
     }
+
     isConnecting.current = true;
+
     // Clear any existing reconnection attempts
     if (reconnectInterval.current) {
       clearTimeout(reconnectInterval.current);
       reconnectInterval.current = undefined;
     }
 
-    const socketUrl = `wss://api.webtezsell.com/ws/chat/${chatId}/$`;
-    const socket = new WebSocket(socketUrl);
-    socketRef.current = socket;
-    socket.onopen = () => {
-      setIsConnected(true);
-      reconnectAttempts.current = 0;
-      isConnecting.current = false;
-
-      // Send authentication token immediately
-      socket.send(JSON.stringify({
-        type: "authenticate",
-        token: token
-      }));
-      // Process any queued messages
-      processQueue();
-    };
-
-    socket.onmessage = handleMessage;
-
-    socket.onclose = (event) => {
-      setIsConnected(false);
-      isConnecting.current = false;
-      console.log(`❌ WebSocket disconnected (code: ${event.code}, reason: ${event.reason})`);
-
-      // Only attempt reconnect for unexpected closures
-      if (event.code !== 1000 && reconnectAttempts.current < maxReconnectAttempts) {
-        const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 30000);
-        reconnectAttempts.current += 1;
-        console.log(`Reconnecting attempt ${reconnectAttempts.current} in ${delay}ms...`);
-        reconnectInterval.current = setTimeout(connect, delay);
-      }
-    };
-
-    socket.onerror = (error) => {
-      isConnecting.current = false;
-      console.error("WebSocket error:", error);
-      onError("Connection error occurred");
-    };
-  }, [chatId, token, processQueue, handleMessage, onError]);
-
-  const sendMessage = useCallback((messageContent: string) => {
-    if (!messageContent.trim()) {
-      onError("Message cannot be empty");
-      return false;
+    // Close existing socket if any
+    if (socketRef.current) {
+      socketRef.current.close();
+      socketRef.current = null;
     }
 
-    const message = JSON.stringify({
-      type: "chat_message",
-      message: messageContent.trim()
-    });
+    // 🔧 Determine WebSocket URL based on environment
+    let socketUrl: string;
 
-    if (socketRef.current?.readyState === WebSocket.OPEN) {
-      try {
-        socketRef.current.send(message);
-        return true;
-      } catch (error) {
-        onError("Failed to send message");
-        console.error("Message send error:", error);
+    // Check if in development mode
+    const isDevelopment = import.meta.env.DEV; // For Vite
+    // const isDevelopment = process.env.NODE_ENV === 'development'; // For Create React App
+
+    if (isDevelopment) {
+      // Development: Connect to Django backend on localhost:8000
+      const wsBaseUrl = import.meta.env.VITE_WS_URL || "ws://127.0.0.1:8000";
+      // const wsBaseUrl = process.env.REACT_APP_WS_URL || 'ws://localhost:8000'; // For CRA
+      socketUrl = `${wsBaseUrl}/ws/chat/${chatId}/?token=${token}`;
+    } else {
+      // Production: Use same host as the web page
+      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const host = window.location.host;
+      socketUrl = `${protocol}//${host}/ws/chat/${chatId}/?token=${token}`;
+    }
+
+    try {
+      const socket = new WebSocket(socketUrl);
+      socketRef.current = socket;
+
+      socket.onopen = () => {
+        reconnectAttempts.current = 0;
+        isConnecting.current = false;
+      };
+
+      socket.onmessage = handleMessage;
+
+      socket.onclose = (event) => {
+        setIsConnected(false);
+        isConnecting.current = false;
+        socketRef.current = null;
+        if (
+          event.code !== 1000 &&
+          reconnectAttempts.current < maxReconnectAttempts
+        ) {
+          const delay = Math.min(
+            1000 * Math.pow(2, reconnectAttempts.current),
+            30000
+          );
+          reconnectAttempts.current += 1;
+          reconnectInterval.current = setTimeout(connect, delay);
+        } else if (reconnectAttempts.current >= maxReconnectAttempts) {
+          onError(
+            "Failed to connect after multiple attempts. Please refresh the page."
+          );
+        }
+      };
+
+      socket.onerror = (error) => {
+        isConnecting.current = false;
+
+        onError("Connection error occurred. Check console for details.");
+      };
+    } catch (error: any) {
+      isConnecting.current = false;
+      onError("Failed to create connection");
+    }
+  }, [chatId, token, handleMessage, onError]);
+
+  const sendMessage = useCallback(
+    (messageContent: string) => {
+      if (!messageContent.trim()) {
+        onError("Message cannot be empty");
         return false;
       }
-    } else {
-      messageQueue.current.push(message);
-      console.warn("Message queued - connection not ready");
 
-      // If not connected and not already trying to connect, attempt connection
-      if (!isConnected && !isConnecting.current) {
-        connect();
+      const message = JSON.stringify({
+        message: messageContent.trim(),
+      });
+
+      if (socketRef.current?.readyState === WebSocket.OPEN && isConnected) {
+        try {
+          socketRef.current.send(message);
+
+          return true;
+        } catch (error) {
+          onError("Failed to send message");
+          return false;
+        }
+      } else {
+        messageQueue.current.push(message);
+
+        if (!isConnected && !isConnecting.current) {
+          connect();
+        }
+        return false;
       }
+    },
+    [onError, isConnected, connect]
+  );
 
-      return false;
+  const disconnect = useCallback(() => {
+    ("🔌 Disconnecting WebSocket...");
+
+    if (reconnectInterval.current) {
+      clearTimeout(reconnectInterval.current);
+      reconnectInterval.current = undefined;
     }
-  }, [onError, isConnected, connect]);
+    if (socketRef.current) {
+      socketRef.current.close(1000, "User initiated disconnect");
+      socketRef.current = null;
+    }
+    setIsConnected(false);
+    reconnectAttempts.current = 0;
+    isConnecting.current = false;
+    messageQueue.current = [];
+  }, []);
 
-  // Handle connection when chatId or token changes
   useEffect(() => {
     if (chatId && token) {
       connect();
     } else {
-      // Clean up if chatId or token becomes invalid
-      if (socketRef.current) {
-        socketRef.current.close(1000, "Chat ID or token changed");
-      }
-      setIsConnected(false);
+      disconnect();
     }
 
     return () => {
-      if (socketRef.current) {
-        socketRef.current.close(1000, "Component unmounting");
-      }
-      if (reconnectInterval.current) {
-        clearTimeout(reconnectInterval.current);
-      }
+      disconnect();
     };
-  }, [chatId, token, connect]);
+  }, [chatId, token, connect, disconnect]);
 
   return {
     sendMessage,
     isConnected,
-    disconnect: () => {
-      if (socketRef.current) {
-        socketRef.current.close(1000, "User initiated disconnect");
-      }
-    }
+    disconnect,
   };
 }

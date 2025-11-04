@@ -3,11 +3,13 @@ import { useTranslation } from "react-i18next";
 import {
   FaArrowLeft,
   FaCommentAlt,
-  FaEdit, FaHeart,
+  FaEdit,
+  FaHeart,
   FaMapMarkerAlt,
   FaRegHeart,
-  FaSignInAlt, FaTrash,
-  FaUser
+  FaSignInAlt,
+  FaTrash,
+  FaUser,
 } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -44,18 +46,22 @@ const useAuth = () => {
     userInfo,
     token: userInfo?.token,
     isLoggedIn: !!userInfo,
-    userId: userInfo?.user_info?.id
+    userId: userInfo?.user_info?.id,
   };
 };
 
-const useServiceData = (id: string | undefined, token: string | undefined, isLoggedIn: boolean) => {
+const useServiceData = (
+  id: string | undefined,
+  token: string | undefined,
+  isLoggedIn: boolean
+) => {
   const serviceQuery = useGetSingleServiceQuery(id);
   const favoriteQuery = useGetFavoriteItemsQuery(
     { token },
     { skip: !isLoggedIn || !token }
   );
 
-const serviceId = (serviceQuery.data as any)?.service?.id;
+  const serviceId = (serviceQuery.data as any)?.service?.id;
 
   const commentsQuery = useGetCommentsQuery(
     { serviceId, token },
@@ -74,15 +80,21 @@ const serviceId = (serviceQuery.data as any)?.service?.id;
   };
 };
 
-
 const getCategoryName = (category: Category, language: string): string => {
   const langKey = `name_${language}` as keyof Category;
   const value = category[langKey];
-  return (value?.toString() || category.name_en || "");
+  return value?.toString() || category.name_en || "";
 };
 
-const isServiceLiked = (favoriteItems: ServiceRes | undefined, serviceId: number): boolean => {
-  return favoriteItems?.liked_services?.some((item: Service) => item.id === serviceId) || false;
+const isServiceLiked = (
+  favoriteItems: ServiceRes | undefined,
+  serviceId: number
+): boolean => {
+  return (
+    favoriteItems?.liked_services?.some(
+      (item: Service) => item.id === serviceId
+    ) || false
+  );
 };
 
 // Components
@@ -105,7 +117,7 @@ const ImageGallery = ({
   images,
   serviceName,
   selectedImage,
-  onImageSelect
+  onImageSelect,
 }: {
   images: Array<{ image: string }>;
   serviceName: string;
@@ -147,7 +159,7 @@ const ImageGallery = ({
 
 const ServiceOwnerCard = ({
   owner,
-  location
+  location,
 }: {
   owner: any;
   location: any;
@@ -185,23 +197,28 @@ const ActionButton = ({
   onClick,
   icon: Icon,
   text,
-  variant = 'primary',
+  variant = "primary",
   disabled = false,
-  className = ""
+  className = "",
 }: {
   onClick: () => void;
   icon: any;
   text: string;
-  variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'warning';
+  variant?: "primary" | "secondary" | "success" | "danger" | "warning";
   disabled?: boolean;
   className?: string;
 }) => {
   const variants = {
-    primary: "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white",
-    secondary: "bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700",
-    success: "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white",
-    danger: "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white",
-    warning: "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white"
+    primary:
+      "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white",
+    secondary:
+      "bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700",
+    success:
+      "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white",
+    danger:
+      "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white",
+    warning:
+      "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white",
   };
 
   return (
@@ -221,45 +238,51 @@ const CommentForm = ({
   setText,
   onSubmit,
   isLoading,
-  placeholder
+  placeholder,
 }: {
   text: string;
   setText: (text: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   isLoading: boolean;
   placeholder: string;
-  }) => {
-  const {t} = useTranslation()
+}) => {
+  const { t } = useTranslation();
   return (
     <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl p-6 border border-gray-100">
-    <form onSubmit={onSubmit}>
-      <textarea
-        placeholder={placeholder}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            onSubmit(e as any);
-          }
-        }}
-        className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y min-h-[120px] shadow-sm transition-all duration-200"
-      />
-      <div className="flex justify-end mt-4">
-        <button
-          type="submit"
-          disabled={isLoading || !text.trim()}
-          className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-        >
-          {isLoading ? t("posting_label") : t("post_comment_label") }
-        </button>
-      </div>
-    </form>
-  </div>
-  )
-}
+      <form onSubmit={onSubmit}>
+        <textarea
+          placeholder={placeholder}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              onSubmit(e as any);
+            }
+          }}
+          className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y min-h-[120px] shadow-sm transition-all duration-200"
+        />
+        <div className="flex justify-end mt-4">
+          <button
+            type="submit"
+            disabled={isLoading || !text.trim()}
+            className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+          >
+            {isLoading ? t("posting_label") : t("post_comment_label")}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
 
-const LoginPrompt = ({ message, loginText }: { message: string; loginText: string }) => (
+const LoginPrompt = ({
+  message,
+  loginText,
+}: {
+  message: string;
+  loginText: string;
+}) => (
   <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 p-8 rounded-xl text-center shadow-sm">
     <div className="flex flex-col items-center justify-center space-y-4">
       <div className="text-blue-700 bg-blue-100 p-4 rounded-full shadow-md">
@@ -304,15 +327,19 @@ const ServiceDetail = () => {
   // API mutations
   const [likeService] = useLikeServiceMutation();
   const [dislikeService] = useUnlikeServiceMutation();
-  const [createComment, { isLoading: isCreatingComment }] = useCreateCommentMutation();
+  const [createComment, { isLoading: isCreatingComment }] =
+    useCreateCommentMutation();
   const [deleteService] = useDeleteUserServiceMutation();
   const [createChatRoom] = useCreateChatRoomMutation();
 
   // Memoized values
   const service = serviceItem?.service;
-  const isOwner = useMemo(() => userId === service?.userName?.id, [userId, service?.userName?.id]);
-  const isLiked = useMemo(() =>
-    service ? isServiceLiked(favoriteItems, service.id) : false,
+  const isOwner = useMemo(
+    () => userId === service?.userName?.id,
+    [userId, service?.userName?.id]
+  );
+  const isLiked = useMemo(
+    () => (service ? isServiceLiked(favoriteItems, service.id) : false),
     [favoriteItems, service?.id]
   );
 
@@ -345,10 +372,9 @@ const ServiceDetail = () => {
       });
 
       if (response.data) {
-        toast.success(
-          isLiked ? t("service_unliked") : t("service_liked"),
-          { autoClose: 1000 }
-        );
+        toast.success(isLiked ? t("service_unliked") : t("service_liked"), {
+          autoClose: 1000,
+        });
         refetchService();
         refetchComments();
         refetchFavorites();
@@ -356,7 +382,19 @@ const ServiceDetail = () => {
     } catch (error: unknown) {
       toast.error(t("error_occurred"), { autoClose: 2000 });
     }
-  }, [isLoggedIn, service, isLiked, likeService, dislikeService, token, navigate, refetchService, refetchComments, refetchFavorites, t]);
+  }, [
+    isLoggedIn,
+    service,
+    isLiked,
+    likeService,
+    dislikeService,
+    token,
+    navigate,
+    refetchService,
+    refetchComments,
+    refetchFavorites,
+    t,
+  ]);
 
   const handleChat = useCallback(async () => {
     if (!isLoggedIn) {
@@ -371,19 +409,19 @@ const ServiceDetail = () => {
       const productOwnerId = service.userName.id;
       const currentUserId = userInfo.user_info?.id;
 
-     if (!currentUserId) {
-    toast.error(t("authentication_required"));
-    return;
-    }
-    if (currentUserId === productOwnerId) {
-    toast.info(t("cannot_chat_self"));
-    return;
-  }
+      if (!currentUserId) {
+        toast.error(t("authentication_required"));
+        return;
+      }
+      if (currentUserId === productOwnerId) {
+        toast.info(t("cannot_chat_self"));
+        return;
+      }
       const chatName = service.userName.username;
       const result = await createChatRoom({
         name: chatName,
         participants: [currentUserId, productOwnerId],
-        token: userInfo.token || '',
+        token: userInfo.token || "",
       });
 
       if ("data" in result && result.data) {
@@ -392,7 +430,7 @@ const ServiceDetail = () => {
         navigate(`/chat/${chatId}`);
       }
     } catch (error: unknown) {
-      console.error(error)
+      error;
       toast.error(t("chat_creation_failed"));
     }
   }, [isLoggedIn, service, userInfo, createChatRoom, navigate, t]);
@@ -413,40 +451,43 @@ const ServiceDetail = () => {
         toast.error(t("product_delete_error"), { autoClose: 2000 });
       }
     } catch (error: unknown) {
-      console.error(error)
+      error;
       toast.error(t("product_delete_error"), { autoClose: 2000 });
     }
   }, [id, token, deleteService, navigate, t]);
 
-  const handleCommentSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCommentSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
 
-    if (!commentText.trim()) {
-      toast.info(t("enter_comment"));
-      return;
-    }
-
-    if (!service) return;
-
-    try {
-      const response = await createComment({
-        text: commentText,
-        serviceId: service.id,
-        token: token!,
-      });
-
-      if (response.data) {
-        toast.success(t("comment_created"));
-        refetchComments();
-        setCommentText("");
-      } else {
-        toast.error(t("comment_creation_error"));
+      if (!commentText.trim()) {
+        toast.info(t("enter_comment"));
+        return;
       }
-    } catch (error: unknown) {
-      console.error(error)
-      toast.error(t("error_occurred"));
-    }
-  }, [commentText, service, createComment, token, refetchComments, t]);
+
+      if (!service) return;
+
+      try {
+        const response = await createComment({
+          text: commentText,
+          serviceId: service.id,
+          token: token!,
+        });
+
+        if (response.data) {
+          toast.success(t("comment_created"));
+          refetchComments();
+          setCommentText("");
+        } else {
+          toast.error(t("comment_creation_error"));
+        }
+      } catch (error: unknown) {
+        error;
+        toast.error(t("error_occurred"));
+      }
+    },
+    [commentText, service, createComment, token, refetchComments, t]
+  );
 
   const handleEditClose = useCallback(() => {
     refetchService();
@@ -572,7 +613,9 @@ const ServiceDetail = () => {
         )}
       </section>
       <section className="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
-        <h3 className="text-2xl font-bold mb-6 text-gray-800">{t("recommended_services")}</h3>
+        <h3 className="text-2xl font-bold mb-6 text-gray-800">
+          {t("recommended_services")}
+        </h3>
         <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-8 rounded-xl text-center text-gray-500 border border-gray-100">
           <div className="text-lg font-medium">{t("coming_soon")}</div>
         </div>

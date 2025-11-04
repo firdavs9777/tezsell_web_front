@@ -1,12 +1,22 @@
 import { Reply } from "@services/Comments/SingleComment";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaEdit, FaEllipsisV, FaSave, FaTimes, FaTrash, FaUser } from "react-icons/fa";
+import {
+  FaEdit,
+  FaEllipsisV,
+  FaSave,
+  FaTimes,
+  FaTrash,
+  FaUser,
+} from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { RootState } from "../../../../store";
 import { BASE_URL } from "../../../../store/constants";
-import { useDeleteReplyItemMutation, useUpdateReplyItemMutation } from "../../../../store/slices/commentApiSlice";
+import {
+  useDeleteReplyItemMutation,
+  useUpdateReplyItemMutation,
+} from "../../../../store/slices/commentApiSlice";
 
 interface SingleReplyProps {
   reply: Reply;
@@ -27,10 +37,12 @@ interface RTKQueryError {
 const SingleReply: React.FC<SingleReplyProps> = ({
   reply,
   onReplyUpdate,
-  onReplyDelete
+  onReplyDelete,
 }) => {
-  const [updateReply, { isLoading: updateLoading }] = useUpdateReplyItemMutation();
-  const [deleteReply, { isLoading: deleteLoading }] = useDeleteReplyItemMutation();
+  const [updateReply, { isLoading: updateLoading }] =
+    useUpdateReplyItemMutation();
+  const [deleteReply, { isLoading: deleteLoading }] =
+    useDeleteReplyItemMutation();
 
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const token = userInfo?.token;
@@ -46,20 +58,23 @@ const SingleReply: React.FC<SingleReplyProps> = ({
   // Close options menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (optionsRef.current && !optionsRef.current.contains(event.target as Node)) {
+      if (
+        optionsRef.current &&
+        !optionsRef.current.contains(event.target as Node)
+      ) {
         setShowOptions(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
   // Helper function to extract error message
   const getErrorMessage = (error: unknown, fallbackKey: string): string => {
-    if (error && typeof error === 'object') {
+    if (error && typeof error === "object") {
       const rtqError = error as RTKQueryError;
 
       // Check for data.message first
@@ -102,7 +117,7 @@ const SingleReply: React.FC<SingleReplyProps> = ({
       await updateReply({
         token,
         replyId: reply.id,
-        text: editText.trim()
+        text: editText.trim(),
       }).unwrap();
 
       setIsEditing(false);
@@ -113,7 +128,7 @@ const SingleReply: React.FC<SingleReplyProps> = ({
         onReplyUpdate();
       }
     } catch (error: unknown) {
-      console.error("Update reply error:", error);
+      "Update reply error:", error;
       const errorMessage = getErrorMessage(error, "reply_update_error");
       toast.error(errorMessage);
     }
@@ -131,7 +146,7 @@ const SingleReply: React.FC<SingleReplyProps> = ({
     try {
       await deleteReply({
         token,
-        replyId: reply.id
+        replyId: reply.id,
       }).unwrap();
 
       toast.success(t("reply_delete_success"));
@@ -141,7 +156,7 @@ const SingleReply: React.FC<SingleReplyProps> = ({
         onReplyDelete();
       }
     } catch (error: unknown) {
-      console.error("Delete reply error:", error);
+      "Delete reply error:", error;
       const errorMessage = getErrorMessage(error, "reply_delete_error");
       toast.error(errorMessage);
     }

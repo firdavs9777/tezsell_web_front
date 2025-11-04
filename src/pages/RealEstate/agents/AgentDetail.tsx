@@ -1,6 +1,6 @@
-import { SerializedError } from '@reduxjs/toolkit';
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import { RootState } from '@store/index';
+import { SerializedError } from "@reduxjs/toolkit";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { RootState } from "@store/index";
 import {
   useGetAgentByIdQuery,
   useGetAgentPropertiesQuery,
@@ -9,7 +9,7 @@ import {
   AgentDetailAgent,
   AgentDetailProperty,
   AgentDetailResponse,
-  GetAgentPropertiesResponse
+  GetAgentPropertiesResponse,
 } from "@store/type";
 import {
   ArrowLeft,
@@ -26,11 +26,11 @@ import {
   Phone,
   Shield,
   Star,
-  User
+  User,
 } from "lucide-react";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSelector } from 'react-redux';
+import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 
 // Updated interfaces to match your RTK Query response structure
@@ -41,13 +41,17 @@ type ProfileImageType = string | { image: string };
 
 // Helper function to safely get profile image source
 const getProfileImageSrc = (profileImage: ProfileImageType): string => {
-  if (typeof profileImage === 'string') {
+  if (typeof profileImage === "string") {
     return profileImage;
   }
-  if (profileImage && typeof profileImage === 'object' && 'image' in profileImage) {
+  if (
+    profileImage &&
+    typeof profileImage === "object" &&
+    "image" in profileImage
+  ) {
     return profileImage.image;
   }
-  return '/default-avatar.png'; // fallback image path
+  return "/default-avatar.png"; // fallback image path
 };
 
 const AgentDetail: React.FC<AgentDetailProps> = () => {
@@ -74,23 +78,26 @@ const AgentDetail: React.FC<AgentDetailProps> = () => {
     isError: boolean;
   };
 
-const userInfo = useSelector((state: RootState) => state.auth.userInfo);
-const token = userInfo?.token || '';
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+  const token = userInfo?.token || "";
 
-const {
-  data: agentPropertiesData,
-  isLoading: propertiesLoading,
-  error: propertiesError,
-} = useGetAgentPropertiesQuery({
-  token: token,
-  agentId: id?.toString() || ''
-}, {
-  skip: !id || !token, // Skip if no ID or token
-}) as {
-  data: GetAgentPropertiesResponse | undefined;
-  isLoading: boolean;
-  error: any;
-};
+  const {
+    data: agentPropertiesData,
+    isLoading: propertiesLoading,
+    error: propertiesError,
+  } = useGetAgentPropertiesQuery(
+    {
+      token: token,
+      agentId: id?.toString() || "",
+    },
+    {
+      skip: !id || !token, // Skip if no ID or token
+    }
+  ) as {
+    data: GetAgentPropertiesResponse | undefined;
+    isLoading: boolean;
+    error: any;
+  };
   // FIXED: Access agent directly from the response structure
   const agent: AgentDetailAgent | undefined = agentResponse?.agent;
   const statistics = agentResponse?.statistics;
@@ -105,9 +112,9 @@ const {
   const handleCopyPhone = async (phoneNumber: string): Promise<void> => {
     try {
       await navigator.clipboard.writeText(phoneNumber);
-      console.log(t('notifications.phoneCopied'));
+      t("notifications.phoneCopied");
     } catch (err) {
-      console.error(t('notifications.copyFailed'), err);
+      t("notifications.copyFailed"), err;
     }
   };
 
@@ -116,7 +123,7 @@ const {
   };
 
   const getAgentName = () => {
-    return agent?.user?.username || t('fallbacks.agentName');
+    return agent?.user?.username || t("fallbacks.agentName");
   };
 
   const getPhoneNumber = () => {
@@ -144,7 +151,8 @@ const {
     size?: number;
     showNumber?: boolean;
   }> = ({ rating, size = 20, showNumber = true }) => {
-    const numRating = typeof rating === 'string' ? parseFloat(rating) : (rating || 0);
+    const numRating =
+      typeof rating === "string" ? parseFloat(rating) : rating || 0;
     return (
       <div className="flex items-center space-x-1">
         {[...Array(5)].map((_, i) => (
@@ -171,28 +179,30 @@ const {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Loader className="animate-spin mx-auto mb-4" size={48} />
-          <p className="text-gray-600">{t('loading.loadingDetails')}</p>
+          <p className="text-gray-600">{t("loading.loadingDetails")}</p>
         </div>
       </div>
     );
   }
 
-  const isFetchBaseQueryError = (error: unknown): error is FetchBaseQueryError => {
-    return typeof error === 'object' && error != null && 'status' in error;
+  const isFetchBaseQueryError = (
+    error: unknown
+  ): error is FetchBaseQueryError => {
+    return typeof error === "object" && error != null && "status" in error;
   };
 
   // Helper function to check if it's a SerializedError
   const isSerializedError = (error: unknown): error is SerializedError => {
-    return typeof error === 'object' && error != null;
+    return typeof error === "object" && error != null;
   };
 
   // Handle error state
   if (isAgentError && agentError) {
-    let errorMessage = t('error.defaultMessage');
+    let errorMessage = t("error.defaultMessage");
 
     if (isFetchBaseQueryError(agentError)) {
       // Handle FetchBaseQueryError (network errors, HTTP errors)
-      errorMessage = `Error ${agentError.status}: ${t('error.defaultMessage')}`;
+      errorMessage = `Error ${agentError.status}: ${t("error.defaultMessage")}`;
     } else if (isSerializedError(agentError)) {
       // Handle SerializedError (thrown errors)
       errorMessage = agentError.message || errorMessage;
@@ -203,14 +213,14 @@ const {
         <div className="text-center">
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
             <h2 className="text-xl font-semibold text-red-800 mb-2">
-              {t('error.title')}
+              {t("error.title")}
             </h2>
             <p className="text-red-600 mb-4">{errorMessage}</p>
             <button
               onClick={() => window.location.reload()}
               className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
             >
-              {t('error.tryAgain')}
+              {t("error.tryAgain")}
             </button>
           </div>
         </div>
@@ -222,7 +232,7 @@ const {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600">{t('loading.agentNotFound')}</p>
+          <p className="text-gray-600">{t("loading.agentNotFound")}</p>
         </div>
       </div>
     );
@@ -239,7 +249,7 @@ const {
               className="flex items-center text-gray-600 hover:text-gray-800 mr-4"
             >
               <ArrowLeft size={20} className="mr-2" />
-              {t('navigation.backToAgents')}
+              {t("navigation.backToAgents")}
             </button>
           </div>
         </div>
@@ -279,7 +289,7 @@ const {
                     <div className="flex items-center mb-3">
                       <Shield size={20} className="text-green-400 mr-2" />
                       <span className="text-green-100 font-medium">
-                        {t('agentProfile.verifiedAgent')}
+                        {t("agentProfile.verifiedAgent")}
                       </span>
                     </div>
                   )}
@@ -288,7 +298,7 @@ const {
                     <StarRating rating={agent.rating} size={24} />
                     <span className="text-white ml-3">•</span>
                     <span className="text-blue-100 ml-3">
-                      {agent.total_sales} {t('agentProfile.sales')}
+                      {agent.total_sales} {t("agentProfile.sales")}
                     </span>
                   </div>
                 </div>
@@ -300,11 +310,11 @@ const {
                     className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg flex items-center transition-colors"
                   >
                     <Phone size={18} className="mr-2" />
-                    {t('agentProfile.contactAgent')}
+                    {t("agentProfile.contactAgent")}
                   </button>
                   <button className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-3 rounded-lg flex items-center transition-colors">
                     <Mail size={18} className="mr-2" />
-                    {t('agentProfile.sendMessage')}
+                    {t("agentProfile.sendMessage")}
                   </button>
                 </div>
               </div>
@@ -315,23 +325,35 @@ const {
                   <div className="text-2xl font-bold">
                     {agent.years_experience}
                   </div>
-                  <div className="text-blue-100 text-sm">{t('agentProfile.yearsExperience')}</div>
+                  <div className="text-blue-100 text-sm">
+                    {t("agentProfile.yearsExperience")}
+                  </div>
                 </div>
                 <div className="bg-white bg-opacity-10 rounded-lg p-4">
                   <div className="text-2xl font-bold">{agent.total_sales}</div>
-                  <div className="text-blue-100 text-sm">{t('agentProfile.propertiesSold')}</div>
+                  <div className="text-blue-100 text-sm">
+                    {t("agentProfile.propertiesSold")}
+                  </div>
                 </div>
                 <div className="bg-white bg-opacity-10 rounded-lg p-4">
                   <div className="text-2xl font-bold">
-                    {statistics?.active_listings || agentPropertiesData?.count || 0}
+                    {statistics?.active_listings ||
+                      agentPropertiesData?.count ||
+                      0}
                   </div>
-                  <div className="text-blue-100 text-sm">{t('agentProfile.activeListings')}</div>
+                  <div className="text-blue-100 text-sm">
+                    {t("agentProfile.activeListings")}
+                  </div>
                 </div>
                 <div className="bg-white bg-opacity-10 rounded-lg p-4">
                   <div className="text-2xl font-bold">
-                    {statistics?.total_properties || agentPropertiesData?.count || 0}
+                    {statistics?.total_properties ||
+                      agentPropertiesData?.count ||
+                      0}
                   </div>
-                  <div className="text-blue-100 text-sm">{t('agentProfile.totalProperties')}</div>
+                  <div className="text-blue-100 text-sm">
+                    {t("agentProfile.totalProperties")}
+                  </div>
                 </div>
               </div>
             </div>
@@ -347,7 +369,9 @@ const {
             {["overview", "properties", "reviews"].map((tab) => (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab as 'overview' | 'properties' | 'reviews')}
+                onClick={() =>
+                  setActiveTab(tab as "overview" | "properties" | "reviews")
+                }
                 className={`py-4 px-1 border-b-2 font-medium text-sm capitalize transition-colors ${
                   activeTab === tab
                     ? "border-blue-500 text-blue-600"
@@ -368,7 +392,7 @@ const {
               {/* About */}
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h2 className="text-2xl font-semibold mb-4">
-                  {t('about_agent.title')} {agent.user.username}
+                  {t("about_agent.title")} {agent.user.username}
                 </h2>
                 <div className="space-y-4">
                   <div className="flex items-start">
@@ -378,7 +402,7 @@ const {
                     />
                     <div>
                       <h3 className="font-medium text-gray-900">
-                        {t('about_agent.specialization')}
+                        {t("about_agent.specialization")}
                       </h3>
                       <p className="text-gray-600">{agent.specialization}</p>
                     </div>
@@ -391,7 +415,7 @@ const {
                     />
                     <div>
                       <h3 className="font-medium text-gray-900">
-                        {t('about_agent.memberSince')}
+                        {t("about_agent.memberSince")}
                       </h3>
                       <p className="text-gray-600">
                         {formatDate(agent.created_at)}
@@ -404,14 +428,16 @@ const {
               {/* Performance Metrics */}
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h2 className="text-2xl font-semibold mb-6">
-                  {t('performanceMetrics.title')}
+                  {t("performanceMetrics.title")}
                 </h2>
                 <div className="grid grid-cols-2 gap-6">
                   <div className="text-center p-4 bg-blue-50 rounded-lg">
                     <div className="text-3xl font-bold text-blue-600">
                       {Number(agent.rating).toFixed(1)}
                     </div>
-                    <div className="text-gray-600 mt-1">{t('performanceMetrics.averageRating')}</div>
+                    <div className="text-gray-600 mt-1">
+                      {t("performanceMetrics.averageRating")}
+                    </div>
                     <StarRating
                       rating={agent.rating}
                       size={16}
@@ -422,19 +448,27 @@ const {
                     <div className="text-3xl font-bold text-green-600">
                       {agent.total_sales}
                     </div>
-                    <div className="text-gray-600 mt-1">{t('performanceMetrics.propertiesSold')}</div>
+                    <div className="text-gray-600 mt-1">
+                      {t("performanceMetrics.propertiesSold")}
+                    </div>
                   </div>
                   <div className="text-center p-4 bg-purple-50 rounded-lg">
                     <div className="text-3xl font-bold text-purple-600">
-                      {statistics?.active_listings || agentPropertiesData?.count || 0}
+                      {statistics?.active_listings ||
+                        agentPropertiesData?.count ||
+                        0}
                     </div>
-                    <div className="text-gray-600 mt-1">{t('performanceMetrics.activeListings')}</div>
+                    <div className="text-gray-600 mt-1">
+                      {t("performanceMetrics.activeListings")}
+                    </div>
                   </div>
                   <div className="text-center p-4 bg-orange-50 rounded-lg">
                     <div className="text-3xl font-bold text-orange-600">
                       {agent.years_experience}
                     </div>
-                    <div className="text-gray-600 mt-1">{t('performanceMetrics.yearsExperience')}</div>
+                    <div className="text-gray-600 mt-1">
+                      {t("performanceMetrics.yearsExperience")}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -445,7 +479,7 @@ const {
               {/* Contact Info */}
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h3 className="text-lg font-semibold mb-4">
-                  {t('contactInfo.title')}
+                  {t("contactInfo.title")}
                 </h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -464,7 +498,9 @@ const {
                   </div>
                   <div className="flex items-center">
                     <Mail size={16} className="text-gray-400 mr-3" />
-                    <span className="text-gray-600">{t('contactInfo.contactViaPlatform')}</span>
+                    <span className="text-gray-600">
+                      {t("contactInfo.contactViaPlatform")}
+                    </span>
                   </div>
                   <div className="flex items-center">
                     <MapPin size={16} className="text-gray-400 mr-3" />
@@ -476,7 +512,7 @@ const {
               {/* Verification Status */}
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h3 className="text-lg font-semibold mb-4">
-                  {t('verificationStatus.title')}
+                  {t("verificationStatus.title")}
                 </h3>
                 <div className="space-y-3">
                   <div className="flex items-center">
@@ -492,42 +528,48 @@ const {
                       }
                     >
                       {agent.is_verified
-                        ? t('verificationStatus.verifiedAgent')
-                        : t('verificationStatus.pendingVerification')}
+                        ? t("verificationStatus.verifiedAgent")
+                        : t("verificationStatus.pendingVerification")}
                     </span>
                   </div>
                   <div className="flex items-center">
                     <Award size={16} className="text-blue-500 mr-3" />
-                    <span className="text-gray-600">{t('verificationStatus.licensedProfessional')}</span>
+                    <span className="text-gray-600">
+                      {t("verificationStatus.licensedProfessional")}
+                    </span>
                   </div>
                   <div className="flex items-center">
                     <Building size={16} className="text-purple-500 mr-3" />
-                    <span className="text-gray-600">{t('verificationStatus.registeredAgency')}</span>
+                    <span className="text-gray-600">
+                      {t("verificationStatus.registeredAgency")}
+                    </span>
                   </div>
                 </div>
               </div>
 
               {/* Quick Actions */}
               <div className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="text-lg font-semibold mb-4">{t('quickActions.title')}</h3>
+                <h3 className="text-lg font-semibold mb-4">
+                  {t("quickActions.title")}
+                </h3>
                 <div className="space-y-3">
                   <button
                     onClick={handleContactClick}
                     className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center"
                   >
                     <Phone size={16} className="mr-2" />
-                    {t('quickActions.callNow')}
+                    {t("quickActions.callNow")}
                   </button>
                   <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
                     <MessageCircle size={16} className="mr-2" />
-                    {t('quickActions.sendMessage')}
+                    {t("quickActions.sendMessage")}
                   </button>
                   <button
                     onClick={() => setActiveTab("properties")}
                     className="w-full border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center"
                   >
                     <ExternalLink size={16} className="mr-2" />
-                    {t('quickActions.viewProperties')}
+                    {t("quickActions.viewProperties")}
                   </button>
                 </div>
               </div>
@@ -538,89 +580,102 @@ const {
         {activeTab === "properties" && (
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-2xl font-semibold mb-6">
-              {t('properties.title')} ({statistics?.total_properties || agentPropertiesData?.count || 0})
+              {t("properties.title")} (
+              {statistics?.total_properties || agentPropertiesData?.count || 0})
             </h2>
 
             {propertiesLoading ? (
               <div className="text-center py-12">
                 <Loader className="animate-spin mx-auto mb-4" size={48} />
-                <p className="text-gray-600">{t('properties.loadingProperties')}</p>
+                <p className="text-gray-600">
+                  {t("properties.loadingProperties")}
+                </p>
               </div>
-            ) : (agentPropertiesData?.results && agentPropertiesData.results.length > 0) ||
-               (recentProperties && recentProperties.length > 0) ? (
+            ) : (agentPropertiesData?.results &&
+                agentPropertiesData.results.length > 0) ||
+              (recentProperties && recentProperties.length > 0) ? (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {/* Show either API properties or recent properties from agent detail */}
-                  {(agentPropertiesData?.results || recentProperties).map((property: AgentDetailProperty) => (
-                    <div
-                      key={property.id}
-                      className="border rounded-lg p-4 hover:shadow-md transition-shadow"
-                    >
-                      <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
-                        {property.title}
-                      </h3>
-                      <p className="text-blue-600 font-bold mb-2">
-                        {formatPrice(property.price)}
-                      </p>
+                  {(agentPropertiesData?.results || recentProperties).map(
+                    (property: AgentDetailProperty) => (
+                      <div
+                        key={property.id}
+                        className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                      >
+                        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                          {property.title}
+                        </h3>
+                        <p className="text-blue-600 font-bold mb-2">
+                          {formatPrice(property.price)}
+                        </p>
 
-                      <div className="space-y-2 mb-3">
-                        <div className="flex justify-between text-sm text-gray-600">
-                          <span className="capitalize">
-                            {property.property_type_display || property.property_type?.replace("_", " ")}
-                          </span>
-                          <span className="capitalize">
-                            {property.listing_type_display ||
-                             (property.listing_type === 'sale' ? t('properties.forSale') : t('properties.forRent'))}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center text-sm text-gray-500">
-                          <MapPin size={14} className="mr-1" />
-                          <span>
-                            {property.district}, {property.city}
-                          </span>
-                        </div>
-
-                        <div className="flex justify-between text-sm text-gray-600">
-                          <span>{property.square_meters} m²</span>
-                          {property.bedrooms && (
-                            <span>
-                              {property.bedrooms} {t('properties.bed')} • {property.bathrooms} {t('properties.bath')}
+                        <div className="space-y-2 mb-3">
+                          <div className="flex justify-between text-sm text-gray-600">
+                            <span className="capitalize">
+                              {property.property_type_display ||
+                                property.property_type?.replace("_", " ")}
                             </span>
+                            <span className="capitalize">
+                              {property.listing_type_display ||
+                                (property.listing_type === "sale"
+                                  ? t("properties.forSale")
+                                  : t("properties.forRent"))}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center text-sm text-gray-500">
+                            <MapPin size={14} className="mr-1" />
+                            <span>
+                              {property.district}, {property.city}
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between text-sm text-gray-600">
+                            <span>{property.square_meters} m²</span>
+                            {property.bedrooms && (
+                              <span>
+                                {property.bedrooms} {t("properties.bed")} •{" "}
+                                {property.bathrooms} {t("properties.bath")}
+                              </span>
+                            )}
+                          </div>
+
+                          {property.price_per_sqm && (
+                            <div className="text-sm text-gray-500">
+                              ${property.price_per_sqm}/m²
+                            </div>
                           )}
                         </div>
 
-                        {property.price_per_sqm && (
-                          <div className="text-sm text-gray-500">
-                            ${property.price_per_sqm}/m²
-                          </div>
-                        )}
+                        <p className="text-xs text-gray-500 border-t pt-2">
+                          {t("properties.listed")}{" "}
+                          {formatDate(property.created_at)} •{" "}
+                          {property.views_count} {t("properties.views")}
+                        </p>
                       </div>
-
-                      <p className="text-xs text-gray-500 border-t pt-2">
-                        {t('properties.listed')} {formatDate(property.created_at)} • {property.views_count} {t('properties.views')}
-                      </p>
-                    </div>
-                  ))}
+                    )
+                  )}
                 </div>
 
                 {/* Show recent properties section if available */}
-                {recentProperties.length > 0 && !agentPropertiesData?.results && (
-                  <div className="mt-8 p-4 bg-blue-50 rounded-lg">
-                    <p className="text-sm text-blue-600">
-                      {t('properties.recentPropertiesNote')}
-                    </p>
-                  </div>
-                )}
+                {recentProperties.length > 0 &&
+                  !agentPropertiesData?.results && (
+                    <div className="mt-8 p-4 bg-blue-50 rounded-lg">
+                      <p className="text-sm text-blue-600">
+                        {t("properties.recentPropertiesNote")}
+                      </p>
+                    </div>
+                  )}
               </div>
             ) : (
               <div className="text-center py-12">
                 <Building size={48} className="mx-auto text-gray-400 mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {t('properties.noPropertiesTitle')}
+                  {t("properties.noPropertiesTitle")}
                 </h3>
                 <p className="text-gray-600">
-                  {t('properties.noPropertiesMessage')}
+                  {t("properties.noPropertiesMessage")}
                 </p>
               </div>
             )}
@@ -629,15 +684,15 @@ const {
 
         {activeTab === "reviews" && (
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-semibold mb-6">{t('reviews.title')}</h2>
+            <h2 className="text-2xl font-semibold mb-6">
+              {t("reviews.title")}
+            </h2>
             <div className="text-center py-12">
               <Star size={48} className="mx-auto text-gray-400 mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {t('reviews.noReviewsTitle')}
+                {t("reviews.noReviewsTitle")}
               </h3>
-              <p className="text-gray-600">
-                {t('reviews.noReviewsMessage')}
-              </p>
+              <p className="text-gray-600">{t("reviews.noReviewsMessage")}</p>
             </div>
           </div>
         )}
@@ -651,14 +706,16 @@ const {
               </div>
 
               <h3 className="text-xl font-semibold mb-2">
-                {t('contactModal.title')} {getAgentName()}
+                {t("contactModal.title")} {getAgentName()}
               </h3>
 
               <div className="mb-4">
-                <div className="text-gray-600 mb-2">{t('contactModal.realEstateAgent')}</div>
+                <div className="text-gray-600 mb-2">
+                  {t("contactModal.realEstateAgent")}
+                </div>
                 <div className="font-medium text-lg">{agent.agency_name}</div>
                 <div className="text-sm text-gray-500">
-                  {t('contactModal.license')} {agent.licence_number}
+                  {t("contactModal.license")} {agent.licence_number}
                 </div>
               </div>
 
@@ -666,7 +723,9 @@ const {
                 <div className="text-2xl font-bold text-blue-600 mb-2">
                   {getPhoneNumber()}
                 </div>
-                <div className="text-sm text-gray-600">{t('contactModal.agentPhoneNumber')}</div>
+                <div className="text-sm text-gray-600">
+                  {t("contactModal.agentPhoneNumber")}
+                </div>
               </div>
 
               <div className="mb-6 grid grid-cols-2 gap-4 text-sm">
@@ -674,13 +733,15 @@ const {
                   <div className="font-semibold text-blue-600">
                     {Number(agent.rating).toFixed(1)}
                   </div>
-                  <div className="text-gray-600">{t('contactModal.rating')}</div>
+                  <div className="text-gray-600">
+                    {t("contactModal.rating")}
+                  </div>
                 </div>
                 <div className="bg-green-50 rounded-lg p-3">
                   <div className="font-semibold text-green-600">
                     {agent.total_sales}
                   </div>
-                  <div className="text-gray-600">{t('contactModal.sales')}</div>
+                  <div className="text-gray-600">{t("contactModal.sales")}</div>
                 </div>
               </div>
 
@@ -693,7 +754,7 @@ const {
                   className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center"
                 >
                   <Phone className="mr-2" size={16} />
-                  {t('contactModal.callNow')}
+                  {t("contactModal.callNow")}
                 </button>
 
                 <button
@@ -701,21 +762,21 @@ const {
                   className="w-full border border-blue-600 text-blue-600 py-3 px-4 rounded-lg hover:bg-blue-50 transition-colors flex items-center justify-center"
                 >
                   <Copy className="mr-2" size={16} />
-                  {t('contactModal.copyNumber')}
+                  {t("contactModal.copyNumber")}
                 </button>
 
                 <button
                   onClick={() => setShowPhoneModal(false)}
                   className="w-full bg-gray-200 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors"
                 >
-                  {t('contactModal.close')}
+                  {t("contactModal.close")}
                 </button>
               </div>
 
               <div className="mt-4 text-xs text-gray-500">
                 <div className="flex items-center justify-center">
                   <Clock className="mr-1" size={12} />
-                  {t('contactModal.contactHours')}
+                  {t("contactModal.contactHours")}
                 </div>
               </div>
             </div>

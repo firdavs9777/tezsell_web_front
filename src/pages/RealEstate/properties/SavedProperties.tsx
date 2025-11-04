@@ -82,36 +82,42 @@ interface SavedProperty {
 
 // Update the response interface to match actual API response
 
-
 const SavedProperties: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [showPhoneModal, setShowPhoneModal] = useState<boolean>(false);
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(
+    null
+  );
 
   // Get user info from Redux store
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
-  const token = userInfo?.token || '';
+  const token = userInfo?.token || "";
 
   // Fetch saved properties - properly type the response
   const {
     data: savedPropertiesData,
     isLoading,
     error,
-    refetch
+    refetch,
   } = useGetSavedPropertiesQuery({ token });
 
-  const [toggleUnsaveProperty, { isLoading: isUnsaving }] = useToggleUnsavePropertyMutation();
+  const [toggleUnsaveProperty, { isLoading: isUnsaving }] =
+    useToggleUnsavePropertyMutation();
 
   // Handle unsaving a property
   const handleUnsaveProperty = async (propertyId: string): Promise<void> => {
     try {
       await toggleUnsaveProperty({ propertyId, token }).unwrap();
       refetch(); // Refresh the saved properties list
-      toast.success(t('success.propertyUnsaved') || 'Property removed from saved list');
+      toast.success(
+        t("success.propertyUnsaved") || "Property removed from saved list"
+      );
     } catch (error) {
-      console.error('Failed to unsave property:', error);
-      toast.error(t('errors.unsaveFailed') || 'Failed to remove property from saved list');
+      "Failed to unsave property:", error;
+      toast.error(
+        t("errors.unsaveFailed") || "Failed to remove property from saved list"
+      );
     }
   };
 
@@ -128,10 +134,10 @@ const SavedProperties: React.FC = () => {
   const handleCopyPhone = async (phoneNumber: string): Promise<void> => {
     try {
       await navigator.clipboard.writeText(phoneNumber);
-      toast.success(t('success.phoneCopied') || 'Phone number copied!');
+      toast.success(t("success.phoneCopied") || "Phone number copied!");
     } catch (err) {
-      console.error('Failed to copy phone number:', err);
-      toast.error(t('errors.copyFailed') || 'Failed to copy phone number');
+      "Failed to copy phone number:", err;
+      toast.error(t("errors.copyFailed") || "Failed to copy phone number");
     }
   };
 
@@ -143,29 +149,35 @@ const SavedProperties: React.FC = () => {
   ): string => {
     const numPrice = typeof price === "string" ? parseFloat(price) : price;
     const formatted = new Intl.NumberFormat("en-US").format(numPrice);
-    const symbol = currency === "USD" ? "$" : currency === "UZS" ? "so'm" : currency;
+    const symbol =
+      currency === "USD" ? "$" : currency === "UZS" ? "so'm" : currency;
     return listingType === "rent"
-      ? `${symbol}${formatted}${t('pricing.month') || '/month'}`
+      ? `${symbol}${formatted}${t("pricing.month") || "/month"}`
       : `${symbol}${formatted}`;
   };
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
   const getPropertyFeatures = (property: Property): string[] => {
     const features: string[] = [];
-    if (property.has_balcony) features.push(t('propertyCard.balcony') || 'Balcony');
-    if (property.has_garage) features.push(t('propertyCard.garage') || 'Garage');
-    if (property.has_garden) features.push(t('propertyCard.garden') || 'Garden');
-    if (property.has_pool) features.push(t('propertyCard.pool') || 'Pool');
-    if (property.has_elevator) features.push(t('propertyCard.elevator') || 'Elevator');
-    if (property.is_furnished) features.push(t('propertyCard.furnished') || 'Furnished');
+    if (property.has_balcony)
+      features.push(t("propertyCard.balcony") || "Balcony");
+    if (property.has_garage)
+      features.push(t("propertyCard.garage") || "Garage");
+    if (property.has_garden)
+      features.push(t("propertyCard.garden") || "Garden");
+    if (property.has_pool) features.push(t("propertyCard.pool") || "Pool");
+    if (property.has_elevator)
+      features.push(t("propertyCard.elevator") || "Elevator");
+    if (property.is_furnished)
+      features.push(t("propertyCard.furnished") || "Furnished");
     return features;
   };
 
@@ -187,7 +199,7 @@ const SavedProperties: React.FC = () => {
         return {
           id: Date.now() + Math.random(), // Generate a temporary ID
           property: item as Property,
-          saved_at: new Date().toISOString() // Use current date as fallback
+          saved_at: new Date().toISOString(), // Use current date as fallback
         } as SavedProperty;
       })
     : [];
@@ -200,13 +212,14 @@ const SavedProperties: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            {t('auth.loginRequired') || 'Please log in to view saved properties'}
+            {t("auth.loginRequired") ||
+              "Please log in to view saved properties"}
           </h2>
           <button
-            onClick={() => navigate('/login')}
+            onClick={() => navigate("/login")}
             className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
           >
-            {t('auth.login') || 'Log In'}
+            {t("auth.login") || "Log In"}
           </button>
         </div>
       </div>
@@ -220,10 +233,11 @@ const SavedProperties: React.FC = () => {
         <div className="relative max-w-7xl mx-auto px-4 py-12">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              {t('savedProperties.title') || 'Saved Properties'}
+              {t("savedProperties.title") || "Saved Properties"}
             </h1>
             <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-              {t('savedProperties.subtitle') || 'Your favorite properties in one place'}
+              {t("savedProperties.subtitle") ||
+                "Your favorite properties in one place"}
             </p>
           </div>
         </div>
@@ -237,11 +251,14 @@ const SavedProperties: React.FC = () => {
             {isLoading ? (
               <div className="flex items-center">
                 <FaSpinner className="animate-spin mr-2" />
-                <span>{t('results.loading') || 'Loading saved properties...'}</span>
+                <span>
+                  {t("results.loading") || "Loading saved properties..."}
+                </span>
               </div>
             ) : (
               <h2 className="text-xl font-semibold">
-                {totalSaved} {t('results.savedPropertiesFound') || 'saved properties'}
+                {totalSaved}{" "}
+                {t("results.savedPropertiesFound") || "saved properties"}
               </h2>
             )}
           </div>
@@ -250,7 +267,10 @@ const SavedProperties: React.FC = () => {
         {/* Error State */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6">
-            <p>{t('errors.failedToLoadSaved') || 'Failed to load saved properties'}</p>
+            <p>
+              {t("errors.failedToLoadSaved") ||
+                "Failed to load saved properties"}
+            </p>
           </div>
         )}
 
@@ -283,16 +303,18 @@ const SavedProperties: React.FC = () => {
               <FaHeart size={48} className="mx-auto" />
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {t('savedProperties.noSavedProperties') || 'No saved properties yet'}
+              {t("savedProperties.noSavedProperties") ||
+                "No saved properties yet"}
             </h3>
             <p className="text-gray-600 mb-6">
-              {t('savedProperties.startSaving') || 'Start exploring and save properties you like'}
+              {t("savedProperties.startSaving") ||
+                "Start exploring and save properties you like"}
             </p>
             <button
-              onClick={() => navigate('/properties')}
+              onClick={() => navigate("/properties")}
               className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
             >
-              {t('savedProperties.browseProperties') || 'Browse Properties'}
+              {t("savedProperties.browseProperties") || "Browse Properties"}
             </button>
           </div>
         ) : (
@@ -319,7 +341,7 @@ const SavedProperties: React.FC = () => {
                     />
                     {property.is_featured && (
                       <span className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded text-sm font-semibold">
-                        {t('propertyCard.featured') || 'Featured'}
+                        {t("propertyCard.featured") || "Featured"}
                       </span>
                     )}
 
@@ -331,7 +353,7 @@ const SavedProperties: React.FC = () => {
                       }}
                       disabled={isUnsaving}
                       className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
-                      title={t('propertyCard.unsave') || 'Remove from saved'}
+                      title={t("propertyCard.unsave") || "Remove from saved"}
                     >
                       {isUnsaving ? (
                         <FaSpinner className="text-gray-500 animate-spin" />
@@ -342,9 +364,9 @@ const SavedProperties: React.FC = () => {
 
                     <span className="absolute bottom-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-sm font-semibold capitalize">
                       {property.listing_type_display ||
-                        (property.listing_type === 'sale'
-                          ? t('filterOptions.forSale') || 'For Sale'
-                          : t('filterOptions.forRent') || 'For Rent')}
+                        (property.listing_type === "sale"
+                          ? t("filterOptions.forSale") || "For Sale"
+                          : t("filterOptions.forRent") || "For Rent")}
                     </span>
 
                     <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs flex items-center">
@@ -367,7 +389,11 @@ const SavedProperties: React.FC = () => {
                     </div>
 
                     <div className="text-2xl font-bold text-blue-600 mb-3">
-                      {formatPrice(property.price, property.currency, property.listing_type)}
+                      {formatPrice(
+                        property.price,
+                        property.currency,
+                        property.listing_type
+                      )}
                     </div>
 
                     {/* Property Features */}
@@ -375,18 +401,26 @@ const SavedProperties: React.FC = () => {
                       {property.bedrooms && (
                         <div className="flex items-center">
                           <FaBed className="mr-1" />
-                          <span>{property.bedrooms} {t('propertyCard.bed') || 'bed'}</span>
+                          <span>
+                            {property.bedrooms} {t("propertyCard.bed") || "bed"}
+                          </span>
                         </div>
                       )}
                       {property.bathrooms && (
                         <div className="flex items-center">
                           <FaBath className="mr-1" />
-                          <span>{property.bathrooms} {t('propertyCard.bath') || 'bath'}</span>
+                          <span>
+                            {property.bathrooms}{" "}
+                            {t("propertyCard.bath") || "bath"}
+                          </span>
                         </div>
                       )}
                       <div className="flex items-center">
                         <FaCar className="mr-1" />
-                        <span>{property.parking_spaces} {t('propertyCard.parking') || 'parking'}</span>
+                        <span>
+                          {property.parking_spaces}{" "}
+                          {t("propertyCard.parking") || "parking"}
+                        </span>
                       </div>
                       <div className="flex items-center">
                         <FaHome className="mr-1" />
@@ -398,7 +432,8 @@ const SavedProperties: React.FC = () => {
                     <div className="flex items-center text-xs text-gray-500 mb-3">
                       <FaCalendarAlt className="mr-1" />
                       <span>
-                        {t('savedProperties.savedOn') || 'Saved on'} {formatDate(savedItem.saved_at)}
+                        {t("savedProperties.savedOn") || "Saved on"}{" "}
+                        {formatDate(savedItem.saved_at)}
                       </span>
                     </div>
 
@@ -435,8 +470,9 @@ const SavedProperties: React.FC = () => {
                             <div className="flex items-center">
                               <FaStar className="text-yellow-400 text-xs mr-1" />
                               <span className="text-xs text-gray-600">
-                                {formatAgentRating(property.agent.rating)} ({property.agent.total_sales}{" "}
-                                {t('propertyCard.sales') || 'sales'})
+                                {formatAgentRating(property.agent.rating)} (
+                                {property.agent.total_sales}{" "}
+                                {t("propertyCard.sales") || "sales"})
                               </span>
                             </div>
                           </div>
@@ -464,7 +500,7 @@ const SavedProperties: React.FC = () => {
                         className="flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors text-sm"
                         onClick={() => navigate(`/properties/${property.id}`)}
                       >
-                        {t('propertyCard.viewDetails') || 'View Details'}
+                        {t("propertyCard.viewDetails") || "View Details"}
                       </button>
                       <button
                         className="flex-1 border border-blue-600 text-blue-600 py-2 px-4 rounded hover:bg-blue-50 transition-colors text-sm"
@@ -473,7 +509,7 @@ const SavedProperties: React.FC = () => {
                           handleContactClick(property);
                         }}
                       >
-                        {t('propertyCard.contact') || 'Contact'}
+                        {t("propertyCard.contact") || "Contact"}
                       </button>
                       <button
                         className="border border-red-600 text-red-600 py-2 px-3 rounded hover:bg-red-50 transition-colors text-sm"
@@ -482,7 +518,7 @@ const SavedProperties: React.FC = () => {
                           handleUnsaveProperty(property.id);
                         }}
                         disabled={isUnsaving}
-                        title={t('propertyCard.unsave') || 'Remove from saved'}
+                        title={t("propertyCard.unsave") || "Remove from saved"}
                       >
                         <FaTrash size={14} />
                       </button>
@@ -505,28 +541,30 @@ const SavedProperties: React.FC = () => {
               </div>
 
               <h3 className="text-xl font-semibold mb-2">
-                {t('contactModal.title') || 'Contact Information'}
+                {t("contactModal.title") || "Contact Information"}
               </h3>
 
               {selectedProperty.agent ? (
                 <div className="mb-4">
                   <div className="text-gray-600 mb-2">
-                    {t('contactModal.agentContact') || 'Agent Contact'}
+                    {t("contactModal.agentContact") || "Agent Contact"}
                   </div>
                   <div className="font-medium text-lg">
                     {selectedProperty.agent.agency_name}
                   </div>
                   <div className="text-sm text-gray-500">
-                    {t('contactModal.agent') || 'Agent'}: {selectedProperty.agent.user.username}
+                    {t("contactModal.agent") || "Agent"}:{" "}
+                    {selectedProperty.agent.user.username}
                   </div>
                   <div className="text-sm text-gray-500">
-                    {t('contactModal.license') || 'License'}: {selectedProperty.agent.licence_number}
+                    {t("contactModal.license") || "License"}:{" "}
+                    {selectedProperty.agent.licence_number}
                   </div>
                 </div>
               ) : selectedProperty.owner ? (
                 <div className="mb-4">
                   <div className="text-gray-600 mb-2">
-                    {t('contactModal.propertyOwner') || 'Property Owner'}
+                    {t("contactModal.propertyOwner") || "Property Owner"}
                   </div>
                   <div className="font-medium text-lg">
                     {selectedProperty.owner.username}
@@ -535,10 +573,10 @@ const SavedProperties: React.FC = () => {
               ) : (
                 <div className="mb-4">
                   <div className="text-gray-600 mb-2">
-                    {t('contactModal.propertyOwner') || 'Property Owner'}
+                    {t("contactModal.propertyOwner") || "Property Owner"}
                   </div>
                   <div className="font-medium text-lg">
-                    {t('contactModal.propertyOwner') || 'Property Owner'}
+                    {t("contactModal.propertyOwner") || "Property Owner"}
                   </div>
                 </div>
               )}
@@ -552,8 +590,9 @@ const SavedProperties: React.FC = () => {
                 </div>
                 <div className="text-sm text-gray-600">
                   {selectedProperty.agent
-                    ? t('contactModal.agentPhoneNumber') || 'Agent Phone Number'
-                    : t('contactModal.ownerPhoneNumber') || 'Owner Phone Number'}
+                    ? t("contactModal.agentPhoneNumber") || "Agent Phone Number"
+                    : t("contactModal.ownerPhoneNumber") ||
+                      "Owner Phone Number"}
                 </div>
               </div>
 
@@ -565,7 +604,7 @@ const SavedProperties: React.FC = () => {
                       {formatAgentRating(selectedProperty.agent.rating)}
                     </div>
                     <div className="text-gray-600">
-                      {t('contactModal.rating') || 'Rating'}
+                      {t("contactModal.rating") || "Rating"}
                     </div>
                   </div>
                   <div className="bg-green-50 rounded-lg p-3">
@@ -573,7 +612,7 @@ const SavedProperties: React.FC = () => {
                       {selectedProperty.agent.total_sales}
                     </div>
                     <div className="text-gray-600">
-                      {t('propertyCard.sales') || 'Sales'}
+                      {t("propertyCard.sales") || "Sales"}
                     </div>
                   </div>
                 </div>
@@ -593,7 +632,7 @@ const SavedProperties: React.FC = () => {
                   className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center"
                 >
                   <FaPhone className="mr-2" />
-                  {t('contactModal.callNow') || 'Call Now'}
+                  {t("contactModal.callNow") || "Call Now"}
                 </button>
 
                 <button
@@ -607,14 +646,14 @@ const SavedProperties: React.FC = () => {
                   className="w-full border border-blue-600 text-blue-600 py-3 px-4 rounded-lg hover:bg-blue-50 transition-colors flex items-center justify-center"
                 >
                   <FaCopy className="mr-2" />
-                  {t('contactModal.copyNumber') || 'Copy Number'}
+                  {t("contactModal.copyNumber") || "Copy Number"}
                 </button>
 
                 <button
                   onClick={() => setShowPhoneModal(false)}
                   className="w-full bg-gray-200 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors"
                 >
-                  {t('contactModal.close') || 'Close'}
+                  {t("contactModal.close") || "Close"}
                 </button>
               </div>
 
@@ -622,7 +661,7 @@ const SavedProperties: React.FC = () => {
               <div className="mt-4 text-xs text-gray-500">
                 <div className="flex items-center justify-center">
                   <FaInfoCircle className="mr-1" />
-                  {t('contactModal.contactHours') || 'Available 9 AM - 6 PM'}
+                  {t("contactModal.contactHours") || "Available 9 AM - 6 PM"}
                 </div>
               </div>
             </div>

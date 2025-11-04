@@ -3,7 +3,7 @@ import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { RootState } from "@store/index";
 import { SingleChat } from "@store/slices/chatSlice";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FiPaperclip, FiSend, FiSmile } from "react-icons/fi";
 import { useSelector } from "react-redux";
 
@@ -13,19 +13,7 @@ interface MainChatWindowProps {
   chatId: number;
   error?: FetchBaseQueryError | SerializedError | undefined;
   onSendMessage: (content: string) => void;
-}
-
-interface WebSocketMessage {
-  id?: number;
-  content: string;
- sender: { id?: number; username: string } | number | string;
-  timestamp: string;
-  room_id?: number;
-  type?: string;
-  file?: {
-    url: string;
-    type: "image" | "audio" | "video" | "file";
-  };
+  isConnected?: boolean; // Add this prop
 }
 
 const MainChatWindow: React.FC<MainChatWindowProps> = ({
@@ -34,18 +22,16 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
   error,
   chatId,
   onSendMessage,
+  isConnected = false, // Default to false
 }) => {
   const userId = useSelector(
-    (state: RootState) => state.auth.userInfo?.user_info?.id || ''
+    (state: RootState) => state.auth.userInfo?.user_info?.id || ""
   );
   const currentUsername = useSelector(
-    (state: RootState) => state.auth.userInfo?.user_info?.username || ''
+    (state: RootState) => state.auth.userInfo?.user_info?.username || ""
   );
-  const token = useSelector((state: RootState) => state.auth?.userInfo?.token);
 
   const [newMessage, setNewMessage] = useState("");
-  const [socketMessages, setSocketMessages] = useState<WebSocketMessage[]>([]);
-  const [isSocketConnected, setIsSocketConnected] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [filePreview, setFilePreview] = useState<{
     url: string;
@@ -54,197 +40,28 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
   } | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const socketRef = useRef<WebSocket | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const reconnectAttempt = useRef(0);
-  const maxReconnectAttempts = 5;
-  const reconnectTimeoutRef = useRef<ReturnType <typeof setTimeout> | null>(null);
 
-
-  const connectWebSocket = useCallback(() => {
-    if (!chatId || !token) {
-      console.warn("Missing chatId or token, WebSocket not connecting");
-      return;
-    }
-
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current);
-      reconnectTimeoutRef.current = null;
-    }
-
-    console.log("🔄 Connecting to WebSocket...", { chatId });
-
-    if (socketRef.current) {
-      socketRef.current.close();
-    }
-
-    const socket = new WebSocket(
-      `wss://api.webtezsell.com/ws/chat/${chatId}/?token=${token}`
-    );
-    socketRef.current = socket;
-
-    socket.onopen = () => {
-      console.log("✅ WebSocket connected successfully");
-      setIsSocketConnected(true);
-      reconnectAttempt.current = 0;
-    };
-
-    socket.onmessage = (e) => {
-      try {
-        const data = JSON.parse(e.data);
-        console.log("📨 Received WebSocket message:", data);
-
-
-        if (data.type === "message") {
-  const isMyMessage = data.sender === currentUsername;
-
-  const messageData: WebSocketMessage = {
-    content: data.message,
-    sender: isMyMessage && typeof userId === 'number'
-      ? {
-          id: userId,
-          username: data.sender,
-        }
-      : {
-          username: data.sender,
-        },
-    timestamp: data.timestamp,
-    id: Date.now() + Math.random(),
-  };
-
-  if (data.file) {
-    messageData.file = data.file;
-  }
-
-  setSocketMessages((prev) => [...prev, messageData]);
-}
-      else if (data.type === "connection_established") {
-          console.log("✅ Connection established:", data.message);
-        } else if (data.type === "error") {
-          console.error("❌ Server error:", data.error);
-        }
-      } catch (err) {
-        console.error(
-          "❌ Failed to parse WebSocket message",
-          err,
-          "Raw data:",
-          e.data
-        );
-      }
-    };
-
-    socket.onerror = (e) => {
-      console.error("❌ WebSocket error", e);
-      setIsSocketConnected(false);
-    };
-
-    socket.onclose = (event) => {
-      console.log("🛑 WebSocket disconnected", {
-        code: event.code,
-        reason: event.reason,
-        wasClean: event.wasClean,
-      });
-      setIsSocketConnected(false);
-
-      if (
-        event.code !== 1000 &&
-        reconnectAttempt.current < maxReconnectAttempts
-      ) {
-        const delay = Math.min(
-          3000,
-          1000 * Math.pow(2, reconnectAttempt.current)
-        );
-        reconnectAttempt.current += 1;
-        console.log(
-          `⏳ Reconnecting attempt ${reconnectAttempt.current} in ${delay}ms...`
-        );
-
-        reconnectTimeoutRef.current = setTimeout(() => {
-          connectWebSocket();
-        }, delay);
-      }
-    };
-  }, [chatId, token, currentUsername, userId]);
-
-  useEffect(() => {
-    connectWebSocket();
-
-    return () => {
-      if (socketRef.current) {
-        console.log("🔌 Closing WebSocket connection");
-        socketRef.current.close(1000, "Component unmounting");
-      }
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-      }
-    };
-  }, [connectWebSocket]);
-
+  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, socketMessages]);
+  }, [messages]);
 
-  const sendWebSocketMessage = useCallback((content: string, file?: File) => {
-    if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
-      console.warn("WebSocket is not open");
-      return false;
-    }
-
-    try {
-      const message: any = {
-        message: content.trim(),
-      };
-
-      if (file) {
-        // In a real app, you would upload the file first and then send the URL
-        // For now, we'll just simulate it
-        message.file = {
-          url: URL.createObjectURL(file),
-          type: file.type.startsWith("image/")
-            ? "image"
-            : file.type.startsWith("audio/")
-            ? "audio"
-            : file.type.startsWith("video/")
-            ? "video"
-            : "file",
-        };
-      }
-
-      console.log("📤 Sending WebSocket message:", message);
-      socketRef.current.send(JSON.stringify(message));
-      return true;
-    } catch (error) {
-      console.error("Failed to send WebSocket message:", error);
-      return false;
-    }
-  }, []);
-
-  const handleSendMessage = async (content: string) => {
-    if (!content.trim() && !filePreview) {
-      console.warn("❌ Cannot send empty message");
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() && !filePreview) {
       return;
     }
 
-    console.log("🚀 Attempting to send message:", content);
-
     try {
-      // Send via WebSocket first (real-time)
-      const socketSent = sendWebSocketMessage(content, filePreview?.file);
-      if (socketSent) {
-        console.log("✅ Message sent via WebSocket");
-      } else {
-        console.warn("⚠️ WebSocket not available, sending via API only");
-      }
+      // Send message via the parent component's handler
+      await onSendMessage(newMessage);
 
-      // Also send via API for persistence
-      await onSendMessage(content);
-      console.log("✅ Message sent via API for persistence");
-    } catch (error) {
-      console.error("❌ Failed to send message via API:", error);
+      // Clear input after successful send
+      setNewMessage("");
+      setFilePreview(null);
+    } catch (error: any) {
+      console.error(error);
     }
-
-    setNewMessage("");
-    setFilePreview(null);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -289,24 +106,8 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
     }
   };
 
-  // Remove duplicates and sort messages
-  const allMessages = [...(messages?.messages || []), ...socketMessages]
-    .sort(
-      (a, b) =>
-        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-    )
-    .filter((msg, index, arr) => {
-      const isDuplicate =
-        arr.findIndex(
-          (m) =>
-            m.content === msg.content &&
-            Math.abs(
-              new Date(m.timestamp).getTime() -
-                new Date(msg.timestamp).getTime()
-            ) < 5000
-        ) < index;
-      return !isDuplicate;
-    });
+  // Get all messages from props (already combined in MainChat)
+  const allMessages = messages?.messages || [];
 
   return (
     <div className="flex flex-col h-full p-4 border-l border-gray-300">
@@ -314,16 +115,15 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
       <div className="mb-2 flex items-center gap-2">
         <div
           className={`w-2 h-2 rounded-full ${
-            isSocketConnected ? "bg-green-500" : "bg-red-500"
+            isConnected ? "bg-green-500" : "bg-red-500"
           }`}
         ></div>
         <span className="text-xs text-gray-600">
-          {isSocketConnected ? "Connected" : "Disconnected"}
-          {reconnectAttempt.current > 0 &&
-            ` (reconnecting ${reconnectAttempt.current}/${maxReconnectAttempts})`}
+          {isConnected ? "Connected" : "Disconnected"}
         </span>
       </div>
 
+      {/* Messages Area */}
       <div className="flex-1 overflow-y-auto space-y-3 pr-2">
         {isLoading && <p className="text-gray-400">Loading messages...</p>}
         {error && <p className="text-red-500">Error loading chat</p>}
@@ -439,10 +239,12 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
         </div>
       )}
 
+      {/* Message Input Area */}
       <div className="mt-4 flex gap-2 border-t pt-4 relative">
         <button
           onClick={() => setShowEmojiPicker(!showEmojiPicker)}
           className="p-2 text-gray-600 hover:text-blue-500"
+          disabled={!isConnected}
         >
           <FiSmile size={20} />
         </button>
@@ -456,6 +258,7 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
         <button
           onClick={() => fileInputRef.current?.click()}
           className="p-2 text-gray-600 hover:text-blue-500"
+          disabled={!isConnected}
         >
           <FiPaperclip size={20} />
         </button>
@@ -473,28 +276,41 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && (newMessage.trim() || filePreview)) {
+            if (
+              e.key === "Enter" &&
+              (newMessage.trim() || filePreview) &&
+              isConnected
+            ) {
               e.preventDefault();
-              handleSendMessage(newMessage);
+              handleSendMessage();
             }
           }}
-          placeholder="Type a message..."
+          placeholder={isConnected ? "Type a message..." : "Connecting..."}
           className="flex-1 px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300"
-          disabled={isLoading}
+          disabled={isLoading || !isConnected}
         />
 
         <button
-          onClick={() => handleSendMessage(newMessage)}
+          onClick={handleSendMessage}
           className={`p-2 text-white rounded transition-colors ${
-            newMessage.trim() || filePreview
+            (newMessage.trim() || filePreview) && isConnected
               ? "bg-blue-500 hover:bg-blue-600"
               : "bg-gray-400 cursor-not-allowed"
           }`}
-          disabled={(!newMessage.trim() && !filePreview) || isLoading}
+          disabled={
+            (!newMessage.trim() && !filePreview) || isLoading || !isConnected
+          }
         >
           <FiSend size={20} />
         </button>
       </div>
+
+      {/* Not connected warning */}
+      {!isConnected && (
+        <div className="mt-2 text-xs text-amber-600 bg-amber-50 p-2 rounded">
+          ⚠️ Reconnecting to chat server...
+        </div>
+      )}
     </div>
   );
 };

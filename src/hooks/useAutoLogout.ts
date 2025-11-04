@@ -54,7 +54,7 @@ export const useAutoLogout = () => {
           await logoutApiCall(userInfo.token).unwrap();
         }
       } catch (error) {
-        console.error("Logout API call failed:", error);
+        "Logout API call failed:", error;
       } finally {
         dispatch(logout(undefined));
         clearAllStorage();

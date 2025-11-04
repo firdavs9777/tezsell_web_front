@@ -13,7 +13,7 @@ interface MapProperty {
   longitude: number;
   price: number | string;
   currency: string;
-  listing_type: 'sale' | 'rent';
+  listing_type: "sale" | "rent";
   property_type: string;
   is_featured?: boolean;
   district?: string;
@@ -35,7 +35,13 @@ interface District {
 }
 
 // Component to handle map view changes
-const MapViewController = ({ center, zoom }: { center: [number, number], zoom: number }) => {
+const MapViewController = ({
+  center,
+  zoom,
+}: {
+  center: [number, number];
+  zoom: number;
+}) => {
   const map = useMap();
 
   useEffect(() => {
@@ -46,55 +52,61 @@ const MapViewController = ({ center, zoom }: { center: [number, number], zoom: n
 };
 
 const MainMapComp = () => {
-  const [selectedRegion, setSelectedRegion] = useState<string>('');
-  const [selectedDistrict, setSelectedDistrict] = useState<string>('');
+  const [selectedRegion, setSelectedRegion] = useState<string>("");
+  const [selectedDistrict, setSelectedDistrict] = useState<string>("");
   const [regions, setRegions] = useState<Region[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [loadingRegions, setLoadingRegions] = useState(false);
   const [loadingDistricts, setLoadingDistricts] = useState(false);
   const [showLocationPopup, setShowLocationPopup] = useState(false);
-   const {
+  const {
     data: propertiesResponse,
     isLoading,
-    error
+    error,
   } = useGetPropertiesQuery({
     page: 1,
-    limit: 500
+    limit: 500,
   });
 
   const getPropertyWithCoordinates = (property: Property): Property => {
     if (property.latitude && property.longitude) {
       return {
         ...property,
-        latitude: typeof property.latitude === 'string' ? parseFloat(property.latitude) : property.latitude,
-        longitude: typeof property.longitude === 'string' ? parseFloat(property.longitude) : property.longitude
+        latitude:
+          typeof property.latitude === "string"
+            ? parseFloat(property.latitude)
+            : property.latitude,
+        longitude:
+          typeof property.longitude === "string"
+            ? parseFloat(property.longitude)
+            : property.longitude,
       };
     }
 
     const districtCoordinates: Record<string, [number, number]> = {
-      'yunusabad': [41.3656, 69.2891],
-      'chilanzar': [41.2751, 69.2034],
-      'shaykhantaur': [41.3231, 69.2897],
-      'mirobod': [41.2865, 69.2734],
-      'almazar': [41.3479, 69.2348],
-      'bektemir': [41.2081, 69.3370],
-      'sergeli': [41.2265, 69.2265],
-      'uchtepa': [41.2876, 69.1864],
-      'yashnaabad': [41.2632, 69.3201],
-      'olmazor': [41.3145, 69.2428],
+      yunusabad: [41.3656, 69.2891],
+      chilanzar: [41.2751, 69.2034],
+      shaykhantaur: [41.3231, 69.2897],
+      mirobod: [41.2865, 69.2734],
+      almazar: [41.3479, 69.2348],
+      bektemir: [41.2081, 69.337],
+      sergeli: [41.2265, 69.2265],
+      uchtepa: [41.2876, 69.1864],
+      yashnaabad: [41.2632, 69.3201],
+      olmazor: [41.3145, 69.2428],
     };
 
-    const districtKey = property.district?.toLowerCase().replace(/\s+/g, '');
-    const coords = districtCoordinates[districtKey || ''] || [41.2995, 69.2401];
+    const districtKey = property.district?.toLowerCase().replace(/\s+/g, "");
+    const coords = districtCoordinates[districtKey || ""] || [41.2995, 69.2401];
 
     return {
       ...property,
       latitude: coords[0],
-      longitude: coords[1]
+      longitude: coords[1],
     };
   };
 
-    const convertToMapProperty = (property: Property): MapProperty => {
+  const convertToMapProperty = (property: Property): MapProperty => {
     const withCoords = getPropertyWithCoordinates(property);
 
     return {
@@ -102,7 +114,10 @@ const MainMapComp = () => {
       title: withCoords.title,
       latitude: withCoords.latitude || 41.2995,
       longitude: withCoords.longitude || 69.2401,
-      price: typeof withCoords.price === 'string' ? parseFloat(withCoords.price) : withCoords.price,
+      price:
+        typeof withCoords.price === "string"
+          ? parseFloat(withCoords.price)
+          : withCoords.price,
       currency: withCoords.currency,
       listing_type: withCoords.listing_type,
       property_type: withCoords.property_type,
@@ -113,7 +128,7 @@ const MainMapComp = () => {
       bedrooms: withCoords.bedrooms,
       bathrooms: withCoords.bathrooms,
       square_meters: withCoords.square_meters,
-      main_image: withCoords.main_image
+      main_image: withCoords.main_image,
     };
   };
 
@@ -122,59 +137,111 @@ const MainMapComp = () => {
     : [];
 
   // Map center and zoom state
-  const [mapCenter, setMapCenter] = useState<[number, number]>([41.2995, 69.2401]);
+  const [mapCenter, setMapCenter] = useState<[number, number]>([
+    41.2995, 69.2401,
+  ]);
   const [mapZoom, setMapZoom] = useState<number>(12);
 
   // Other property filters (outside the map)
-  const [priceRange, setPriceRange] = useState({ min: '', max: '' });
-  const [propertyType, setPropertyType] = useState<string>('');
-  const [listingType, setListingType] = useState<string>('');
-  const [bedrooms, setBedrooms] = useState<string>('');
+  const [priceRange, setPriceRange] = useState({ min: "", max: "" });
+  const [propertyType, setPropertyType] = useState<string>("");
+  const [listingType, setListingType] = useState<string>("");
+  const [bedrooms, setBedrooms] = useState<string>("");
 
   // FIXED: Move regionCoordinates outside of component or memoize it
-  const regionCoordinates = useMemo(() => ({
-    'Toshkent shahri': { center: [41.2995, 69.2401] as [number, number], zoom: 11 },
-    'Tashkent': { center: [41.2995, 69.2401] as [number, number], zoom: 11 },
-    'Andijon viloyati': { center: [40.7821, 72.3442] as [number, number], zoom: 10 },
-    'Buxoro viloyati': { center: [39.7747, 64.4286] as [number, number], zoom: 10 },
-    'Farg\'ona viloyati': { center: [40.3897, 71.7864] as [number, number], zoom: 10 },
-    'Jizzax viloyati': { center: [40.1156, 67.8422] as [number, number], zoom: 10 },
-    'Xorazm viloyati': { center: [41.3775, 60.3711] as [number, number], zoom: 10 },
-    'Namangan viloyati': { center: [40.9983, 71.6726] as [number, number], zoom: 10 },
-    'Navoiy viloyati': { center: [40.0844, 65.3792] as [number, number], zoom: 10 },
-    'Qashqadaryo viloyati': { center: [38.8597, 65.7975] as [number, number], zoom: 10 },
-    'Qoraqalpog\'iston Respublikasi': { center: [43.8041, 59.4469] as [number, number], zoom: 9 },
-    'Samarqand viloyati': { center: [39.6270, 66.9750] as [number, number], zoom: 10 },
-    'Sirdaryo viloyati': { center: [40.8375, 68.6658] as [number, number], zoom: 10 },
-    'Surxondaryo viloyati': { center: [37.9414, 67.5514] as [number, number], zoom: 10 },
-    'Toshkent viloyati': { center: [41.0775, 69.7178] as [number, number], zoom: 10 }
-  }), []);
+  const regionCoordinates = useMemo(
+    () => ({
+      "Toshkent shahri": {
+        center: [41.2995, 69.2401] as [number, number],
+        zoom: 11,
+      },
+      Tashkent: { center: [41.2995, 69.2401] as [number, number], zoom: 11 },
+      "Andijon viloyati": {
+        center: [40.7821, 72.3442] as [number, number],
+        zoom: 10,
+      },
+      "Buxoro viloyati": {
+        center: [39.7747, 64.4286] as [number, number],
+        zoom: 10,
+      },
+      "Farg'ona viloyati": {
+        center: [40.3897, 71.7864] as [number, number],
+        zoom: 10,
+      },
+      "Jizzax viloyati": {
+        center: [40.1156, 67.8422] as [number, number],
+        zoom: 10,
+      },
+      "Xorazm viloyati": {
+        center: [41.3775, 60.3711] as [number, number],
+        zoom: 10,
+      },
+      "Namangan viloyati": {
+        center: [40.9983, 71.6726] as [number, number],
+        zoom: 10,
+      },
+      "Navoiy viloyati": {
+        center: [40.0844, 65.3792] as [number, number],
+        zoom: 10,
+      },
+      "Qashqadaryo viloyati": {
+        center: [38.8597, 65.7975] as [number, number],
+        zoom: 10,
+      },
+      "Qoraqalpog'iston Respublikasi": {
+        center: [43.8041, 59.4469] as [number, number],
+        zoom: 9,
+      },
+      "Samarqand viloyati": {
+        center: [39.627, 66.975] as [number, number],
+        zoom: 10,
+      },
+      "Sirdaryo viloyati": {
+        center: [40.8375, 68.6658] as [number, number],
+        zoom: 10,
+      },
+      "Surxondaryo viloyati": {
+        center: [37.9414, 67.5514] as [number, number],
+        zoom: 10,
+      },
+      "Toshkent viloyati": {
+        center: [41.0775, 69.7178] as [number, number],
+        zoom: 10,
+      },
+    }),
+    []
+  );
 
-  const tileProviders = useMemo(() => ({
-    openStreetMap: {
-      name: 'Street Map',
-      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      attribution: '© OpenStreetMap contributors'
-    },
-    satellite: {
-      name: 'Satellite',
-      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      attribution: '© Esri'
-    }
-  }), []);
+  const tileProviders = useMemo(
+    () => ({
+      openStreetMap: {
+        name: "Street Map",
+        url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        attribution: "© OpenStreetMap contributors",
+      },
+      satellite: {
+        name: "Satellite",
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        attribution: "© Esri",
+      },
+    }),
+    []
+  );
 
   // Fetch regions from API on component mount
   useEffect(() => {
     const fetchRegions = async () => {
       setLoadingRegions(true);
       try {
-        const response = await fetch('https://api.webtezsell.com/accounts/regions/');
+        const response = await fetch(
+          "https://api.webtezsell.com/accounts/regions/"
+        );
         const data = await response.json();
         if (data.success) {
           setRegions(data.regions);
         }
       } catch (error) {
-        console.error('Error fetching regions:', error);
+        "Error fetching regions:", error;
       } finally {
         setLoadingRegions(false);
       }
@@ -189,16 +256,18 @@ const MainMapComp = () => {
       const fetchDistricts = async () => {
         setLoadingDistricts(true);
         setDistricts([]);
-        setSelectedDistrict('');
+        setSelectedDistrict("");
 
         try {
-          const response = await fetch(`https://api.webtezsell.com/accounts/districts/${selectedRegion}/`);
+          const response = await fetch(
+            `https://api.webtezsell.com/accounts/districts/${selectedRegion}/`
+          );
           const data = await response.json();
           if (data.success) {
             setDistricts(data.districts);
           }
         } catch (error) {
-          console.error('Error fetching districts:', error);
+          "Error fetching districts:", error;
         } finally {
           setLoadingDistricts(false);
         }
@@ -207,7 +276,8 @@ const MainMapComp = () => {
       fetchDistricts();
 
       // Update map center when region is selected
-      const regionCoords = regionCoordinates[selectedRegion as keyof typeof regionCoordinates];
+      const regionCoords =
+        regionCoordinates[selectedRegion as keyof typeof regionCoordinates];
 
       if (regionCoords) {
         setMapCenter(regionCoords.center);
@@ -215,7 +285,7 @@ const MainMapComp = () => {
       }
     } else {
       setDistricts([]);
-      setSelectedDistrict('');
+      setSelectedDistrict("");
       // Reset to default view when no region is selected
       setMapCenter([41.2995, 69.2401]);
       setMapZoom(12);
@@ -223,63 +293,89 @@ const MainMapComp = () => {
   }, [selectedRegion, regionCoordinates]); // Now regionCoordinates is memoized
 
   // Update map center when district is selected
-   const filteredProperties = useMemo(() => {
+  const filteredProperties = useMemo(() => {
     let filtered = allProperties;
 
     // Location filters
     if (selectedRegion) {
-      filtered = filtered.filter(property =>
-        property.region === selectedRegion ||
-        property.city === selectedRegion ||
-        (selectedRegion === "Toshkent shahri" && (property.city === "Tashkent" || property.city === "Toshkent"))
+      filtered = filtered.filter(
+        (property) =>
+          property.region === selectedRegion ||
+          property.city === selectedRegion ||
+          (selectedRegion === "Toshkent shahri" &&
+            (property.city === "Tashkent" || property.city === "Toshkent"))
       );
     }
 
     if (selectedDistrict) {
-      filtered = filtered.filter(property =>
-        property.district === selectedDistrict ||
-        property.district?.includes(selectedDistrict)
+      filtered = filtered.filter(
+        (property) =>
+          property.district === selectedDistrict ||
+          property.district?.includes(selectedDistrict)
       );
     }
 
     // Property type filter
     if (propertyType) {
-      filtered = filtered.filter(property => property.property_type === propertyType);
+      filtered = filtered.filter(
+        (property) => property.property_type === propertyType
+      );
     }
 
     // Listing type filter
     if (listingType) {
-      filtered = filtered.filter(property => property.listing_type === listingType);
+      filtered = filtered.filter(
+        (property) => property.listing_type === listingType
+      );
     }
 
     // Bedrooms filter
     if (bedrooms) {
-      filtered = filtered.filter(property => property.bedrooms?.toString() === bedrooms);
+      filtered = filtered.filter(
+        (property) => property.bedrooms?.toString() === bedrooms
+      );
     }
 
     // Price range filter
     if (priceRange.min) {
-      filtered = filtered.filter(property => Number(property.price) >= parseInt(priceRange.min));
+      filtered = filtered.filter(
+        (property) => Number(property.price) >= parseInt(priceRange.min)
+      );
     }
     if (priceRange.max) {
-      filtered = filtered.filter(property => Number(property.price) <= parseInt(priceRange.max));
+      filtered = filtered.filter(
+        (property) => Number(property.price) <= parseInt(priceRange.max)
+      );
     }
 
     return filtered;
-  }, [allProperties, selectedRegion, selectedDistrict, propertyType, listingType, bedrooms, priceRange]);
+  }, [
+    allProperties,
+    selectedRegion,
+    selectedDistrict,
+    propertyType,
+    listingType,
+    bedrooms,
+    priceRange,
+  ]);
 
   useEffect(() => {
     if (selectedDistrict && filteredProperties.length > 0) {
       // Find properties in the selected district to center the map
-      const districtProperties = filteredProperties.filter(property =>
-        property.district === selectedDistrict ||
-        property.district?.includes(selectedDistrict)
+      const districtProperties = filteredProperties.filter(
+        (property) =>
+          property.district === selectedDistrict ||
+          property.district?.includes(selectedDistrict)
       );
 
       if (districtProperties.length > 0) {
         // Calculate center point of district properties
-        const avgLat = districtProperties.reduce((sum, prop) => sum + prop.latitude, 0) / districtProperties.length;
-        const avgLng = districtProperties.reduce((sum, prop) => sum + prop.longitude, 0) / districtProperties.length;
+        const avgLat =
+          districtProperties.reduce((sum, prop) => sum + prop.latitude, 0) /
+          districtProperties.length;
+        const avgLng =
+          districtProperties.reduce((sum, prop) => sum + prop.longitude, 0) /
+          districtProperties.length;
 
         setMapCenter([avgLat, avgLng]);
         setMapZoom(13); // Zoom in more for district view
@@ -290,15 +386,17 @@ const MainMapComp = () => {
   const navigate = useNavigate();
   const redirectHandler = (id: string) => navigate(`/properties/${id}`);
 
-  const [mapStyle, setMapStyle] = useState<'openStreetMap' | 'satellite'>('openStreetMap');
+  const [mapStyle, setMapStyle] = useState<"openStreetMap" | "satellite">(
+    "openStreetMap"
+  );
 
   const clearAllFilters = () => {
-    setSelectedRegion('');
-    setSelectedDistrict('');
-    setPropertyType('');
-    setListingType('');
-    setBedrooms('');
-    setPriceRange({ min: '', max: '' });
+    setSelectedRegion("");
+    setSelectedDistrict("");
+    setPropertyType("");
+    setListingType("");
+    setBedrooms("");
+    setPriceRange({ min: "", max: "" });
   };
 
   const getLocationDisplayText = () => {
@@ -308,15 +406,15 @@ const MainMapComp = () => {
     if (selectedRegion) {
       return selectedRegion;
     }
-    return 'All Regions';
+    return "All Regions";
   };
 
   // Function to fit map bounds to show all filtered properties
   const fitMapToProperties = () => {
     if (filteredProperties.length === 0) return;
 
-    const lats = filteredProperties.map(p => p.latitude);
-    const lngs = filteredProperties.map(p => p.longitude);
+    const lats = filteredProperties.map((p) => p.latitude);
+    const lngs = filteredProperties.map((p) => p.longitude);
 
     const minLat = Math.min(...lats);
     const maxLat = Math.max(...lats);
@@ -449,7 +547,9 @@ const MainMapComp = () => {
             <input
               type="number"
               value={priceRange.min}
-              onChange={(e) => setPriceRange(prev => ({ ...prev, min: e.target.value }))}
+              onChange={(e) =>
+                setPriceRange((prev) => ({ ...prev, min: e.target.value }))
+              }
               placeholder="0"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -463,7 +563,9 @@ const MainMapComp = () => {
             <input
               type="number"
               value={priceRange.max}
-              onChange={(e) => setPriceRange(prev => ({ ...prev, max: e.target.value }))}
+              onChange={(e) =>
+                setPriceRange((prev) => ({ ...prev, max: e.target.value }))
+              }
               placeholder="No limit"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -472,7 +574,8 @@ const MainMapComp = () => {
 
         {/* Results counter */}
         <div className="mt-4 text-sm text-gray-600">
-          Showing {filteredProperties.length} of {allProperties.length} properties
+          Showing {filteredProperties.length} of {allProperties.length}{" "}
+          properties
         </div>
       </div>
 
@@ -481,21 +584,21 @@ const MainMapComp = () => {
         {/* Map Style Toggle */}
         <div className="absolute top-4 right-4 z-[1000] bg-white rounded-lg shadow-md">
           <button
-            onClick={() => setMapStyle('openStreetMap')}
+            onClick={() => setMapStyle("openStreetMap")}
             className={`px-3 py-2 text-sm rounded-l-lg ${
-              mapStyle === 'openStreetMap'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50'
+              mapStyle === "openStreetMap"
+                ? "bg-blue-600 text-white"
+                : "bg-white text-gray-700 hover:bg-gray-50"
             }`}
           >
             Street
           </button>
           <button
-            onClick={() => setMapStyle('satellite')}
+            onClick={() => setMapStyle("satellite")}
             className={`px-3 py-2 text-sm rounded-r-lg ${
-              mapStyle === 'satellite'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50'
+              mapStyle === "satellite"
+                ? "bg-blue-600 text-white"
+                : "bg-white text-gray-700 hover:bg-gray-50"
             }`}
           >
             Satellite
@@ -514,7 +617,7 @@ const MainMapComp = () => {
             </span>
             <ChevronDownCircleIcon
               className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${
-                showLocationPopup ? 'rotate-180' : ''
+                showLocationPopup ? "rotate-180" : ""
               }`}
             />
           </button>
@@ -524,7 +627,9 @@ const MainMapComp = () => {
             <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 min-w-[300px] z-[1001]">
               <div className="p-4">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold text-gray-800">Select Location</h3>
+                  <h3 className="text-lg font-semibold text-gray-800">
+                    Select Location
+                  </h3>
                   <button
                     onClick={() => setShowLocationPopup(false)}
                     className="text-gray-400 hover:text-gray-600"
@@ -572,7 +677,9 @@ const MainMapComp = () => {
                     ))}
                   </select>
                   {loadingDistricts && (
-                    <div className="mt-1 text-xs text-gray-500">Loading districts...</div>
+                    <div className="mt-1 text-xs text-gray-500">
+                      Loading districts...
+                    </div>
                   )}
                 </div>
 
@@ -580,8 +687,8 @@ const MainMapComp = () => {
                 <div className="flex space-x-2">
                   <button
                     onClick={() => {
-                      setSelectedRegion('');
-                      setSelectedDistrict('');
+                      setSelectedRegion("");
+                      setSelectedDistrict("");
                     }}
                     className="flex-1 px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
                     disabled={!selectedRegion && !selectedDistrict}
@@ -605,15 +712,20 @@ const MainMapComp = () => {
           zoom={mapZoom}
           minZoom={5}
           maxZoom={18}
-          style={{ height: '600px', width: '100%' }}
+          style={{ height: "600px", width: "100%" }}
           className="rounded-lg"
           zoomControl={true}
           closePopupOnClick={true}
         >
           <MapViewController center={mapCenter} zoom={mapZoom} />
           <TileLayer
-            url={tileProviders[mapStyle]?.url || tileProviders.openStreetMap.url}
-            attribution={tileProviders[mapStyle]?.attribution || tileProviders.openStreetMap.attribution}
+            url={
+              tileProviders[mapStyle]?.url || tileProviders.openStreetMap.url
+            }
+            attribution={
+              tileProviders[mapStyle]?.attribution ||
+              tileProviders.openStreetMap.attribution
+            }
             key={mapStyle}
           />
           {filteredProperties.map((property) => (
@@ -635,9 +747,12 @@ const MainMapComp = () => {
 
                   <div className="mb-2">
                     <span className="text-xl font-bold text-blue-600">
-                      {property.currency === 'USD' ? '$' : ''}{property.price.toLocaleString()}
+                      {property.currency === "USD" ? "$" : ""}
+                      {property.price.toLocaleString()}
                     </span>
-                    {property.listing_type === 'rent' && <span className="text-sm">/month</span>}
+                    {property.listing_type === "rent" && (
+                      <span className="text-sm">/month</span>
+                    )}
                   </div>
 
                   <div className="text-sm text-gray-600 mb-2">
@@ -646,13 +761,19 @@ const MainMapComp = () => {
 
                   <div className="flex gap-4 text-sm text-gray-600 mb-2">
                     {property.bedrooms && <span>{property.bedrooms} bed</span>}
-                    {property.bathrooms && <span>{property.bathrooms} bath</span>}
-                    {property.square_meters && <span>{property.square_meters}m²</span>}
+                    {property.bathrooms && (
+                      <span>{property.bathrooms} bath</span>
+                    )}
+                    {property.square_meters && (
+                      <span>{property.square_meters}m²</span>
+                    )}
                   </div>
 
                   <div className="text-xs text-gray-500 capitalize mb-3">
                     {property.property_type} • {property.listing_type}
-                    {property.is_featured && <span className="text-yellow-600"> ⭐ Featured</span>}
+                    {property.is_featured && (
+                      <span className="text-yellow-600"> ⭐ Featured</span>
+                    )}
                   </div>
 
                   <button

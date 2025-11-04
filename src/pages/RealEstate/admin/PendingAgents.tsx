@@ -114,7 +114,7 @@ const AgentVerificationPending = () => {
       refetch();
     } catch (error: any) {
       // Handle error
-      console.error("Error verifying agent:", error);
+      "Error verifying agent:", error;
       toast.error(
         error?.data?.message || t("errors.agent_verification_failed"),
         { autoClose: 3000 }

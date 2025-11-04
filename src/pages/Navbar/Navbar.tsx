@@ -174,7 +174,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
 
   useEffect(() => {
     if (userInfoError && token) {
-      console.log("User info fetch failed, possibly expired token");
+      ("User info fetch failed, possibly expired token");
     }
   }, [userInfoError, token, dispatch, navigate]);
 
@@ -229,7 +229,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
       navigate("/login");
       toast.success(t("logged_out_successfully"), { autoClose: 2000 });
     } catch (error) {
-      console.error("Logout error:", error);
+      "Logout error:", error;
       dispatch(logout(undefined));
       clearAllStorage();
       navigate("/login");

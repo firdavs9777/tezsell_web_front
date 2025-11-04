@@ -83,7 +83,7 @@ const BecomeAgentComp = () => {
         });
       }
     } catch (error) {
-      console.error("Submission error:", error);
+      "Submission error:", error;
       toast.error("An error occurred. Please try again.", { autoClose: 3000 });
     } finally {
       setIsLoading(false);
