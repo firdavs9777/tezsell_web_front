@@ -96,27 +96,26 @@ export function useChatSocket({
       socketRef.current = null;
     }
 
-    // 🔧 Determine WebSocket URL based on environment
     let socketUrl: string;
+    // const isDevelopment = import.meta.env.DEV; // For Vite
+    // if (isDevelopment) {
+    //   // Development: Connect to Django backend on localhost:8000
+    //   const wsBaseUrl = "wss://api.webtezsell.com";
+    //   // const wsBaseUrl = import.meta.env.VITE_WS_URL || "ws://127.0.0.1:8000";
+    //   // const wsBaseUrl = process.env.REACT_APP_WS_URL || 'ws://localhost:8000'; // For CRA
+    //   socketUrl = `${wsBaseUrl}/ws/chat/${chatId}/?token=${token}`;
+    // } else {
+    //   // Production: Use same host as the web page
+    //   const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    //   const host = window.location.host;
+    //   socketUrl = `${protocol}//${host}/ws/chat/${chatId}/?token=${token}`;
+    // }
 
-    // Check if in development mode
-    const isDevelopment = import.meta.env.DEV; // For Vite
-    // const isDevelopment = process.env.NODE_ENV === 'development'; // For Create React App
-
-    if (isDevelopment) {
-      // Development: Connect to Django backend on localhost:8000
+    try {
       const wsBaseUrl = "wss://api.webtezsell.com";
       // const wsBaseUrl = import.meta.env.VITE_WS_URL || "ws://127.0.0.1:8000";
       // const wsBaseUrl = process.env.REACT_APP_WS_URL || 'ws://localhost:8000'; // For CRA
       socketUrl = `${wsBaseUrl}/ws/chat/${chatId}/?token=${token}`;
-    } else {
-      // Production: Use same host as the web page
-      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-      const host = window.location.host;
-      socketUrl = `${protocol}//${host}/ws/chat/${chatId}/?token=${token}`;
-    }
-
-    try {
       const socket = new WebSocket(socketUrl);
       socketRef.current = socket;
 
