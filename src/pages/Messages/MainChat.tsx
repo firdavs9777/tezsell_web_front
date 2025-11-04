@@ -246,10 +246,13 @@ const MainChat = () => {
 
     const allMessages = [...apiMessages, ...socketMessages];
 
-    const uniqueMessagesMap = new Map<number, MessageData>();
+    const uniqueMessagesMap = new Map<string, MessageData>();
     allMessages.forEach((msg) => {
-      if (!uniqueMessagesMap.has(msg.id)) {
-        uniqueMessagesMap.set(msg.id, msg);
+      // Create unique key: prefer ID, fallback to content+timestamp
+      const key = msg.id ? `id-${msg.id}` : `${msg.content}-${msg.timestamp}`;
+
+      if (!uniqueMessagesMap.has(key)) {
+        uniqueMessagesMap.set(key, msg);
       }
     });
 
