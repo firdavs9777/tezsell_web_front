@@ -57,6 +57,7 @@ export const messagesApiSlice = apiSlice.injectEndpoints({
         },
         credentials: "include",
       }),
+      keepUnusedDataFor: 30,
       providesTags: ["Message"], // optional depending on use
     }),
     createChatRoom: builder.mutation<
@@ -72,6 +73,7 @@ export const messagesApiSlice = apiSlice.injectEndpoints({
         body: { name, participants },
         credentials: "include",
       }),
+
       invalidatesTags: ["Message"],
     }),
     getSingleChatMessages: builder.query<
@@ -85,6 +87,7 @@ export const messagesApiSlice = apiSlice.injectEndpoints({
         },
         credentials: "include",
       }),
+      keepUnusedDataFor: 0,
       providesTags: ["Message"], // optional depending on use
     }),
     deleteSingleChatRoom: builder.mutation<
