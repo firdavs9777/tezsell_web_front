@@ -33,12 +33,12 @@ export function useChatListWebSocket({
       socketRef.current.close();
     }
 
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const isDevelopment = import.meta.env.DEV;
-    const wsBaseUrl = isDevelopment
-      ? import.meta.env.VITE_WS_URL || "ws://api.webtezsell.com"
-      : `${protocol}//${window.location.host}`;
-
+    // const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    // const isDevelopment = import.meta.env.DEV;
+    // const wsBaseUrl = isDevelopment
+    //   ? import.meta.env.VITE_WS_URL || "ws://api.webtezsell.com"
+    //   : `${protocol}//${window.location.host}`;
+    const wsBaseUrl = "ws://api.webtezsell.com";
     const url = `${wsBaseUrl}/ws/chatlist/?token=${token}`;
 
     const socket = new WebSocket(url);
