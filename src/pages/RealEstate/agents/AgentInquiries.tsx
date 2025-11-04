@@ -132,7 +132,7 @@ const AgentInquiries: React.FC = () => {
       setResponseMessage("");
       showToast("Response sent successfully!");
     } catch (error: unknown) {
-      "Error responding to inquiry:", error;
+      console.error("Error responding to inquiry:", error);
     }
   };
 

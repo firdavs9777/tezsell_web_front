@@ -20,7 +20,6 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
   messages,
   isLoading,
   error,
-  chatId,
   onSendMessage,
   isConnected = false, // Default to false
 }) => {

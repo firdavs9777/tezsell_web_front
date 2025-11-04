@@ -56,7 +56,9 @@ const MainChat = () => {
   const [deleteChat] = useDeleteSingleChatRoomMutation();
 
   const chats: Chat[] = (data?.results as Chat[]) || [];
-  const [realTimeMessages, setRealTimeMessages] = useState<MessageData[]>([]);
+  const [realTimeMessages, setRealTimeMessages] = useState<
+    Record<number, MessageData[]>
+  >({});
 
   // Chat List WebSocket (always connected)
   const handleChatListUpdate = useCallback(() => {
@@ -218,7 +220,7 @@ const MainChat = () => {
 
   const combinedMessages = useMemo(() => {
     const apiMessages = (single_room as any)?.messages || [];
-    const socketMessages = realTimeMessages[selectedChatId || 0] || [];
+    const socketMessages = realTimeMessages[selectedChatId ?? 0] || [];
 
     const allMessages = [...apiMessages, ...socketMessages];
 

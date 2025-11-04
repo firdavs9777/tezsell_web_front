@@ -151,6 +151,7 @@ export function useChatSocket({
 
       socket.onerror = (error) => {
         isConnecting.current = false;
+        console.error(error);
 
         onError("Connection error occurred. Check console for details.");
       };

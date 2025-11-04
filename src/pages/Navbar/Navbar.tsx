@@ -228,8 +228,8 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
       clearAllStorage();
       navigate("/login");
       toast.success(t("logged_out_successfully"), { autoClose: 2000 });
-    } catch (error) {
-      "Logout error:", error;
+    } catch (error: any) {
+      console.error(error);
       dispatch(logout(undefined));
       clearAllStorage();
       navigate("/login");

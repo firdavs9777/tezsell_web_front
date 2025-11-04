@@ -734,8 +734,7 @@ const TotalUsersList: React.FC = () => {
         throw new Error(result.error || "Update failed");
       }
     } catch (error: unknown) {
-      "Failed to update user:", error;
-
+      console.error(error);
       // Handle RTK Query error format
       const errorMessage = "Failed to update user";
       alert(`Failed to update user: ${errorMessage}`);
@@ -762,7 +761,7 @@ const TotalUsersList: React.FC = () => {
         throw new Error(result.error || "Deletion failed");
       }
     } catch (error: unknown) {
-      "Failed to delete user:", error;
+      console.error("Failed to delete user:", error);
 
       let errorMessage = "Failed to delete user";
 

@@ -65,6 +65,7 @@ export function useChatListWebSocket({
     };
 
     socket.onerror = (error: any) => {
+      console.error(error);
       isConnectingRef.current = false; // ⭐ ADD THIS
     };
 

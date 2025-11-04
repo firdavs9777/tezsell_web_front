@@ -24,11 +24,13 @@ class ErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    "Error caught by boundary:", error, errorInfo;
+    console.error("Error caught by boundary:", error, errorInfo);
 
     // Log additional details for debugging
     if (error.message.includes("Minified React error #31")) {
-      ("This is likely caused by passing error objects as React children or props");
+      console.error(
+        "This is likely caused by passing error objects as React children or props"
+      );
     }
   }
 

@@ -219,7 +219,7 @@ const AgentProperties = () => {
 
   const handleSaveProperty = (updatedProperty: Property) => {
     // Here you would typically make an API call to update the property
-    "Saving property:", updatedProperty;
+    console.log("Saving property:", updatedProperty);
     // You can add a mutation here to update the property
   };
 
