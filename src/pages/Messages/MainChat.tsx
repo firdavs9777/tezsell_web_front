@@ -136,10 +136,11 @@ const MainChat = () => {
       setRealTimeMessages([]);
       setSelectedChatId(chatId);
       navigate(`/chat/${chatId}`);
+      refetch();
       setShowSidebar(false); // Hide sidebar on mobile when chat selected
-      setTimeout(() => {
-        refetch();
-      }, 500);
+      // setTimeout(() => {
+      //   refetch();
+      // }, 500);
     },
     [navigate, refetch]
   );
@@ -206,12 +207,11 @@ const MainChat = () => {
       try {
         const success = sendSocketMessage(content);
         if (!success) {
-          toast.error("Failed to send message. Please try again.");
+          toast.error("Connection not ready. Please try again.");
         }
       } catch (err: any) {
-        toast.error(
-          `Error occurred while sending the message: ${err.message || err}`
-        );
+        console.error("Send message error:", err);
+        toast.error("Failed to send message. Please try again.");
       }
     },
     [selectedChatId, token, isConnected, sendSocketMessage]

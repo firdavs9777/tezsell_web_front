@@ -53,13 +53,26 @@ export function useChatSocket({
           processQueue(); // Process queued messages after connection is confirmed
           return;
         }
+        const generateId = () => {
+          if (data.id) return data.id;
+
+          // Create hash from content + timestamp + sender
+          const str = `${data.message}-${data.timestamp}-${
+            data.sender?.id || ""
+          }`;
+          let hash = 0;
+          for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = (hash << 5) - hash + char;
+            hash = hash & hash; // Convert to 32bit integer
+          }
+          return Math.abs(hash);
+        };
 
         // Handle regular chat messages
         if (data.type === "message") {
           const messageData: MessageData = {
-            id:
-              data.id ||
-              parseInt(`${Date.now()}${Math.random()}`.replace(".", "")),
+            id: generateId(),
             content: data.message,
             sender: data.sender,
             timestamp: data.timestamp,
