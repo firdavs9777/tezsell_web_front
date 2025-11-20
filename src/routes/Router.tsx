@@ -37,6 +37,7 @@ import { useSelector } from "react-redux";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { useAutoLogout } from "../hooks/useAutoLogout";
 import PrivacyPolicy from "@pages/Profile/PrivacyRules";
+import SupportPage from "@pages/Support/Support";
 
 // Component to handle auto-logout for authenticated routes
 const AutoLogoutWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -59,6 +60,7 @@ const Router = () => {
       <Routes>
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/support" element={<SupportPage />} />
         <Route path="/register" element={<Register />} />
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<ProductScreen />} />
