@@ -37,7 +37,9 @@ const MainChat = () => {
     chatId ? parseInt(chatId) : null
   );
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
-  const token = userInfo?.token;
+  const processedUserInfo = useSelector((state: RootState) => state.auth.processedUserInfo);
+  // Use access_token if available, fallback to token for backward compatibility
+  const token = processedUserInfo?.access_token || processedUserInfo?.token || userInfo?.access_token || userInfo?.token;
 
   // Fetch all chats
   const { data, isLoading, error, refetch } = useGetAllChatMessagesQuery(
@@ -236,9 +238,13 @@ const MainChat = () => {
   // Cleanup WebSocket on unmount
   useEffect(() => {
     return () => {
-      disconnect();
+      // Only disconnect if we're actually leaving the component
+      if (selectedChatId) {
+        disconnect();
+      }
     };
-  }, [disconnect]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run on unmount, not when disconnect changes
 
   const combinedMessages = useMemo(() => {
     const apiMessages = (single_room as any)?.messages || [];
@@ -262,20 +268,19 @@ const MainChat = () => {
     );
   }, [single_room, realTimeMessages, selectedChatId]);
 
-  const chatData: SingleChat | null = useMemo(() => {
+  // Transform single_room data to match expected format
+  const chatData = useMemo(() => {
     if (!selectedChatId || !single_room) return null;
 
+    // single_room is now SingleChat (just chat info), we need to combine it with messages
+    const chatInfo = single_room as SingleChat;
+    
     return {
-      success: (single_room as any)?.success ?? true,
-      chat: (single_room as any)?.chat ?? {
-        id: selectedChatId,
-        name: `Chat ${selectedChatId}`,
-        participants: [],
-        last_message: null,
-        unread_count: 0,
-      },
+      chat: chatInfo,
       messages: combinedMessages as SingleMessage[],
-      participants: (single_room as any)?.participants || [],
+      participants: Array.isArray(chatInfo.participants) 
+        ? chatInfo.participants 
+        : [],
     };
   }, [selectedChatId, single_room, combinedMessages]);
 
@@ -334,7 +339,7 @@ const MainChat = () => {
 
             <MainChatWindow
               chatId={selectedChatId}
-              messages={chatData}
+              messages={chatData.messages}
               isLoading={load_room}
               error={singleRoomError}
               onSendMessage={handleSendMessage}

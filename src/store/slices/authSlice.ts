@@ -74,7 +74,14 @@ export interface EnhancedUser {
 export interface AuthResponse {
   // Common fields
   message?: string;
-  token?: string;
+  token?: string; // Backward compatible - same as access_token
+
+  // Token fields (new two-token system)
+  access_token?: string;
+  refresh_token?: string;
+  token_type?: string;
+  expires_in?: number; // 24 hours in seconds (86400)
+  refresh_expires_in?: number; // 30 days in seconds (2592000)
 
   // Old format (for backward compatibility)
   user?: UserType;
@@ -100,6 +107,10 @@ export interface AuthState {
   // Processed/normalized data for easy access
   processedUserInfo: {
     token: string;
+    access_token?: string;
+    refresh_token?: string;
+    expires_in?: number;
+    refresh_expires_in?: number;
     user: EnhancedUser | User | UserType;
     agent_info: AgentInfo | null;
     permissions: UserPermissions;
@@ -142,10 +153,17 @@ const processAuthResponse = (response: AuthResponse) => {
   const isEnhanced =
     response.success !== undefined && response.permissions !== undefined;
 
+  // Get access token (prioritize access_token, fallback to token for backward compatibility)
+  const accessToken = response.access_token || response.token;
+
   if (isEnhanced) {
     // New enhanced response
     return {
-      token: response.token!,
+      token: accessToken!,
+      access_token: response.access_token || response.token,
+      refresh_token: response.refresh_token,
+      expires_in: response.expires_in,
+      refresh_expires_in: response.refresh_expires_in,
       user: response.user_info as EnhancedUser | User,
       agent_info: response.agent_info || null,
       permissions: {
@@ -176,7 +194,11 @@ const processAuthResponse = (response: AuthResponse) => {
     const user_role = getUserRole(user, permissions);
 
     return {
-      token: response.token!,
+      token: accessToken!,
+      access_token: response.access_token || response.token,
+      refresh_token: response.refresh_token,
+      expires_in: response.expires_in,
+      refresh_expires_in: response.refresh_expires_in,
       user: user!,
       agent_info: null,
       permissions,
@@ -233,6 +255,15 @@ const authSlice = createSlice({
 
       try {
         localStorage.setItem("userInfo", JSON.stringify(action.payload));
+        // Store tokens separately for easy access
+        const accessToken = action.payload.access_token || action.payload.token;
+        const refreshToken = action.payload.refresh_token;
+        if (accessToken) {
+          localStorage.setItem("access_token", accessToken);
+        }
+        if (refreshToken) {
+          localStorage.setItem("refresh_token", refreshToken);
+        }
       } catch (error) {
         console.error("Error storing user info:", error);
         state.error = "Failed to store user information";
@@ -345,6 +376,8 @@ const authSlice = createSlice({
 
       try {
         localStorage.removeItem("userInfo");
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
       } catch (error) {
         console.error("Error clearing storage:", error);
       }
@@ -364,9 +397,66 @@ const authSlice = createSlice({
 
         try {
           localStorage.setItem("userInfo", JSON.stringify(state.userInfo));
+          // Update tokens if provided
+          if (action.payload.access_token) {
+            localStorage.setItem("access_token", action.payload.access_token);
+          }
+          if (action.payload.refresh_token) {
+            localStorage.setItem("refresh_token", action.payload.refresh_token);
+          }
         } catch (error) {
           console.error("Error updating stored user info:", error);
           state.error = "Failed to update user information";
+        }
+      }
+    },
+
+    // Update tokens (for refresh token flow)
+    updateTokens: (
+      state,
+      action: PayloadAction<{
+        access_token: string;
+        refresh_token?: string;
+        expires_in?: number;
+        refresh_expires_in?: number;
+      }>
+    ) => {
+      if (state.userInfo && state.processedUserInfo) {
+        // Update tokens in userInfo
+        state.userInfo.token = action.payload.access_token;
+        state.userInfo.access_token = action.payload.access_token;
+        if (action.payload.refresh_token) {
+          state.userInfo.refresh_token = action.payload.refresh_token;
+        }
+        if (action.payload.expires_in !== undefined) {
+          state.userInfo.expires_in = action.payload.expires_in;
+        }
+        if (action.payload.refresh_expires_in !== undefined) {
+          state.userInfo.refresh_expires_in = action.payload.refresh_expires_in;
+        }
+
+        // Update tokens in processedUserInfo
+        state.processedUserInfo.token = action.payload.access_token;
+        state.processedUserInfo.access_token = action.payload.access_token;
+        if (action.payload.refresh_token) {
+          state.processedUserInfo.refresh_token = action.payload.refresh_token;
+        }
+        if (action.payload.expires_in !== undefined) {
+          state.processedUserInfo.expires_in = action.payload.expires_in;
+        }
+        if (action.payload.refresh_expires_in !== undefined) {
+          state.processedUserInfo.refresh_expires_in =
+            action.payload.refresh_expires_in;
+        }
+
+        try {
+          localStorage.setItem("userInfo", JSON.stringify(state.userInfo));
+          localStorage.setItem("access_token", action.payload.access_token);
+          if (action.payload.refresh_token) {
+            localStorage.setItem("refresh_token", action.payload.refresh_token);
+          }
+        } catch (error) {
+          console.error("Error updating tokens:", error);
         }
       }
     },
@@ -418,6 +508,8 @@ const authSlice = createSlice({
 
       try {
         localStorage.removeItem("userInfo");
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
       } catch (error) {
         console.error("Error clearing auth:", error);
       }
@@ -517,6 +609,7 @@ export const {
   setError,
   logout,
   updateUserInfo,
+  updateTokens,
   updateAgentInfo,
   clearAuth,
   syncWithStorage,
@@ -541,6 +634,10 @@ export const selectUserRole = (state: { auth: AuthState }) =>
   state.auth.processedUserInfo?.user_role;
 export const selectToken = (state: { auth: AuthState }) =>
   state.auth.processedUserInfo?.token;
+export const selectAccessToken = (state: { auth: AuthState }) =>
+  state.auth.processedUserInfo?.access_token || state.auth.processedUserInfo?.token;
+export const selectRefreshToken = (state: { auth: AuthState }) =>
+  state.auth.processedUserInfo?.refresh_token;
 export const selectIsAuthenticated = (state: { auth: AuthState }) =>
   !!state.auth.processedUserInfo?.token;
 export const selectAuthLoading = (state: { auth: AuthState }) =>

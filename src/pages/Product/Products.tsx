@@ -38,10 +38,27 @@ const ProductScreen = () => {
 
   const { t, i18n } = useTranslation();
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+  const processedUserInfo = useSelector((state: RootState) => state.auth.processedUserInfo);
   const navigate = useNavigate();
-    useEffect(() => {
+  
+  // Get user location for default filtering
+  const userLocation = (processedUserInfo?.user as any)?.location;
+  const defaultRegion = userLocation?.region || null;
+  const defaultDistrict = userLocation?.district || null;
+
+  useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // Initialize location filters with user location if not set and user has location
+  useEffect(() => {
+    if (!selectedRegion && !selectedDistrict && defaultRegion && defaultDistrict) {
+      setSelectedRegion(defaultRegion);
+      setSelectedDistrict(defaultDistrict);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultRegion, defaultDistrict]); // Only run when user location changes, ignore selectedRegion/District to avoid loops
+
   // API Queries
   const { data: data_category, isLoading: isLoading_category } =
     useGetCategoryListQuery({});
@@ -49,13 +66,17 @@ const ProductScreen = () => {
   const { data: all_location, isLoading: isLoading_location } =
     useGetAllLocationListQuery({});
 
+  // Use selected location or default to user location
+  const regionFilter = selectedRegion || defaultRegion || "";
+  const districtFilter = selectedDistrict || defaultDistrict || "";
+
   const { data, isLoading, error } = useGetProductsQuery({
     currentPage,
     page_size: pageSize,
     lang: i18n.language,
     category_name: selectedCategory,
-    region_name: selectedRegion,
-    district_name: selectedDistrict,
+    region_name: regionFilter,
+    district_name: districtFilter,
     product_title: debouncedSearchQuery,
   });
 
@@ -118,6 +139,11 @@ const ProductScreen = () => {
   const handleLocationRemoveFilter = () => {
     setSelectedRegion("");
     setSelectedDistrict("");
+    // Reset to user location after clearing manual selection
+    if (defaultRegion && defaultDistrict) {
+      setSelectedRegion(defaultRegion);
+      setSelectedDistrict(defaultDistrict);
+    }
   };
 
   const handleFilterRemove = () => {
@@ -138,14 +164,32 @@ const ProductScreen = () => {
 
   const totalCount = products?.count;
   const hasResults = products?.results?.length > 0;
+  // Only show as active filter if manually selected (not default user location)
   const hasActiveFilters =
     selectedCategory ||
-    selectedRegion ||
-    selectedDistrict ||
+    (selectedRegion && selectedRegion !== defaultRegion) ||
+    (selectedDistrict && selectedDistrict !== defaultDistrict) ||
     debouncedSearchQuery;
+
+  // Get current location display (selected or default)
+  const currentRegion = selectedRegion || defaultRegion;
+  const currentDistrict = selectedDistrict || defaultDistrict;
+  const hasLocation = currentRegion && currentDistrict;
 
   return (
     <div className="px-4 mx-auto max-w-7xl my-4">
+      {/* Current Location Display */}
+      {hasLocation && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+          <div className="flex items-center gap-2">
+            <FaLocationDot className="text-blue-600" size={18} />
+            <span className="text-blue-800 font-medium">
+              {t("selected_location")} {currentRegion} - {currentDistrict}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Search bar section */}
       <div className="bg-white shadow-md rounded-lg p-4 mb-6">
         <div className="flex flex-col md:flex-row gap-3">

@@ -6,8 +6,9 @@ import {
   useGetServiceCategoryListQuery,
   useGetServicesQuery,
 } from "@store/slices/serviceApiSlice";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
 import { BiCategory } from "react-icons/bi";
 import { FaPlus } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
@@ -32,6 +33,21 @@ const ServiceScreen = () => {
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedDistrict, setSelectedtDistrict] = useState("");
   const { t, i18n } = useTranslation();
+  
+  // Get user location for default filtering
+  const processedUserInfo = useSelector((state: any) => state.auth.processedUserInfo);
+  const userLocation = (processedUserInfo?.user as any)?.location;
+  const defaultRegion = userLocation?.region || null;
+  const defaultDistrict = userLocation?.district || null;
+
+  // Initialize location filters with user location if not set and user has location
+  useEffect(() => {
+    if (!selectedRegion && !selectedDistrict && defaultRegion && defaultDistrict) {
+      setSelectedRegion(defaultRegion);
+      setSelectedtDistrict(defaultDistrict);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultRegion, defaultDistrict]); // Only run when user location changes, ignore selectedRegion/District to avoid loops
 
   const toggleModal = () => setShowModal((prev) => !prev);
   const toggleLocationModal = () => setLocationModal((prev) => !prev);
@@ -47,13 +63,18 @@ const ServiceScreen = () => {
     isLoading: isLoading_location,
     error: error_loc,
   } = useGetAllLocationListQuery({});
+
+  // Use selected location or default to user location
+  const regionFilter = selectedRegion || defaultRegion || "";
+  const districtFilter = selectedDistrict || defaultDistrict || "";
+
   const { data, isLoading, error, refetch } = useGetServicesQuery({
     currentPage,
     page_size: pageSize,
     category_name: selectedCategory,
     lang: i18n.language,
-    region_name: selectedRegion,
-    district_name: selectedDistrict,
+    region_name: regionFilter,
+    district_name: districtFilter,
     service_name: searchServiceQuery,
   });
 
@@ -128,6 +149,11 @@ const ServiceScreen = () => {
   const handleLocationRemoveFilter = () => {
     setSelectedRegion("");
     setSelectedtDistrict("");
+    // Reset to user location after clearing manual selection
+    if (defaultRegion && defaultDistrict) {
+      setSelectedRegion(defaultRegion);
+      setSelectedtDistrict(defaultDistrict);
+    }
   };
 
   const handleFilterRemove = () => {

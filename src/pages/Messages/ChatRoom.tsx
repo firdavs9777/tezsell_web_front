@@ -3,22 +3,7 @@ import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import React, { useState } from "react";
 import { BiLoader, BiMessageSquareDetail } from "react-icons/bi";
 import { FiTrash, FiSearch } from "react-icons/fi";
-
-export interface Chat {
-  id: number;
-  name: string;
-  participants: number[];
-  last_message: {
-    id: number;
-    content: string;
-    timestamp: string;
-    sender: {
-      id: number;
-      username: string;
-    };
-  } | null;
-  unread_count: number;
-}
+import { Chat } from "@store/slices/chatSlice";
 
 interface MainChatRoomProps {
   chats: Chat[];

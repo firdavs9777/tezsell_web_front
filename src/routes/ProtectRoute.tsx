@@ -4,19 +4,22 @@ import { useEffect } from "react";
 import { useAutoLogout } from "../hooks/useAutoLogout";
 
 const ProtectedRoute = () => {
-  const { userInfo } = useSelector((state: any) => state.auth);
+  const { userInfo, processedUserInfo } = useSelector((state: any) => state.auth);
   const location = useLocation();
   const { resetTimer } = useAutoLogout();
 
+  // Get token (prioritize access_token, fallback to token for backward compatibility)
+  const token = processedUserInfo?.access_token || processedUserInfo?.token || userInfo?.access_token || userInfo?.token;
+
   // Reset activity timer when accessing protected routes
   useEffect(() => {
-    if (userInfo?.token) {
+    if (token) {
       resetTimer();
     }
-  }, [userInfo?.token, location.pathname, resetTimer]);
+  }, [token, location.pathname, resetTimer]);
 
   // If not authenticated, redirect to login with the current location
-  if (!userInfo?.token) {
+  if (!token) {
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 

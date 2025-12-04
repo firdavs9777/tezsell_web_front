@@ -84,6 +84,15 @@ const PropertiesList: React.FC = () => {
   const [selectedProperty, setSelectedProperty] =
     useState<ExtendedProperty | null>(null);
 
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+  const processedUserInfo = useSelector((state: RootState) => state.auth.processedUserInfo);
+  const token = userInfo?.token || "";
+  
+  // Get user location for default filtering
+  const userLocation = (processedUserInfo?.user as any)?.location;
+  const defaultDistrict = userLocation?.district || null;
+  const defaultCity = userLocation?.region || null; // Using region as city for real estate
+
   const {
     data: propertiesData,
     isLoading: propertiesLoading,
@@ -96,11 +105,11 @@ const PropertiesList: React.FC = () => {
     listing_type:
       filterType !== "all" ? (filterType as "sale" | "rent") : undefined,
     property_type: propertyType !== "all" ? propertyType : undefined,
+    district: defaultDistrict || undefined, // Use user district as default
+    city: defaultCity || undefined, // Use user region as city as default
     ordering: "-is_featured,-created_at",
   } as GetPropertiesQueryParams);
 
-  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
-  const token = userInfo?.token || "";
   const { data: savedPropertiesData, refetch: refetchSavedProperties } =
     useGetSavedPropertiesQuery({ token });
   savedPropertiesData;

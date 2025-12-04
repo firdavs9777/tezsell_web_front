@@ -11,6 +11,13 @@ import { BrowserRouter as Router } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 // import { RootState } from "./store";
+import { useTokenRefresh } from "@hooks/useTokenRefresh";
+
+// Component to handle token refresh inside Router context
+const TokenRefreshProvider = () => {
+  useTokenRefresh();
+  return null;
+};
 
 function App() {
   // const [chats, setChats] = useState<Chat[]>([]);
@@ -76,6 +83,8 @@ function App() {
       <I18nextProvider i18n={i18n}>
         <div className="page-container">
           <Router>
+            {/* Set up automatic token refresh inside Router context */}
+            <TokenRefreshProvider />
             {/* Pass both chats and live unread count */}
             <Navbar  />
             <div className="content">

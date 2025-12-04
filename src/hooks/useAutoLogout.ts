@@ -50,8 +50,14 @@ export const useAutoLogout = () => {
   const performLogout = useCallback(
     async (showMessage = true) => {
       try {
-        if (userInfo?.token) {
-          await logoutApiCall(userInfo.token).unwrap();
+        const accessToken = userInfo?.access_token || userInfo?.token;
+        const refreshToken = userInfo?.refresh_token || localStorage.getItem("refresh_token");
+        
+        if (accessToken) {
+          await logoutApiCall({
+            token: accessToken,
+            refresh_token: refreshToken || undefined,
+          }).unwrap();
         }
       } catch (error: any) {
         console.error(error);

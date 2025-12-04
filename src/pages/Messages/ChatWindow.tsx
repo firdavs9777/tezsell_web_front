@@ -1,14 +1,14 @@
 import { SerializedError } from "@reduxjs/toolkit";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { RootState } from "@store/index";
-import { SingleChat } from "@store/slices/chatSlice";
+import { SingleMessage } from "@store/slices/chatSlice";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import React, { useEffect, useRef, useState } from "react";
 import { FiPaperclip, FiSend, FiSmile, FiX } from "react-icons/fi";
 import { useSelector } from "react-redux";
 
 interface MainChatWindowProps {
-  messages: SingleChat;
+  messages: SingleMessage[];
   isLoading: boolean;
   chatId: number;
   error?: FetchBaseQueryError | SerializedError | undefined;
@@ -114,7 +114,7 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
     }
   };
 
-  const allMessages = messages?.messages || [];
+  const allMessages = Array.isArray(messages) ? messages : [];
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-gray-50 to-white">
@@ -140,7 +140,7 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
           </div>
         )}
 
-        {allMessages.map((msg, index) => {
+        {allMessages.map((msg: SingleMessage, index: number) => {
           let isMyMessage = false;
 
           if (typeof msg.sender === "object" && msg.sender?.id) {

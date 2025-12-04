@@ -2,6 +2,7 @@ import {
   LOGGED_USER,
   LOGIN_URL,
   LOGOUT_URL,
+  REFRESH_TOKEN_URL,
   REGISTER_URL,
   SEND_SMS,
   SERVICES_URL,
@@ -10,6 +11,7 @@ import {
   USER_SERVICE,
   USERS_URL,
   VERIFY_SMS,
+  VERIFY_TOKEN_URL,
 } from "@store/constants";
 import { apiSlice } from "@store/slices/apiSlice";
 import { LoginInfo, RegisterInfo } from "@store/type";
@@ -35,11 +37,37 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       provideTags: ["Auth"],
     }),
     logoutUser: builder.mutation({
-      query: (token: string) => ({
+      query: ({
+        token,
+        refresh_token,
+      }: {
+        token: string;
+        refresh_token?: string;
+      }) => ({
         url: `${LOGOUT_URL}`,
         method: "POST",
         headers: {
           Authorization: `Token ${token}`, // Attach the token to the Authorization header
+        },
+        body: refresh_token ? { refresh_token } : undefined,
+      }),
+      keepUnusedDataFor: 5,
+      provideTags: ["Auth"],
+    }),
+    refreshToken: builder.mutation({
+      query: (data: { refresh_token: string }) => ({
+        url: `${REFRESH_TOKEN_URL}`,
+        method: "POST",
+        body: data,
+      }),
+      keepUnusedDataFor: 5,
+      provideTags: ["Auth"],
+    }),
+    verifyToken: builder.query({
+      query: (token: string) => ({
+        url: `${VERIFY_TOKEN_URL}`,
+        headers: {
+          Authorization: `Token ${token}`,
         },
       }),
       keepUnusedDataFor: 5,
@@ -293,6 +321,8 @@ export const {
   useLoginUserMutation,
   useRegisterUserMutation,
   useLogoutUserMutation,
+  useRefreshTokenMutation,
+  useVerifyTokenQuery,
   useSendSmsUserMutation,
   useVerifyCodeUserMutation,
   useGetUserProductsQuery,
