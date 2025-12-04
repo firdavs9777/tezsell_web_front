@@ -38,6 +38,7 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import { useAutoLogout } from "../hooks/useAutoLogout";
 import PrivacyPolicy from "@pages/Profile/PrivacyRules";
 import SupportPage from "@pages/Support/Support";
+import DownloadApp from "@pages/Home/DownloadApp";
 
 // Component to handle auto-logout for authenticated routes
 const AutoLogoutWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -59,6 +60,7 @@ const Router = () => {
     <AutoLogoutWrapper>
       <Routes>
         <Route path="/about" element={<About />} />
+        <Route path="/download" element={<DownloadApp />} />
         <Route path="/login" element={<Login />} />
         <Route path="/support" element={<SupportPage />} />
         <Route path="/register" element={<Register />} />

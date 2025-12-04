@@ -12,7 +12,7 @@ import QRCode from "react-qr-code";
 import { Link } from "react-router-dom";
 
 const Footer: React.FC = () => {
-  const qrCodeValue = "https://www.webtezsell.com";
+  const qrCodeValue = "https://www.webtezsell.com/download";
   const { t } = useTranslation();
 
   return (
@@ -112,7 +112,7 @@ const Footer: React.FC = () => {
             <h2 className="text-lg font-medium">{t("download_mobile_app")}</h2>
             <div className="flex space-x-4">
               <a
-                href="https://www.apple.com/app-store/"
+                href="https://apps.apple.com/kr/app/tezsell/id6755512731?l=en-GB"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-gray-300 transition-colors"
