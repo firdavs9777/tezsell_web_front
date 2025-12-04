@@ -63,16 +63,16 @@ const baseQueryWithReauth: BaseQueryFn<
           result = await baseQuery(args, api, extraOptions);
         } else {
           // Refresh failed, logout user
-          api.dispatch(logout());
+          api.dispatch(logout(undefined));
           // Redirect to login (handled by useAutoLogout or component)
         }
       } catch (error) {
         // Refresh failed, logout user
-        api.dispatch(logout());
+        api.dispatch(logout(undefined));
       }
     } else {
       // No refresh token, logout user
-      api.dispatch(logout());
+      api.dispatch(logout(undefined));
     }
   }
 

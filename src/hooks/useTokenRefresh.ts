@@ -30,7 +30,12 @@ export const useTokenRefresh = () => {
     try {
       const result = await refreshTokenMutation({
         refresh_token: refreshTokenValue,
-      }).unwrap();
+      }).unwrap() as {
+        access_token: string;
+        refresh_token?: string;
+        expires_in?: number;
+        refresh_expires_in?: number;
+      };
 
       if (result.access_token) {
         dispatch(
@@ -46,7 +51,7 @@ export const useTokenRefresh = () => {
     } catch (error: any) {
       console.error("Token refresh failed:", error);
       // If refresh fails, logout user
-      dispatch(logout());
+      dispatch(logout(undefined));
       navigate("/login");
     }
   };
