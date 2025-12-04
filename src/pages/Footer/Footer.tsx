@@ -120,7 +120,7 @@ const Footer: React.FC = () => {
                 <FaApple className="w-10 h-10" />
               </a>
               <a
-                href="https://play.google.com/store"
+                href="https://play.google.com/store/apps/details?id=uz.tezsell.app"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-gray-300 transition-colors"
