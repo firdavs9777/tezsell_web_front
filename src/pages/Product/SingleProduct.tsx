@@ -1,5 +1,5 @@
 import { ServiceRes } from "@pages/Profile/MainProfile";
-import { BASE_URL } from "@store/constants";
+
 import { RootState } from "@store/index";
 import {
   useGetFavoriteItemsQuery,
@@ -97,7 +97,7 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
       <div className="w-full aspect-square bg-gray-100 relative overflow-hidden">
         {product?.images?.length > 0 ? (
           <img
-            src={`${BASE_URL}${product.images[0].image}`}
+            src={`${product.images[0].image}`}
             alt={product.title}
             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
           />
@@ -107,7 +107,7 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
           </div>
         )}
       </div>
-  <div className="p-4 flex flex-col flex-grow">
+      <div className="p-4 flex flex-col flex-grow">
         {/* Price */}
         <h2 className="text-xl font-bold text-blue-600 mb-2">
           {formatPrice(product.price)}

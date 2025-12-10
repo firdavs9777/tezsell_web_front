@@ -32,10 +32,8 @@ import { useDeleteUserServiceMutation } from "@store/slices/users";
 // Components
 import CommentsMain from "@services/Comments/CommentsMain";
 import MyServiceEdit from "@services/ServiceEdit";
-
 // Types and constants
 import { ServiceRes } from "@pages/Profile/MainProfile";
-import { BASE_URL } from "@store/constants";
 import { RootState } from "@store/index";
 import { Category, Comment, Service, SingleService } from "@store/type";
 
@@ -142,11 +140,11 @@ const ImageGallery = ({
           className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
         >
           <img
-            src={`${BASE_URL}${image.image}`}
+            src={`${image.image}`}
             alt={`${serviceName} ${index + 1}`}
-            onClick={() => onImageSelect(`${BASE_URL}${image.image}`)}
+            onClick={() => onImageSelect(`${image.image}`)}
             className={`h-full w-full object-cover cursor-pointer border-2 transition-all duration-200 hover:scale-110 ${
-              selectedImage === `${BASE_URL}${image.image}`
+              selectedImage === `${image.image}`
                 ? "border-blue-500 shadow-lg"
                 : "border-transparent hover:border-gray-300"
             }`}
@@ -169,7 +167,7 @@ const ServiceOwnerCard = ({
       {owner?.profile_image?.image ? (
         <div className="w-14 h-14 rounded-full overflow-hidden shadow-md border-2 border-white">
           <img
-            src={`${BASE_URL}/${owner.profile_image.image}`}
+            src={`${owner.profile_image.image}`}
             alt={owner.username}
             className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
           />
@@ -346,7 +344,7 @@ const ServiceDetail = () => {
   // Effects
   useEffect(() => {
     if (service?.images?.length) {
-      setSelectedImage(`${BASE_URL}${service.images[0].image}`);
+      setSelectedImage(`${service.images[0].image}`);
     }
   }, [service?.images]);
 
@@ -430,7 +428,6 @@ const ServiceDetail = () => {
         navigate(`/chat/${chatId}`);
       }
     } catch (error: unknown) {
-      error;
       toast.error(t("chat_creation_failed"));
     }
   }, [isLoggedIn, service, userInfo, createChatRoom, navigate, t]);
@@ -451,7 +448,6 @@ const ServiceDetail = () => {
         toast.error(t("product_delete_error"), { autoClose: 2000 });
       }
     } catch (error: unknown) {
-      error;
       toast.error(t("product_delete_error"), { autoClose: 2000 });
     }
   }, [id, token, deleteService, navigate, t]);
@@ -482,7 +478,6 @@ const ServiceDetail = () => {
           toast.error(t("comment_creation_error"));
         }
       } catch (error: unknown) {
-        error;
         toast.error(t("error_occurred"));
       }
     },
@@ -492,7 +487,7 @@ const ServiceDetail = () => {
   const handleEditClose = useCallback(() => {
     refetchService();
     if (service?.images?.length) {
-      setSelectedImage(`${BASE_URL}${service.images[0].image}`);
+      setSelectedImage(`${service.images[0].image}`);
     }
     setIsEditModalOpen(false);
   }, [refetchService, service?.images]);

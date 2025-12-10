@@ -1,5 +1,5 @@
 import { useAutoLogout } from "@hooks/useAutoLogout";
-import { BASE_URL } from "@store/constants";
+
 import {
   logout,
   selectAgentInfo,
@@ -862,7 +862,7 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
                   src={
                     (user as any)?.profile_image?.url ||
                     (user as any)?.user_image ||
-                    `${BASE_URL}${profileInfo?.data.profile_image?.image}`
+                    `${profileInfo?.data.profile_image?.image}`
                   }
                   alt="profile"
                   className="w-8 h-8 rounded-full object-cover flex-shrink-0"

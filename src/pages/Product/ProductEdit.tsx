@@ -1,5 +1,5 @@
 import Modal from "@components/Modal";
-import { BASE_URL } from "@store/constants";
+
 import { RootState } from "@store/index";
 import {
   useGetCategoryListQuery,
@@ -47,7 +47,8 @@ const MyProductEdit: React.FC<SingleProductType> = ({
     error: categoryError,
   } = useGetCategoryListQuery({});
 
-  const [updateProduct, { isLoading: updateLoading }] = useUpdateUserProductMutation();
+  const [updateProduct, { isLoading: updateLoading }] =
+    useUpdateUserProductMutation();
 
   // Typed data
   const singleProduct = productData as SingleProduct;
@@ -89,7 +90,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
           singleProduct.product.images.map((image) => ({
             id: image.id || 11,
             image: image.image,
-            fullUrl: `${BASE_URL}${image.image}`,
+            fullUrl: `${image.image}`,
             isDeleted: false,
           }))
         );
@@ -281,23 +282,25 @@ const MyProductEdit: React.FC<SingleProductType> = ({
 
     // Add location and user info
     if (!userInfo?.user_info?.location?.id) {
-      toast.error(t('location_info_error'), { autoClose: 3000 });
+      toast.error(t("location_info_error"), { autoClose: 3000 });
       return null;
     }
 
     formData.append("location_id", userInfo.user_info.location.id.toString());
     formData.append("userName_id", userInfo.user_info.id.toString());
-    formData.append("userAddress_id", userInfo.user_info.location.id.toString());
+    formData.append(
+      "userAddress_id",
+      userInfo.user_info.location.id.toString()
+    );
 
     // Add category
-       const selectedCategory = categoryList?.find(
-            (item: Category) => getCategoryName(item) === category
-          );
-
+    const selectedCategory = categoryList?.find(
+      (item: Category) => getCategoryName(item) === category
+    );
 
     if (selectedCategory) {
-    const selectedCategoryId = selectedCategory.id;
-        formData.append("category_id", selectedCategoryId.toString());
+      const selectedCategoryId = selectedCategory.id;
+      formData.append("category_id", selectedCategoryId.toString());
     } else {
       toast.error(t("category_required_message"), { autoClose: 3000 });
       return null;
@@ -348,7 +351,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
   // Helper function to get localized category name
   const getCategoryName = (categoryItem: Category) => {
     const langKey = `name_${i18n.language}` as keyof Category;
-    return categoryItem[langKey]  as string;
+    return categoryItem[langKey] as string;
   };
 
   // Loading and error states
@@ -363,7 +366,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
   if (productError || categoryError) {
     return (
       <div className="flex justify-center items-center p-8 text-lg font-medium text-red-600">
-        {t('error_message')}
+        {t("error_message")}
       </div>
     );
   }
@@ -384,8 +387,11 @@ const MyProductEdit: React.FC<SingleProductType> = ({
           <form className="space-y-6" onSubmit={submitFormHandler}>
             {/* Title Input */}
             <div className="space-y-2">
-              <label htmlFor="product-title" className="block text-gray-700 font-medium">
-                {t('new_product_title')}
+              <label
+                htmlFor="product-title"
+                className="block text-gray-700 font-medium"
+              >
+                {t("new_product_title")}
                 <span className="text-red-500 text-lg font-bold ml-1">*</span>
               </label>
               <input
@@ -401,8 +407,11 @@ const MyProductEdit: React.FC<SingleProductType> = ({
 
             {/* Description Input */}
             <div className="space-y-2">
-              <label htmlFor="product-description" className="block text-gray-700 font-medium">
-                {t('new_product_description')}
+              <label
+                htmlFor="product-description"
+                className="block text-gray-700 font-medium"
+              >
+                {t("new_product_description")}
                 <span className="text-red-500 text-lg font-bold ml-1">*</span>
               </label>
               <textarea
@@ -417,8 +426,11 @@ const MyProductEdit: React.FC<SingleProductType> = ({
 
             {/* Price Input */}
             <div className="space-y-2">
-              <label htmlFor="product-price" className="block text-gray-700 font-medium">
-                {t('new_product_price')}
+              <label
+                htmlFor="product-price"
+                className="block text-gray-700 font-medium"
+              >
+                {t("new_product_price")}
                 <span className="text-red-500 text-lg font-bold ml-1">*</span>
               </label>
               <div className="flex items-center">
@@ -439,7 +451,10 @@ const MyProductEdit: React.FC<SingleProductType> = ({
 
             {/* Condition Dropdown */}
             <div className="space-y-2">
-              <label htmlFor="product-condition" className="block text-gray-700 font-medium">
+              <label
+                htmlFor="product-condition"
+                className="block text-gray-700 font-medium"
+              >
                 {t("new_product_condition")}
                 <span className="text-red-500 text-lg font-bold ml-1">*</span>
               </label>
@@ -460,7 +475,10 @@ const MyProductEdit: React.FC<SingleProductType> = ({
 
             {/* Category Dropdown */}
             <div className="space-y-2">
-              <label htmlFor="product-category" className="block text-gray-700 font-medium">
+              <label
+                htmlFor="product-category"
+                className="block text-gray-700 font-medium"
+              >
                 {t("new_product_category")}
                 <span className="text-red-500 text-lg font-bold ml-1">*</span>
               </label>
@@ -503,7 +521,10 @@ const MyProductEdit: React.FC<SingleProductType> = ({
                 {existingImages.map(
                   (image, index) =>
                     !image.isDeleted && (
-                      <div key={`existing-${index}`} className="relative h-24 rounded-md overflow-hidden border border-gray-300">
+                      <div
+                        key={`existing-${index}`}
+                        className="relative h-24 rounded-md overflow-hidden border border-gray-300"
+                      >
                         <img
                           src={image.fullUrl}
                           alt={`Product ${index + 1}`}
@@ -522,7 +543,10 @@ const MyProductEdit: React.FC<SingleProductType> = ({
 
                 {/* New Images */}
                 {newImagePreviews.map((preview, index) => (
-                  <div key={`new-${index}`} className="relative h-24 rounded-md overflow-hidden border border-gray-300">
+                  <div
+                    key={`new-${index}`}
+                    className="relative h-24 rounded-md overflow-hidden border border-gray-300"
+                  >
                     <img
                       src={preview}
                       alt={`New ${index + 1}`}
@@ -542,7 +566,9 @@ const MyProductEdit: React.FC<SingleProductType> = ({
                 {totalVisibleImages < 10 && (
                   <div
                     className="h-24 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center cursor-pointer hover:border-blue-500 transition-colors"
-                    onClick={() => document.getElementById("image-upload")?.click()}
+                    onClick={() =>
+                      document.getElementById("image-upload")?.click()
+                    }
                   >
                     <span className="text-3xl text-gray-400">+</span>
                   </div>
@@ -552,7 +578,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
               {/* Loading indicator for images */}
               {imageUploading && (
                 <div className="text-center py-2 text-blue-600">
-                  <span>{t('load')}</span>
+                  <span>{t("load")}</span>
                 </div>
               )}
 
@@ -566,7 +592,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
               />
 
               <p className="text-xs text-gray-500 mt-1">
-                {t('image_upload_requirements')}
+                {t("image_upload_requirements")}
               </p>
             </div>
 
@@ -584,7 +610,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
                 className="w-full sm:w-1/2 bg-gray-200 text-gray-800 py-3 rounded-md font-medium hover:bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400"
                 onClick={closeHandler}
               >
-                {t('cancel_btn_label')}
+                {t("cancel_btn_label")}
               </button>
             </div>
           </form>

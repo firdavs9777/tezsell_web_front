@@ -1,4 +1,3 @@
-import { BASE_URL } from "@store/constants";
 import { RootState } from "@store/index";
 import {
   useGetDistrictsListQuery,
@@ -65,7 +64,9 @@ const MainProfile = () => {
   const [newUsername, setNewUsername] = useState("");
   const [currentRegion, setCurrentRegion] = useState("");
   const [currentDistrict, setCurrentDistrict] = useState("");
-  const [activeTab, setActiveTab] = useState<'products' | 'services' | 'properties'>('products');
+  const [activeTab, setActiveTab] = useState<
+    "products" | "services" | "properties"
+  >("products");
 
   // API queries with optimized options
   const {
@@ -142,13 +143,13 @@ const MainProfile = () => {
     );
 
   const { data: savedPropertyData, isLoading: savedPropertiesLoading } =
-  useGetSavedPropertiesQuery(
-    { token: token || "" },
-    {
-      skip: !shouldFetchItems || !token,
-      refetchOnMountOrArgChange: true,
-    }
-  );
+    useGetSavedPropertiesQuery(
+      { token: token || "" },
+      {
+        skip: !shouldFetchItems || !token,
+        refetchOnMountOrArgChange: true,
+      }
+    );
 
   const [updateProfile] = useUpdateLoggedUserInfoMutation();
 
@@ -156,7 +157,9 @@ const MainProfile = () => {
   const products = productsData as ProductResponse;
   const services = servicesData as ServiceResponse;
   const likedItems = likedItemsData as ServiceRes;
-  const savedProperties = savedPropertyData ? (savedPropertyData as unknown as SavedPropertiesResponse) : undefined;
+  const savedProperties = savedPropertyData
+    ? (savedPropertyData as unknown as SavedPropertiesResponse)
+    : undefined;
 
   // Handle image preview
   useEffect(() => {
@@ -285,7 +288,7 @@ const MainProfile = () => {
 
   // Prepare profile image URL
   const profileImageUrl = profileInfo.data.profile_image
-    ? `${BASE_URL}${profileInfo.data.profile_image.image}`
+    ? `${profileInfo.data.profile_image.image}`
     : "/default-profile.png";
 
   // Render property card - NEW FUNCTION
@@ -355,11 +358,13 @@ const MainProfile = () => {
             </span>
             <div className="text-right">
               <p className="text-xl font-bold text-gray-900">
-                {parseFloat(property.price).toLocaleString()} {property.currency}
+                {parseFloat(property.price).toLocaleString()}{" "}
+                {property.currency}
               </p>
               {property.price_per_sqm && (
                 <p className="text-xs text-gray-500">
-                  {parseFloat(property.price_per_sqm).toLocaleString()}/{property.currency} per m²
+                  {parseFloat(property.price_per_sqm).toLocaleString()}/
+                  {property.currency} per m²
                 </p>
               )}
             </div>
@@ -380,7 +385,7 @@ const MainProfile = () => {
   const renderFavoriteCard = (item: any, isService = false) => {
     const imageUrl =
       item?.images && item?.images.length > 0
-        ? `${BASE_URL}${item?.images[0].image}`
+        ? `${item?.images[0].image}`
         : isService
         ? "/service-placeholder.png"
         : "/product-placeholder.png";
@@ -505,14 +510,18 @@ const MainProfile = () => {
                 <FaShoppingBag className="mx-auto text-4xl text-gray-300" />
               )}
             </div>
-            <p className="text-lg font-medium">{isService ? t("service_error") : t("product_error")}</p>
-            <p className="text-sm mt-2">Start creating to see your items here!</p>
+            <p className="text-lg font-medium">
+              {isService ? t("service_error") : t("product_error")}
+            </p>
+            <p className="text-sm mt-2">
+              Start creating to see your items here!
+            </p>
           </div>
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {items.slice(0, 3).map((item, index) => (
-                <div key={`${isService ? 'service' : 'product'}-${index}`}>
+                <div key={`${isService ? "service" : "product"}-${index}`}>
                   {renderItemCard(item, isService)}
                 </div>
               ))}
@@ -541,7 +550,7 @@ const MainProfile = () => {
     icon,
     isActive,
     onClick,
-    count
+    count,
   }: {
     label: string;
     icon: React.ReactNode;
@@ -553,16 +562,18 @@ const MainProfile = () => {
       onClick={onClick}
       className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 min-w-fit ${
         isActive
-          ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25'
-          : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+          ? "bg-blue-600 text-white shadow-lg shadow-blue-600/25"
+          : "text-gray-600 hover:text-blue-600 hover:bg-blue-50"
       }`}
     >
       {icon}
       <span className="whitespace-nowrap">{label}</span>
       {count !== undefined && (
-        <span className={`text-xs px-2 py-1 rounded-full font-semibold ${
-          isActive ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'
-        }`}>
+        <span
+          className={`text-xs px-2 py-1 rounded-full font-semibold ${
+            isActive ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-600"
+          }`}
+        >
           {count}
         </span>
       )}
@@ -572,7 +583,7 @@ const MainProfile = () => {
   // Render tab content
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'products': {
+      case "products": {
         const favoriteProductsCount = likedItems?.liked_products?.length || 0;
         return (
           <div className="mt-8">
@@ -583,23 +594,27 @@ const MainProfile = () => {
             ) : favoriteProductsCount === 0 ? (
               <div className="text-center py-16 text-gray-500">
                 <FaHeart className="mx-auto mb-6 text-5xl text-gray-300" />
-                <p className="text-xl font-medium text-gray-900 mb-2">{t("no_favorites")}</p>
-                <p className="text-gray-600 max-w-md mx-auto">Start exploring products to add your favorites!</p>
+                <p className="text-xl font-medium text-gray-900 mb-2">
+                  {t("no_favorites")}
+                </p>
+                <p className="text-gray-600 max-w-md mx-auto">
+                  Start exploring products to add your favorites!
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {likedItems.liked_products.map((item, index) =>
+                {likedItems.liked_products.map((item, index) => (
                   <div key={`fav-product-${index}`}>
                     {renderFavoriteCard(item, false)}
                   </div>
-                )}
+                ))}
               </div>
             )}
           </div>
         );
       }
 
-      case 'services': {
+      case "services": {
         const favoriteServicesCount = likedItems?.liked_services?.length || 0;
         return (
           <div className="mt-8">
@@ -610,23 +625,27 @@ const MainProfile = () => {
             ) : favoriteServicesCount === 0 ? (
               <div className="text-center py-16 text-gray-500">
                 <FaHeart className="mx-auto mb-6 text-5xl text-gray-300" />
-                <p className="text-xl font-medium text-gray-900 mb-2">{t("no_favorites")}</p>
-                <p className="text-gray-600 max-w-md mx-auto">Start exploring services to add your favorites!</p>
+                <p className="text-xl font-medium text-gray-900 mb-2">
+                  {t("no_favorites")}
+                </p>
+                <p className="text-gray-600 max-w-md mx-auto">
+                  Start exploring services to add your favorites!
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {likedItems.liked_services.map((item, index) =>
+                {likedItems.liked_services.map((item, index) => (
                   <div key={`fav-service-${index}`}>
                     {renderFavoriteCard(item, true)}
                   </div>
-                )}
+                ))}
               </div>
             )}
           </div>
         );
       }
 
-      case 'properties': {
+      case "properties": {
         const savedPropertiesCount = savedProperties?.results?.length || 0;
         return (
           <div className="mt-8">
@@ -637,10 +656,14 @@ const MainProfile = () => {
             ) : savedPropertiesCount === 0 ? (
               <div className="text-center py-16 text-gray-500">
                 <FaHome className="mx-auto mb-6 text-5xl text-gray-300" />
-                <p className="text-xl font-medium text-gray-900 mb-2">No saved properties yet</p>
-                <p className="text-gray-600 max-w-md mx-auto">Properties you save will appear here!</p>
+                <p className="text-xl font-medium text-gray-900 mb-2">
+                  No saved properties yet
+                </p>
+                <p className="text-gray-600 max-w-md mx-auto">
+                  Properties you save will appear here!
+                </p>
                 <button
-                  onClick={() => navigate('/properties')}
+                  onClick={() => navigate("/properties")}
                   className="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
                 >
                   Explore Properties
@@ -648,11 +671,11 @@ const MainProfile = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {savedProperties?.results.map((savedProperty, index) =>
+                {savedProperties?.results.map((savedProperty, index) => (
                   <div key={`saved-property-${index}`}>
                     {renderPropertyCard(savedProperty)}
                   </div>
-                )}
+                ))}
               </div>
             )}
           </div>
@@ -694,8 +717,9 @@ const MainProfile = () => {
               </h1>
               {profileInfo.data.location?.district && (
                 <p className="text-gray-700 flex items-center text-lg font-medium mb-4">
-                  <FaMapMarkerAlt className="mr-2 text-blue-500" size={18}/>
-                  {profileInfo.data.location.district}, {profileInfo.data.location.region}
+                  <FaMapMarkerAlt className="mr-2 text-blue-500" size={18} />
+                  {profileInfo.data.location.district},{" "}
+                  {profileInfo.data.location.region}
                 </p>
               )}
             </div>
@@ -736,29 +760,31 @@ const MainProfile = () => {
 
         {/* Tabbed Favorites Section */}
         <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">Favorites & Saved Items</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-8">
+            Favorites & Saved Items
+          </h2>
 
           {/* Tab Navigation */}
           <div className="flex flex-wrap gap-3 mb-8 p-2 bg-gray-50 rounded-xl">
             <TabButton
               label="Favorite Products"
               icon={<FaShoppingBag size={18} />}
-              isActive={activeTab === 'products'}
-              onClick={() => setActiveTab('products')}
+              isActive={activeTab === "products"}
+              onClick={() => setActiveTab("products")}
               count={likedItems?.liked_products?.length || 0}
             />
             <TabButton
               label="Favorite Services"
               icon={<FaToolbox size={18} />}
-              isActive={activeTab === 'services'}
-              onClick={() => setActiveTab('services')}
+              isActive={activeTab === "services"}
+              onClick={() => setActiveTab("services")}
               count={likedItems?.liked_services?.length || 0}
             />
             <TabButton
               label="Saved Properties"
               icon={<FaHome size={18} />}
-              isActive={activeTab === 'properties'}
-              onClick={() => setActiveTab('properties')}
+              isActive={activeTab === "properties"}
+              onClick={() => setActiveTab("properties")}
               count={savedProperties?.results?.length || 0}
             />
           </div>
@@ -810,7 +836,9 @@ const MainProfile = () => {
                     accept="image/*"
                   />
                 </div>
-                <p className="text-sm text-gray-500 mt-2">Click camera icon to change photo</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Click camera icon to change photo
+                </p>
               </div>
 
               {/* Username Field */}

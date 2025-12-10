@@ -1,6 +1,6 @@
 import { ServiceRes } from "@pages/Profile/MainProfile";
 import MainReply from "@services/Comments/Replies/MainReply";
-import { BASE_URL } from "@store/constants";
+
 import { RootState } from "@store/index";
 import {
   useCreateReplyMutation,
@@ -282,7 +282,7 @@ const SingleComment: React.FC<SingleCommentProps> = ({
           {comment.user.profile_image != null ? (
             <div className="w-10 h-10 rounded-full overflow-hidden">
               <img
-                src={`${BASE_URL}/${comment.user.profile_image.image}`}
+                src={`${comment.user.profile_image.image}`}
                 alt={comment.user.username}
                 className="w-full h-full object-cover"
               />

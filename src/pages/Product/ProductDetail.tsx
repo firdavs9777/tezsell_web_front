@@ -1,4 +1,3 @@
-import { BASE_URL } from "@store/constants";
 import {
   useDeleteProductItemMutation,
   useGetFavoriteItemsQuery,
@@ -59,7 +58,7 @@ const ProductDetail = () => {
 
   useEffect(() => {
     if (singleProduct?.product.images.length > 0) {
-      setSelectedImage(`${BASE_URL}${singleProduct.product.images[0].image}`);
+      setSelectedImage(`${singleProduct.product.images[0].image}`);
     }
   }, [singleProduct]);
 
@@ -85,7 +84,7 @@ const ProductDetail = () => {
   }
 
   const handleImageClick = (image: string) => {
-    setSelectedImage(`${BASE_URL}${image}`);
+    setSelectedImage(`${image}`);
   };
 
   const redirectHandler = (id: number) => {
@@ -151,7 +150,7 @@ const ProductDetail = () => {
   const onCloseHandler = () => {
     refetch();
     if (singleProduct.product.images) {
-      setSelectedImage(`${BASE_URL}${singleProduct.product.images[0].image}`);
+      setSelectedImage(`${singleProduct.product.images[0].image}`);
     } else {
       setSelectedImage("");
     }
@@ -252,14 +251,14 @@ const ProductDetail = () => {
                 key={index}
                 className={`relative aspect-square rounded-md overflow-hidden cursor-pointer
                   ${
-                    selectedImage === `${BASE_URL}${image.image}`
+                    selectedImage === `${image.image}`
                       ? "ring-2 ring-blue-500"
                       : "ring-1 ring-gray-200"
                   }`}
                 onClick={() => handleImageClick(image.image)}
               >
                 <img
-                  src={`${BASE_URL}${image.image}`}
+                  src={`${image.image}`}
                   alt="thumbnail"
                   className="w-full h-full object-cover"
                 />
@@ -320,7 +319,7 @@ const ProductDetail = () => {
           <div className="bg-white p-4 rounded-lg shadow-sm flex items-center gap-4">
             {singleProduct.product.userName?.profile_image ? (
               <img
-                src={`${BASE_URL}/${singleProduct.product.userName.profile_image.image}`}
+                src={`${singleProduct.product.userName.profile_image.image}`}
                 alt="profile"
                 className="w-12 h-12 rounded-full object-cover border-2 border-gray-100"
               />
@@ -342,34 +341,36 @@ const ProductDetail = () => {
           </div>
 
           <div className="flex gap-3">
-           {userInfo?.user_info?.id && userInfo.user_info.id !== singleProduct.product.userName.id && (
-  <button
-    className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-    onClick={handleChat}
-  >
-    <FaCommentAlt size={16} />
-    {t("message_seller")}
-  </button>
-)}
+            {userInfo?.user_info?.id &&
+              userInfo.user_info.id !== singleProduct.product.userName.id && (
+                <button
+                  className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  onClick={handleChat}
+                >
+                  <FaCommentAlt size={16} />
+                  {t("message_seller")}
+                </button>
+              )}
 
-{userInfo?.user_info?.id && userInfo.user_info.id === singleProduct.product.userName.id && (
-  <>
-    <button
-      onClick={handleEditModal}
-      className="flex-1 flex items-center justify-center gap-2 bg-amber-500 text-white py-3 rounded-lg hover:bg-amber-600 transition-colors font-medium"
-    >
-      <FaEdit size={16} /> {t("edit_label")}
-    </button>
-    <button
-      onClick={() => {
-        handleProductDelete();
-      }}
-      className="flex-1 flex items-center justify-center gap-2 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors font-medium"
-    >
-      <FaTrash size={16} /> {t("delete_label")}
-    </button>
-  </>
-)}
+            {userInfo?.user_info?.id &&
+              userInfo.user_info.id === singleProduct.product.userName.id && (
+                <>
+                  <button
+                    onClick={handleEditModal}
+                    className="flex-1 flex items-center justify-center gap-2 bg-amber-500 text-white py-3 rounded-lg hover:bg-amber-600 transition-colors font-medium"
+                  >
+                    <FaEdit size={16} /> {t("edit_label")}
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleProductDelete();
+                    }}
+                    className="flex-1 flex items-center justify-center gap-2 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors font-medium"
+                  >
+                    <FaTrash size={16} /> {t("delete_label")}
+                  </button>
+                </>
+              )}
           </div>
 
           {isEdit && (
@@ -394,7 +395,7 @@ const ProductDetail = () => {
             >
               <div className="aspect-square overflow-hidden">
                 <img
-                  src={`${BASE_URL}/${item.images[0]?.image}`}
+                  src={`${item.images[0]?.image}`}
                   alt={item.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />

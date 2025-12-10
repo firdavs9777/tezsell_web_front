@@ -1,5 +1,5 @@
 import Modal from "@components/Modal";
-import { BASE_URL } from "@store/constants";
+
 import { RootState } from "@store/index";
 import {
   useGetServiceCategoryListQuery,
@@ -41,7 +41,7 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
   onClose,
 }) => {
   const { t, i18n } = useTranslation();
-  const userInfo = useSelector((state: RootState) => state.auth.userInfo );
+  const userInfo = useSelector((state: RootState) => state.auth.userInfo);
 
   // API Hooks
   const {
@@ -95,7 +95,7 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
         singleService.service.images?.map((image) => ({
           id: image.id || 0,
           image: image.image,
-          fullUrl: `${BASE_URL}${image.image}`,
+          fullUrl: `${image.image}`,
           isDeleted: false,
         })) || [];
 
@@ -280,9 +280,12 @@ const MyServiceEdit: React.FC<SingleServiceType> = ({
       return null;
     }
 
-formData.append("location_id", userInfo.user_info.location.id.toString());
-formData.append("userName_id", userInfo.user_info.id.toString());
-formData.append("userAddress_id", userInfo.user_info.location.id.toString());
+    formData.append("location_id", userInfo.user_info.location.id.toString());
+    formData.append("userName_id", userInfo.user_info.id.toString());
+    formData.append(
+      "userAddress_id",
+      userInfo.user_info.location.id.toString()
+    );
 
     // Add category
     const selectedCategory = categoryList?.find(
@@ -347,7 +350,9 @@ formData.append("userAddress_id", userInfo.user_info.location.id.toString());
       <div className="flex justify-center items-center h-32 sm:h-64">
         <div className="text-center">
           <div className="animate-spin inline-block w-6 h-6 sm:w-8 sm:h-8 border-2 sm:border-4 border-blue-500 border-t-transparent rounded-full mb-2"></div>
-          <p className="text-gray-600 text-sm sm:text-base">{t("loading.loading")}</p>
+          <p className="text-gray-600 text-sm sm:text-base">
+            {t("loading.loading")}
+          </p>
         </div>
       </div>
     );
@@ -370,13 +375,14 @@ formData.append("userAddress_id", userInfo.user_info.location.id.toString());
     <Modal onClose={closeHandler} isOpen={isOpen}>
       {/* Mobile-first responsive container */}
       <div className="w-full max-w-xs sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl mx-auto bg-white rounded-none sm:rounded-xl shadow-lg overflow-hidden h-full sm:h-auto max-h-screen sm:max-h-[90vh] flex flex-col">
-
         {/* Header - Fixed height with responsive padding */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-700 py-3 px-4 sm:py-4 sm:px-6 flex-shrink-0">
           <div className="flex justify-between items-center">
             <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white flex items-center">
               <FaEdit className="mr-2 text-sm sm:text-base" />
-              <span className="hidden sm:inline">{t("edit_service_modal_title")}</span>
+              <span className="hidden sm:inline">
+                {t("edit_service_modal_title")}
+              </span>
               <span className="sm:hidden">{t("edit_service")}</span>
             </h1>
             <button
@@ -392,8 +398,10 @@ formData.append("userAddress_id", userInfo.user_info.location.id.toString());
         {/* Scrollable content area */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-4 sm:p-6">
-            <form onSubmit={submitFormHandler} className="space-y-4 sm:space-y-6">
-
+            <form
+              onSubmit={submitFormHandler}
+              className="space-y-4 sm:space-y-6"
+            >
               {/* Service Title */}
               <div>
                 <label
@@ -486,7 +494,6 @@ formData.append("userAddress_id", userInfo.user_info.location.id.toString());
 
                 {/* Responsive image grid: 2 cols on mobile, 3 on sm, 4 on md+ */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 mb-3">
-
                   {/* Existing Images */}
                   {form.existingImages.map(
                     (image, index) =>
@@ -507,7 +514,10 @@ formData.append("userAddress_id", userInfo.user_info.location.id.toString());
                               onClick={() => handleRemoveExistingImage(index)}
                               aria-label="Remove image"
                             >
-                              <FaTrash size={12} className="sm:w-3.5 sm:h-3.5" />
+                              <FaTrash
+                                size={12}
+                                className="sm:w-3.5 sm:h-3.5"
+                              />
                             </button>
                           </div>
                         </div>

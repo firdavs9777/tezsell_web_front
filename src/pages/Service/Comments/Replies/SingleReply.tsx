@@ -12,7 +12,6 @@ import {
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { RootState } from "../../../../store";
-import { BASE_URL } from "../../../../store/constants";
 import {
   useDeleteReplyItemMutation,
   useUpdateReplyItemMutation,
@@ -174,7 +173,7 @@ const SingleReply: React.FC<SingleReplyProps> = ({
           <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
             {reply.user.profile_image?.image ? (
               <img
-                src={`${BASE_URL}/${reply.user.profile_image?.image}`}
+                src={`${reply.user.profile_image?.image}`}
                 alt={reply.user.username}
                 className="w-full h-full object-cover rounded-full"
               />
