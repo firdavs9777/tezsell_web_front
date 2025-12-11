@@ -1,4 +1,3 @@
-// src/store/index.ts
 import { configureStore } from "@reduxjs/toolkit";
 import {
   FLUSH,
@@ -18,51 +17,41 @@ import commentsSliceReducer from "@store/slices/commentApiSlice";
 import productsSliceReducer from "@store/slices/productsApiSlice";
 import servicesSliceReducer from "@store/slices/serviceApiSlice";
 import realEstateApiSlice from "@store/slices/realEstate";
-import storage from "redux-persist/lib/storage"; // This uses localStorage
+import storage from "redux-persist/lib/storage";
+
 const persistConfig = {
-  key: "root", // You can name this as per your app's needs
-  storage, // Use localStorage as the storage
-  whitelist: ["auth"], // Define which slices to persist (e.g., 'product' and 'auth')
+  key: "root",
+  version: 2, // ADD THIS - increment when you want to invalidate old cache
+  storage,
+  whitelist: ["auth"], // Only persist auth, not product data
+  migrate: (state: any) => {
+    // Clear old cache on version change
+    return Promise.resolve(state);
+  },
 };
 
-const persistedProductReducer = persistReducer(
-  persistConfig,
-  productsSliceReducer
-);
 const persistedAuthReducer = persistReducer(persistConfig, authSliceReducer);
-const persistedServiceReducer = persistReducer(
-  persistConfig,
-  servicesSliceReducer
-);
-const persistedCommentReducer = persistReducer(
-  persistConfig,
-  commentsSliceReducer
-);
-const persistedRealEstateReducer = persistReducer(
-  persistConfig,
-  realEstateApiSlice
-);
 
-const persistedMessageReducer = persistReducer(persistConfig, messagesApiSlice);
+// DON'T persist product/service/real estate data - they should always be fresh from API
 const rootReducer = configureStore({
   reducer: {
     [apiSlice.reducerPath]: apiSlice.reducer,
-    product: persistedProductReducer,
-    service: persistedServiceReducer,
-    auth: persistedAuthReducer,
-    comment: persistedCommentReducer,
-    real_estate: persistedRealEstateReducer,
-    messsage: persistedMessageReducer,
+    product: productsSliceReducer, // REMOVED persist
+    service: servicesSliceReducer, // REMOVED persist
+    auth: persistedAuthReducer, // KEEP persist for auth only
+    comment: commentsSliceReducer, // REMOVED persist
+    real_estate: realEstateApiSlice, // REMOVED persist
+    messsage: messagesApiSlice, // REMOVED persist
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      // This is important to prevent serialization issues with RTK Query
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
     }).concat(apiSlice.middleware),
   devTools: true,
 });
+
 const persistor = persistStore(rootReducer);
 
 export type RootState = ReturnType<typeof rootReducer.getState>;

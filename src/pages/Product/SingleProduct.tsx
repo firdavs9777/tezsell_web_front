@@ -31,6 +31,10 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
   const [dislikeProduct] = useUnlikeProductMutation();
   const [isLiked, setIsLiked] = useState(false);
 
+  // Image loading states
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
   const liked_items: ServiceRes = favorite_items as ServiceRes;
 
   useEffect(() => {
@@ -42,6 +46,30 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
       );
     }
   }, [product, liked_items]);
+
+  // Preload image when component mounts or product changes
+  useEffect(() => {
+    if (product?.images?.length > 0) {
+      const imageUrl = product.images[0].image;
+      console.log("Loading image URL:", imageUrl);
+
+      // Reset states
+      setImageLoaded(false);
+      setImageError(false);
+
+      // Preload image
+      const img = new Image();
+      img.onload = () => {
+        console.log("Image loaded successfully:", imageUrl);
+        setImageLoaded(true);
+      };
+      img.onerror = () => {
+        console.error("Image failed to load:", imageUrl);
+        setImageError(true);
+      };
+      img.src = imageUrl;
+    }
+  }, [product]);
 
   const redirectHandler = (id: number) => navigate(`/product/${id}`);
 
@@ -96,11 +124,56 @@ const SingleProduct: React.FC<SingleProductProps> = ({ product }) => {
     >
       <div className="w-full aspect-square bg-gray-100 relative overflow-hidden">
         {product?.images?.length > 0 ? (
-          <img
-            src={`${product.images[0].image}`}
-            alt={product.title}
-            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-          />
+          <>
+            <img
+              src={product.images[0].image}
+              alt={product.title}
+              className={`w-full h-full object-cover hover:scale-105 transition-all duration-300 ${
+                imageLoaded ? "opacity-100" : "opacity-0"
+              }`}
+              onLoad={() => setImageLoaded(true)}
+              onError={(e) => {
+                console.error(
+                  "Image error on render:",
+                  product.images[0].image
+                );
+                if (!imageError) {
+                  setImageError(true);
+                  // Retry once after a short delay
+                  setTimeout(() => {
+                    e.currentTarget.src = product.images[0].image;
+                  }, 100);
+                }
+              }}
+            />
+            {/* Loading spinner */}
+            {!imageLoaded && !imageError && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            )}
+            {/* Error state */}
+            {imageError && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-500">
+                <div className="text-center">
+                  <svg
+                    className="mx-auto h-12 w-12 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <p className="mt-2 text-sm">Image failed to load</p>
+                </div>
+              </div>
+            )}
+          </>
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500">
             No Image
