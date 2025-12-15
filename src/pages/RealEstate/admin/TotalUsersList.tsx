@@ -206,7 +206,7 @@ const EditModal: React.FC<{
     if (user) {
       setFormData({
         username: user.username,
-        phone_number: user.phone_number,
+        phone_number: user.phone_number || "",
         user_type: user.user_type,
         user_role: user.user_role,
         is_active: user.is_active,

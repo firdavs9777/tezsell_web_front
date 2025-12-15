@@ -40,7 +40,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
     }
 
     try {
-      const response = await sendVerificationCode({ email }).unwrap();
+      const response = await sendVerificationCode({ email }).unwrap() as { success: boolean; message?: string; error?: string };
       
       if (response.success) {
         setOtpSent(true);
@@ -71,7 +71,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({
     }
 
     try {
-      const response = await verifyEmailCode({ email, code: verificationCode }).unwrap();
+      const response = await verifyEmailCode({ email, code: verificationCode }).unwrap() as { success: boolean; verified?: boolean; message?: string; error?: string };
       
       if (response.success && response.verified) {
         onVerify(true, verificationCode);

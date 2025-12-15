@@ -46,7 +46,7 @@ const ForgotPassword = () => {
         data.phone_number = phoneNumber;
       }
 
-      const response = await sendOtp(data).unwrap();
+      const response = await sendOtp(data).unwrap() as { success: boolean; message?: string; error?: string };
       
       if (response.success) {
         toast.success(response.message || t("otp_sent_successfully") || "OTP sent successfully");
@@ -101,7 +101,7 @@ const ForgotPassword = () => {
         data.phone_number = phoneNumber;
       }
 
-      const response = await resetPassword(data).unwrap();
+      const response = await resetPassword(data).unwrap() as { success: boolean; message?: string; error?: string };
 
       if (response.success) {
         toast.success(response.message || t("password_reset_success") || "Password reset successful");
