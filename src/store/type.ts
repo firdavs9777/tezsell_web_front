@@ -90,7 +90,8 @@ export interface UsersResponse {
 export interface User {
   id: number;
   username: string;
-  phone_number: string;
+  email: string;
+  phone_number: string | null;
   user_type: string;
   is_active: boolean;
   is_staff: boolean;
@@ -232,7 +233,7 @@ export type RootStackParamList = {
 };
 
 export interface LoginInfo {
-  phone_number: string;
+  email: string;
   password: string;
 }
 
@@ -243,10 +244,12 @@ export interface LocationInfo {
 }
 
 export interface RegisterInfo {
-  username: string;
-  phone_number: string;
+  email: string;
   password: string;
-  user_type: string;
+  verification_code: string;
+  username?: string;
+  phone_number?: string;
+  user_type?: string;
   location_id?: number;
 }
 

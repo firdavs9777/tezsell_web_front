@@ -4,7 +4,7 @@ import Navbar from "@pages/Navbar/Navbar";
 import RouterPage from "@routes/Router";
 // import { Chat, useGetAllChatMessagesQuery } from "@store/slices/chatSlice";
 import i18n from "@utils/i18n";
-// import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { I18nextProvider } from "react-i18next";
 // import { useSelector } from "react-redux";
 import { BrowserRouter as Router } from "react-router-dom";
@@ -12,6 +12,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 // import { RootState } from "./store";
 import { useTokenRefresh } from "@hooks/useTokenRefresh";
+import { preloadLogo } from "@components/Logo/Logo";
 
 // Component to handle token refresh inside Router context
 const TokenRefreshProvider = () => {
@@ -20,6 +21,13 @@ const TokenRefreshProvider = () => {
 };
 
 function App() {
+  // Preload logo image on app initialization for better performance
+  useEffect(() => {
+    preloadLogo().catch(() => {
+      // Silently handle preload errors
+    });
+  }, []);
+
   // const [chats, setChats] = useState<Chat[]>([]);
   // const [globalUnreadCount, setGlobalUnreadCount] = useState(0);
   // const userInfo = useSelector((state: RootState) => state.auth.userInfo);

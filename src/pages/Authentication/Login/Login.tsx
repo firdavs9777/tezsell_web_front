@@ -7,37 +7,15 @@ import { setCredentials } from "@store/slices/authSlice";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 
-interface CountryCode {
-  code: string;
-  country: string;
-  flag: string;
-}
-
 const Login = () => {
   const { t } = useTranslation();
-  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const { userInfo } = useSelector((state: any) => state.auth);
   const navigate = useNavigate();
   const [loginUser, { isLoading }] = useLoginUserMutation();
   const dispatch = useDispatch();
-
-  // Country code options
-  const countryCodes: CountryCode[] = [
-    { code: "+998", country: "Uzbekistan", flag: "🇺🇿" },
-    { code: "+82", country: "Korea", flag: "🇰🇷" },
-    { code: "+1", country: "USA", flag: "🇺🇸" },
-    { code: "+44", country: "UK", flag: "🇬🇧" },
-    { code: "+49", country: "Germany", flag: "🇩🇪" },
-    { code: "+33", country: "France", flag: "🇫🇷" },
-    { code: "+81", country: "Japan", flag: "🇯🇵" },
-    { code: "+86", country: "China", flag: "🇨🇳" },
-    { code: "+91", country: "India", flag: "🇮🇳" },
-  ];
-
-  const [selectedCountry, setSelectedCountry] = useState(countryCodes[0]);
 
   const { search } = useLocation();
   const sp = new URLSearchParams(search);
@@ -49,28 +27,19 @@ const Login = () => {
     }
   }, [userInfo, redirect, navigate]);
 
-  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (/^\d*$/.test(value) || value === "") {
-      setPhoneNumber(value);
-    }
-  };
-
-  const handleCountrySelect = (country: CountryCode) => {
-    setSelectedCountry(country);
-    setShowCountryDropdown(false);
-  };
-
   const clickHandler = () => {
     setShowPass((prev) => !prev);
   };
 
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!email || !password) {
+      toast.error(t("email_password_required") || "Email and password are required");
+      return;
+    }
     try {
-      const fullPhoneNumber = selectedCountry.code + phoneNumber;
       const userInfo = await loginUser({
-        phone_number: fullPhoneNumber,
+        email,
         password,
       }).unwrap();
       if (userInfo && typeof userInfo === "object") {
@@ -102,71 +71,23 @@ const Login = () => {
         </div>
         <form className="mt-8 space-y-6" onSubmit={submitHandler}>
           <div className="rounded-md shadow-sm space-y-4">
-            {/* Phone Number Input */}
+            {/* Email Input */}
             <div>
               <label
-                htmlFor="phoneNumber"
+                htmlFor="email"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                {t("phone_number")}
+                {t("email") || "Email"}
               </label>
-              <div className="flex rounded-md shadow-sm">
-                <div className="relative flex-shrink-0">
-                  <button
-                    type="button"
-                    className="relative w-32 h-full flex items-center justify-between py-2 pl-3 pr-2 border border-r-0 border-gray-300 rounded-l-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                    onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-                  >
-                    <div className="flex items-center">
-                      <span className="mr-2">{selectedCountry.flag}</span>
-                      <span>{selectedCountry.code}</span>
-                    </div>
-                    <svg
-                      className="h-5 w-5 text-gray-400"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </button>
-                  {showCountryDropdown && (
-                    <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
-                      {countryCodes.map((country) => (
-                        <div
-                          key={country.code}
-                          className={`flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer ${
-                            selectedCountry.code === country.code
-                              ? "bg-blue-50"
-                              : ""
-                          }`}
-                          onClick={() => handleCountrySelect(country)}
-                        >
-                          <span className="mr-2">{country.flag}</span>
-                          <span className="font-medium mr-2">
-                            {country.code}
-                          </span>
-                          <span className="text-gray-600 truncate">
-                            {country.country}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <input
-                  type="tel"
-                  id="phoneNumber"
-                  value={phoneNumber}
-                  onChange={handlePhoneNumberChange}
-                  placeholder={t("enter_phone_number_without_code")}
-                  className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={t("enter_email") || "Enter your email"}
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                required
+              />
             </div>
 
             {/* Password Input */}

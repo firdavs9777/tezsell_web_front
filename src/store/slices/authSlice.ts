@@ -57,7 +57,8 @@ export interface UserPermissions {
 export interface EnhancedUser {
   id: number;
   username: string;
-  phone_number: string;
+  email: string;
+  phone_number: string | null;
   user_type: "regular" | "business";
   is_active: boolean;
   is_staff: boolean;

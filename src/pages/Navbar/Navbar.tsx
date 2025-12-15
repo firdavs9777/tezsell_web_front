@@ -1,4 +1,5 @@
 import { useAutoLogout } from "@hooks/useAutoLogout";
+import Logo from "@components/Logo/Logo";
 
 import {
   logout,
@@ -1114,9 +1115,14 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
         <Link
           to="/"
           onClick={handleNavLinkClick}
-          className="text-xl sm:text-2xl font-bold text-blue-900 flex-shrink-0"
+          className="flex-shrink-0 h-10 sm:h-12 flex items-center"
         >
-          TezSell
+          <Logo
+            width="auto"
+            height="100%"
+            className="max-h-full w-auto"
+            onClick={handleNavLinkClick}
+          />
         </Link>
 
         <button

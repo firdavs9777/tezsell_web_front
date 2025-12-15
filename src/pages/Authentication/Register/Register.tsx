@@ -1,5 +1,5 @@
 import DistrictSelect from "@pages/Authentication/Register/Steps/DistrictSelect";
-import PhoneNumberVerification from "@pages/Authentication/Register/Steps/PhoneVerification";
+import EmailVerification from "@pages/Authentication/Register/Steps/EmailVerification";
 import RegionSelect from "@pages/Authentication/Register/Steps/RegionSelect";
 import SummaryRegister from "@pages/Authentication/Register/Steps/SummaryRegister";
 import { setCredentials } from "@store/slices/authSlice";
@@ -13,8 +13,10 @@ import { toast } from "react-toastify";
 
 const Register = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
+  const [email, setEmail] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [phoneNumber] = useState(""); // Optional - no UI to set it currently
   const [regionName, setRegionName] = useState("");
   const [districtName, setDistrictName] = useState("");
   const [userName, setUserName] = useState("");
@@ -30,10 +32,13 @@ const Register = () => {
     useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-  const handlePhoneVerification = (status: boolean) => {
-    setIsPhoneVerified(status);
-    if (status) toast.success(t("register_phone_number_success"));
-    setCurrentStep((prev) => prev + 1);
+  const handleEmailVerification = (status: boolean, code?: string) => {
+    setIsEmailVerified(status);
+    if (status && code) {
+      setVerificationCode(code);
+      toast.success(t("register_email_success") || "Email verified successfully");
+      setCurrentStep((prev) => prev + 1);
+    }
   };
 
   const handleRegionSelect = (status: boolean, region: string) => {
@@ -59,8 +64,8 @@ const Register = () => {
   };
 
   const nextStep = () => {
-    if (currentStep === 1 && !isPhoneVerified)
-      return toast.error(t("phone_number_emtpy_message"));
+    if (currentStep === 1 && !isEmailVerified)
+      return toast.error(t("email_not_verified") || "Please verify your email");
     if (currentStep === 2 && !regionName)
       return toast.error(t("region_emtpy_message"));
     if (currentStep === 3 && !districtName)
@@ -77,20 +82,27 @@ const Register = () => {
 
   const submitRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!verificationCode) {
+      toast.error(t("verification_code_required") || "Verification code is required");
+      return;
+    }
     const registerInput: RegisterInfo = {
-      username: userName,
+      email,
       password: userPassword,
-      phone_number: phoneNumber,
+      verification_code: verificationCode,
+      username: userName || undefined,
+      phone_number: phoneNumber || undefined,
       user_type: "regular",
-      location_id: locationId,
+      location_id: locationId || undefined,
     };
     try {
       const registerInfo = await registerUser(registerInput).unwrap();
       dispatch(setCredentials({ ...(registerInfo as any) }));
       toast.success(t("register_success"), { autoClose: 3000 });
       navigate(redirect);
-    } catch {
-      toast.error(t("register_error"), {
+    } catch (error: any) {
+      const errorMessage = error?.data?.error || error?.data?.message || t("register_error");
+      toast.error(errorMessage, {
         autoClose: 3000,
       });
     }
@@ -110,10 +122,10 @@ const Register = () => {
         </div>
 
         {currentStep === 1 && (
-          <PhoneNumberVerification
-            onVerify={handlePhoneVerification}
-            phoneNumber={phoneNumber}
-            setPhoneNumber={setPhoneNumber}
+          <EmailVerification
+            onVerify={handleEmailVerification}
+            email={email}
+            setEmail={setEmail}
           />
         )}
         {currentStep === 2 && (
@@ -151,7 +163,7 @@ const Register = () => {
               onClick={nextStep}
               className="ml-auto px-4 py-2 bg-blue-700 text-[#fff] rounded-md font-bold hover:bg-blue-700 transition disabled:opacity-50"
               disabled={
-                (currentStep === 1 && !isPhoneVerified) ||
+                (currentStep === 1 && !isEmailVerified) ||
                 (currentStep === 2 && regionName === "") ||
                 (currentStep === 3 && districtName === "") ||
                 (currentStep === 4 && (!userName || !userPassword))

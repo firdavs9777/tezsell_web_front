@@ -12,6 +12,12 @@ import {
   USERS_URL,
   VERIFY_SMS,
   VERIFY_TOKEN_URL,
+  SEND_VERIFICATION_CODE,
+  VERIFY_EMAIL_CODE,
+  FORGOT_PASSWORD_SEND_OTP,
+  FORGOT_PASSWORD_RESET,
+  PASSWORD_REQUEST_UPDATE,
+  PASSWORD_UPDATE,
 } from "@store/constants";
 import { apiSlice } from "@store/slices/apiSlice";
 import { LoginInfo, RegisterInfo } from "@store/type";
@@ -28,11 +34,16 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       provideTags: ["Auth"],
     }),
     registerUser: builder.mutation({
-      query: (data: RegisterInfo) => ({
-        url: `${REGISTER_URL}`,
-        method: "POST",
-        body: data,
-      }),
+      query: (data: RegisterInfo | FormData) => {
+        // If data is FormData, don't set Content-Type header (browser will set it with boundary)
+        const isFormData = data instanceof FormData;
+        return {
+          url: `${REGISTER_URL}`,
+          method: "POST",
+          body: data,
+          ...(isFormData ? {} : { headers: { "Content-Type": "application/json" } }),
+        };
+      },
       keepUnusedDataFor: 5,
       provideTags: ["Auth"],
     }),
@@ -236,6 +247,70 @@ deleteRegisteredUser: builder.mutation({
       keepUnusedDataFor: 5,
       provideTags: ["Auth"],
     }),
+    sendVerificationCode: builder.mutation({
+      query: (data: { email: string }) => ({
+        url: `${SEND_VERIFICATION_CODE}`,
+        method: "POST",
+        body: data,
+      }),
+      keepUnusedDataFor: 5,
+      provideTags: ["Auth"],
+    }),
+    verifyEmailCode: builder.mutation({
+      query: (data: { email: string; code: string }) => ({
+        url: `${VERIFY_EMAIL_CODE}`,
+        method: "POST",
+        body: data,
+      }),
+      keepUnusedDataFor: 5,
+      provideTags: ["Auth"],
+    }),
+    forgotPasswordSendOtp: builder.mutation({
+      query: (data: { email: string; phone_number?: string }) => ({
+        url: `${FORGOT_PASSWORD_SEND_OTP}`,
+        method: "POST",
+        body: data,
+      }),
+      keepUnusedDataFor: 5,
+      provideTags: ["Auth"],
+    }),
+    forgotPasswordReset: builder.mutation({
+      query: (data: {
+        email: string;
+        verification_code: string;
+        new_password: string;
+        confirm_password: string;
+        phone_number?: string;
+      }) => ({
+        url: `${FORGOT_PASSWORD_RESET}`,
+        method: "POST",
+        body: data,
+      }),
+      keepUnusedDataFor: 5,
+      provideTags: ["Auth"],
+    }),
+    passwordRequestUpdate: builder.mutation({
+      query: (data: { current_password: string }) => ({
+        url: `${PASSWORD_REQUEST_UPDATE}`,
+        method: "POST",
+        body: data,
+      }),
+      keepUnusedDataFor: 5,
+      provideTags: ["Auth"],
+    }),
+    passwordUpdate: builder.mutation({
+      query: (data: {
+        verification_code: string;
+        new_password: string;
+        confirm_password: string;
+      }) => ({
+        url: `${PASSWORD_UPDATE}`,
+        method: "POST",
+        body: data,
+      }),
+      keepUnusedDataFor: 5,
+      provideTags: ["Auth"],
+    }),
     getUserProducts: builder.query({
       query: ({ token }: { token: string }) => {
         return {
@@ -325,6 +400,12 @@ export const {
   useVerifyTokenQuery,
   useSendSmsUserMutation,
   useVerifyCodeUserMutation,
+  useSendVerificationCodeMutation,
+  useVerifyEmailCodeMutation,
+  useForgotPasswordSendOtpMutation,
+  useForgotPasswordResetMutation,
+  usePasswordRequestUpdateMutation,
+  usePasswordUpdateMutation,
   useGetUserProductsQuery,
   useUpdateUserProductMutation,
   useDeleteUserProductMutation,

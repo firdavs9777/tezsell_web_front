@@ -1,5 +1,6 @@
 import Login from "@authentication/Login/Login";
 import Register from "@authentication/Register/Register";
+import ForgotPassword from "@pages/Authentication/ForgotPassword/ForgotPassword";
 import MainChat from "@chats/MainChat";
 import About from "@pages/About/About";
 import Home from "@pages/Home/Home";
@@ -62,6 +63,7 @@ const Router = () => {
         <Route path="/about" element={<About />} />
         <Route path="/download" element={<DownloadApp />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/support" element={<SupportPage />} />
         <Route path="/register" element={<Register />} />
         <Route path="/" element={<Home />} />
