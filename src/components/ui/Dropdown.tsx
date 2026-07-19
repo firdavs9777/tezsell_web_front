@@ -1,4 +1,4 @@
-import { ReactNode, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@utils/cn";
 import { useClickOutside } from "@hooks/useClickOutside";
@@ -20,12 +20,22 @@ export default function Dropdown({
   const ref = useRef<HTMLDivElement>(null);
   useClickOutside(ref, () => setOpen(false));
 
+  useEffect(() => {
+    if (!open) return;
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
   return (
     <div ref={ref} className={cn("relative", className)}>
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        onKeyDown={(e) => e.key === "Escape" && setOpen(false)}
         className="flex items-center"
         aria-haspopup="menu"
         aria-expanded={open}
