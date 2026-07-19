@@ -110,6 +110,21 @@
   
   <!-- Cache Control -->
   <meta http-equiv="Cache-Control" content="public, max-age=31536000" />
+
+  <!-- Theme no-flash script (runs before first paint) -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("tz-theme");
+        if (t !== "light" && t !== "dark") {
+          t = window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+        }
+        document.documentElement.classList.toggle("dark", t === "dark");
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
   <div id="root"></div>

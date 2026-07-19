@@ -13,6 +13,7 @@ import "react-toastify/dist/ReactToastify.css";
 // import { RootState } from "./store";
 import { useTokenRefresh } from "@hooks/useTokenRefresh";
 import { preloadLogo } from "@components/Logo/Logo";
+import { ThemeProvider } from "./theme/ThemeProvider";
 
 // Component to handle token refresh inside Router context
 const TokenRefreshProvider = () => {
@@ -88,21 +89,23 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <I18nextProvider i18n={i18n}>
-        <div className="page-container">
-          <Router>
-            {/* Set up automatic token refresh inside Router context */}
-            <TokenRefreshProvider />
-            {/* Pass both chats and live unread count */}
-            <Navbar  />
-            <div className="content">
-              <RouterPage />
-            </div>
-            <Footer />
-          </Router>
-          <ToastContainer />
-        </div>
-      </I18nextProvider>
+      <ThemeProvider>
+        <I18nextProvider i18n={i18n}>
+          <div className="page-container">
+            <Router>
+              {/* Set up automatic token refresh inside Router context */}
+              <TokenRefreshProvider />
+              {/* Pass both chats and live unread count */}
+              <Navbar  />
+              <div className="content">
+                <RouterPage />
+              </div>
+              <Footer />
+            </Router>
+            <ToastContainer />
+          </div>
+        </I18nextProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }
