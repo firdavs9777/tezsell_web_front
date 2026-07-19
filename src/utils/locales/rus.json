@@ -1011,5 +1011,7 @@
 "share": "Поделиться",
 "share_product": "Поделиться товаром",
 "link_copied": "Ссылка скопирована",
-"share_failed": "Не удалось поделиться"
+"share_failed": "Не удалось поделиться",
+"theme_toggle_dark": "Тёмная тема",
+"theme_toggle_light": "Светлая тема"
 }

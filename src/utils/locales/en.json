@@ -1012,5 +1012,7 @@
      "share_product": "Share product",
      "link_copied": "Link copied to clipboard",
      "share_failed": "Failed to share",
-     "saved_properties": "Saved Properties"
+     "saved_properties": "Saved Properties",
+     "theme_toggle_dark": "Switch to dark mode",
+     "theme_toggle_light": "Switch to light mode"
 }
