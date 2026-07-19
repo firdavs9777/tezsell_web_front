@@ -16,10 +16,10 @@ i18n.use(Backend)
     ru: { translation: ru },
     uz: { translation: uz },
   },
-  lng: 'uz', 
-  fallbackLng: 'uz', 
+  fallbackLng: 'en',
+  supportedLngs: ['en', 'ru', 'uz'],
   interpolation: {
-    escapeValue: false, 
+    escapeValue: false,
   },
 });
 
