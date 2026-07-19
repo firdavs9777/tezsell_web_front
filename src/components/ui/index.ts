@@ -7,3 +7,8 @@ export { default as Select } from "./Select";
 export { default as Skeleton } from "./Skeleton";
 export { default as Spinner } from "./Spinner";
 export { default as Textarea } from "./Textarea";
+export { Card, CardBody } from "./Card";
+export { default as Dropdown, DropdownItem } from "./Dropdown";
+export { default as Modal } from "./Modal";
+export { default as Tabs } from "./Tabs";
+export { default as ThemedToastContainer } from "./ThemedToastContainer";
