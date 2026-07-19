@@ -1017,5 +1017,15 @@
      "theme_toggle_light": "Switch to light mode",
      "footer": {
        "tagline": "Buy and sell anything, anywhere near you."
+     },
+     "home": {
+       "heroTitle": "Buy and sell anything near you",
+       "heroSubtitle": "Tezsell is your local marketplace for products, services and real estate — fast, simple and free.",
+       "startSelling": "Start selling",
+       "browseAll": "Browse listings",
+       "categoriesTitle": "Explore categories",
+       "freshTitle": "Fresh listings",
+       "viewAll": "View all",
+       "emptyListings": "No listings yet — be the first to post!"
      }
 }

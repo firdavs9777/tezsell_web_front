@@ -1,193 +1,152 @@
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useTranslation } from "react-i18next";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
+import { Button, Card, EmptyState, Skeleton } from "@components/ui";
+import { useFormat } from "@utils/intl";
+import {
+  useGetCategoryListQuery,
+  useGetProductsQuery,
+} from "@store/slices/productsApiSlice";
+import type { Category, Product, ProductResponse } from "@store/type";
 
-interface FeatureCardProps {
-  emoji: string;
-  title: string;
-  description: string;
+function categoryName(category: Category, lang: string): string {
+  if (lang.startsWith("ru")) return category.name_ru;
+  if (lang.startsWith("uz")) return category.name_uz;
+  return category.name_en;
 }
 
-interface ComingSoonCardProps {
-  emoji: string;
-  title: string;
-  badge: string;
-}
-
-interface HomeProps {
-  t?: (key: string) => string;
-}
-
-const Home: React.FC<HomeProps> = () => {
-  const [isVisible, setIsVisible] = useState(false);
+const Home = () => {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const format = useFormat();
 
-  const {t} = useTranslation()
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
+  const { data: categories, isLoading: categoriesLoading } =
+    useGetCategoryListQuery({});
+  const { data: productsData, isLoading: productsLoading } =
+    useGetProductsQuery({ currentPage: 1, page_size: 8 });
 
-  const navigateTo = (path: string) => {
-    navigate(path);
-  };
+  const products: Product[] = (productsData as ProductResponse)?.results ?? [];
+  const categoryList: Category[] = Array.isArray(categories)
+    ? (categories as Category[]).slice(0, 12)
+    : [];
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-
-      <section className={`pt-10 pb-20 px-4 bg-gradient-to-b from-yellow-200 to-white transition-opacity duration-1000 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
-        <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-blue-900 mb-6">
-            <span className="text-yellow-500">{t("hero.title")}</span>
+    <div className="bg-background">
+      {/* Hero */}
+      <section className="border-b border-border bg-surface">
+        <div className="container flex flex-col items-center gap-6 py-16 text-center md:py-24">
+          <h1 className="max-w-3xl text-4xl font-bold tracking-tight text-foreground md:text-6xl">
+            {t("home.heroTitle")}
           </h1>
-          <p className="text-xl md:text-2xl text-gray-700 mb-8">
-            {t("hero.subtitle")}
-          </p>
-          <div className="flex flex-col md:flex-row justify-center gap-4 mb-10">
-            <button
-              onClick={() => navigateTo('/new-product')}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-lg font-semibold transition duration-300 shadow-md"
-            >
-              {t("hero.startSelling")}
-            </button>
-            <button
-              onClick={() => navigateTo('/products')}
-              className="bg-yellow-400 hover:bg-yellow-500 text-blue-900 px-8 py-3 rounded-lg text-lg font-semibold transition duration-300 shadow-md"
-            >
-              {t("hero.browseProducts")}
-            </button>
-          </div>
-
-          {/* Hero Image */}
-          <div className="relative mx-auto max-w-4xl h-64 md:h-96 bg-gray-100 rounded-xl shadow-lg overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-yellow-500/20" />
-            <div className="flex items-center justify-center h-full">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4">
-                {[1, 2, 3, 4, 5, 6].map((item) => (
-                  <div
-                    key={item}
-                    className="bg-white p-2 rounded-lg shadow-md h-24 md:h-32 flex items-center justify-center"
-                  >
-                    <div className="w-full h-full bg-gray-200 rounded animate-pulse"></div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-white to-transparent"></div>
+          <p className="max-w-2xl text-lg text-muted">{t("home.heroSubtitle")}</p>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button size="lg" onClick={() => navigate("/new-product")}>
+              {t("home.startSelling")}
+            </Button>
+            <Button size="lg" variant="outline" onClick={() => navigate("/products")}>
+              {t("home.browseAll")}
+            </Button>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-16 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-blue-900 mb-12">
-            {t("features.title")}
-          </h2>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <FeatureCard
-              emoji="🔍"
-              title={t("features.listing.title")}
-              description={t("features.listing.description")}
-            />
-            <FeatureCard
-              emoji="📍"
-              title={t("features.location.title")}
-              description={t("features.location.description")}
-            />
-            <FeatureCard
-              emoji="📂"
-              title={t("features.category.title")}
-              description={t("features.category.description")}
-            />
+      {/* Categories */}
+      <section className="container py-12">
+        <h2 className="mb-6 text-2xl font-bold text-foreground">
+          {t("home.categoriesTitle")}
+        </h2>
+        {categoriesLoading ? (
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
+            {Array.from({ length: 12 }, (_, i) => (
+              <Skeleton key={i} className="h-24" />
+            ))}
           </div>
-        </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
+            {categoryList.map((category) => (
+              <Link
+                key={category.id}
+                to="/products"
+                className="flex flex-col items-center gap-2 rounded-xl border border-border bg-surface p-4 text-center transition-colors hover:border-primary/50 hover:bg-primary/5"
+              >
+                <span className="text-2xl" aria-hidden="true">
+                  {category.icon}
+                </span>
+                <span className="text-xs font-medium text-foreground">
+                  {categoryName(category, i18n.language)}
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
 
-
-      <section className="py-16 px-4 bg-blue-900 text-white">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-10">
-            {t("comingSoon.title")}
+      {/* Fresh listings */}
+      <section className="container pb-16">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-foreground">
+            {t("home.freshTitle")}
           </h2>
-
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
-            <ComingSoonCard
-              emoji="💬"
-              title={t("comingSoon.chat")}
-              badge={t("comingSoon.badge")}
-            />
-            <ComingSoonCard
-              emoji="🛡️"
-              title={t("comingSoon.transactions")}
-              badge={t("comingSoon.badge")}
-            />
-            <ComingSoonCard
-              emoji="🏢"
-              title={t("comingSoon.realEstate")}
-              badge={t("comingSoon.badge")}
-            />
-          </div>
-
-          <button
-            onClick={() => navigateTo('/updates')}
-            className="inline-flex items-center bg-yellow-400 hover:bg-yellow-500 text-blue-900 px-6 py-3 rounded-lg text-lg font-semibold transition duration-300"
+          <Link
+            to="/products"
+            className="flex items-center gap-1 text-sm font-medium text-primary hover:underline"
           >
-            {t("comingSoon.stayUpdated")}
-            <span className="ml-2">→</span>
-          </button>
+            {t("home.viewAll")}
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16 px-4 bg-gradient-to-r from-yellow-300 to-yellow-400">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-blue-900 mb-6">
-            {t("cta.title")}
-          </h2>
-          <p className="text-xl text-blue-900 mb-8 max-w-3xl mx-auto">
-            {t("cta.description")}
-          </p>
-          <div className="flex flex-col md:flex-row justify-center gap-4">
-            <button
-              onClick={() => navigateTo('/register')}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-lg font-semibold transition duration-300 shadow-md"
-            >
-              {t("cta.createAccount")}
-            </button>
-            <button
-              onClick={() => navigateTo('/about')}
-              className="bg-white hover:bg-gray-100 text-blue-900 px-8 py-3 rounded-lg text-lg font-semibold transition duration-300 shadow-md"
-            >
-              {t("cta.learnMore")}
-            </button>
+        {productsLoading ? (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {Array.from({ length: 8 }, (_, i) => (
+              <Skeleton key={i} className="h-64" />
+            ))}
           </div>
-        </div>
+        ) : products.length === 0 ? (
+          <EmptyState
+            title={t("home.emptyListings")}
+            action={
+              <Button onClick={() => navigate("/new-product")}>
+                {t("home.startSelling")}
+              </Button>
+            }
+          />
+        ) : (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {products.map((product) => (
+              <Link key={product.id} to={`/product/${product.id}`}>
+                <Card className="h-full overflow-hidden transition-shadow hover:shadow-md">
+                  <div className="aspect-square bg-foreground/5">
+                    {product.images?.[0] && (
+                      <img
+                        src={product.images[0].image}
+                        alt={product.images[0].alt_text ?? product.title}
+                        loading="lazy"
+                        className="h-full w-full object-cover"
+                      />
+                    )}
+                  </div>
+                  <div className="space-y-1 p-3">
+                    <p className="truncate text-sm font-medium text-foreground">
+                      {product.title}
+                    </p>
+                    <p className="text-base font-bold text-foreground">
+                      {format.currency(product.price, product.currency || "UZS")}
+                    </p>
+                    <p className="truncate text-xs text-muted">
+                      {product.location?.district ??
+                        product.location?.region ??
+                        ""}{" "}
+                      · {format.relative(product.created_at)}
+                    </p>
+                  </div>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );
 };
-
-const FeatureCard: React.FC<FeatureCardProps> = ({ emoji, title, description }) => (
-  <div className="bg-gray-50 rounded-xl p-6 shadow-md hover:shadow-lg transition duration-300 border border-gray-100">
-    <div className="flex items-center justify-center h-16 mb-4">
-      <span className="text-4xl">{emoji}</span>
-    </div>
-    <h3 className="text-xl font-semibold text-blue-900 mb-3 text-center">{title}</h3>
-    <p className="text-gray-700 text-center">{description}</p>
-  </div>
-);
-
-const ComingSoonCard: React.FC<ComingSoonCardProps> = ({ emoji, title, badge }) => (
-  <div className="bg-blue-800 rounded-xl p-6 hover:bg-blue-700 transition duration-300">
-    <div className="flex items-center justify-center h-16 mb-4">
-      <span className="text-4xl">{emoji}</span>
-    </div>
-    <h3 className="text-xl font-semibold mb-2 text-center">{title}</h3>
-    <div className="inline-block px-3 py-1 bg-yellow-400 text-blue-900 text-sm font-medium rounded-full">
-      {badge}
-    </div>
-  </div>
-);
 
 export default Home;

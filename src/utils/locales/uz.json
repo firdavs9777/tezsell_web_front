@@ -1015,5 +1015,15 @@
 "theme_toggle_light": "Kunduzgi rejimga o'tish",
 "footer": {
   "tagline": "Yaqin atrofingizda istalgan narsani sotib oling va soting."
+},
+"home": {
+  "heroTitle": "Yaqin atrofda oling va soting",
+  "heroSubtitle": "Tezsell — mahsulotlar, xizmatlar va ko'chmas mulk uchun mahalliy bozoringiz. Tez, oson va bepul.",
+  "startSelling": "Sotishni boshlash",
+  "browseAll": "E'lonlarni ko'rish",
+  "categoriesTitle": "Kategoriyalar",
+  "freshTitle": "Yangi e'lonlar",
+  "viewAll": "Barchasini ko'rish",
+  "emptyListings": "Hozircha e'lonlar yo'q — birinchi bo'ling!"
 }
 }
