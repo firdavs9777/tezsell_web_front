@@ -1,6 +1,36 @@
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import {
+  ArrowRight,
+  Baby,
+  Bed,
+  Book,
+  Car,
+  Dumbbell,
+  Flower2,
+  Guitar,
+  HeartPulse,
+  Home as HomeIcon,
+  Laptop,
+  type LucideIcon,
+  Package,
+  Pill,
+  School,
+  Shirt,
+  ShoppingBag,
+  Smartphone,
+  Sofa,
+  Sparkles,
+  Tablet,
+  Tv,
+  UtensilsCrossed,
+  Wrench,
+  Bike,
+  Cat,
+  Footprints,
+  Settings,
+  ToyBrick,
+} from "lucide-react";
 import { Button, Card, EmptyState, Skeleton } from "@components/ui";
 import { useFormat } from "@utils/intl";
 import {
@@ -15,6 +45,47 @@ function categoryName(category: Category, lang: string): string {
   return category.name_en;
 }
 
+const CATEGORY_ICONS: Record<string, LucideIcon> = {
+  smartphones: Smartphone,
+  furniture: Sofa,
+  shoes: Footprints,
+  kids_and_babies: Baby,
+  automotive: Car,
+  home_appliances: UtensilsCrossed,
+  real_estate: HomeIcon,
+  food: UtensilsCrossed,
+  women_clothing: Shirt,
+  men_clothing: Shirt,
+  bags: ShoppingBag,
+  perfume: Sparkles,
+  flowers: Flower2,
+  medicine: Pill,
+  medical_products: HeartPulse,
+  construction_tools: Wrench,
+  sport_equipment: Dumbbell,
+  kitchen_tools: UtensilsCrossed,
+  musical_instruments: Guitar,
+  books_media: Book,
+  pets: Cat,
+  others: Package,
+  used_cars: Car,
+  toys: ToyBrick,
+  laptops_computers: Laptop,
+  bedroom_furniture: Bed,
+  teacher_materials: School,
+  motorcycles_scooters: Bike,
+  office_furniture: Sofa,
+  kitchen_furniture: Sofa,
+  children_furniture: Baby,
+  car_parts: Settings,
+  tablets_ebooks: Tablet,
+  tv_home_theater: Tv,
+};
+
+function categoryIcon(key: string): LucideIcon {
+  return CATEGORY_ICONS[key] ?? Package;
+}
+
 const Home = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -26,9 +97,9 @@ const Home = () => {
     useGetProductsQuery({ currentPage: 1, page_size: 8 });
 
   const products: Product[] = (productsData as ProductResponse)?.results ?? [];
-  const categoryList: Category[] = Array.isArray(categories)
-    ? (categories as Category[]).slice(0, 12)
-    : [];
+  const categoryList: Category[] = (
+    (categories as { data?: Category[] } | undefined)?.data ?? []
+  ).slice(0, 12);
 
   return (
     <div className="bg-background">
@@ -63,20 +134,21 @@ const Home = () => {
           </div>
         ) : (
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
-            {categoryList.map((category) => (
-              <Link
-                key={category.id}
-                to="/products"
-                className="flex flex-col items-center gap-2 rounded-xl border border-border bg-surface p-4 text-center transition-colors hover:border-primary/50 hover:bg-primary/5"
-              >
-                <span className="text-2xl" aria-hidden="true">
-                  {category.icon}
-                </span>
-                <span className="text-xs font-medium text-foreground">
-                  {categoryName(category, i18n.language)}
-                </span>
-              </Link>
-            ))}
+            {categoryList.map((category) => {
+              const Icon = categoryIcon(category.key);
+              return (
+                <Link
+                  key={category.id}
+                  to="/products"
+                  className="flex flex-col items-center gap-2 rounded-xl border border-border bg-surface p-4 text-center transition-colors hover:border-primary/50 hover:bg-primary/5"
+                >
+                  <Icon className="h-6 w-6 text-primary" aria-hidden="true" />
+                  <span className="text-xs font-medium text-foreground">
+                    {categoryName(category, i18n.language)}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         )}
       </section>

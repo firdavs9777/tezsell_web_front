@@ -418,7 +418,10 @@ export default function MobileDrawer({
                 {agentInfo.agency_name}
               </div>
               <div className="mt-1 text-xs text-success">
-                Rating: {agentInfo.rating}/5.0 &bull; {agentInfo.total_sales} sales
+                {t("agent_rating_sales", {
+                  rating: agentInfo.rating,
+                  sales: agentInfo.total_sales,
+                })}
               </div>
             </div>
           )}

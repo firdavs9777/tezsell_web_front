@@ -134,23 +134,13 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   const hasUnread = totalUnread > 0;
   const formattedCount = totalUnread > 99 ? "99+" : totalUnread.toString();
 
-  const {
-    data: loggedUserInfo,
-    refetch: refresh,
-    isError: userInfoError,
-  } = useGetLoggedinUserInfoQuery(
+  const { data: loggedUserInfo, refetch: refresh } = useGetLoggedinUserInfoQuery(
     { token: token || "" },
     {
       skip: !token,
       refetchOnMountOrArgChange: true,
     }
   );
-
-  useEffect(() => {
-    if (userInfoError && token) {
-      ("User info fetch failed, possibly expired token");
-    }
-  }, [userInfoError, token, dispatch, navigate]);
 
   useEffect(() => {
     if (token) {
@@ -175,12 +165,16 @@ const Navbar: React.FC<NavbarProps> = ({ chats = [], liveUnreadCount }) => {
   const isServiceActive = location.pathname === "/service";
   const isAboutActive = location.pathname === "/about";
 
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-surface/90 backdrop-blur">
       {permissionError && (
         <div className="mx-2 mb-2 mt-2 flex items-center gap-2 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
           <Bell className="h-3 w-3 flex-shrink-0" />
-          <span>{permissionError}</span>
+          <span>{t("permissions_fetch_error")}</span>
         </div>
       )}
 

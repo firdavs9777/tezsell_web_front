@@ -821,6 +821,8 @@
   "last_updated": "Oxirgi yangilanish:",
   "permissions_may_be_outdated": "Ruxsatlar eskirgan bo'lishi mumkin",
   "permissions_up_to_date": "Ruxsatlar yangilangan",
+  "permissions_fetch_error": "Ruxsatlarni yangilab bo'lmadi",
+  "agent_rating_sales": "Reyting: {{rating}}/5.0 • {{sales}} ta sotuv",
   "never": "Hech qachon",
   "singleUserItem": {
     "loading": "Foydalanuvchi ma'lumotlari yuklanmoqda...",

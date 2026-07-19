@@ -822,6 +822,8 @@
   "last_updated": "Последнее обновление:",
   "permissions_may_be_outdated": "Разрешения могут быть устаревшими",
   "permissions_up_to_date": "Разрешения обновлены",
+  "permissions_fetch_error": "Не удалось обновить права доступа",
+  "agent_rating_sales": "Рейтинг: {{rating}}/5.0 • {{sales}} продаж",
   "never": "Никогда",
   "singleUserItem": {
     "loading": "Загрузка данных пользователя...",

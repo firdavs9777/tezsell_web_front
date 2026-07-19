@@ -822,6 +822,8 @@
   "last_updated": "Last updated:",
   "permissions_may_be_outdated": "Permissions may be outdated",
   "permissions_up_to_date": "Permissions up to date",
+  "permissions_fetch_error": "Could not refresh permissions",
+  "agent_rating_sales": "Rating: {{rating}}/5.0 • {{sales}} sales",
   "never": "Never",
   "singleUserItem": {
     "loading": "Loading user details...",
