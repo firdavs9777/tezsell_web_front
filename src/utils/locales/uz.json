@@ -1012,5 +1012,8 @@
 "link_copied": "Havola nusxalandi",
 "share_failed": "Ulashishda xatolik",
 "theme_toggle_dark": "Tungi rejimga o'tish",
-"theme_toggle_light": "Kunduzgi rejimga o'tish"
+"theme_toggle_light": "Kunduzgi rejimga o'tish",
+"footer": {
+  "tagline": "Yaqin atrofingizda istalgan narsani sotib oling va soting."
+}
 }

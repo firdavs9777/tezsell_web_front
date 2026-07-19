@@ -11,125 +11,98 @@ import {
 import QRCode from "react-qr-code";
 import { Link } from "react-router-dom";
 
+const NAV_LINKS = [
+  { to: "/products", key: "products_title" },
+  { to: "/service", key: "services_title" },
+  { to: "/properties", key: "real_estate" },
+  { to: "/about", key: "about" },
+] as const;
+
+const SOCIAL_LINKS = [
+  { href: "https://facebook.com", Icon: FaFacebookF, label: "Facebook" },
+  { href: "https://twitter.com", Icon: FaTwitter, label: "Twitter" },
+  { href: "https://instagram.com", Icon: FaInstagram, label: "Instagram" },
+  { href: "https://linkedin.com", Icon: FaLinkedinIn, label: "LinkedIn" },
+] as const;
+
 const Footer: React.FC = () => {
-  const qrCodeValue = "https://www.webtezsell.com/download";
   const { t } = useTranslation();
 
   return (
-    <footer className="bg-gray-900 text-white py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between gap-8">
-          {/* Left Section */}
-          <div className="flex-1 space-y-6">
-            {/* Footer Menu */}
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-              <div>
-                <Link to="/" className="hover:text-gray-300 transition-colors">
-                  {t("products_title")}
-                </Link>
-              </div>
-              <div>
-                <Link
-                  to="/service"
-                  className="hover:text-gray-300 transition-colors"
-                >
-                  {t("services_title")}
-                </Link>
-              </div>
-              <div>
-                <Link
-                  to="/properties"
-                  className="hover:text-gray-300 transition-colors"
-                >
-                  {t("real_estate")}
-                </Link>
-              </div>
-              <div>
-                <Link
-                  to="/about"
-                  className="hover:text-gray-300 transition-colors"
-                >
-                  {t("about")}
-                </Link>
-              </div>
-              <div>
-                <a
-                  href="https://t.me/tezsell_menejer"
-                  className="hover:text-gray-300 transition-colors"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {t("support")}
-                </a>
-              </div>
-            </div>
-
-            {/* Social Icons */}
-            <div className="flex space-x-4">
+    <footer className="border-t border-border bg-surface">
+      <div className="container grid gap-10 py-12 md:grid-cols-3">
+        <div className="space-y-4">
+          <p className="text-lg font-bold text-foreground">Tezsell</p>
+          <p className="max-w-xs text-sm text-muted">{t("footer.tagline")}</p>
+          <div className="flex gap-3">
+            {SOCIAL_LINKS.map(({ href, Icon, label }) => (
               <a
-                href="https://facebook.com"
+                key={label}
+                href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-gray-300 transition-colors"
+                aria-label={label}
+                className="rounded-lg p-2 text-muted transition-colors hover:bg-foreground/5 hover:text-foreground"
               >
-                <FaFacebookF className="w-5 h-5" />
+                <Icon className="h-4 w-4" />
               </a>
-              <a
-                href="https://twitter.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-gray-300 transition-colors"
-              >
-                <FaTwitter className="w-5 h-5" />
-              </a>
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-gray-300 transition-colors"
-              >
-                <FaInstagram className="w-5 h-5" />
-              </a>
-              <a
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-gray-300 transition-colors"
-              >
-                <FaLinkedinIn className="w-5 h-5" />
-              </a>
-            </div>
-
-            {/* Copyright */}
-            <p className="text-gray-400 text-sm">
-              ©2025 TEZSELL. All Rights Reserved.
-            </p>
-          </div>
-
-          {/* Right Section */}
-          <div className="flex flex-col items-center md:items-end space-y-4">
-            <QRCode value={qrCodeValue} size={128} className="w-32 h-32" />
-            <h2 className="text-lg font-medium">{t("download_mobile_app")}</h2>
-            <div className="flex space-x-4">
-              <a
-                href="https://apps.apple.com/kr/app/tezsell/id6755512731?l=en-GB"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-gray-300 transition-colors"
-              >
-                <FaApple className="w-10 h-10" />
-              </a>
-              <a
-                href="https://play.google.com/store/apps/details?id=uz.tezsell.app"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-gray-300 transition-colors"
-              >
-                <FaGooglePlay className="w-10 h-10" />
-              </a>
-            </div>
+            ))}
           </div>
         </div>
+
+        <nav className="grid grid-cols-2 content-start gap-3 text-sm">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className="text-muted transition-colors hover:text-foreground"
+            >
+              {t(link.key)}
+            </Link>
+          ))}
+          <a
+            href="https://t.me/tezsell_menejer"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted transition-colors hover:text-foreground"
+          >
+            {t("support")}
+          </a>
+        </nav>
+
+        <div className="flex flex-col items-start gap-4 md:items-end">
+          <div className="rounded-xl border border-border bg-white p-2">
+            <QRCode value="https://www.webtezsell.com/download" size={96} />
+          </div>
+          <p className="text-sm font-medium text-foreground">
+            {t("download_mobile_app")}
+          </p>
+          <div className="flex gap-3">
+            <a
+              href="https://apps.apple.com/kr/app/tezsell/id6755512731?l=en-GB"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="App Store"
+              className="text-muted transition-colors hover:text-foreground"
+            >
+              <FaApple className="h-7 w-7" />
+            </a>
+            <a
+              href="https://play.google.com/store/apps/details?id=uz.tezsell.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Google Play"
+              className="text-muted transition-colors hover:text-foreground"
+            >
+              <FaGooglePlay className="h-7 w-7" />
+            </a>
+          </div>
+        </div>
+      </div>
+      <div className="border-t border-border py-4">
+        <p className="container text-xs text-muted">
+          © {new Date().getFullYear()} Tezsell. All rights reserved.
+        </p>
       </div>
     </footer>
   );

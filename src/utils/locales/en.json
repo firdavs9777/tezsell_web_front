@@ -1014,5 +1014,8 @@
      "share_failed": "Failed to share",
      "saved_properties": "Saved Properties",
      "theme_toggle_dark": "Switch to dark mode",
-     "theme_toggle_light": "Switch to light mode"
+     "theme_toggle_light": "Switch to light mode",
+     "footer": {
+       "tagline": "Buy and sell anything, anywhere near you."
+     }
 }
