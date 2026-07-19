@@ -11,16 +11,17 @@ import {
   Product,
   ProductResponse,
 } from "@store/type";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
-import Pagination from "@components/Pagination";
 import { RootState } from "@store/index";
 import { BiCategory } from "react-icons/bi";
 import { FaPlus, FaTimes } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
+
+const PAGE_SIZE = 12;
 
 const ProductScreen = () => {
   // States
@@ -31,20 +32,33 @@ const ProductScreen = () => {
   const [searchLocationQuery, setSearchLocationQuery] = useState("");
   const [searchProductQuery, setSearchProductQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
-  const [pageSize, setPageSize] = useState(10);
   const [selectedCategory, setSelectedCategory] = useState<string | null>("");
   const [selectedRegion, setSelectedRegion] = useState<string | null>("");
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>("");
+
+  // Infinite scroll states
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const observerTarget = useRef<HTMLDivElement>(null);
 
   const { t, i18n } = useTranslation();
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
   const processedUserInfo = useSelector((state: RootState) => state.auth.processedUserInfo);
   const navigate = useNavigate();
-  
+
   // Get user location for default filtering
   const userLocation = (processedUserInfo?.user as any)?.location;
   const defaultRegion = userLocation?.region || null;
   const defaultDistrict = userLocation?.district || null;
+
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchProductQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchProductQuery]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -57,7 +71,7 @@ const ProductScreen = () => {
       setSelectedDistrict(defaultDistrict);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultRegion, defaultDistrict]); // Only run when user location changes, ignore selectedRegion/District to avoid loops
+  }, [defaultRegion, defaultDistrict]);
 
   // API Queries
   const { data: data_category, isLoading: isLoading_category } =
@@ -70,9 +84,9 @@ const ProductScreen = () => {
   const regionFilter = selectedRegion || defaultRegion || "";
   const districtFilter = selectedDistrict || defaultDistrict || "";
 
-  const { data, isLoading, error } = useGetProductsQuery({
+  const { data, isLoading, error, isFetching } = useGetProductsQuery({
     currentPage,
-    page_size: pageSize,
+    page_size: PAGE_SIZE,
     lang: i18n.language,
     category_name: selectedCategory,
     region_name: regionFilter,
@@ -80,9 +94,11 @@ const ProductScreen = () => {
     product_title: debouncedSearchQuery,
   });
 
-  // Reset to first page when filters change
+  // Reset products when filters change
   useEffect(() => {
+    setAllProducts([]);
     setCurrentPage(1);
+    setHasMore(true);
   }, [
     selectedCategory,
     selectedRegion,
@@ -90,31 +106,72 @@ const ProductScreen = () => {
     debouncedSearchQuery,
   ]);
 
+  // Append new products when data changes
+  useEffect(() => {
+    const products = data as ProductResponse;
+    if (products?.results) {
+      if (currentPage === 1) {
+        setAllProducts(products.results);
+      } else {
+        setAllProducts(prev => {
+          const newIds = new Set(products.results.map(p => p.id));
+          const filtered = prev.filter(p => !newIds.has(p.id));
+          return [...filtered, ...products.results];
+        });
+      }
+      // Check if there are more products to load
+      const totalLoaded = currentPage * PAGE_SIZE;
+      setHasMore(totalLoaded < products.count);
+      setIsLoadingMore(false);
+    }
+  }, [data, currentPage]);
+
   // Type assertions
-  const products = data as ProductResponse;
   const location_info = all_location as AllLocationList;
   const categories = data_category as Category[];
+
+  // Infinite scroll observer
+  const loadMore = useCallback(() => {
+    if (!isLoadingMore && hasMore && !isFetching) {
+      setIsLoadingMore(true);
+      setCurrentPage(prev => prev + 1);
+    }
+  }, [isLoadingMore, hasMore, isFetching]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoading && !isFetching) {
+          loadMore();
+        }
+      },
+      { threshold: 0.1, rootMargin: '200px' }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => observer.disconnect();
+  }, [loadMore, hasMore, isLoading, isFetching]);
 
   // Modal toggles
   const toggleModal = () => setShowModal((prev) => !prev);
   const toggleLocationModal = () => setLocationModal((prev) => !prev);
 
-  // Handle pagination
-  const handlePageChange = (page: number) => setCurrentPage(page);
-
   // Loading and error states
-  const isLoadingData = isLoading || isLoading_location || isLoading_category;
-  const hasError = error;
+  const isLoadingData = isLoading_location || isLoading_category;
 
   if (isLoadingData) {
     return (
       <div className="flex justify-center items-center h-64">
-        {t("loading_message_product")}
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <p className="ml-3">{t("loading_message_product")}</p>
       </div>
     );
   }
 
-  if (hasError) {
+  if (error) {
     return (
       <div className="text-red-500 text-center py-8">
         {t("loading_message_error")}
@@ -162,8 +219,8 @@ const ProductScreen = () => {
     return category[langKey] as string;
   };
 
-  const totalCount = products?.count;
-  const hasResults = products?.results?.length > 0;
+  const totalCount = (data as ProductResponse)?.count || 0;
+  const hasResults = allProducts.length > 0;
   // Only show as active filter if manually selected (not default user location)
   const hasActiveFilters =
     selectedCategory ||
@@ -280,59 +337,60 @@ const ProductScreen = () => {
         )}
       </div>
 
-      {/* Product count & grid */}
+      {/* Product count */}
       <div className="mb-4 flex justify-between items-center">
         <h2 className="text-xl font-medium">
           {totalCount > 0 ? (
-            <>{t("products_total", { count: totalCount })}</>
+            <>
+              {t("products_total")}: {totalCount}
+            </>
           ) : (
             <>{t("product_error")}</>
           )}
         </h2>
-
-        <div className="flex items-center gap-2">
-          <select
-            value={pageSize}
-            onChange={(e) => setPageSize(Number(e.target.value))}
-            className="border border-gray-300 rounded p-2 text-sm"
-          >
-            <option value="12">10 {t("per_page")}</option>
-            <option value="24">20 {t("per_page")}</option>
-            <option value="48">50 {t("per_page")}</option>
-          </select>
-        </div>
+        <span className="text-sm text-gray-500">
+          {t("showing") || "Showing"} {allProducts.length} {t("of") || "of"} {totalCount}
+        </span>
       </div>
+
+      {/* Initial Loading */}
+      {isLoading && currentPage === 1 && (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      )}
 
       {/* Product Grid */}
       {hasResults ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-          {products.results.map((product: Product) => (
+          {allProducts.map((product: Product) => (
             <SingleProduct product={product} key={product.id} />
           ))}
         </div>
-      ) : (
+      ) : !isLoading ? (
         <div className="bg-gray-50 rounded-lg p-8 text-center">
           <p className="text-gray-500">{t("product_error")}</p>
         </div>
-      )}
+      ) : null}
 
-      {/* Pagination */}
-      {totalCount > pageSize && (
-        <div className="mt-8">
-          <Pagination
-            currentPage={currentPage}
-            totalCount={totalCount}
-            pageSize={pageSize}
-            onPageChange={handlePageChange}
-          />
-        </div>
-      )}
+      {/* Infinite scroll loading indicator */}
+      <div ref={observerTarget} className="py-8 flex justify-center">
+        {(isFetching || isLoadingMore) && hasMore && (
+          <div className="flex flex-col items-center gap-2">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+            <span className="text-sm text-gray-500">{t("loading_more") || "Loading more..."}</span>
+          </div>
+        )}
+        {!hasMore && allProducts.length > 0 && (
+          <p className="text-gray-400 text-sm">{t("no_more_products") || "No more products to load"}</p>
+        )}
+      </div>
 
       {/* Add New Product button */}
       {userInfo?.token && (
         <button
           onClick={handleNewProductRedirect}
-          className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center shadow-lg transition-colors"
+          className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center shadow-lg transition-colors z-50"
           aria-label={t("add_new_product")}
         >
           <FaPlus className="text-white" size={24} />

@@ -20,12 +20,21 @@ const NewProduct = () => {
     useCreateProductMutation();
   const userInfo = useSelector((state: RootState) => state.auth.userInfo);
 
+  // Currency options matching mobile app
+  const CURRENCY_OPTIONS = [
+    { value: "Sum", label: "UZS (so'm)" },
+    { value: "USD", label: "USD ($)" },
+    { value: "EUR", label: "EUR (€)" },
+    { value: "RUB", label: "RUB (₽)" },
+  ];
+
   // Form state
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [price, setPrice] = useState<string>("");
+  const [currency, setCurrency] = useState<string>("Sum");
   const [condition, setCondition] = useState<string>("");
   const [category, setCategory] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -127,7 +136,7 @@ const NewProduct = () => {
     formData.append("title", title);
     formData.append("description", description);
     formData.append("condition", condition);
-    formData.append("currency", "Sum");
+    formData.append("currency", currency);
     formData.append("in_stock", "true");
 
     const cleanedPrice = price.replace(/\./g, "");
@@ -232,13 +241,13 @@ const NewProduct = () => {
               />
             </div>
 
-            {/* Product Price */}
+            {/* Product Price and Currency */}
             <div className="flex flex-col space-y-2">
               <label htmlFor="product-price" className="font-medium">
                 {t("new_product_price")}{" "}
                 <span className="text-red-500 text-lg font-bold">*</span>
               </label>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <input
                   id="product-price"
                   type="text"
@@ -246,11 +255,20 @@ const NewProduct = () => {
                   required
                   value={price}
                   onChange={handlePriceChange}
-                  className="border p-2 md:p-3 rounded-md w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                  className="border p-2 md:p-3 rounded-md flex-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
                 />
-                <span className="whitespace-nowrap font-medium">
-                  {t("sum")}
-                </span>
+                <select
+                  id="product-currency"
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                  className="border p-2 md:p-3 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none bg-white min-w-[120px]"
+                >
+                  {CURRENCY_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 

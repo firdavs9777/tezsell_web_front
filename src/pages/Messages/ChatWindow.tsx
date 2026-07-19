@@ -1,51 +1,107 @@
 import { SerializedError } from "@reduxjs/toolkit";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { RootState } from "@store/index";
-import { SingleMessage } from "@store/slices/chatSlice";
+import {
+  SingleMessage,
+  Message,
+  useEditMessageMutation,
+  useDeleteMessageMutation,
+  useToggleReactionMutation,
+  useUpdateTypingStatusMutation,
+} from "@store/slices/chatSlice";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
-import React, { useEffect, useRef, useState } from "react";
-import { FiPaperclip, FiSend, FiSmile, FiX } from "react-icons/fi";
+import React, { useEffect, useRef, useState, useCallback } from "react";
+import { FiPaperclip, FiSend, FiSmile, FiX, FiChevronDown } from "react-icons/fi";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
+
+import MessageBubble from "./MessageBubble";
+import ReplyPreview from "./ReplyPreview";
+import DateSeparator from "./DateSeparator";
+import TypingIndicator from "./TypingIndicator";
 
 interface MainChatWindowProps {
   messages: SingleMessage[];
   isLoading: boolean;
   chatId: number;
   error?: FetchBaseQueryError | SerializedError | undefined;
-  onSendMessage: (content: string) => void;
+  onSendMessage: (content: string, replyTo?: number) => void;
   isConnected?: boolean;
+  typingUsers?: string[];
 }
+
+// Helper to check if two dates are on different days
+const isDifferentDay = (date1: Date, date2: Date): boolean => {
+  return (
+    date1.getFullYear() !== date2.getFullYear() ||
+    date1.getMonth() !== date2.getMonth() ||
+    date1.getDate() !== date2.getDate()
+  );
+};
 
 const MainChatWindow: React.FC<MainChatWindowProps> = ({
   messages,
   isLoading,
   error,
+  chatId,
   onSendMessage,
   isConnected = false,
+  typingUsers = [],
 }) => {
+  const { t } = useTranslation();
   const userId = useSelector(
-    (state: RootState) => state.auth.userInfo?.user_info?.id || ""
+    (state: RootState) => state.auth.userInfo?.user_info?.id || 0
   );
   const currentUsername = useSelector(
     (state: RootState) => state.auth.userInfo?.user_info?.username || ""
   );
+  const token = useSelector(
+    (state: RootState) => state.auth.userInfo?.token || ""
+  );
 
+  // Mutations
+  const [editMessage] = useEditMessageMutation();
+  const [deleteMessage] = useDeleteMessageMutation();
+  const [toggleReaction] = useToggleReactionMutation();
+  const [updateTypingStatus] = useUpdateTypingStatusMutation();
+
+  // State
   const [newMessage, setNewMessage] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [replyingTo, setReplyingTo] = useState<SingleMessage | Message | null>(null);
+  const [showScrollButton, setShowScrollButton] = useState(false);
   const [filePreview, setFilePreview] = useState<{
     url: string;
     type: "image" | "audio" | "video" | "file";
     file: File;
   } | null>(null);
 
+  // Refs
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const emojiPickerRef = useRef<HTMLDivElement | null>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Auto-scroll to bottom
+  const scrollToBottom = useCallback((smooth = true) => {
+    messagesEndRef.current?.scrollIntoView({
+      behavior: smooth ? "smooth" : "auto",
+    });
+  }, []);
+
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
+
+  // Handle scroll position to show/hide scroll button
+  const handleScroll = () => {
+    if (!messagesContainerRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+    const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+    setShowScrollButton(!isNearBottom);
+  };
 
   // Close emoji picker when clicking outside
   useEffect(() => {
@@ -62,13 +118,46 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Typing indicator logic
+  const handleTyping = useCallback(() => {
+    if (!token || !chatId) return;
+
+    // Clear existing timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Send typing status
+    updateTypingStatus({ chatId: chatId.toString(), is_typing: true, token });
+
+    // Stop typing after 3 seconds of inactivity
+    typingTimeoutRef.current = setTimeout(() => {
+      updateTypingStatus({ chatId: chatId.toString(), is_typing: false, token });
+    }, 3000);
+  }, [chatId, token, updateTypingStatus]);
+
+  // Cleanup typing timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleSendMessage = async () => {
     if (!newMessage.trim() && !filePreview) return;
 
     try {
-      await onSendMessage(newMessage);
+      await onSendMessage(newMessage, replyingTo?.id);
       setNewMessage("");
       setFilePreview(null);
+      setReplyingTo(null);
+
+      // Clear typing status
+      if (token && chatId) {
+        updateTypingStatus({ chatId: chatId.toString(), is_typing: false, token });
+      }
     } catch (error) {
       console.error(error);
     }
@@ -78,8 +167,8 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert("File size should be less than 5MB");
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error(t("file_size_error") || "File size should be less than 10MB");
       return;
     }
 
@@ -114,17 +203,86 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
     }
   };
 
+  // Message actions
+  const handleReply = (message: SingleMessage | Message) => {
+    setReplyingTo(message);
+  };
+
+  const handleEdit = async (messageId: number, content: string) => {
+    try {
+      await editMessage({
+        chatId: chatId.toString(),
+        messageId,
+        content,
+        token,
+      }).unwrap();
+      toast.success(t("message_edited") || "Message edited");
+    } catch (error) {
+      toast.error(t("edit_failed") || "Failed to edit message");
+    }
+  };
+
+  const handleDelete = async (messageId: number) => {
+    try {
+      await deleteMessage({
+        chatId: chatId.toString(),
+        messageId,
+        token,
+      }).unwrap();
+      toast.success(t("message_deleted_success") || "Message deleted");
+    } catch (error) {
+      toast.error(t("delete_failed") || "Failed to delete message");
+    }
+  };
+
+  const handleReaction = async (messageId: number, emoji: string) => {
+    try {
+      await toggleReaction({
+        chatId: chatId.toString(),
+        messageId,
+        emoji,
+        token,
+      }).unwrap();
+    } catch (error) {
+      toast.error(t("reaction_failed") || "Failed to add reaction");
+    }
+  };
+
+  // Check if message is from current user
+  const isMyMessage = (msg: SingleMessage) => {
+    if (typeof msg.sender === "object" && msg.sender?.id) {
+      return msg.sender.id === userId;
+    }
+    if (typeof msg.sender === "object" && msg.sender?.username) {
+      return msg.sender.username === currentUsername;
+    }
+    return false;
+  };
+
+  // Get reply message from messages array
+  const getReplyToMessage = (replyToId: number | Message | null | undefined) => {
+    if (!replyToId) return null;
+    if (typeof replyToId === "object") return replyToId;
+    return messages.find((m) => m.id === replyToId) || null;
+  };
+
   const allMessages = Array.isArray(messages) ? messages : [];
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-gray-50 to-white">
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 md:px-6 lg:px-8 space-y-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+      <div
+        ref={messagesContainerRef}
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto px-4 py-6 md:px-6 lg:px-8 space-y-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
+      >
         {isLoading && (
           <div className="flex justify-center items-center h-full">
             <div className="flex flex-col items-center gap-3">
               <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-              <p className="text-sm text-gray-500">Loading messages...</p>
+              <p className="text-sm text-gray-500">
+                {t("loading_messages") || "Loading messages..."}
+              </p>
             </div>
           </div>
         )}
@@ -132,94 +290,62 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
         {error && (
           <div className="flex justify-center items-center h-full">
             <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center max-w-sm">
-              <p className="text-red-600 font-semibold">Error loading chat</p>
+              <p className="text-red-600 font-semibold">
+                {t("error_loading_chat") || "Error loading chat"}
+              </p>
               <p className="text-sm text-gray-600 mt-1">
-                Please try again later
+                {t("try_again_later") || "Please try again later"}
               </p>
             </div>
           </div>
         )}
 
-        {allMessages.map((msg: SingleMessage, index: number) => {
-          let isMyMessage = false;
-
-          if (typeof msg.sender === "object" && msg.sender?.id) {
-            isMyMessage = msg.sender.id === userId;
-          } else if (typeof msg.sender === "number") {
-            isMyMessage = msg.sender === userId;
-          } else if (typeof msg.sender === "object" && msg.sender?.username) {
-            isMyMessage = msg.sender.username === currentUsername;
-          }
+        {allMessages.map((msg, index) => {
+          const prevMsg = index > 0 ? allMessages[index - 1] : null;
+          const currentDate = new Date(msg.timestamp);
+          const prevDate = prevMsg ? new Date(prevMsg.timestamp) : null;
+          const showDateSeparator = !prevDate || isDifferentDay(currentDate, prevDate);
 
           return (
-            <div
-              key={msg.id || `msg-${index}`}
-              className={`flex ${
-                isMyMessage ? "justify-end" : "justify-start"
-              } animate-fadeIn`}
-            >
-              <div
-                className={`group max-w-[85%] sm:max-w-md md:max-w-lg px-4 py-3 rounded-2xl shadow-md transition-all hover:shadow-lg ${
-                  isMyMessage
-                    ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-br-md"
-                    : "bg-white text-gray-800 rounded-bl-md border border-gray-200"
-                }`}
-              >
-                {msg.file && (
-                  <div className="mb-2">
-                    {msg.file.type === "image" ? (
-                      <img
-                        src={msg.file.url}
-                        alt="Uploaded content"
-                        className="max-w-full h-auto rounded-lg"
-                      />
-                    ) : msg.file.type === "audio" ? (
-                      <audio controls className="w-full">
-                        <source src={msg.file.url} type="audio/*" />
-                      </audio>
-                    ) : (
-                      <a
-                        href={msg.file.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-300 hover:underline"
-                      >
-                        Download file
-                      </a>
-                    )}
-                  </div>
-                )}
-
-                <div className="text-sm md:text-base leading-relaxed break-words">
-                  {msg.content}
-                </div>
-
-                <div
-                  className={`flex items-center gap-2 mt-2 text-xs ${
-                    isMyMessage ? "text-blue-100" : "text-gray-500"
-                  }`}
-                >
-                  <span className="font-medium">
-                    {isMyMessage
-                      ? "You"
-                      : typeof msg.sender === "object"
-                      ? msg.sender.username
-                      : "User"}
-                  </span>
-                  <span>•</span>
-                  <span>
-                    {new Date(msg.timestamp).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                </div>
-              </div>
-            </div>
+            <React.Fragment key={msg.id || `msg-${index}`}>
+              {showDateSeparator && <DateSeparator date={currentDate} />}
+              <MessageBubble
+                message={msg}
+                isMyMessage={isMyMessage(msg)}
+                userId={userId}
+                onReply={handleReply}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onReaction={handleReaction}
+                replyToMessage={getReplyToMessage(msg.reply_to)}
+                showReadReceipt={true}
+                isRead={true}
+              />
+            </React.Fragment>
           );
         })}
+
+        {/* Typing Indicator */}
+        <TypingIndicator typingUsers={typingUsers} isVisible={typingUsers.length > 0} />
+
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Scroll to Bottom Button */}
+      {showScrollButton && (
+        <button
+          onClick={() => scrollToBottom()}
+          className="absolute bottom-32 right-8 p-3 rounded-full bg-white shadow-lg hover:shadow-xl transition-all border border-gray-200 z-10"
+          title={t("scroll_to_bottom") || "Scroll to bottom"}
+        >
+          <FiChevronDown size={20} className="text-gray-600" />
+        </button>
+      )}
+
+      {/* Reply Preview */}
+      {replyingTo && (
+        <ReplyPreview replyingTo={replyingTo} onCancel={() => setReplyingTo(null)} />
+      )}
 
       {/* File Preview */}
       {filePreview && (
@@ -259,7 +385,7 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
         {!isConnected && (
           <div className="mb-3 flex items-center gap-2 text-sm text-amber-600 bg-amber-50 px-3 py-2 rounded-lg animate-pulse">
             <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
-            <span>Reconnecting to chat server...</span>
+            <span>{t("reconnecting") || "Reconnecting to chat server..."}</span>
           </div>
         )}
 
@@ -288,7 +414,7 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
                 : "text-gray-300 cursor-not-allowed"
             }`}
             disabled={!isConnected}
-            title="Add emoji"
+            title={t("add_emoji") || "Add emoji"}
           >
             <FiSmile size={22} />
           </button>
@@ -302,7 +428,7 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
                 : "text-gray-300 cursor-not-allowed"
             }`}
             disabled={!isConnected}
-            title="Attach file"
+            title={t("attach_file") || "Attach file"}
           >
             <FiPaperclip size={22} />
           </button>
@@ -320,7 +446,12 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
             <input
               type="text"
               value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
+              onChange={(e) => {
+                setNewMessage(e.target.value);
+                if (e.target.value.length === 1) {
+                  handleTyping();
+                }
+              }}
               onKeyDown={(e) => {
                 if (
                   e.key === "Enter" &&
@@ -332,7 +463,11 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
                   handleSendMessage();
                 }
               }}
-              placeholder={isConnected ? "Type a message..." : "Connecting..."}
+              placeholder={
+                isConnected
+                  ? t("type_message") || "Type a message..."
+                  : t("connecting") || "Connecting..."
+              }
               className="w-full px-4 py-3 pr-12 rounded-full border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-all text-sm md:text-base disabled:bg-gray-100 disabled:cursor-not-allowed"
               disabled={isLoading || !isConnected}
             />
@@ -349,7 +484,7 @@ const MainChatWindow: React.FC<MainChatWindowProps> = ({
             disabled={
               (!newMessage.trim() && !filePreview) || isLoading || !isConnected
             }
-            title="Send message"
+            title={t("send_message") || "Send message"}
           >
             <FiSend size={20} />
           </button>

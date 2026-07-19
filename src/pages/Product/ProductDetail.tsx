@@ -14,6 +14,7 @@ import {
   FaHeart,
   FaMapMarkerAlt,
   FaRegHeart,
+  FaShare,
   FaStar,
   FaTrash,
   FaUser,
@@ -225,6 +226,49 @@ const ProductDetail = () => {
     (item: Product) => item.id === singleProduct.product.id
   );
 
+  const handleShare = async () => {
+    const shareUrl = window.location.href;
+    const shareTitle = singleProduct.product.title;
+    const shareText = `${singleProduct.product.title} - ${formatPrice(singleProduct.product.price)} ${singleProduct.product.currency}`;
+
+    // Check if Web Share API is available (mainly mobile)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        });
+      } catch (error) {
+        // User cancelled or share failed - fall back to clipboard
+        if ((error as Error).name !== "AbortError") {
+          copyToClipboard(shareUrl);
+        }
+      }
+    } else {
+      // Fallback to clipboard copy for desktop
+      copyToClipboard(shareUrl);
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(t("link_copied"), { autoClose: 2000 });
+    } catch {
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.opacity = "0";
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      toast.success(t("link_copied"), { autoClose: 2000 });
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 bg-gray-50">
       <button
@@ -272,15 +316,24 @@ const ProductDetail = () => {
             <h1 className="text-2xl font-bold text-gray-800">
               {singleProduct.product.title}
             </h1>
-            <button
-              onClick={isLiked ? handleDislikeProduct : handleLikeProduct}
-              className="text-rose-500 hover:scale-110 transition-transform"
-              title={
-                isLiked ? t("remove_from_favorites") : t("add_to_favorites")
-              }
-            >
-              {isLiked ? <FaHeart size={24} /> : <FaRegHeart size={24} />}
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleShare}
+                className="text-gray-500 hover:text-blue-600 hover:scale-110 transition-all"
+                title={t("share")}
+              >
+                <FaShare size={20} />
+              </button>
+              <button
+                onClick={isLiked ? handleDislikeProduct : handleLikeProduct}
+                className="text-rose-500 hover:scale-110 transition-transform"
+                title={
+                  isLiked ? t("remove_from_favorites") : t("add_to_favorites")
+                }
+              >
+                {isLiked ? <FaHeart size={24} /> : <FaRegHeart size={24} />}
+              </button>
+            </div>
           </div>
 
           <div className="flex items-center gap-1 text-sm">

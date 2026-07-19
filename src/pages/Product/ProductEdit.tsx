@@ -54,6 +54,14 @@ const MyProductEdit: React.FC<SingleProductType> = ({
   const singleProduct = productData as SingleProduct;
   const categoryList = categoryData as Category[];
 
+  // Currency options matching mobile app
+  const CURRENCY_OPTIONS = [
+    { value: "Sum", label: "UZS (so'm)" },
+    { value: "USD", label: "USD ($)" },
+    { value: "EUR", label: "EUR (€)" },
+    { value: "RUB", label: "RUB (₽)" },
+  ];
+
   // Form state
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -61,6 +69,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
   const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
   const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
   const [price, setPrice] = useState("");
+  const [currency, setCurrency] = useState("Sum");
   const [condition, setCondition] = useState("");
   const [category, setCategory] = useState("");
   const [isOpen, setIsOpen] = useState(closeModelStatus);
@@ -72,6 +81,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
       setTitle(singleProduct.product.title || "");
       setDescription(singleProduct.product.description || "");
       setPrice(formatPrice(singleProduct.product.price?.toString() || ""));
+      setCurrency(singleProduct.product.currency || "Sum");
       setCondition(singleProduct.product.condition || "");
 
       // Set category
@@ -259,7 +269,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
     formData.append("title", title);
     formData.append("description", description);
     formData.append("condition", condition);
-    formData.append("currency", "Sum");
+    formData.append("currency", currency);
     formData.append("in_stock", "true");
 
     // Price handling - remove dots
@@ -424,7 +434,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
               ></textarea>
             </div>
 
-            {/* Price Input */}
+            {/* Price and Currency Input */}
             <div className="space-y-2">
               <label
                 htmlFor="product-price"
@@ -433,7 +443,7 @@ const MyProductEdit: React.FC<SingleProductType> = ({
                 {t("new_product_price")}
                 <span className="text-red-500 text-lg font-bold ml-1">*</span>
               </label>
-              <div className="flex items-center">
+              <div className="flex items-center gap-2">
                 <input
                   id="product-price"
                   type="text"
@@ -441,11 +451,20 @@ const MyProductEdit: React.FC<SingleProductType> = ({
                   required
                   value={price}
                   onChange={handlePriceChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <span className="bg-gray-100 px-4 py-2 border border-l-0 border-gray-300 rounded-r-md text-gray-700 font-medium">
-                  {t("sum")}
-                </span>
+                <select
+                  id="product-currency"
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white min-w-[120px]"
+                >
+                  {CURRENCY_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 

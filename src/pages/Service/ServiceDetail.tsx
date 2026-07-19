@@ -23,6 +23,7 @@ import {
 } from "@store/slices/commentApiSlice";
 import {
   useGetFavoriteItemsQuery,
+  useGetServicesQuery,
   useGetSingleServiceQuery,
   useLikeServiceMutation,
   useUnlikeServiceMutation,
@@ -35,7 +36,7 @@ import MyServiceEdit from "@services/ServiceEdit";
 // Types and constants
 import { ServiceRes } from "@pages/Profile/MainProfile";
 import { RootState } from "@store/index";
-import { Category, Comment, Service, SingleService } from "@store/type";
+import { Category, Comment, Service, ServiceResponse, SingleService } from "@store/type";
 
 // Custom hooks
 const useAuth = () => {
@@ -298,6 +299,48 @@ const LoginPrompt = ({
   </div>
 );
 
+// Recommended Service Card Component
+const RecommendedServiceCard = ({
+  service,
+  language,
+}: {
+  service: Service;
+  language: string;
+}) => (
+  <Link
+    to={`/service/${service.id}`}
+    className="block bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+  >
+    <div className="h-40 overflow-hidden bg-gray-100">
+      {service.images?.[0]?.image ? (
+        <img
+          src={service.images[0].image}
+          alt={service.name}
+          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+        />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center text-gray-400">
+          <FaUser size={40} />
+        </div>
+      )}
+    </div>
+    <div className="p-4">
+      <div className="text-xs text-blue-600 font-medium mb-1">
+        {getCategoryName(service.category, language)}
+      </div>
+      <h4 className="font-semibold text-gray-800 line-clamp-2 mb-2">
+        {service.name}
+      </h4>
+      <div className="flex items-center text-sm text-gray-500">
+        <FaMapMarkerAlt className="mr-1 text-red-400" size={12} />
+        <span className="truncate">
+          {service.userName?.location?.region || "Unknown"}
+        </span>
+      </div>
+    </div>
+  </Link>
+);
+
 // Main component
 const ServiceDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -340,6 +383,31 @@ const ServiceDetail = () => {
     () => (service ? isServiceLiked(favoriteItems, service.id) : false),
     [favoriteItems, service?.id]
   );
+
+  // Get category name for recommended services query
+  const categoryName = service?.category
+    ? getCategoryName(service.category, i18n.language)
+    : "";
+
+  // Fetch recommended services (same category, excluding current)
+  const { data: recommendedData } = useGetServicesQuery(
+    {
+      currentPage: 1,
+      page_size: 6,
+      category_name: categoryName,
+      lang: i18n.language,
+    },
+    { skip: !categoryName }
+  );
+
+  // Filter out the current service from recommendations
+  const recommendedServices = useMemo(() => {
+    const recommended = recommendedData as ServiceResponse | undefined;
+    if (!recommended?.results || !service) return [];
+    return recommended.results
+      .filter((s: Service) => s.id !== service.id)
+      .slice(0, 4);
+  }, [recommendedData, service]);
 
   // Effects
   useEffect(() => {
@@ -607,14 +675,23 @@ const ServiceDetail = () => {
           />
         )}
       </section>
-      <section className="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
-        <h3 className="text-2xl font-bold mb-6 text-gray-800">
-          {t("recommended_services")}
-        </h3>
-        <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-8 rounded-xl text-center text-gray-500 border border-gray-100">
-          <div className="text-lg font-medium">{t("coming_soon")}</div>
-        </div>
-      </section>
+      {/* Recommended Services Section */}
+      {recommendedServices.length > 0 && (
+        <section className="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
+          <h3 className="text-2xl font-bold mb-6 text-gray-800">
+            {t("recommended_services")}
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {recommendedServices.map((recService: Service) => (
+              <RecommendedServiceCard
+                key={recService.id}
+                service={recService}
+                language={i18n.language}
+              />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 };

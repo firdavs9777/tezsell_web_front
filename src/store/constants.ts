@@ -66,3 +66,10 @@ export const ADMIN_DASHBOARD_URL = "/real_estate/admin/dashboard";
 
 export const PENDING_AGENTS_URL = "/real_estate/api/admin/agents/pending";
 export const VERIFY_AGENT_URL = "/real_estate/api/admin/agents"; // {id}/verify will be appended
+
+// Social Auth URLs
+export const GOOGLE_AUTH_URL = "/accounts/auth/google/";
+export const APPLE_AUTH_URL = "/accounts/auth/apple/";
+export const SOCIAL_ACCOUNTS_URL = "/accounts/social-accounts/";
+export const GOOGLE_LINK_URL = "/accounts/auth/google/link/";
+export const APPLE_LINK_URL = "/accounts/auth/apple/link/";
