@@ -2,23 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Your custom styles */
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  font-family: 'Inter', sans-serif;
-  background-color: #fff;
+@layer base {
+  :root {
+    --tz-background: 248 250 252;
+    --tz-surface: 255 255 255;
+    --tz-foreground: 15 23 42;
+    --tz-muted: 100 116 139;
+    --tz-border: 226 232 240;
+    --tz-primary: 37 99 235;
+    --tz-primary-hover: 29 78 216;
+    --tz-primary-foreground: 255 255 255;
+    --tz-accent: 245 158 11;
+    --tz-accent-foreground: 15 23 42;
+    --tz-success: 22 163 74;
+    --tz-warning: 217 119 6;
+    --tz-danger: 220 38 38;
+  }
+
+  .dark {
+    --tz-background: 15 23 42;
+    --tz-surface: 30 41 59;
+    --tz-foreground: 241 245 249;
+    --tz-muted: 148 163 184;
+    --tz-border: 51 65 85;
+    --tz-primary: 59 130 246;
+    --tz-primary-hover: 96 165 250;
+    --tz-primary-foreground: 255 255 255;
+    --tz-accent: 251 191 36;
+    --tz-accent-foreground: 15 23 42;
+    --tz-success: 34 197 94;
+    --tz-warning: 245 158 11;
+    --tz-danger: 248 113 113;
+  }
+
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+  }
 }
 
+/* Legacy layout hooks used by App.tsx — do not remove until App migrates */
 .page-container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-}
-
-h1, h2, h3 {
-  font-family: 'Poppins', sans-serif;
 }
 
 .content {
